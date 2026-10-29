@@ -42,7 +42,27 @@
         "--version"
       ]
     },
-    {"name": "truck", "kernel": "https://github.com/ricosjp/truck", "license": "Apache-2.0", "language": "Rust", "command": null},
+    {
+      "name": "truck",
+      "kernel": "https://github.com/ricosjp/truck",
+      "license": "Apache-2.0",
+      "language": "Rust",
+      "command": [
+        "adapters/truck/target/release/brep-bench-truck"
+      ],
+      "measured": "mesh",
+      "build": [
+        "cargo",
+        "build",
+        "--release",
+        "--manifest-path",
+        "adapters/truck/Cargo.toml"
+      ],
+      "version": [
+        "adapters/truck/target/release/brep-bench-truck",
+        "--version"
+      ]
+    },
     {"name": "monstertruck", "kernel": "https://github.com/virtualritz/monstertruck", "license": "Apache-2.0", "language": "Rust", "command": null},
     {
       "name": "arris",

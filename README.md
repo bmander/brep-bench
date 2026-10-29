@@ -48,9 +48,11 @@ Python's standard library.
 
 | kernel | adapter |
 |---|---|
-| [cad-kernel](https://github.com/bmander/cad-kernel) | `adapters/cad-kernel` (Rust) |
 | [Open CASCADE](https://github.com/Open-Cascade-SAS/OCCT) | `adapters/occt` (Python, through OCP), the reference row |
-| [truck](https://github.com/ricosjp/truck), [monstertruck](https://github.com/virtualritz/monstertruck), [arris](https://github.com/arris-labs/arris), [kentron](https://github.com/rsz269/kentron), [vcad](https://github.com/ecto/vcad), [brepkit](https://github.com/andymai/brepkit), [popkern](https://github.com/popkern-dev/popkern), [next.BREP](https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL) | wanted |
+| [arris](https://github.com/arris-labs/arris) | `adapters/arris` (Rust) |
+| [cad-kernel](https://github.com/bmander/cad-kernel) | `adapters/cad-kernel` (Rust) |
+| [truck](https://github.com/ricosjp/truck) | `adapters/truck` (Rust); measured from its mesh |
+| [monstertruck](https://github.com/virtualritz/monstertruck), [kentron](https://github.com/rsz269/kentron), [vcad](https://github.com/ecto/vcad), [brepkit](https://github.com/andymai/brepkit), [popkern](https://github.com/popkern-dev/popkern), [next.BREP](https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL) | wanted |
 
 **Writing an adapter** is a small job. Write a program that reads a case, builds it with your
 kernel, writes an STL, and prints one line of JSON (see [SPEC.md](SPEC.md#an-adapter)). Then add it

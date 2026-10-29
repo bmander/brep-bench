@@ -247,7 +247,7 @@ d = (10 - 3 * PI) / (12 - 3 * PI)
 case("fillet/cylinder-rim", ["fillet"],
      [cyl("a", [0, 0, 0], [0, 0, 1], 5, 10),
       {"op": "fillet", "id": "out", "target": "a", "radius": 1,
-       "edges": {"nearest": [[5, 0, 10]]}}], "out",
+       "edges": {"nearest": [[-0.9, 5.12, 10.2]]}}], "out",
      (250 * PI - 2 * PI * (5 - d) * (1 - PI / 4),
       "πR²h − 2π(R − d)(1 − π/4)r², d = r(10 − 3π)/(12 − 3π) (Pappus), R=5 h=10 r=1"),
      (133 * PI + 4 * PI ** 2, "150π − 9π − 10π + 2π(4 + 2/π)(π/2) (Pappus)"))

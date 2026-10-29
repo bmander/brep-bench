@@ -11,6 +11,7 @@ library only.
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -74,19 +75,31 @@ def grade(case, reply, mesh):
     return ("pass", "") if not why else ("wrong", "; ".join(why))
 
 
+def why_crashed(stderr, code):
+    """What a crashed adapter said last: a Rust panic's place and message, else its last line."""
+    lines = [l for l in stderr.strip().splitlines() if l.strip() and not l.startswith("note:")]
+    for i, line in enumerate(lines):
+        if "panicked at" in line:
+            # the place in the kernel's source, not where cargo keeps it
+            said = re.sub(r"\S*/\.cargo/(git/checkouts|registry/src)/[^/]+/[^/]+/", "",
+                          " ".join(lines[i:i + 2]))
+            return re.sub(r"^thread '[^']*'( \(\d+\))? ", "", said)[:300]
+    return (lines[-1] if lines else f"exit {code}")[:300]
+
+
 def run_one(command, case_path, timeout):
     with tempfile.TemporaryDirectory() as tmp:
         out_stl = os.path.join(tmp, "result.stl")
         start = time.monotonic()
         try:
+            env = dict(os.environ, RUST_BACKTRACE="0")
             p = subprocess.run(command + [case_path, out_stl], capture_output=True, text=True,
-                               timeout=timeout, cwd=ROOT)
+                               timeout=timeout, cwd=ROOT, env=env)
         except subprocess.TimeoutExpired:
             return "timeout", f"over {timeout} s", None, None, timeout
         seconds = time.monotonic() - start
         if p.returncode != 0:
-            tail = (p.stderr or "").strip().splitlines()[-1:] or [f"exit {p.returncode}"]
-            return "crashed", tail[0][:300], None, None, seconds
+            return "crashed", why_crashed(p.stderr or "", p.returncode), None, None, seconds
         try:
             reply = json.loads(p.stdout.strip().splitlines()[-1])
         except (ValueError, IndexError):

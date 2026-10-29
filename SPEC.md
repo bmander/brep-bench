@@ -1,4 +1,4 @@
-# brep-bench specification, version 0.1
+# brep-bench specification, version 0.2
 
 This document defines four things: what a case is, how an adapter is called and must answer, how a
 run is graded, and how the suite changes.
@@ -62,16 +62,26 @@ be unit length.
 - `pitch`: the rise per turn. A pitch of 0 makes the path a circular arc.
 - `turns`: how many turns it makes, which may be fractional.
 
-The path starts at `center + radius·x`. Here `x` is a fixed direction square to the axis; for
-`axis` = z it is x. The path turns right-handed about `axis`.
+The path starts at `center + radius·x`, and turns right-handed about `axis`. Here `x` is the
+direction (1, 0, 0) made square to the axis (its part along the axis taken away, then made unit
+length); where the axis lies along (1, 0, 0) it is (0, 1, 0) instead.
 
 **The `ends` field** is `flat` (the end discs) or `round` (a half ball on each end, as a ball rolled
 along the path leaves).
 
-**Edge selectors** pick edges by geometry, never by a kernel's own numbering:
+**Edge selectors** pick edges by geometry, never by a kernel's own numbering. An *edge* here is a
+whole curve along which two faces meet. So:
+
+- a seam, where a closed face meets itself, is never an edge;
+- a kernel that stores one such curve as several pieces (a circle as arcs) selects all of them
+  together.
+
+The selectors are:
 
 - `{"all": true}`: every edge.
-- `{"nearest": [p, …]}`: for each point `p`, the edge nearest it.
+- `{"nearest": [p, …]}`: for each point `p`, the edge nearest it. Every case places `p` off the
+  solid, clearly nearer one edge than any other, and away from where any kernel is likely to put a
+  seam.
 
 ## An adapter
 
@@ -104,6 +114,10 @@ The fields of the reply:
 
 `faces` and `valid` are reported but not graded, because kernels split faces differently.
 
+**Welding.** The harness joins only vertices whose coordinates are exactly equal. An adapter may
+weld its triangles with its own kernel's tools, but no further: a gap the kernel leaves is the
+kernel's to close.
+
 **A kernel with no exact measures.** Some kernels can measure only their meshes. An adapter for one
 of these answers `"measured": "mesh"` in place of `volume` and `area`. The harness then takes both
 measures from the triangles it reads, and grades them to 1e-3 instead of 1e-6, so the adapter must
@@ -133,6 +147,9 @@ graded.
 
 ## Versions
 
+- **0.2**: seams are never selected edges, and a curve stored in pieces is selected whole. The
+  `cylinder-rim` point moved off the seam line, where it tied the rim with the seam. The helix's
+  `x` is defined for any axis. An adapter welds with its own kernel's tools, no further.
 - **0.1**: a kernel with no exact measures may be graded on its own triangles, to 1e-3, marked
   *(mesh)* on the board.
 - **0**: the first rules.
