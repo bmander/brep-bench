@@ -32,7 +32,9 @@ jobs:
         run: python cases/generate.py && git diff --exit-code cases/
       - name: Run the suite
         run: python harness/run.py --timeout 120
-      - name: Render the scoreboard
+      - name: Draw the cases
+        run: python harness/draw.py
+      - name: Render the scoreboard and the case pages
         run: python harness/site.py
       - uses: actions/upload-pages-artifact@v3
         with:

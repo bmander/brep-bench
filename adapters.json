@@ -22,6 +22,7 @@
     },
     {
       "name": "occt",
+      "reference": true,
       "kernel": "https://github.com/Open-Cascade-SAS/OCCT",
       "license": "LGPL-2.1 with exception",
       "language": "C++ (through the OCP Python bindings)",

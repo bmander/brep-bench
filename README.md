@@ -3,7 +3,9 @@
 A neutral conformance suite and scoreboard for B-rep (boundary representation) solid-modelling and
 CAD kernels. Every kernel runs the same cases. Each expected answer is a closed form, so it can be
 checked without trusting any kernel. The results are published side by side:
-**https://bmander.github.io/brep-bench/**
+**https://bmander.github.io/brep-bench/**. Each case has its own page with a drawing of the expected
+solid (three views and an isometric), a 3D viewer of every kernel's result (with any open edges of
+its mesh marked in red), and each result's STL to download.
 
 ## Why
 
@@ -38,7 +40,8 @@ A kernel that **refuses** a case ranks above one that answers it **wrong**. The 
 python3 cases/generate.py                       # write the case files
 python3 harness/build.py                        # every adapter's build (cargo, pip)
 python3 harness/run.py                          # every adapter, every case: results/*.json
-python3 harness/site.py                         # site/index.html
+python3 harness/draw.py                         # each case's drawing: site/drawings/
+python3 harness/site.py                         # the scoreboard and a page per case: site/
 ```
 
 `harness/run.py --adapter NAME --case boolean/` runs part of the suite. The harness uses only

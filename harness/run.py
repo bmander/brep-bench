@@ -5,13 +5,15 @@
     python3 harness/run.py --adapter cad-kernel --case boolean/
     python3 harness/run.py --timeout 120
 
-Writes results/<adapter>.json after a run of the whole suite (not of a part, `--case`). Standard
-library only.
+Writes results/<adapter>.json after a run of the whole suite (not of a part, `--case`), and keeps
+each result's triangles as results/meshes/<adapter>/<case>.stl for the drawings and the viewer.
+Standard library only.
 """
 import argparse
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -87,7 +89,7 @@ def why_crashed(stderr, code):
     return (lines[-1] if lines else f"exit {code}")[:300]
 
 
-def run_one(command, case_path, timeout):
+def run_one(command, case_path, timeout, keep):
     with tempfile.TemporaryDirectory() as tmp:
         out_stl = os.path.join(tmp, "result.stl")
         start = time.monotonic()
@@ -110,6 +112,9 @@ def run_one(command, case_path, timeout):
                 mesh = stl.check(stl.read(out_stl))
             except (ValueError, OSError) as e:
                 return "wrong", f"unreadable STL: {e}", reply, None, seconds
+            # kept for the drawings and the viewer (results/meshes, not committed)
+            os.makedirs(os.path.dirname(keep), exist_ok=True)
+            shutil.copyfile(out_stl, keep)
         return (*grade(json.load(open(case_path)), reply, mesh), reply, mesh, seconds)
 
 
@@ -131,7 +136,10 @@ def main():
         rows = []
         tally = {}
         for path, c in cases(args.case):
-            outcome, why, reply, mesh, seconds = run_one(command, path, args.timeout)
+            keep = os.path.join(ROOT, "results", "meshes", a["name"], c["id"] + ".stl")
+            if os.path.exists(keep):
+                os.remove(keep)
+            outcome, why, reply, mesh, seconds = run_one(command, path, args.timeout, keep)
             tally[outcome] = tally.get(outcome, 0) + 1
             rows.append({
                 "case": c["id"], "outcome": outcome, "why": why, "seconds": round(seconds, 3),
