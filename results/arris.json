@@ -1,0 +1,685 @@
+{
+ "adapter": "arris",
+ "version": "arris 0.9.1 (adapter 0.1.0)",
+ "measured": "exact",
+ "run": "2026-10-29T21:40:55Z",
+ "tally": {
+  "pass": 32,
+  "refused": 1
+ },
+ "cases": [
+  {
+   "case": "boolean/box-minus-through-cylinder",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.037,
+   "measured": "exact",
+   "volume": 717.2566611769189,
+   "area": 731.9468914507714,
+   "faces": {
+    "cylinder": 1,
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 236,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 717.8712607062031,
+    "area": 731.9673279265231
+   }
+  },
+  {
+   "case": "boolean/boxes-common",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.006,
+   "measured": "exact",
+   "volume": 250.00000000000006,
+   "area": 250.00000000000003,
+   "faces": {
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 12,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 249.99999999999991,
+    "area": 250.0
+   }
+  },
+  {
+   "case": "boolean/boxes-cut",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.009,
+   "measured": "exact",
+   "volume": 750.0000000000002,
+   "area": 550.0000000000001,
+   "faces": {
+    "plane": 8
+   },
+   "mesh": {
+    "triangles": 20,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 749.9999999999998,
+    "area": 550.0
+   }
+  },
+  {
+   "case": "boolean/boxes-sharing-a-face",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.011,
+   "measured": "exact",
+   "volume": 2000.0000000000002,
+   "area": 1000.0000000000001,
+   "faces": {
+    "plane": 10
+   },
+   "mesh": {
+    "triangles": 20,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 2000.0,
+    "area": 1000.0
+   }
+  },
+  {
+   "case": "boolean/boxes-sharing-part-of-a-face",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.012,
+   "measured": "exact",
+   "volume": 2000.0000000000002,
+   "area": 1100.0000000000002,
+   "faces": {
+    "plane": 12
+   },
+   "mesh": {
+    "triangles": 28,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 2000.0000000000002,
+    "area": 1100.0
+   }
+  },
+  {
+   "case": "boolean/boxes-union",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.011,
+   "measured": "exact",
+   "volume": 1750.0000000000002,
+   "area": 950.0000000000001,
+   "faces": {
+    "plane": 14
+   },
+   "mesh": {
+    "triangles": 36,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 1750.0,
+    "area": 950.0
+   }
+  },
+  {
+   "case": "boolean/drilled-plate",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.578,
+   "measured": "exact",
+   "volume": 18869.026644707683,
+   "area": 7304.778684233861,
+   "faces": {
+    "cylinder": 9,
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 1056,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 18878.494361433746,
+    "area": 7304.30085754444
+   }
+  },
+  {
+   "case": "boolean/half-cylinder-boss-tangent",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.05,
+   "measured": "exact",
+   "volume": 1392.6990816987243,
+   "area": 735.6194490192347,
+   "faces": {
+    "cylinder": 2,
+    "plane": 9
+   },
+   "mesh": {
+    "triangles": 212,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 1391.744226566871,
+    "area": 735.3329417645216
+   }
+  },
+  {
+   "case": "boolean/half-torus",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.053,
+   "measured": "exact",
+   "volume": 394.78417604357446,
+   "area": 419.9169172722927,
+   "faces": {
+    "plane": 2,
+    "torus": 2
+   },
+   "mesh": {
+    "triangles": 10526,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 394.06835240406645,
+    "area": 419.66072361935375
+   }
+  },
+  {
+   "case": "boolean/hemisphere",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.043,
+   "measured": "exact",
+   "volume": 261.7993877991495,
+   "area": 235.61944901923454,
+   "faces": {
+    "plane": 1,
+    "sphere": 1
+   },
+   "mesh": {
+    "triangles": 4558,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 261.32849963297593,
+    "area": 235.42087169660408
+   }
+  },
+  {
+   "case": "boolean/napkin-ring",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.068,
+   "measured": "exact",
+   "volume": 268.0825731063291,
+   "area": 402.1238596594937,
+   "faces": {
+    "cylinder": 1,
+    "sphere": 1
+   },
+   "mesh": {
+    "triangles": 9028,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 267.6863376370095,
+    "area": 401.97829321222923
+   }
+  },
+  {
+   "case": "boolean/sphere-lens",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.175,
+   "measured": "exact",
+   "volume": 108.90854533005097,
+   "area": 125.66370614884623,
+   "faces": {
+    "sphere": 3
+   },
+   "mesh": {
+    "triangles": 3584,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 108.59540885573139,
+    "area": 125.55044326582579
+   }
+  },
+  {
+   "case": "boolean/sphere-pocket",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.026,
+   "measured": "exact",
+   "volume": 3738.200612200851,
+   "area": 1678.5398163397451,
+   "faces": {
+    "plane": 6,
+    "sphere": 1
+   },
+   "mesh": {
+    "triangles": 2292,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 3739.1417523886053,
+    "area": 1678.3722907522729
+   }
+  },
+  {
+   "case": "boolean/spheres-union",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.251,
+   "measured": "exact",
+   "volume": 938.2890058665471,
+   "area": 502.6548245691126,
+   "faces": {
+    "sphere": 2
+   },
+   "mesh": {
+    "triangles": 9164,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 935.8287396814,
+    "area": 501.96081309864235
+   }
+  },
+  {
+   "case": "boolean/steinmetz-common",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.414,
+   "measured": "exact",
+   "volume": 666.6666666686356,
+   "area": 400.00000000118143,
+   "faces": {
+    "cylinder": 4
+   },
+   "mesh": {
+    "triangles": 256,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 665.157320237581,
+    "area": 399.54694076462664
+   }
+  },
+  {
+   "case": "boolean/steinmetz-union",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.417,
+   "measured": "exact",
+   "volume": 4045.722313716055,
+   "area": 1799.114857511675,
+   "faces": {
+    "cylinder": 4,
+    "plane": 4
+   },
+   "mesh": {
+    "triangles": 592,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 4037.878407546156,
+    "area": 1797.6575924613471
+   }
+  },
+  {
+   "case": "boolean/stepped-shaft",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.052,
+   "measured": "exact",
+   "volume": 1068.14150222053,
+   "area": 659.7344572538568,
+   "faces": {
+    "cylinder": 2,
+    "plane": 3
+   },
+   "mesh": {
+    "triangles": 392,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 1065.4895981944005,
+    "area": 659.0726852079013
+   }
+  },
+  {
+   "case": "boolean/tube",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.084,
+   "measured": "exact",
+   "volume": 502.654824574367,
+   "area": 603.1857894892405,
+   "faces": {
+    "cylinder": 2,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 548,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 502.30000858157723,
+    "area": 602.9415549879208
+   }
+  },
+  {
+   "case": "boolean/tube-flush-ends",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.068,
+   "measured": "exact",
+   "volume": 502.654824574367,
+   "area": 603.1857894892405,
+   "faces": {
+    "cylinder": 2,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 548,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 502.3000085815772,
+    "area": 602.9415549879208
+   }
+  },
+  {
+   "case": "fillet/box-all-edges",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.033,
+   "measured": "exact",
+   "volume": 975.5870138909412,
+   "area": 547.3628179866698,
+   "faces": {
+    "cylinder": 12,
+    "plane": 6,
+    "sphere": 8
+   },
+   "mesh": {
+    "triangles": 1452,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 975.1519118008088,
+    "area": 547.0919056447656
+   }
+  },
+  {
+   "case": "fillet/box-one-edge",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.009,
+   "measured": "exact",
+   "volume": 991.415926535898,
+   "area": 589.6991118430776,
+   "faces": {
+    "cylinder": 1,
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 48,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 991.2566742379432,
+    "area": 589.6274033700347
+   }
+  },
+  {
+   "case": "fillet/cylinder-rim",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.036,
+   "measured": "exact",
+   "volume": 778.9574334197123,
+   "area": 457.3102405318001,
+   "faces": {
+    "cylinder": 1,
+    "plane": 2,
+    "torus": 1
+   },
+   "mesh": {
+    "triangles": 1644,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 777.7707164696936,
+    "area": 456.85366367877043
+   }
+  },
+  {
+   "case": "primitives/box",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.007,
+   "measured": "exact",
+   "volume": 6000.000000000001,
+   "area": 2200.0000000000005,
+   "faces": {
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 12,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 6000.0,
+    "area": 2200.0
+   }
+  },
+  {
+   "case": "primitives/cone-frustum",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.014,
+   "measured": "exact",
+   "volume": 245.04422698000394,
+   "area": 238.6272963059593,
+   "faces": {
+    "cone": 1,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 316,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 244.7404982792721,
+    "area": 238.4069236802012
+   }
+  },
+  {
+   "case": "primitives/cylinder",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.021,
+   "measured": "exact",
+   "volume": 785.3981633974483,
+   "area": 471.23889803846913,
+   "faces": {
+    "cylinder": 1,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 216,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 783.6909440469077,
+    "area": 470.7266487648553
+   }
+  },
+  {
+   "case": "primitives/extruded-l",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.008,
+   "measured": "exact",
+   "volume": 1200.0,
+   "area": 860.0000000000002,
+   "faces": {
+    "plane": 8
+   },
+   "mesh": {
+    "triangles": 20,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 1200.0,
+    "area": 860.0
+   }
+  },
+  {
+   "case": "primitives/revolved-sector",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.016,
+   "measured": "exact",
+   "volume": 201.06192982974676,
+   "area": 233.06192982974684,
+   "faces": {
+    "cylinder": 2,
+    "plane": 4
+   },
+   "mesh": {
+    "triangles": 196,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 200.99017525160946,
+    "area": 233.00840406714718
+   }
+  },
+  {
+   "case": "primitives/revolved-washer",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.038,
+   "measured": "exact",
+   "volume": 804.247719318987,
+   "area": 804.2477193189873,
+   "faces": {
+    "cylinder": 2,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 708,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 803.9229243803063,
+    "area": 804.0021494101053
+   }
+  },
+  {
+   "case": "primitives/sphere",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.024,
+   "measured": "exact",
+   "volume": 523.598775598299,
+   "area": 314.1592653589795,
+   "faces": {
+    "sphere": 1
+   },
+   "mesh": {
+    "triangles": 5852,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 522.1699086773181,
+    "area": 313.73031348794336
+   }
+  },
+  {
+   "case": "primitives/torus",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.087,
+   "measured": "exact",
+   "volume": 789.5683520871487,
+   "area": 789.5683520871488,
+   "faces": {
+    "torus": 1
+   },
+   "mesh": {
+    "triangles": 19404,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 788.0413970579203,
+    "area": 789.1043191558607
+   }
+  },
+  {
+   "case": "sweep/circle-along-arc",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.027,
+   "measured": "exact",
+   "volume": 197.39208802178723,
+   "area": 222.52482925050552,
+   "faces": {
+    "plane": 2,
+    "torus": 1
+   },
+   "mesh": {
+    "triangles": 5624,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 197.05467380977703,
+    "area": 222.38551563633584
+   }
+  },
+  {
+   "case": "sweep/helical-pipe",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 6.572,
+   "measured": "exact",
+   "volume": 594.0483050334236,
+   "area": 1194.3797953738451,
+   "faces": {
+    "bspline": 1,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 149296,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 592.4603073065363,
+    "area": 1193.5571071719157
+   }
+  },
+  {
+   "case": "sweep/helical-pipe-round-ends",
+   "outcome": "refused",
+   "why": "sweep_circle `out`: kernel bug: a geometry query failed: the section of the NURBS surface and the sphere surface is degenerate: turning points of the section that cannot be told apart",
+   "seconds": 0.245,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  }
+ ]
+}

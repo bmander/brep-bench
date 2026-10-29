@@ -5,22 +5,65 @@
       "kernel": "https://github.com/bmander/cad-kernel",
       "license": "MIT OR Apache-2.0",
       "language": "Rust",
-      "build": ["cargo", "build", "--release", "--manifest-path", "adapters/cad-kernel/Cargo.toml"],
-      "command": ["adapters/cad-kernel/target/release/brep-bench-cad-kernel"],
-      "version": ["adapters/cad-kernel/target/release/brep-bench-cad-kernel", "--version"]
+      "build": [
+        "cargo",
+        "build",
+        "--release",
+        "--manifest-path",
+        "adapters/cad-kernel/Cargo.toml"
+      ],
+      "command": [
+        "adapters/cad-kernel/target/release/brep-bench-cad-kernel"
+      ],
+      "version": [
+        "adapters/cad-kernel/target/release/brep-bench-cad-kernel",
+        "--version"
+      ]
     },
     {
       "name": "occt",
       "kernel": "https://github.com/Open-Cascade-SAS/OCCT",
       "license": "LGPL-2.1 with exception",
       "language": "C++ (through the OCP Python bindings)",
-      "build": ["python3", "-m", "pip", "install", "cadquery-ocp"],
-      "command": ["python3", "adapters/occt/adapter.py"],
-      "version": ["python3", "adapters/occt/adapter.py", "--version"]
+      "build": [
+        "python3",
+        "-m",
+        "pip",
+        "install",
+        "cadquery-ocp"
+      ],
+      "command": [
+        "python3",
+        "adapters/occt/adapter.py"
+      ],
+      "version": [
+        "python3",
+        "adapters/occt/adapter.py",
+        "--version"
+      ]
     },
     {"name": "truck", "kernel": "https://github.com/ricosjp/truck", "license": "Apache-2.0", "language": "Rust", "command": null},
     {"name": "monstertruck", "kernel": "https://github.com/virtualritz/monstertruck", "license": "Apache-2.0", "language": "Rust", "command": null},
-    {"name": "arris", "kernel": "https://github.com/arris-labs/arris", "license": "MIT OR Apache-2.0", "language": "Rust", "command": null},
+    {
+      "name": "arris",
+      "kernel": "https://github.com/arris-labs/arris",
+      "license": "MIT OR Apache-2.0",
+      "language": "Rust",
+      "command": [
+        "adapters/arris/target/release/brep-bench-arris"
+      ],
+      "build": [
+        "cargo",
+        "build",
+        "--release",
+        "--manifest-path",
+        "adapters/arris/Cargo.toml"
+      ],
+      "version": [
+        "adapters/arris/target/release/brep-bench-arris",
+        "--version"
+      ]
+    },
     {"name": "kentron", "kernel": "https://github.com/rsz269/kentron", "license": "MIT OR Apache-2.0", "language": "Rust", "command": null},
     {"name": "vcad", "kernel": "https://github.com/ecto/vcad", "license": "Apache-2.0", "language": "Rust", "command": null},
     {"name": "brepkit", "kernel": "https://github.com/andymai/brepkit", "license": "AGPL-3.0 or commercial", "language": "Rust", "command": null},
