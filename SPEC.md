@@ -1,4 +1,4 @@
-# brep-bench specification, version 0
+# brep-bench specification, version 0.1
 
 This document defines four things: what a case is, how an adapter is called and must answer, how a
 run is graded, and how the suite changes.
@@ -104,6 +104,12 @@ The fields of the reply:
 
 `faces` and `valid` are reported but not graded, because kernels split faces differently.
 
+**A kernel with no exact measures.** Some kernels can measure only their meshes. An adapter for one
+of these answers `"measured": "mesh"` in place of `volume` and `area`. The harness then takes both
+measures from the triangles it reads, and grades them to 1e-3 instead of 1e-6, so the adapter must
+mesh finely enough for that. Such a kernel is marked *(mesh)* on the board, and `adapters.json`
+says so too (`"measured": "mesh"`).
+
 An adapter must also answer `--version` with one line naming the kernel and its version.
 
 ## Grading
@@ -112,7 +118,7 @@ Each case and kernel get one outcome. The outcomes, best first:
 
 | outcome | when |
 |---|---|
-| **pass** | `volume` and `area` are within 1e-6 of the expected values (relative), **and** the triangles are closed (every edge used exactly twice, once each way) with a volume within 2e-2 of the expected volume |
+| **pass** | `volume` and `area` are within 1e-6 of the expected values (relative; 1e-3 for a kernel measured from its mesh), **and** the triangles are closed (every edge used exactly twice, once each way) with a volume within 2e-2 of the expected volume |
 | **refused** | the adapter answered `refused` |
 | **wrong** | it answered `ok`, but some condition of a pass fails; the reason is recorded |
 | **crashed** | it exited non-zero, or printed no JSON |
@@ -124,6 +130,12 @@ evidence.
 
 Times are reported as wall-clock time, including starting the adapter's process. They are not
 graded.
+
+## Versions
+
+- **0.1**: a kernel with no exact measures may be graded on its own triangles, to 1e-3, marked
+  *(mesh)* on the board.
+- **0**: the first rules.
 
 ## Changing the suite
 

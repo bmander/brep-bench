@@ -5,7 +5,8 @@
     python3 harness/run.py --adapter cad-kernel --case boolean/
     python3 harness/run.py --timeout 120
 
-Writes results/<adapter>.json. Standard library only.
+Writes results/<adapter>.json after a run of the whole suite (not of a part, `--case`). Standard
+library only.
 """
 import argparse
 import json
@@ -25,6 +26,9 @@ EXACT = 1e-6
 # How near the volume of the adapter's own triangles must be: a mesh is within its sag of the
 # solid, so this only catches a mesh of some other solid.
 MESHED = 2e-2
+# How near the measures must be for a kernel with no exact measures of its own, which the harness
+# then takes from the adapter's triangles (`"measured": "mesh"`, SPEC.md).
+FROM_MESH = 1e-3
 
 
 def cases(prefix):
@@ -53,9 +57,12 @@ def grade(case, reply, mesh):
         return "crashed", f"status {status!r}"
     why = []
     exp = case["expect"]
+    from_mesh = reply.get("measured") == "mesh"
     for key in ("volume", "area"):
         got, want = reply.get(key), exp[key]["value"]
-        if not near(got, want, EXACT):
+        if from_mesh:
+            got = mesh and mesh[key]
+        if not near(got, want, FROM_MESH if from_mesh else EXACT):
             why.append(f"{key} {got} against {want:.12g}")
     if mesh is None:
         why.append("no triangles written")
@@ -115,6 +122,7 @@ def main():
             tally[outcome] = tally.get(outcome, 0) + 1
             rows.append({
                 "case": c["id"], "outcome": outcome, "why": why, "seconds": round(seconds, 3),
+                "measured": (reply or {}).get("measured", "exact"),
                 "volume": (reply or {}).get("volume"), "area": (reply or {}).get("area"),
                 "faces": (reply or {}).get("faces"), "mesh": mesh,
             })
@@ -127,11 +135,14 @@ def main():
             except (OSError, subprocess.TimeoutExpired):
                 pass
         result = {"adapter": a["name"], "version": version,
+                  "measured": a.get("measured", "exact"),
                   "run": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                   "tally": tally, "cases": rows}
-        with open(os.path.join(ROOT, "results", a["name"] + ".json"), "w") as f:
-            json.dump(result, f, indent=1)
-            f.write("\n")
+        # a part of the suite is a check in hand, not a result: only a whole run is recorded
+        if not args.case:
+            with open(os.path.join(ROOT, "results", a["name"] + ".json"), "w") as f:
+                json.dump(result, f, indent=1)
+                f.write("\n")
         print(f"{a['name']}: {tally}")
 
 

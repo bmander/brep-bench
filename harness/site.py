@@ -64,6 +64,8 @@ def main():
         name = e(r["adapter"])
         if a.get("kernel"):
             name = f"<a href='{e(a['kernel'])}'>{name}</a>"
+        if r.get("measured") == "mesh":
+            name += " <span class=muted title='no exact measures: graded on its triangles, to 1e-3'>(mesh)</span>"
         out.append(f"<tr><td>{name}</td>")
         out += [f"<td>{r['tally'].get(o, 0)}</td>" for o in OUTCOMES]
         out.append(f"<td class=muted>{e(r.get('version') or '')}</td>"
@@ -93,7 +95,8 @@ def main():
         out.append("</tr>")
     out.append("</table></div>")
     out.append("<p class=muted>Times include starting the adapter's process. Hover a cell for "
-               "why it failed or how long it took.</p></body></html>")
+               "why it failed or how long it took. A kernel marked (mesh) has no exact volume or "
+               "area of its own: it is graded on its triangles, to 1e-3.</p></body></html>")
     os.makedirs(os.path.join(ROOT, "site"), exist_ok=True)
     with open(os.path.join(ROOT, "site", "index.html"), "w") as f:
         f.write("\n".join(out))

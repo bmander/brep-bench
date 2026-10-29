@@ -36,8 +36,7 @@ A kernel that **refuses** a case ranks above one that answers it **wrong**. The 
 
 ```bash
 python3 cases/generate.py                       # write the case files
-cargo build --release --manifest-path adapters/cad-kernel/Cargo.toml
-pip install cadquery-ocp                        # for the OCCT adapter
+python3 harness/build.py                        # every adapter's build (cargo, pip)
 python3 harness/run.py                          # every adapter, every case: results/*.json
 python3 harness/site.py                         # site/index.html
 ```

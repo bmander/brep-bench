@@ -26,10 +26,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Build the cad-kernel adapter
-        run: cargo build --release --manifest-path adapters/cad-kernel/Cargo.toml
-      - name: Install OCCT (through OCP)
-        run: python -m pip install cadquery-ocp
+      - name: Build the adapters
+        run: python harness/build.py
       - name: Write the cases
         run: python cases/generate.py && git diff --exit-code cases/
       - name: Run the suite

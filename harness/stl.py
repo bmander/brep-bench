@@ -33,13 +33,15 @@ def check(tris):
 
     Vertices are joined where their coordinates are equal. The surface is *closed* when every edge
     is used exactly twice, once each way (so it is also consistently oriented and manifold along its
-    edges), and its *volume* is the divergence theorem's: positive when the normals face out.
+    edges), its *volume* is the divergence theorem's (positive when the normals face out), and its
+    *area* is its triangles' summed.
     """
     index = {}
     def vid(p):
         return index.setdefault(p, len(index))
     uses = {}
     volume = 0.0
+    area = 0.0
     degenerate = 0
     for a, b, c in tris:
         ia, ib, ic = vid(a), vid(b), vid(c)
@@ -48,6 +50,10 @@ def check(tris):
             continue
         for e in ((ia, ib), (ib, ic), (ic, ia)):
             uses[e] = uses.get(e, 0) + 1
+        u = (b[0] - a[0], b[1] - a[1], b[2] - a[2])
+        v = (c[0] - a[0], c[1] - a[1], c[2] - a[2])
+        n = (u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0])
+        area += 0.5 * (n[0] ** 2 + n[1] ** 2 + n[2] ** 2) ** 0.5
         volume += (a[0] * (b[1] * c[2] - b[2] * c[1])
                    - a[1] * (b[0] * c[2] - b[2] * c[0])
                    + a[2] * (b[0] * c[1] - b[1] * c[0])) / 6.0
@@ -61,4 +67,5 @@ def check(tris):
         "unmatched_edges": bad,
         "closed": bad == 0 and len(tris) > 0,
         "volume": volume,
+        "area": area,
     }
