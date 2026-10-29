@@ -1,0 +1,62 @@
+{
+  "id": "boolean/steinmetz-common",
+  "tags": [
+    "boolean",
+    "common",
+    "analytic",
+    "ssi"
+  ],
+  "note": "Two equal cylinders crossing at right angles meet in two ellipses through two points.",
+  "ops": [
+    {
+      "op": "cylinder",
+      "id": "a",
+      "base": [
+        -15,
+        0,
+        0
+      ],
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "radius": 5,
+      "height": 30
+    },
+    {
+      "op": "cylinder",
+      "id": "b",
+      "base": [
+        0,
+        -15,
+        0
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "radius": 5,
+      "height": 30
+    },
+    {
+      "op": "common",
+      "id": "out",
+      "a": "a",
+      "b": "b"
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 666.6666666666666,
+      "source": "16r\u00b3/3, r=5"
+    },
+    "area": {
+      "value": 400,
+      "source": "16r\u00b2"
+    },
+    "valid": true
+  }
+}

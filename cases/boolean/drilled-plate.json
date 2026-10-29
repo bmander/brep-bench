@@ -1,0 +1,236 @@
+{
+  "id": "boolean/drilled-plate",
+  "tags": [
+    "boolean",
+    "cut",
+    "analytic",
+    "sequence"
+  ],
+  "note": "Nine holes cut one after another.",
+  "ops": [
+    {
+      "op": "box",
+      "id": "plate",
+      "min": [
+        0,
+        0,
+        0
+      ],
+      "max": [
+        100,
+        20,
+        10
+      ]
+    },
+    {
+      "op": "cylinder",
+      "id": "hole1",
+      "base": [
+        10,
+        10,
+        -1
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "radius": 2,
+      "height": 12
+    },
+    {
+      "op": "cut",
+      "id": "drilled1",
+      "a": "plate",
+      "b": "hole1"
+    },
+    {
+      "op": "cylinder",
+      "id": "hole2",
+      "base": [
+        20,
+        10,
+        -1
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "radius": 2,
+      "height": 12
+    },
+    {
+      "op": "cut",
+      "id": "drilled2",
+      "a": "drilled1",
+      "b": "hole2"
+    },
+    {
+      "op": "cylinder",
+      "id": "hole3",
+      "base": [
+        30,
+        10,
+        -1
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "radius": 2,
+      "height": 12
+    },
+    {
+      "op": "cut",
+      "id": "drilled3",
+      "a": "drilled2",
+      "b": "hole3"
+    },
+    {
+      "op": "cylinder",
+      "id": "hole4",
+      "base": [
+        40,
+        10,
+        -1
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "radius": 2,
+      "height": 12
+    },
+    {
+      "op": "cut",
+      "id": "drilled4",
+      "a": "drilled3",
+      "b": "hole4"
+    },
+    {
+      "op": "cylinder",
+      "id": "hole5",
+      "base": [
+        50,
+        10,
+        -1
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "radius": 2,
+      "height": 12
+    },
+    {
+      "op": "cut",
+      "id": "drilled5",
+      "a": "drilled4",
+      "b": "hole5"
+    },
+    {
+      "op": "cylinder",
+      "id": "hole6",
+      "base": [
+        60,
+        10,
+        -1
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "radius": 2,
+      "height": 12
+    },
+    {
+      "op": "cut",
+      "id": "drilled6",
+      "a": "drilled5",
+      "b": "hole6"
+    },
+    {
+      "op": "cylinder",
+      "id": "hole7",
+      "base": [
+        70,
+        10,
+        -1
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "radius": 2,
+      "height": 12
+    },
+    {
+      "op": "cut",
+      "id": "drilled7",
+      "a": "drilled6",
+      "b": "hole7"
+    },
+    {
+      "op": "cylinder",
+      "id": "hole8",
+      "base": [
+        80,
+        10,
+        -1
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "radius": 2,
+      "height": 12
+    },
+    {
+      "op": "cut",
+      "id": "drilled8",
+      "a": "drilled7",
+      "b": "hole8"
+    },
+    {
+      "op": "cylinder",
+      "id": "hole9",
+      "base": [
+        90,
+        10,
+        -1
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "radius": 2,
+      "height": 12
+    },
+    {
+      "op": "cut",
+      "id": "drilled9",
+      "a": "drilled8",
+      "b": "hole9"
+    }
+  ],
+  "result": "drilled9",
+  "expect": {
+    "volume": {
+      "value": 18869.026644707676,
+      "source": "100\u00b720\u00b710 \u2212 9\u00b7\u03c0\u00b72\u00b2\u00b710"
+    },
+    "area": {
+      "value": 7304.77868423386,
+      "source": "6400 \u2212 9\u00b72\u00b7\u03c0\u00b72\u00b2 + 9\u00b72\u03c0\u00b72\u00b710"
+    },
+    "valid": true
+  }
+}

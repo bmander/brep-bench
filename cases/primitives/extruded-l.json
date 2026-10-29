@@ -1,0 +1,63 @@
+{
+  "id": "primitives/extruded-l",
+  "tags": [
+    "primitive",
+    "extrude"
+  ],
+  "note": "",
+  "ops": [
+    {
+      "op": "extrude",
+      "id": "out",
+      "polygon": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          20,
+          0,
+          0
+        ],
+        [
+          20,
+          5,
+          0
+        ],
+        [
+          5,
+          5,
+          0
+        ],
+        [
+          5,
+          15,
+          0
+        ],
+        [
+          0,
+          15,
+          0
+        ]
+      ],
+      "vector": [
+        0,
+        0,
+        8
+      ]
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 1200,
+      "source": "area 150 \u00d7 8"
+    },
+    "area": {
+      "value": 860,
+      "source": "2\u00b7150 + perimeter 70 \u00d7 8"
+    },
+    "valid": true
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "id": "fillet/box-all-edges",
+  "tags": [
+    "fillet",
+    "corner"
+  ],
+  "note": "Three fillets meet at each corner.",
+  "ops": [
+    {
+      "op": "box",
+      "id": "a",
+      "min": [
+        0,
+        0,
+        0
+      ],
+      "max": [
+        10,
+        10,
+        10
+      ]
+    },
+    {
+      "op": "fillet",
+      "id": "out",
+      "target": "a",
+      "radius": 1,
+      "edges": {
+        "all": true
+      }
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 975.5870138909414,
+      "source": "8\u00b3 + 6\u00b78\u00b2\u00b7r + (\u03c0/4)\u00b796\u00b7r\u00b2 + 4\u03c0r\u00b3/3, r=1"
+    },
+    "area": {
+      "value": 547.3628179866693,
+      "source": "6\u00b78\u00b2 + (\u03c0/2)\u00b796\u00b7r + 4\u03c0r\u00b2"
+    },
+    "valid": true
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "id": "boolean/boxes-sharing-part-of-a-face",
+  "tags": [
+    "boolean",
+    "union",
+    "planar",
+    "coincident"
+  ],
+  "note": "",
+  "ops": [
+    {
+      "op": "box",
+      "id": "a",
+      "min": [
+        0,
+        0,
+        0
+      ],
+      "max": [
+        10,
+        10,
+        10
+      ]
+    },
+    {
+      "op": "box",
+      "id": "b",
+      "min": [
+        5,
+        0,
+        10
+      ],
+      "max": [
+        15,
+        10,
+        20
+      ]
+    },
+    {
+      "op": "union",
+      "id": "out",
+      "a": "a",
+      "b": "b"
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 2000,
+      "source": "1000 + 1000"
+    },
+    "area": {
+      "value": 1100,
+      "source": "600 + 600 \u2212 2\u00b75\u00b710"
+    },
+    "valid": true
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "id": "boolean/boxes-cut",
+  "tags": [
+    "boolean",
+    "cut",
+    "planar"
+  ],
+  "note": "",
+  "ops": [
+    {
+      "op": "box",
+      "id": "a",
+      "min": [
+        0,
+        0,
+        0
+      ],
+      "max": [
+        10,
+        10,
+        10
+      ]
+    },
+    {
+      "op": "box",
+      "id": "b",
+      "min": [
+        5,
+        5,
+        0
+      ],
+      "max": [
+        15,
+        15,
+        10
+      ]
+    },
+    {
+      "op": "cut",
+      "id": "out",
+      "a": "a",
+      "b": "b"
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 750,
+      "source": "1000 \u2212 250"
+    },
+    "area": {
+      "value": 550,
+      "source": "2\u00b775 + perimeter 40 \u00d7 10"
+    },
+    "valid": true
+  }
+}

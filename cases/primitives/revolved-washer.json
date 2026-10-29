@@ -1,0 +1,59 @@
+{
+  "id": "primitives/revolved-washer",
+  "tags": [
+    "primitive",
+    "revolve"
+  ],
+  "note": "",
+  "ops": [
+    {
+      "op": "revolve",
+      "id": "out",
+      "polygon": [
+        [
+          6,
+          0,
+          0
+        ],
+        [
+          10,
+          0,
+          0
+        ],
+        [
+          10,
+          0,
+          4
+        ],
+        [
+          6,
+          0,
+          4
+        ]
+      ],
+      "axis_origin": [
+        0,
+        0,
+        0
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "angle": 360
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 804.247719318987,
+      "source": "\u03c0(ro\u00b2 \u2212 ri\u00b2)h"
+    },
+    "area": {
+      "value": 804.247719318987,
+      "source": "2\u03c0(ro\u00b2\u2212ri\u00b2) + 2\u03c0(ro+ri)h"
+    },
+    "valid": true
+  }
+}

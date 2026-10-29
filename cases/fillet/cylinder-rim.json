@@ -1,0 +1,52 @@
+{
+  "id": "fillet/cylinder-rim",
+  "tags": [
+    "fillet"
+  ],
+  "note": "",
+  "ops": [
+    {
+      "op": "cylinder",
+      "id": "a",
+      "base": [
+        0,
+        0,
+        0
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "radius": 5,
+      "height": 10
+    },
+    {
+      "op": "fillet",
+      "id": "out",
+      "target": "a",
+      "radius": 1,
+      "edges": {
+        "nearest": [
+          [
+            5,
+            0,
+            10
+          ]
+        ]
+      }
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 778.957433419712,
+      "source": "\u03c0R\u00b2h \u2212 2\u03c0(R \u2212 d)(1 \u2212 \u03c0/4)r\u00b2, d = r(10 \u2212 3\u03c0)/(12 \u2212 3\u03c0) (Pappus), R=5 h=10 r=1"
+    },
+    "area": {
+      "value": 457.31024053179993,
+      "source": "150\u03c0 \u2212 9\u03c0 \u2212 10\u03c0 + 2\u03c0(4 + 2/\u03c0)(\u03c0/2) (Pappus)"
+    },
+    "valid": true
+  }
+}

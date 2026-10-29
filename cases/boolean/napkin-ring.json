@@ -1,0 +1,55 @@
+{
+  "id": "boolean/napkin-ring",
+  "tags": [
+    "boolean",
+    "cut",
+    "analytic"
+  ],
+  "note": "",
+  "ops": [
+    {
+      "op": "sphere",
+      "id": "a",
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "radius": 5
+    },
+    {
+      "op": "cylinder",
+      "id": "b",
+      "base": [
+        0,
+        0,
+        -10
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "radius": 3,
+      "height": 20
+    },
+    {
+      "op": "cut",
+      "id": "out",
+      "a": "a",
+      "b": "b"
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 268.082573106329,
+      "source": "\u03c0h\u00b3/6, h = 2\u221a(5\u00b2 \u2212 3\u00b2) = 8"
+    },
+    "area": {
+      "value": 402.1238596594935,
+      "source": "2\u03c0Rh + 2\u03c0rh"
+    },
+    "valid": true
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "id": "boolean/boxes-union",
+  "tags": [
+    "boolean",
+    "union",
+    "planar"
+  ],
+  "note": "The two boxes share their top and bottom planes.",
+  "ops": [
+    {
+      "op": "box",
+      "id": "a",
+      "min": [
+        0,
+        0,
+        0
+      ],
+      "max": [
+        10,
+        10,
+        10
+      ]
+    },
+    {
+      "op": "box",
+      "id": "b",
+      "min": [
+        5,
+        5,
+        0
+      ],
+      "max": [
+        15,
+        15,
+        10
+      ]
+    },
+    {
+      "op": "union",
+      "id": "out",
+      "a": "a",
+      "b": "b"
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 1750,
+      "source": "2\u00b71000 \u2212 5\u00b75\u00b710"
+    },
+    "area": {
+      "value": 950,
+      "source": "2\u00b7175 + perimeter 60 \u00d7 10"
+    },
+    "valid": true
+  }
+}

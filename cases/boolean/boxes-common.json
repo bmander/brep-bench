@@ -1,0 +1,57 @@
+{
+  "id": "boolean/boxes-common",
+  "tags": [
+    "boolean",
+    "common",
+    "planar"
+  ],
+  "note": "",
+  "ops": [
+    {
+      "op": "box",
+      "id": "a",
+      "min": [
+        0,
+        0,
+        0
+      ],
+      "max": [
+        10,
+        10,
+        10
+      ]
+    },
+    {
+      "op": "box",
+      "id": "b",
+      "min": [
+        5,
+        5,
+        0
+      ],
+      "max": [
+        15,
+        15,
+        10
+      ]
+    },
+    {
+      "op": "common",
+      "id": "out",
+      "a": "a",
+      "b": "b"
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 250,
+      "source": "5\u00b75\u00b710"
+    },
+    "area": {
+      "value": 250,
+      "source": "2\u00b725 + 20\u00b710"
+    },
+    "valid": true
+  }
+}

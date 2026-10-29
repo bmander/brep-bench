@@ -1,0 +1,49 @@
+{
+  "id": "boolean/sphere-lens",
+  "tags": [
+    "boolean",
+    "common",
+    "analytic"
+  ],
+  "note": "",
+  "ops": [
+    {
+      "op": "sphere",
+      "id": "a",
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "radius": 5
+    },
+    {
+      "op": "sphere",
+      "id": "b",
+      "center": [
+        6,
+        0,
+        0
+      ],
+      "radius": 5
+    },
+    {
+      "op": "common",
+      "id": "out",
+      "a": "a",
+      "b": "b"
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 108.90854532444617,
+      "source": "\u03c0(4r + d)(2r \u2212 d)\u00b2/12, r=5 d=6"
+    },
+    "area": {
+      "value": 125.66370614359172,
+      "source": "2\u00b72\u03c0r(r \u2212 d/2)"
+    },
+    "valid": true
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "id": "boolean/half-cylinder-boss-tangent",
+  "tags": [
+    "boolean",
+    "union",
+    "analytic",
+    "tangent"
+  ],
+  "note": "The cylinder is tangent to two of the box's faces along two of its edges.",
+  "ops": [
+    {
+      "op": "box",
+      "id": "a",
+      "min": [
+        0,
+        0,
+        0
+      ],
+      "max": [
+        10,
+        10,
+        10
+      ]
+    },
+    {
+      "op": "cylinder",
+      "id": "b",
+      "base": [
+        10,
+        5,
+        0
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "radius": 5,
+      "height": 10
+    },
+    {
+      "op": "union",
+      "id": "out",
+      "a": "a",
+      "b": "b"
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 1392.699081698724,
+      "source": "1000 + \u03c0r\u00b2h/2, r=5 h=10"
+    },
+    "area": {
+      "value": 735.6194490192345,
+      "source": "2(100 + \u03c0r\u00b2/2) + 300 + \u03c0rh"
+    },
+    "valid": true
+  }
+}

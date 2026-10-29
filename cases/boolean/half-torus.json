@@ -1,0 +1,59 @@
+{
+  "id": "boolean/half-torus",
+  "tags": [
+    "boolean",
+    "cut",
+    "analytic"
+  ],
+  "note": "",
+  "ops": [
+    {
+      "op": "torus",
+      "id": "a",
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "major": 10,
+      "minor": 2
+    },
+    {
+      "op": "box",
+      "id": "b",
+      "min": [
+        -20,
+        -20,
+        -5
+      ],
+      "max": [
+        0,
+        20,
+        5
+      ]
+    },
+    {
+      "op": "cut",
+      "id": "out",
+      "a": "a",
+      "b": "b"
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 394.78417604357435,
+      "source": "\u03c0\u00b2Rr\u00b2"
+    },
+    "area": {
+      "value": 419.9169172722927,
+      "source": "2\u03c0\u00b2Rr + 2\u03c0r\u00b2"
+    },
+    "valid": true
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "id": "boolean/spheres-union",
+  "tags": [
+    "boolean",
+    "union",
+    "analytic"
+  ],
+  "note": "",
+  "ops": [
+    {
+      "op": "sphere",
+      "id": "a",
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "radius": 5
+    },
+    {
+      "op": "sphere",
+      "id": "b",
+      "center": [
+        6,
+        0,
+        0
+      ],
+      "radius": 5
+    },
+    {
+      "op": "union",
+      "id": "out",
+      "a": "a",
+      "b": "b"
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 938.2890058721515,
+      "source": "2\u00b74\u03c0r\u00b3/3 \u2212 lens"
+    },
+    "area": {
+      "value": 502.6548245743669,
+      "source": "2\u00b74\u03c0r\u00b2 \u2212 2\u00b72\u03c0r(r \u2212 d/2)"
+    },
+    "valid": true
+  }
+}

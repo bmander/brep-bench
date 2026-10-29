@@ -1,0 +1,53 @@
+{
+  "id": "boolean/hemisphere",
+  "tags": [
+    "boolean",
+    "cut",
+    "analytic"
+  ],
+  "note": "The cutting plane passes through the sphere's centre.",
+  "ops": [
+    {
+      "op": "sphere",
+      "id": "a",
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "radius": 5
+    },
+    {
+      "op": "box",
+      "id": "b",
+      "min": [
+        -10,
+        -10,
+        -10
+      ],
+      "max": [
+        10,
+        10,
+        0
+      ]
+    },
+    {
+      "op": "cut",
+      "id": "out",
+      "a": "a",
+      "b": "b"
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 261.79938779914943,
+      "source": "2\u03c0r\u00b3/3"
+    },
+    "area": {
+      "value": 235.61944901923448,
+      "source": "2\u03c0r\u00b2 + \u03c0r\u00b2"
+    },
+    "valid": true
+  }
+}

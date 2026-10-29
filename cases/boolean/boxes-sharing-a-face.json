@@ -1,0 +1,58 @@
+{
+  "id": "boolean/boxes-sharing-a-face",
+  "tags": [
+    "boolean",
+    "union",
+    "planar",
+    "coincident"
+  ],
+  "note": "The boxes touch along one whole face, which must vanish.",
+  "ops": [
+    {
+      "op": "box",
+      "id": "a",
+      "min": [
+        0,
+        0,
+        0
+      ],
+      "max": [
+        10,
+        10,
+        10
+      ]
+    },
+    {
+      "op": "box",
+      "id": "b",
+      "min": [
+        10,
+        0,
+        0
+      ],
+      "max": [
+        20,
+        10,
+        10
+      ]
+    },
+    {
+      "op": "union",
+      "id": "out",
+      "a": "a",
+      "b": "b"
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 2000,
+      "source": "20\u00b710\u00b710"
+    },
+    "area": {
+      "value": 1000,
+      "source": "2(20\u00b710 + 20\u00b710 + 10\u00b710)"
+    },
+    "valid": true
+  }
+}

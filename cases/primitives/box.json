@@ -1,0 +1,35 @@
+{
+  "id": "primitives/box",
+  "tags": [
+    "primitive"
+  ],
+  "note": "",
+  "ops": [
+    {
+      "op": "box",
+      "id": "out",
+      "min": [
+        0,
+        0,
+        0
+      ],
+      "max": [
+        10,
+        20,
+        30
+      ]
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 6000,
+      "source": "10\u00b720\u00b730"
+    },
+    "area": {
+      "value": 2200,
+      "source": "2(10\u00b720 + 20\u00b730 + 10\u00b730)"
+    },
+    "valid": true
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "id": "sweep/circle-along-arc",
+  "tags": [
+    "sweep",
+    "planar-path"
+  ],
+  "note": "",
+  "ops": [
+    {
+      "op": "sweep_circle",
+      "id": "out",
+      "radius": 2,
+      "ends": "flat",
+      "helix": {
+        "center": [
+          0,
+          0,
+          0
+        ],
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "radius": 10,
+        "pitch": 0,
+        "turns": 0.25
+      }
+    }
+  ],
+  "result": "out",
+  "expect": {
+    "volume": {
+      "value": 197.39208802178717,
+      "source": "\u03c0r\u00b2\u00b7(\u03c0R/2), r=2 R=10"
+    },
+    "area": {
+      "value": 222.52482925050552,
+      "source": "2\u03c0r\u00b7(\u03c0R/2) + 2\u03c0r\u00b2"
+    },
+    "valid": true
+  }
+}
