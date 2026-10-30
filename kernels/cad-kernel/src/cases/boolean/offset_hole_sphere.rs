@@ -9,6 +9,7 @@ const RADIUS: f64 = 20.;
 const HOLE_RADIUS: f64 = 6.;
 const HOLE_X: f64 = 5.;
 
+// workaround: no sphere primitive
 pub fn build() -> Result<Brep, String> {
     let centre = [0., 0., 0.];
     let xz = Frame::new(centre, [0., -1., 0.], [1., 0., 0.]);

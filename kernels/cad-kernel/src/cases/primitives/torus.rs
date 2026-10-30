@@ -7,6 +7,7 @@ const MAJOR: f64 = 10.;
 const MINOR: f64 = 2.;
 
 pub fn build() -> Result<Brep, String> {
+    // workaround: no torus primitive
     // the tube's section: a disc in the xz plane (square to y) about (10, 0, 0), turned once about z
     let section = disc([MAJOR, 0., 0.], [0., 1., 0.], MINOR);
     revolve(&section, [0., 0., 0.], [0., 0., 1.], TAU)

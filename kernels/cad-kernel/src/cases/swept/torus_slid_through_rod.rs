@@ -18,6 +18,7 @@ const TOLERANCE: f64 = 1e-4;
 pub fn build() -> Result<Brep, String> {
     let up = [0., 0., 1.];
     let rod = prism(&disc([0., 0., 0.], up, ROD_RADIUS), 0., ROD_LENGTH)?;
+    // workaround: no torus primitive
     // the torus: its tube's circle, in the plane through its axis (y) and x, turned about the axis
     let tube = disc([CENTRE[0] - MAJOR, CENTRE[1], CENTRE[2]], up, MINOR);
     let wheel = Tool::Revolved { name: "wheel".into(), profile: tube, origin: CENTRE, axis: [0., 1., 0.] };

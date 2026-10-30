@@ -8,6 +8,7 @@ use std::f64::consts::TAU;
 
 const RADIUS: f64 = 5.;
 
+// workaround: no sphere primitive
 pub fn build() -> Result<Brep, String> {
     let stock = block([-10., -10., -10.], [10., 10., 0.])?;
     let centre = [0., 0., 0.];

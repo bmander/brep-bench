@@ -25,6 +25,7 @@ pub fn build() -> Result<Brep, String> {
     let block = revolve(&section, [0., 0., 0.], up, SECTOR_DEGREES.to_radians())?;
     let lean = LEAN_DEGREES.to_radians();
     let axis = [0., lean.sin(), lean.cos()];
+    // workaround: no torus primitive
     // the torus: its tube's circle in the plane through its axis and x (normal x × axis), turned
     let tube = disc([CENTRE[0] + MAJOR, CENTRE[1], CENTRE[2]], [0., -lean.cos(), lean.sin()], MINOR);
     let cutter = Tool::Revolved { name: "cutter".into(), profile: tube, origin: CENTRE, axis };

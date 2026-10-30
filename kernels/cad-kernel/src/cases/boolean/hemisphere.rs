@@ -8,6 +8,7 @@ const RADIUS: f64 = 5.;
 
 pub fn build() -> Result<Brep, String> {
     let centre = [0., 0., 0.];
+    // workaround: no sphere primitive
     // the ball: its half disc in the xz plane turned once about z
     let xz = Frame::new(centre, [0., -1., 0.], [1., 0., 0.]);
     let ball = revolve(&ball_section(&xz, RADIUS), centre, xz.y, TAU)?;

@@ -11,6 +11,7 @@ const HEIGHT: f64 = 10.;
 
 pub fn build() -> Result<Brep, String> {
     let cylinder = prism(&disc([0., 0., 0.], [0., 0., 1.], RADIUS), 0., HEIGHT)?;
+    // workaround: no sphere primitive
     // the ball: its half disc in the xz plane turned once about z, its equator the top's rim
     let centre = [0., 0., HEIGHT];
     let xz = Frame::new(centre, [0., -1., 0.], [1., 0., 0.]);

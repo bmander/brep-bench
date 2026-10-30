@@ -14,6 +14,7 @@ const ROUND: f64 = 2.;
 
 pub fn build() -> Result<Brep, String> {
     let (centre, up) = ([0., 0., 0.], [0., 0., 1.]);
+    // workaround: no sphere primitive
     // the ball: its half disc in the xz plane turned once about z
     let xz = Frame::new(centre, [0., -1., 0.], [1., 0., 0.]);
     let ball = revolve(&ball_section(&xz, BALL_RADIUS), centre, xz.y, TAU)?;

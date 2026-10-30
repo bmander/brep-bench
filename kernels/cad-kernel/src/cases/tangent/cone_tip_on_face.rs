@@ -13,6 +13,7 @@ const CONE_TOP: f64 = 15.;
 
 pub fn build() -> Result<Brep, String> {
     let stock = block([-HALF_SIDE, -HALF_SIDE, 0.], [HALF_SIDE, HALF_SIDE, HEIGHT])?;
+    // workaround: no cone primitive
     // the cone's meridian in the xz plane, the axis one of its sides, turned once about z: its tip
     // touches the block's bottom face at a single point
     let meridian = polygon(&[[0., 0., 0.], [CONE_RADIUS, 0., CONE_TOP], [0., 0., CONE_TOP]]);

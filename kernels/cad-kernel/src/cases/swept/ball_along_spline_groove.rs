@@ -26,6 +26,7 @@ pub fn build() -> Result<Brep, String> {
     // the path as cad-kernel holds a Bézier segment: a cubic B-spline on clamped knots
     let knots = vec![0., 0., 0., 0., 1., 1., 1., 1.];
     let path = BSpline::new(3, knots, CONTROL.to_vec())?;
+    // workaround: no sweep of a solid along a curve
     // a ball carried along a path no closed form carries sweeps the ball's disc square to the
     // path, a face family over the path's parameter, closed by the half ball beyond each end disc
     // (cad-kernel's `capped`): the parameter in pieces, each with six stations at the

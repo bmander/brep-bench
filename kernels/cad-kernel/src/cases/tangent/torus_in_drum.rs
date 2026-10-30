@@ -12,6 +12,7 @@ const DRUM_HALF_HEIGHT: f64 = 1.;
 
 pub fn build() -> Result<Brep, String> {
     let up = [0., 0., 1.];
+    // workaround: no torus primitive
     // the tube's section: a disc in the xz plane about (10, 0, 0), turned once about z
     let torus = revolve(&disc([MAJOR, 0., 0.], [0., 1., 0.], MINOR), [0., 0., 0.], up, TAU)?;
     let foot = [0., 0., -DRUM_HALF_HEIGHT];

@@ -6,6 +6,7 @@ use std::f64::consts::TAU;
 const MAJOR: f64 = 10.;
 const MINOR: f64 = 2.;
 
+// workaround: no torus primitive
 pub fn build() -> Result<Brep, String> {
     let torus = revolve(&disc([MAJOR, 0., 0.], [0., 1., 0.], MINOR), [0., 0., 0.], [0., 0., 1.], TAU)?;
     // what lies on the +x side of the plane x = 0: `kept` takes it in common with a block standing
