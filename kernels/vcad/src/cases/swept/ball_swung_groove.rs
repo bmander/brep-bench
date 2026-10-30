@@ -16,6 +16,7 @@ const BALL_RADIUS: f64 = 3.0;
 /// The ball's centre's distance from the z axis.
 const SWING: f64 = 12.0;
 
+// workaround: no sweep of a solid
 pub fn build() -> Result<Solid, crate::Refusal> {
     let [x0, y0, z0] = BLOCK_MIN;
     let [x1, y1, z1] = BLOCK_MAX;

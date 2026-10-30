@@ -25,6 +25,7 @@ const TURNS: f64 = 6.0;
 /// The disc's circle is cut into this many arcs, each into SEGMENTS / ARCS lines.
 const ARCS: u32 = 4;
 
+// workaround: no sweep of a solid
 pub fn build() -> Result<Solid, crate::Refusal> {
     let rod = Solid::cylinder(ROD_RADIUS, ROD_LENGTH, SEGMENTS);
     // vcad's helix is about the z axis through its centre, starts on +x and turns from +x towards

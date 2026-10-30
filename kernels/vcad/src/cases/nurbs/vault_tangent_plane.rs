@@ -8,6 +8,7 @@ const CROWN: f64 = 16.0;
 /// How far the box reaches past the block on every side but its floor.
 const OVERRUN: f64 = 4.0;
 
+// workaround: no rational b-spline surface
 pub fn build() -> Result<Solid, crate::Refusal> {
     let block = vault()?;
     let reach = HALF + OVERRUN;
