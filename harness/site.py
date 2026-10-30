@@ -194,10 +194,7 @@ def case_page(c, registry, results, drawing):
         out.append(f"<tr><td>{key}</td><td>{exp[key]['value']:.10g}</td>"
                    f"<td class=muted>{e(exp[key]['exact'])}</td></tr>")
     out.append("</table></div>")
-    script = os.path.join(ROOT, "cases", cid + ".py")
-    if os.path.exists(script):
-        out.append(f"<p class=muted>The answer is integrated by <a href='{REPO}/blob/main/cases/"
-                   f"{e(cid)}.py'>cases/{e(cid)}.py</a>, from the geometry the words define.</p>")
+
 
     if drawing:
         d = f"{up}drawings/{e(cid)}"

@@ -1,4 +1,4 @@
-# brep-bench specification, version 1.1
+# brep-bench specification, version 1.2
 
 brep-bench works like Rosetta Code. Each **case** describes a solid in plain words and gives its
 volume and area as closed forms. Each **kernel** has its own **implementation** of each case,
@@ -11,13 +11,11 @@ result the same way.
 - **No canonical script.** A case is a description of a solid, not code. There is no case language
   for a kernel to translate, and no implementation is privileged. Reading one case's
   implementations side by side shows how each kernel is used.
-- **Neutral answers.** Every expected value comes from outside the kernels, so it can be checked
-  without trusting any of them, and `exact` says where it came from. In order of preference:
-  - a closed form, written beside the number;
-  - a numerical integration of the geometry the description defines: a Python script beside the
-    case, `cases/<category>/<name>.py`, using only the standard library, that prints the volume
-    and the area to ten significant digits or better;
-  - at least two independent kernels that agree, each built from the description alone.
+- **Neutral answers.** Every expected value comes from outside any one kernel, and `exact` says
+  where it came from: a closed form, written beside the number, where one is cheap to derive and
+  check; otherwise at least two independent kernels, each built from the description alone, that
+  agree to 1e-8 on both measures (the value is their mean). Every result is also checked by its
+  own triangles: watertight, consistently oriented, bounding the expected volume.
 
   No answer ever comes from a single kernel.
 - **The same rules for every kernel.** The rules change only by a versioned edit to this file,
@@ -175,7 +173,8 @@ One entry per kernel:
 
 ## Versions
 
-- **1.1:** an answer may come from a numerical integration script beside the case.
+- **1.2:** no integration scripts: an answer is a closed form or two kernels agreeing to 1e-8.
+- **1.1:** an answer could come from a numerical integration script beside the case.
 - **1:** a case is a description in words with its closed forms. Each kernel implements every case
   in its own idioms, one file per case. A case with no implementation is *missing*.
 - **0.2:** seams were never selected edges, and a curve stored in pieces was selected whole. The
