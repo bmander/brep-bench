@@ -66,6 +66,7 @@ implementation yet is **missing**, which says nothing about the kernel. The full
 cases/<category>/<name>.md         a case: its closed forms (TOML header) and its description
 kernels.json                       the kernels: how to build and run each, where its cases live
 kernels/<kernel>/                  a kernel's runner and its implementation of each case
+kernels/<kernel>/workarounds.toml  the cases it builds by working around a feature it lacks
 harness/                           build, run and grade, draw, and render the site
 results/<kernel>.json              the last whole run
 ```

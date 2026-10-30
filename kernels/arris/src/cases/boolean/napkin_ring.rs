@@ -7,7 +7,6 @@ use arris::topo::{Body, Model};
 const RADIUS: f64 = 5.0;
 const HOLE_RADIUS: f64 = 3.0;
 
-// workaround: no sphere primitive
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
     let (sphere, _) = ball(m, Point3::origin(), RADIUS, &Control::NONE)?;
     // a bore twice the ball's diameter long, its ends well clear of the poles

@@ -22,7 +22,6 @@ pub fn build() -> Result<Brep, String> {
     let rod = prism(&disc([0., 0., 0.], up, ROD_RADIUS), 0., ROD_LENGTH)?;
     let h = (TAU * REACH / LEAD).atan();
     let axis = [0., h.cos(), -h.sin()];
-    // workaround: no torus primitive
     // the torus: its tube's circle in the plane through its axis and x (normal x × axis), turned
     let tube = disc([CENTRE[0] - MAJOR, CENTRE[1], CENTRE[2]], [0., h.sin(), h.cos()], MINOR);
     let wheel = Tool::Revolved { name: "wheel".into(), profile: tube, origin: CENTRE, axis };

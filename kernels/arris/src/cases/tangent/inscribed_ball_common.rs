@@ -7,7 +7,6 @@ use arris::topo::{Body, Model};
 
 const SIDE: f64 = 10.0;
 
-// workaround: no sphere primitive
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
     let (cube, _) =
         primitive_box(m, Point3::origin(), Point3::new(SIDE, SIDE, SIDE), &Control::NONE)?;

@@ -35,7 +35,6 @@ pub fn vault() -> Result<Solid, crate::Refusal> {
     Ok(Solid::extrude(profile, Vec3::new(2.0 * HALF, 0.0, 0.0))?)
 }
 
-// workaround: no NURBS surface
 pub fn build() -> Result<Solid, crate::Refusal> {
     let first = vault()?;
     let second = first.rotate(0.0, 0.0, 90.0);

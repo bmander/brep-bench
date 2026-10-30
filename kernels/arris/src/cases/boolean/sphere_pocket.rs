@@ -8,7 +8,6 @@ const HALF_WIDTH: f64 = 10.0;
 const DEPTH: f64 = 10.0;
 const RADIUS: f64 = 5.0;
 
-// workaround: no sphere primitive
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
     let (block, _) = primitive_box(
         m,

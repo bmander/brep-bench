@@ -9,7 +9,6 @@ use std::f64::consts::TAU;
 const RADIUS: f64 = 5.;
 const APART: f64 = 9.999999;
 
-// workaround: no sphere primitive
 /// The ball of radius `RADIUS` about `centre`: its half disc in the xz plane turned once about the
 /// vertical through the centre.
 fn ball(centre: V) -> Result<Brep, String> {

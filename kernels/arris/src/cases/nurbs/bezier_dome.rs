@@ -162,7 +162,6 @@ fn patch() -> Result<NurbsSurface, Refusal> {
         .map_err(|e| e.to_string().into())
 }
 
-// workaround: no solid from a NURBS surface
 pub fn build(m: &mut Model) -> Result<Body, Refusal> {
     block_under(m, patch()?)
 }

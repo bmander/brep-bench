@@ -39,7 +39,6 @@ def build():
     ball = BRepPrimAPI_MakeSphere(gp_Ax2(start, gp.DY_s()), BALL_RADIUS).Shape()
     ball_at_end = BRepPrimAPI_MakeSphere(end, BALL_RADIUS).Shape()
 
-    # workaround: no sweep of a solid
     # OCCT's revolution sweeps no solid ("Solids are not Processed"), but it sweeps a shell, each
     # face to the solid that face passes through. A face swept whole is only what it passes
     # through if the motion never runs along it inside it: a point p of the ball moves along

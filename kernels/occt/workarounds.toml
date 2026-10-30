@@ -1,0 +1,9 @@
+# The cases occt builds by working around a feature it lacks, and what that is
+# (SPEC.md, "A workaround is flagged").
+
+"swept/ball-along-spline-groove" = "no sweep of a solid"
+"swept/ball-swung-groove" = "no sweep of a solid"
+"swept/ball-thread-groove" = "no sweep of a solid"
+"swept/box-slid-aslant" = "no sweep of a solid"
+"swept/torus-slid-through-rod" = "no sweep of a solid"
+"swept/two-beads-slid-through-rod" = "no sweep of a solid"

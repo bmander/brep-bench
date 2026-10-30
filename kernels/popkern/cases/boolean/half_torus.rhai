@@ -1,6 +1,5 @@
 // A torus about z (centre circle 10, tube 2), with everything where x < 0 cut away by a block
 // that reaches past it on every other side.
-// workaround: no torus primitive
 let m = model();
 let torus = m.profile(xz()).circle(2.0).at(10.0, 0.0).sketch("tube")
     .revolve(axis_at([0.0, 0.0, 0.0], [0.0, 0.0, 1.0]), full_circle());

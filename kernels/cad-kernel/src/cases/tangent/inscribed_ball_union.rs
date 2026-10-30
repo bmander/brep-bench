@@ -12,7 +12,6 @@ const RADIUS: f64 = 5.;
 
 pub fn build() -> Result<Brep, String> {
     let cube = block([0., 0., 0.], [SIDE, SIDE, SIDE])?;
-    // workaround: no sphere primitive
     // the ball: its half disc in the vertical plane through its centre, parallel to xz, turned
     // once about the vertical through the centre
     let centre = [SIDE / 2.; 3];

@@ -8,7 +8,6 @@ use std::f64::consts::TAU;
 const RADIUS: f64 = 5.;
 const HOLE_RADIUS: f64 = 3.;
 
-// workaround: no sphere primitive
 pub fn build() -> Result<Brep, String> {
     let centre = [0., 0., 0.];
     let xz = Frame::new(centre, [0., -1., 0.], [1., 0., 0.]);

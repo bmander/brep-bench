@@ -50,7 +50,6 @@ def build():
     curve.D1(curve.FirstParameter(), start, tangent)
     end = curve.Value(curve.LastParameter())
 
-    # workaround: no sweep of a solid
     # OCCT has no sweep of a solid along a path: BRepOffsetAPI_MakePipe takes no solid ("profile
     # contains solids"), and given the ball's faces it stops in BRepFill_Sweep (Standard_OutOfRange)
     # whatever the path. So the ball's sweep is built from what elementary geometry says it is.

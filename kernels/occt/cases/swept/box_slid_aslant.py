@@ -26,7 +26,6 @@ def build():
     end = BRepPrimAPI_MakeBox(gp_Pnt(*(c + d for c, d in zip(CORNER, SLIDE))),
                               gp_Pnt(*(c + d for c, d in zip(FAR_CORNER, SLIDE)))).Shape()
 
-    # workaround: no sweep of a solid
     # OCCT's prism sweeps no solid ("Solids are not Processed"), but it sweeps a shell: each of
     # its faces to the solid that face passes through, the six together a CompSolid. A flat face
     # slid along a vector out of its plane never folds over itself, so each of those solids is

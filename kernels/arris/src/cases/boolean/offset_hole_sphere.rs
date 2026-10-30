@@ -9,7 +9,6 @@ const RADIUS: f64 = 20.0;
 const HOLE_RADIUS: f64 = 6.0;
 const HOLE_X: f64 = 5.0;
 
-// workaround: no sphere primitive
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
     let (sphere, _) = ball(m, Point3::origin(), RADIUS, &Control::NONE)?;
     // the drill runs past the ball at both ends

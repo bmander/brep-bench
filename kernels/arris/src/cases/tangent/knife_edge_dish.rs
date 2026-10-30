@@ -8,7 +8,6 @@ use arris::topo::{Body, Model};
 const RADIUS: f64 = 5.0;
 const HEIGHT: f64 = 10.0;
 
-// workaround: no sphere primitive
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
     let (rod, _) =
         primitive_cylinder(m, Axis::z_at(Point3::origin()), RADIUS, HEIGHT, &Control::NONE)?;

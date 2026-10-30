@@ -29,7 +29,6 @@ pub fn vault(m: &mut Model) -> Result<Body, Refusal> {
     block_under(m, top)
 }
 
-// workaround: no solid from a NURBS surface
 pub fn build(m: &mut Model) -> Result<Body, Refusal> {
     let first = vault(m)?;
     let turn = UnitQuaternion::from_axis_angle(&Vec3::z_axis(), FRAC_PI_2);

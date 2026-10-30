@@ -25,7 +25,6 @@ const HEIGHTS: [[f64; 5]; 6] = [
     [2.0, 4.0, 5.0, 4.0, 3.0],
 ];
 
-// workaround: no solid from a NURBS surface
 pub fn build(m: &mut Model) -> Result<Body, Refusal> {
     let net = (0..6)
         .flat_map(|i| (0..5).map(move |j| Point3::new(XS[i], YS[j], HEIGHTS[i][j])))

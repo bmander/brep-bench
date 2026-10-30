@@ -108,14 +108,15 @@ An implementation builds the described solid the way a user of its kernel would:
 - **A workaround is flagged.** An implementation that builds the solid without a feature the
   natural construction calls for, because its kernel lacks it (a sphere primitive, a sweep of a
   solid, a draft, a chamfer with two distances), and makes the same solid from the kernel's other
-  operations instead, says so on a comment line of its own, in its language's comment syntax:
+  operations instead, is flagged outside its code, in `kernels/<kernel>/workarounds.toml`: one
+  line per such case, its id and what the kernel lacks, briefly (several joined with commas):
 
   ```
-  // workaround: no sphere primitive
+  "primitives/sphere" = "no sphere primitive"
+  "swept/box-slid-aslant" = "no sweep of a solid"
   ```
 
-  The text after `workaround:` names what the kernel lacks, briefly; several are joined with
-  commas. The board marks the implementation's result †, and counts each kernel's passes made by
+  The board marks the implementation's result †, and counts each kernel's passes made by
   workaround. A workaround is graded like any other implementation: the flag only says how the
   result was reached. A refusal is never flagged, and nor is composition the case itself describes
   (a hole cut from a block), nor a choice between operations the kernel has.
@@ -210,8 +211,8 @@ One entry per kernel:
 
 ## Versions
 
-- **1.5:** an implementation that works around a feature its kernel lacks is flagged with a
-  `workaround:` comment, and the board marks it. Grading is unchanged.
+- **1.5:** an implementation that works around a feature its kernel lacks is flagged in its
+  kernel's `workarounds.toml`, and the board marks it. Grading is unchanged.
 - **1.4:** a swept solid is built by the kernel's own sweep of a solid, or from its other
   operations where the shape follows by elementary geometry; an envelope the implementation
   computes is refused.

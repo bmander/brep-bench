@@ -2,7 +2,6 @@
 // centre circle 6, tube 2) slid without turning along z from centre (11.5, 0, -9) to
 // (11.5, 0, 29).
 //
-// workaround: no sweep of a solid
 // popkern has no sweep of a solid. Sliding fills the torus's hole (the slide, 38, is longer than
 // the hole is wide), so the torus sweeps what the solid of its outline does: the convex solid of
 // revolution about the torus's axis whose section is the tube's outer half-disc joined to the

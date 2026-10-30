@@ -9,7 +9,6 @@ const TOP_RADIUS: f64 = 2.;
 const HEIGHT: f64 = 6.;
 
 pub fn build() -> Result<Brep, String> {
-    // workaround: no cone primitive
     // its meridian in the xz plane, the axis one of its sides, turned once about z
     let meridian = polygon(&[
         [0., 0., 0.],

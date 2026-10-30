@@ -37,7 +37,6 @@ fn slid_face(k: usize) -> Result<Brep, String> {
 }
 
 pub fn build() -> Result<Brep, String> {
-    // workaround: no sweep of a solid with ends
     // cad-kernel has no sweep of a solid, but it sweeps a face along a line (a face family), so
     // the box's sweep is its faces' sweeps joined. A point passed through is p + s·(8, 5, 3) for p
     // in the box and s in [0, 1]: the segment from p either stays in the box or leaves it through

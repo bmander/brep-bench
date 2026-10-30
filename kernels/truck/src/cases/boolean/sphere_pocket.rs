@@ -5,7 +5,6 @@ use truck_modeling::*;
 
 const BALL_RADIUS: f64 = 5.0;
 
-// workaround: no sphere primitive
 pub fn build() -> Built {
     let block: Solid = primitive::cuboid(BoundingBox::from_iter([
         Point3::new(-10.0, -10.0, -10.0),

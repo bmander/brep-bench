@@ -35,7 +35,6 @@ fn rectangle(plane: Frame, u: f64, v: f64) -> Profile {
     }
 }
 
-// workaround: no sweep of a solid
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
     let (block, _) =
         primitive_box(m, Point3::origin(), Point3::new(LENGTH, WIDTH, HEIGHT), &Control::NONE)?;

@@ -6,7 +6,6 @@ use truck_modeling::*;
 const RING_RADIUS: f64 = 10.0;
 const TUBE_RADIUS: f64 = 2.0;
 
-// workaround: no torus primitive
 pub fn build() -> crate::Built {
     // as truck's `torus` example: the tube's section, a circle in the xz plane about the point
     // on the ring at +x, from its top round in four arcs

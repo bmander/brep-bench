@@ -12,7 +12,6 @@ const DRUM_RADIUS: f64 = 13.0;
 const DRUM_HALF_HEIGHT: f64 = 1.0;
 
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
-    // workaround: no torus primitive
     // arris has no torus primitive: the tube's circle, drawn in the xz plane, turned about z
     let xz = Frame::new(Point3::origin(), -Vec3::y(), Vec3::x())?;
     let tube = Profile {

@@ -24,7 +24,6 @@ const TURNS: f64 = 6.0;
 /// The height the ball's centre starts at.
 const START_Z: f64 = -2.0;
 
-// workaround: no sweep of a solid
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
     let axis = Axis::z_at(Point3::origin());
     let (rod, _) = primitive_cylinder(m, axis, ROD_RADIUS, ROD_LENGTH, &Control::NONE)?;

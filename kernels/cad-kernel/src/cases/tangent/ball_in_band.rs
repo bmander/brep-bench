@@ -10,7 +10,6 @@ const RADIUS: f64 = 5.;
 const HALF_HEIGHT: f64 = 3.;
 
 pub fn build() -> Result<Brep, String> {
-    // workaround: no sphere primitive
     // the ball: its half disc in the xz plane turned once about z
     let centre = [0., 0., 0.];
     let xz = Frame::new(centre, [0., -1., 0.], [1., 0., 0.]);

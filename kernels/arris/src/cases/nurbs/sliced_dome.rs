@@ -13,7 +13,6 @@ const SLOPE: f64 = 0.5;
 /// How far the lid reaches from the corner along the plane each way, and above it.
 const REACH: f64 = 30.0;
 
-// workaround: no solid from a NURBS surface
 pub fn build(m: &mut Model) -> Result<Body, Refusal> {
     let block = bezier_dome::build(m)?;
     // A lid standing on the plane: a box on z = 0, tipped about −y until its floor rises 1 in 2

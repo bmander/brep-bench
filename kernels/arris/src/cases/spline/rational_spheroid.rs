@@ -24,7 +24,6 @@ const CONTROL: [[f64; 3]; 5] =
 const WEIGHTS: [f64; 5] = [1.0, FRAC_1_SQRT_2, 1.0, FRAC_1_SQRT_2, 1.0];
 const KNOTS: [f64; 8] = [0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0];
 
-// workaround: no NURBS curve in a profile
 pub fn build(m: &mut Model) -> Result<Body, Refusal> {
     let geom = |e: arris::geom::GeomError| Refusal::from(e.to_string());
     let tolerance = m.precision().default_tolerance;

@@ -15,7 +15,6 @@ const ROLL_DEGREES: f64 = 75.;
 /// How closely the sweep's sheet is held to its surface, in the kernel's millimetres.
 const TOLERANCE: f64 = 1e-4;
 
-// workaround: no torus primitive
 pub fn build() -> Result<Brep, String> {
     let tube = disc([CENTRE[0] + MAJOR, CENTRE[1], CENTRE[2]], [0., -1., 0.], MINOR);
     let torus = Tool::Revolved { name: "torus".into(), profile: tube, origin: CENTRE, axis: [0., 0., 1.] };

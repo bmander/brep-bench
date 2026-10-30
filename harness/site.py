@@ -9,6 +9,7 @@ import os
 import re
 import shutil
 import sys
+import tomllib
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from suite import ROOT, cases as read_cases, kernels as read_kernels, source  # noqa: E402
@@ -103,19 +104,14 @@ def load():
     return registry, results, cases, drawings
 
 
-# An implementation that works around a feature its kernel lacks says so in a comment of its own
-# line: `// workaround: no sphere primitive` (SPEC.md).
-WORKAROUND = re.compile(r"^\s*(?://[/!]?|#)\s*workaround:\s*(\S.*?)\s*$", re.M)
-
-
-def workaround(kernel, cid):
-    """What `kernel`'s implementation of case `cid` works around, or None."""
-    src = source(kernel, cid)
-    if not src or not os.path.exists(src):
-        return None
-    with open(src, encoding="utf-8") as f:
-        m = WORKAROUND.search(f.read())
-    return m and m.group(1)
+def workarounds(kernel):
+    """What each of `kernel`'s implementations works around, by case id: its workarounds.toml
+    beside its runner (SPEC.md), or nothing."""
+    path = os.path.join(ROOT, "kernels", kernel.get("name", ""), "workarounds.toml")
+    if not os.path.exists(path):
+        return {}
+    with open(path, "rb") as f:
+        return tomllib.load(f)
 
 
 def paragraphs(text):
@@ -143,8 +139,9 @@ def scoreboard(registry, results, cases, drawings):
                "by workaround</th><th>version</th><th>licence</th><th>run</th></tr>")
     for r in results:
         a = registry.get(r["kernel"], {})
+        flagged = workarounds(a)
         worked = sum(1 for c in r["cases"]
-                     if c["outcome"] in ("pass", "built") and workaround(a, c["case"]))
+                     if c["outcome"] in ("pass", "built") and c["case"] in flagged)
         name = e(r["kernel"])
         if a.get("kernel"):
             name = f"<a href='{e(a['kernel'])}'>{name}</a>"
@@ -168,20 +165,21 @@ def scoreboard(registry, results, cases, drawings):
     out.append("<h2>Cases</h2><div class=scroll><table><tr><th></th><th>case</th>")
     out += [f"<th>{e(r['kernel'])}</th>" for r in results]
     out.append("</tr>")
-    by = [(registry.get(r["kernel"], {}), {c["case"]: c for c in r["cases"]}) for r in results]
+    by = [(workarounds(registry.get(r["kernel"], {})), {c["case"]: c for c in r["cases"]})
+          for r in results]
     for cid in sorted(cases):
         page = f"cases/{e(cid)}.html"
         thumb = (f"<a href='{page}'><img class=thumb src='drawings/{e(cid)}/iso.png' alt='' "
                  "loading=lazy></a>" if cid in drawings else "")
         out.append(f"<tr><td>{thumb}</td><td class=case><a href='{page}'>"
                    f"{e(cases[cid]['title'])}</a><small>{e(cid)}</small></td>")
-        for k, rows in by:
+        for flagged, rows in by:
             c = rows.get(cid)
             if c is None:
                 out.append("<td class=cell></td>")
                 continue
             tip = c["why"] or f"{c['seconds']} s"
-            wa = workaround(k, cid)
+            wa = flagged.get(cid)
             mark = ""
             if wa:
                 tip = f"workaround: {wa} · {tip}"
@@ -309,7 +307,7 @@ def case_page(c, registry, results, drawing):
                "<th>mesh</th><th>workaround</th><th>why</th></tr>")
     for r, row, link in rows:
         name = r["kernel"]
-        wa = workaround(registry.get(name, {}), cid)
+        wa = workarounds(registry.get(name, {})).get(cid)
         measured_mesh = row.get("measured") == "mesh"
         vol, area, _ = measured.get(name, (None, None, False))
         if exp:
@@ -339,7 +337,7 @@ def case_page(c, registry, results, drawing):
             code = f.read()
         rel = os.path.relpath(src, ROOT)
         outcome = row["outcome"] if row else ""
-        wa = workaround(k, cid)
+        wa = workarounds(k).get(cid)
         if wa:
             outcome += f" · workaround: {wa}"
         out.append(f"<details open><summary>{e(r['kernel'])} <span class=muted>"
@@ -494,6 +492,9 @@ renderer.setAnimationLoop(() => {
 
 def main():
     registry, results, cases, drawings = load()
+    for k in registry.values():
+        for cid in sorted(set(workarounds(k)) - set(cases)):
+            print(f"kernels/{k['name']}/workarounds.toml: no case {cid}", file=sys.stderr)
     os.makedirs(SITE, exist_ok=True)
     with open(os.path.join(SITE, "style.css"), "w") as f:
         f.write(STYLE)

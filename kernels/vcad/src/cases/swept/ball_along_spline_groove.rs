@@ -22,7 +22,6 @@ const CONTROL: [[f64; 3]; 4] =
 /// The disc's circle is cut into this many arcs, each into SEGMENTS / ARCS lines.
 const ARCS: u32 = 4;
 
-// workaround: no sweep of a solid
 pub fn build() -> Result<Solid, crate::Refusal> {
     let [x0, y0, z0] = BLOCK_MIN;
     let [x1, y1, z1] = BLOCK_MAX;

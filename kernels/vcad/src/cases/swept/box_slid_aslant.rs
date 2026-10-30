@@ -14,7 +14,6 @@ use vcad_kernel::Solid;
 const SIZE: [f64; 3] = [10.0, 6.0, 4.0];
 const SLIDE: [f64; 3] = [8.0, 5.0, 3.0];
 
-// workaround: no sweep of a solid
 pub fn build() -> Result<Solid, crate::Refusal> {
     let [a, b, c] = SIZE;
     let slide = Vec3::new(SLIDE[0], SLIDE[1], SLIDE[2]);

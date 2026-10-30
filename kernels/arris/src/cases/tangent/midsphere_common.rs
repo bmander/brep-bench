@@ -8,7 +8,6 @@ use std::f64::consts::SQRT_2;
 
 const HALF_SIDE: f64 = 5.0;
 
-// workaround: no sphere primitive
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
     let (cube, _) = primitive_box(
         m,

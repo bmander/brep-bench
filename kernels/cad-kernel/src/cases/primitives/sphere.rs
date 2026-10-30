@@ -7,7 +7,6 @@ use std::f64::consts::TAU;
 const RADIUS: f64 = 5.;
 
 pub fn build() -> Result<Brep, String> {
-    // workaround: no sphere primitive
     // cad-kernel has no sphere primitive: a ball is its half disc turned once about the line it is
     // shut along. The frame's plane is xz (its z is −y) and its y, that line, is the z axis.
     let centre = [0., 0., 0.];

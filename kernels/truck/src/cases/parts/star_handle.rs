@@ -68,7 +68,6 @@ fn outline(y: f64, tip: f64, fillet: f64) -> Wire {
         .collect()
 }
 
-// workaround: no draft
 pub fn build() -> crate::Built {
     let inset = HEIGHT * DRAFT.to_radians().tan();
     let base = outline(0.0, TIP_RADIUS, FILLET_RADIUS);

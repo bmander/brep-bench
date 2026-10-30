@@ -18,7 +18,6 @@ const TOLERANCE: f64 = 1e-4;
 pub fn build() -> Result<Brep, String> {
     let up = [0., 0., 1.];
     let rod = prism(&disc([0., 0., 0.], up, ROD_RADIUS), 0., ROD_LENGTH)?;
-    // workaround: no torus primitive
     // each bead its tube's circle turned about the wheel's axis; the wheel is their union, which
     // the kernel sweeps member by member (a point is passed by the wheel just when by a bead)
     let beads = TUBES

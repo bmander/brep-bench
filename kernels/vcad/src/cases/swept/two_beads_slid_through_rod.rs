@@ -46,7 +46,6 @@ fn swept(y: f64, minor: f64) -> Result<Solid, SketchError> {
     Solid::extrude(shadow, Vec3::new(0.0, 0.0, SLIDE))
 }
 
-// workaround: no sweep of a solid
 pub fn build() -> Result<Solid, crate::Refusal> {
     let mut rod = Solid::cylinder(ROD_RADIUS, ROD_LENGTH, SEGMENTS);
     for (y, minor) in BEADS {

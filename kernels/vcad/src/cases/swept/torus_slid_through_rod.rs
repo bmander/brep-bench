@@ -27,7 +27,6 @@ const MINOR: f64 = 2.0;
 const START_Z: f64 = -9.0;
 const END_Z: f64 = 29.0;
 
-// workaround: no sweep of a solid
 pub fn build() -> Result<Solid, crate::Refusal> {
     let rod = Solid::cylinder(ROD_RADIUS, ROD_LENGTH, SEGMENTS);
     // the wheel's shadow along z, sketched in the plane z = −9: the rectangle the tube's near and

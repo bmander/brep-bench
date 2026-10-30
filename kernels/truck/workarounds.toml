@@ -1,0 +1,15 @@
+# The cases truck builds by working around a feature it lacks, and what that is
+# (SPEC.md, "A workaround is flagged").
+
+"boolean/half-torus" = "no torus primitive"
+"boolean/hemisphere" = "no sphere primitive"
+"boolean/napkin-ring" = "no sphere primitive"
+"boolean/offset-hole-sphere" = "no sphere primitive"
+"boolean/sphere-lens" = "no sphere primitive"
+"boolean/sphere-pocket" = "no sphere primitive"
+"boolean/spheres-union" = "no sphere primitive"
+"parts/star-handle" = "no draft"
+"primitives/cone-frustum" = "no cone primitive"
+"primitives/sphere" = "no sphere primitive"
+"primitives/torus" = "no torus primitive"
+"sweep/circle-along-arc" = "no sweep along a path"

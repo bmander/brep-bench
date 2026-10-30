@@ -10,7 +10,6 @@ const BALL_RADIUS: f64 = 20.0;
 const HOLE_RADIUS: f64 = 6.0;
 const HOLE_AXIS: (f64, f64) = (5.0, 0.0); // x, z
 
-// workaround: no sphere primitive
 pub fn build() -> Built {
     let ball = shapes::ball(Point3::origin(), BALL_RADIUS);
     // the drill runs from y = -25 to y = 25, past the ball at both ends

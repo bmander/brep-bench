@@ -18,7 +18,6 @@ pub fn build(m: &mut Model) -> Result<Body, OpError> {
         Point3::new(HALF_WIDTH, HALF_WIDTH, BLOCK_HEIGHT),
         &Control::NONE,
     )?;
-    // workaround: no cone primitive
     // arris has no cone primitive: the right triangle under its slant in the xz plane, u along x
     // and v along z, its apex at the origin and one leg on the axis, turned a full turn about z
     let xz = Frame::new(Point3::origin(), -Vec3::y(), Vec3::x())?;

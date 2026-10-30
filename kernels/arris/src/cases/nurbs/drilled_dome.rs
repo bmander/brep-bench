@@ -13,7 +13,6 @@ const HOLE_RADIUS: f64 = 3.0;
 const OVERRUN: f64 = 2.0;
 const TOP: f64 = 16.0;
 
-// workaround: no solid from a NURBS surface
 pub fn build(m: &mut Model) -> Result<Body, Refusal> {
     let block = bezier_dome::build(m)?;
     let base = Point3::new(HOLE_X, HOLE_Y, -OVERRUN);

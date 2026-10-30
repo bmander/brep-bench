@@ -6,7 +6,6 @@ use truck_modeling::*;
 const BALL_RADIUS: f64 = 5.0;
 const HOLE_RADIUS: f64 = 3.0;
 
-// workaround: no sphere primitive
 pub fn build() -> Built {
     let ball = shapes::ball(Point3::origin(), BALL_RADIUS);
     // the drill runs from z = -10 to z = 10, well past both ends of the hole

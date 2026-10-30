@@ -9,7 +9,6 @@ const MAJOR: f64 = 10.0;
 const MINOR: f64 = 2.0;
 
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
-    // workaround: no torus primitive
     // the tube's circle in the xz plane, turned about z
     let xz = Frame::new(Point3::origin(), -Vec3::y(), Vec3::x())?;
     let tube = Profile {

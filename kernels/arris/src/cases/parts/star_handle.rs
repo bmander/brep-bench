@@ -64,7 +64,6 @@ fn outline(y: f64, inset: f64) -> Result<Profile, OpError> {
 }
 
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
-    // workaround: no draft
     // arris has no draft: a ruled loft from the outline to its inset at the top joins each arc
     // to its coaxial partner, an exact cone, and each side to its parallel partner, a plane
     let inset = HEIGHT * DRAFT_DEGREES.to_radians().tan();

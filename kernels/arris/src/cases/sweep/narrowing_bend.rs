@@ -38,7 +38,6 @@ fn section(theta: f64) -> Result<Profile, OpError> {
 }
 
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
-    // workaround: no sweep with a scaling law
     // arris's sweep carries its profile rigidly, with no law to scale it, so the narrowing duct
     // is a smooth loft through as many of its sections as one smooth loft takes, evenly round
     // the turn: one surface per side through all of them

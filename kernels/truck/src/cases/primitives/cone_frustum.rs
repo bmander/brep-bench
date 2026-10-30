@@ -7,7 +7,6 @@ const BASE_RADIUS: f64 = 5.0;
 const TOP_RADIUS: f64 = 2.0;
 const HEIGHT: f64 = 6.0;
 
-// workaround: no cone primitive
 pub fn build() -> crate::Built {
     // the meridian in the xz plane: from the top of the axis out to the top rim, down the slant
     // to the base rim and back in to the foot of the axis

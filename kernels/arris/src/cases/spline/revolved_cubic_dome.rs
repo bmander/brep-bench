@@ -128,7 +128,6 @@ fn keyed<S: Copy + Ord>(slots: &[S]) -> BTreeMap<S, u64> {
     slots.iter().enumerate().map(|(i, &s)| (s, i as u64)).collect()
 }
 
-// workaround: no NURBS curve in a profile
 pub fn build(m: &mut Model) -> Result<Body, Refusal> {
     let bezier = vec![0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0];
     let points = CONTROL.iter().map(|&[x, y, z]| Point3::new(x, y, z)).collect();

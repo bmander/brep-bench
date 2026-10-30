@@ -7,7 +7,6 @@ use arris::topo::{Body, Model};
 const RADIUS: f64 = 5.0;
 
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
-    // workaround: no sphere primitive
     // arris has no sphere primitive: `ball` turns a half disc about its diameter
     let (sphere, _) = ball(m, Point3::origin(), RADIUS, &Control::NONE)?;
     Ok(sphere)

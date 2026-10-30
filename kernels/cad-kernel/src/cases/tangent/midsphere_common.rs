@@ -11,7 +11,6 @@ const HALF_SIDE: f64 = 5.;
 
 pub fn build() -> Result<Brep, String> {
     let cube = block([-HALF_SIDE; 3], [HALF_SIDE; 3])?;
-    // workaround: no sphere primitive
     // the ball reaches the middle of an edge, 5√2 from the centre: its half disc in the xz plane
     // turned once about z
     let centre = [0., 0., 0.];
