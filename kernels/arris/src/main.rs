@@ -78,7 +78,10 @@ fn report(m: &Model, body: Body, out: &str) -> Result<Value, OpError> {
         let surface = m.surface(m.face(f.id)?.surface())?;
         *faces.entry(kind(surface.kind())).or_default() += 1;
     }
-    let valid = check(m, body, Level::Full).is_ok();
+    // arris's fast check: `valid` is reported, not graded, and the full check's face-against-face
+    // search can take minutes on a swept NURBS body the kernel built in milliseconds (a body the
+    // checker rejects is still refused: mass_properties checks before it measures)
+    let valid = check(m, body, Level::Fast).is_ok();
     // a chord of a fraction of the body's thickness (volume over area: half a tube's radius), so a
     // thin pipe is meshed as closely as a block, well inside the harness' 2e-2 on the volume
     let chord = 5e-3 * props.volume / props.area;
