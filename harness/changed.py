@@ -13,8 +13,11 @@ changed decides it:
 - a kernel's implementation of a case: that kernel runs that case again;
 - anything else of a kernel's (kernels/<kernel>/): that kernel runs every case again, except its
   workarounds.toml, which only the site reads;
-- how a run is made or graded (kernels.json, harness/run.py, stl.py, suite.py, build.py): the
-  whole suite runs again;
+- a kernel's entry in kernels.json, added or changed in how it is built or run: that kernel runs
+  every case again. A change to which kernel is the reference draws every case again; a change to
+  what the board only shows (its licence, language, note) runs nothing;
+- how a run is made or graded (harness/run.py, stl.py, suite.py, build.py): the whole suite runs
+  again;
 - anything else (the site, the drawings' code, the docs): nothing runs, the site is only made
   again. A change to harness/draw.py draws every case again.
 
@@ -33,11 +36,13 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from suite import ROOT, cases, kernels  # noqa: E402
 
-WHOLE_SUITE = {"kernels.json", "harness/run.py", "harness/stl.py", "harness/suite.py",
+WHOLE_SUITE = {"harness/run.py", "harness/stl.py", "harness/suite.py",
                "harness/build.py"}
 REDRAW = {"harness/draw.py", "harness/stl.py"}
 # a kernel's flags of its workarounds, which the site reads and no run depends on
 FLAGS = "workarounds.toml"
+# the fields of a kernel's entry in kernels.json that a run depends on
+RUN_FIELDS = ("build", "command", "version", "source", "measured")
 
 
 def git(*args):
@@ -52,6 +57,15 @@ def changed_files(base):
     return p.stdout.split() if p.returncode == 0 else None
 
 
+def kernels_at(base):
+    """The kernels in kernels.json at commit `base`, by name, or None if it cannot be read."""
+    p = git("show", f"{base}:kernels.json")
+    try:
+        return {k["name"]: k for k in json.loads(p.stdout)["kernels"]} if p.returncode == 0 else None
+    except (ValueError, KeyError):
+        return None
+
+
 def implementation(pattern):
     """A kernel's `source` pattern as a regex matching any case's implementation."""
     out = re.escape(pattern)
@@ -61,10 +75,14 @@ def implementation(pattern):
     return re.compile(out + "$")
 
 
-def plan(paths, results_dir):
+def plan(paths, results_dir, old_kernels=None):
+    """What to run for `paths` changed; `old_kernels`, the kernels by name before them, is needed
+    when kernels.json is among them (without it, the whole suite runs)."""
     runnable = [k for k in kernels() if k.get("command")]
     ids = [c["id"] for c in cases()]
     if paths is None or WHOLE_SUITE & set(paths):
+        return {"full": True}
+    if "kernels.json" in paths and old_kernels is None:
         return {"full": True}
     # each kernel's implementation of each case, by its path
     owner = {}
@@ -77,6 +95,14 @@ def plan(paths, results_dir):
     run = {}
     removed = set()
     redraw_all = False
+    if "kernels.json" in paths:
+        for k in runnable:
+            old = old_kernels.get(k["name"])
+            if old is None or any(old.get(f) != k.get(f) for f in RUN_FIELDS):
+                run[k["name"]] = set(ids)
+        reference = lambda ks: [k["name"] for k in ks if k.get("reference")]  # noqa: E731
+        if reference(kernels()) != reference(old_kernels.values()):
+            redraw_all = True
     for path in paths:
         if path in REDRAW:
             redraw_all = True
@@ -112,7 +138,8 @@ def main():
     ap.add_argument("--full", action="store_true", help="run the whole suite")
     args = ap.parse_args()
     paths = None if args.full else changed_files(args.base)
-    p = plan(paths, os.path.join(ROOT, "results"))
+    old = kernels_at(args.base) if paths and "kernels.json" in paths else None
+    p = plan(paths, os.path.join(ROOT, "results"), old)
     json.dump(p, sys.stdout, indent=1)
     print()
     if p["full"]:
