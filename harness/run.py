@@ -4,11 +4,12 @@
     python3 harness/run.py                     # every kernel in kernels.json, every case
     python3 harness/run.py --kernel arris --case boolean/
     python3 harness/run.py --timeout 120
+    python3 harness/run.py --plan plan.json    # what harness/changed.py says changed
 
 A kernel's runner is asked for each case it has an implementation of (SPEC.md); a case it has none
 of is missing. Writes results/<kernel>.json after a run of the whole suite (not of a part,
-`--case`), and keeps each result's triangles as results/meshes/<kernel>/<case>.stl for the drawings
-and the viewer. Standard library only.
+`--case`), or folds a plan's runs into the last one (`--plan`), and keeps each result's triangles
+as results/meshes/<kernel>/<case>.stl for the drawings and the viewer. Standard library only.
 """
 import argparse
 import json
@@ -113,53 +114,107 @@ def run_one(command, case, timeout, keep):
         return (*grade(case, reply, mesh), reply, mesh, seconds)
 
 
+def run_kernel(k, chosen, timeout):
+    """Run `chosen` cases with kernel `k`: its rows, one per case, in case order."""
+    rows = []
+    for c in chosen:
+        keep = os.path.join(ROOT, "results", "meshes", k["name"], c["id"] + ".stl")
+        if os.path.exists(keep):
+            os.remove(keep)
+        src = source(k, c["id"])
+        if src and not os.path.exists(src):
+            outcome, why, reply, mesh, seconds = "missing", "no implementation", None, None, 0.0
+        else:
+            outcome, why, reply, mesh, seconds = run_one(k["command"], c, timeout, keep)
+        rows.append({
+            "case": c["id"], "outcome": outcome, "why": why, "seconds": round(seconds, 3),
+            "measured": (reply or {}).get("measured", "exact"),
+            "volume": (reply or {}).get("volume"), "area": (reply or {}).get("area"),
+            "faces": (reply or {}).get("faces"), "mesh": mesh,
+        })
+        print(f"{k['name']:<14} {outcome:<8} {c['id']:<44} {why[:90]}", flush=True)
+    return rows
+
+
+def version(k):
+    if k.get("version"):
+        try:
+            return subprocess.run(k["version"], capture_output=True, text=True,
+                                  cwd=ROOT, timeout=60).stdout.strip() or None
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+    return None
+
+
+def tally(rows):
+    out = {}
+    for row in rows:
+        out[row["outcome"]] = out.get(row["outcome"], 0) + 1
+    return out
+
+
+def record(k, rows, last=None):
+    """Write results/<kernel>.json from its rows, of a run now or else of the `last` one."""
+    result = {"kernel": k["name"], "version": last["version"] if last else version(k),
+              "measured": k.get("measured", "exact"),
+              "run": last["run"] if last else time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+              "tally": tally(rows), "cases": rows}
+    with open(os.path.join(ROOT, "results", k["name"] + ".json"), "w") as f:
+        json.dump(result, f, indent=1)
+        f.write("\n")
+
+
+def run_plan(plan, timeout):
+    """Run what a plan from changed.py names, and fold it into each kernel's last results: their
+    other rows are kept, and rows of cases that no longer exist are dropped (with their meshes)."""
+    current = {c["id"]: c for c in cases()}
+    registry = {k["name"]: k for k in kernels() if k.get("command")}
+    for name, k in registry.items():
+        path = os.path.join(ROOT, "results", name + ".json")
+        last = {"cases": []}
+        if os.path.exists(path):
+            with open(path) as f:
+                last = json.load(f)
+        rows = {row["case"]: row for row in last["cases"]}
+        wanted = [current[cid] for cid in plan["run"].get(name, []) if cid in current]
+        gone = [cid for cid in rows if cid not in current]
+        if not wanted and not gone:
+            continue
+        for cid in gone:
+            del rows[cid]
+            mesh = os.path.join(ROOT, "results", "meshes", name, cid + ".stl")
+            if os.path.exists(mesh):
+                os.remove(mesh)
+        rows.update({row["case"]: row for row in run_kernel(k, wanted, timeout)})
+        # with nothing run (only cases dropped), the runner may not be built: keep its version
+        record(k, [rows[cid] for cid in current if cid in rows], None if wanted else last)
+        print(f"{name}: {tally(rows.values())}")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--kernel", action="append", help="kernel name (repeatable)")
     ap.add_argument("--case", default="", help="run the cases whose id starts with this")
+    ap.add_argument("--plan", help="run what this plan from changed.py names, and fold it into "
+                    "the last results")
     ap.add_argument("--timeout", type=float, default=60)
     args = ap.parse_args()
-    chosen = [k for k in kernels() if not args.kernel or k["name"] in args.kernel]
     os.makedirs(os.path.join(ROOT, "results"), exist_ok=True)
+    if args.plan:
+        with open(args.plan) as f:
+            plan = json.load(f)
+        if not plan["full"]:
+            run_plan(plan, args.timeout)
+            return
+    chosen = [k for k in kernels() if not args.kernel or k["name"] in args.kernel]
     for k in chosen:
         if not k.get("command"):
             continue
-        rows = []
-        tally = {}
-        for c in cases(args.case):
-            keep = os.path.join(ROOT, "results", "meshes", k["name"], c["id"] + ".stl")
-            if os.path.exists(keep):
-                os.remove(keep)
-            src = source(k, c["id"])
-            if src and not os.path.exists(src):
-                outcome, why, reply, mesh, seconds = "missing", "no implementation", None, None, 0.0
-            else:
-                outcome, why, reply, mesh, seconds = run_one(k["command"], c, args.timeout, keep)
-            tally[outcome] = tally.get(outcome, 0) + 1
-            rows.append({
-                "case": c["id"], "outcome": outcome, "why": why, "seconds": round(seconds, 3),
-                "measured": (reply or {}).get("measured", "exact"),
-                "volume": (reply or {}).get("volume"), "area": (reply or {}).get("area"),
-                "faces": (reply or {}).get("faces"), "mesh": mesh,
-            })
-            print(f"{k['name']:<14} {outcome:<8} {c['id']:<44} {why[:90]}", flush=True)
-        version = None
-        if k.get("version"):
-            try:
-                version = subprocess.run(k["version"], capture_output=True, text=True,
-                                         cwd=ROOT, timeout=60).stdout.strip() or None
-            except (OSError, subprocess.TimeoutExpired):
-                pass
-        result = {"kernel": k["name"], "version": version,
-                  "measured": k.get("measured", "exact"),
-                  "run": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                  "tally": tally, "cases": rows}
+        rows = run_kernel(k, cases(args.case), args.timeout)
         # a part of the suite is a check in hand, not a result: only a whole run is recorded
         if not args.case:
-            with open(os.path.join(ROOT, "results", k["name"] + ".json"), "w") as f:
-                json.dump(result, f, indent=1)
-                f.write("\n")
-        print(f"{k['name']}: {tally}")
+            record(k, rows)
+        print(f"{k['name']}: {tally(rows)}")
 
 
 if __name__ == "__main__":
