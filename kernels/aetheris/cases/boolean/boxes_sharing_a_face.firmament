@@ -1,0 +1,10 @@
+// The first cube as the stock, the second added against its face x = 10.
+Model BoxesSharingAFace {
+  units: mm
+  Profile first = Rect2 { center: [5mm, 5mm]; size: [10mm, 10mm] }
+  Profile second = Rect2 { center: [15mm, 5mm]; size: [10mm, 10mm] }
+  Compose body {
+    Base stock { profile: first; from: 0mm; to: 10mm; role: Stock }
+    Add block { profile: second; from: 0mm; to: 10mm }
+  }
+}

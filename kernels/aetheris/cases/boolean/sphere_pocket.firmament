@@ -1,0 +1,4 @@
+// Refused: Aetheris does not subtract a Sphere from a block: there is no public Subtract, and a
+// Pocket is a prism of a Profile with a flat floor. Its guide says so: "Subtracting a Sphere from
+// a block, a hemispherical arbitrary cavity, public Union / Subtract / Intersect, and general CSG
+// trees are not Preview 3 Firmament features."

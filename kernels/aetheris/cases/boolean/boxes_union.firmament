@@ -1,0 +1,10 @@
+// The first block as the stock, the second added beside it over the same heights.
+Model BoxesUnion {
+  units: mm
+  Profile first = Rect2 { center: [5mm, 5mm]; size: [10mm, 10mm] }
+  Profile second = Rect2 { center: [10mm, 10mm]; size: [10mm, 10mm] }
+  Compose body {
+    Base stock { profile: first; from: 0mm; to: 10mm; role: Stock }
+    Add block { profile: second; from: 0mm; to: 10mm }
+  }
+}

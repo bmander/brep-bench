@@ -1,0 +1,10 @@
+// The cylinder's disc as the stock, drilled through along its axis. (A Cylinder would build the
+// same stock, but a Modify does not admit one as a target: firmament-v2-modify-target-not-solid.)
+Model Tube {
+  units: mm
+  Profile outline = Circle2 { center: [0mm, 0mm]; radius: 5mm }
+  Compose rod {
+    Base stock { profile: outline; from: 0mm; to: 10mm; role: Stock }
+    Hole<Shaft> bore { on: +Z; center: [0mm, 0mm]; diameter: 6mm; end: ThroughAll }
+  }
+}
