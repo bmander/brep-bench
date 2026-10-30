@@ -2,20 +2,19 @@
  "kernel": "truck",
  "version": "truck (git ricosjp/truck 1ca3214e537004d466addbd85d6375807147a426), runner 1.0.0",
  "measured": "mesh",
- "run": "2026-10-30T05:36:06Z",
+ "run": "2026-10-30T06:02:50Z",
  "tally": {
-  "crashed": 4,
-  "refused": 16,
-  "pass": 12,
-  "missing": 13,
-  "wrong": 1
+  "crashed": 5,
+  "refused": 19,
+  "pass": 20,
+  "wrong": 2
  },
  "cases": [
   {
    "case": "boolean/box-minus-through-cylinder",
    "outcome": "crashed",
    "why": "panicked at truck-geometry/src/decorators/intersection_curve.rs:220:67: called `Option::unwrap()` on a `None` value",
-   "seconds": 0.756,
+   "seconds": 0.288,
    "measured": "exact",
    "volume": null,
    "area": null,
@@ -37,7 +36,7 @@
    "case": "boolean/boxes-cut",
    "outcome": "refused",
    "why": "truck-shapeops `and` returned None",
-   "seconds": 0.004,
+   "seconds": 0.003,
    "measured": "exact",
    "volume": null,
    "area": null,
@@ -81,7 +80,7 @@
    "case": "boolean/drilled-plate",
    "outcome": "pass",
    "why": "",
-   "seconds": 4.175,
+   "seconds": 4.323,
    "measured": "mesh",
    "volume": null,
    "area": null,
@@ -94,15 +93,15 @@
     "degenerate": 0,
     "unmatched_edges": 0,
     "closed": true,
-    "volume": 18870.831544470042,
-    "area": 7304.662010335518
+    "volume": 18870.83154446971,
+    "area": 7304.662010335402
    }
   },
   {
    "case": "boolean/half-cylinder-boss-tangent",
    "outcome": "refused",
    "why": "truck-shapeops `or` returned None",
-   "seconds": 0.008,
+   "seconds": 0.009,
    "measured": "exact",
    "volume": null,
    "area": null,
@@ -113,7 +112,7 @@
    "case": "boolean/half-torus",
    "outcome": "refused",
    "why": "truck-shapeops `and` returned None",
-   "seconds": 0.051,
+   "seconds": 0.057,
    "measured": "exact",
    "volume": null,
    "area": null,
@@ -124,7 +123,7 @@
    "case": "boolean/hemisphere",
    "outcome": "pass",
    "why": "",
-   "seconds": 1.141,
+   "seconds": 1.206,
    "measured": "mesh",
    "volume": null,
    "area": null,
@@ -137,26 +136,36 @@
     "degenerate": 0,
     "unmatched_edges": 0,
     "closed": true,
-    "volume": 261.75821602345576,
-    "area": 235.59900569946183
+    "volume": 261.7582160234553,
+    "area": 235.599005699463
    }
   },
   {
    "case": "boolean/indexed-pattern",
-   "outcome": "missing",
-   "why": "no implementation",
-   "seconds": 0.0,
-   "measured": "exact",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 2.916,
+   "measured": "mesh",
    "volume": null,
    "area": null,
-   "faces": null,
-   "mesh": null
+   "faces": {
+    "bspline": 28,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 54232,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 5905.7557243132815,
+    "area": 3367.5826687369713
+   }
   },
   {
    "case": "boolean/napkin-ring",
    "outcome": "refused",
    "why": "truck-shapeops `and` returned None",
-   "seconds": 0.197,
+   "seconds": 0.235,
    "measured": "exact",
    "volume": null,
    "area": null,
@@ -165,9 +174,9 @@
   },
   {
    "case": "boolean/offset-hole-sphere",
-   "outcome": "missing",
-   "why": "no implementation",
-   "seconds": 0.0,
+   "outcome": "refused",
+   "why": "truck-shapeops `and` returned None",
+   "seconds": 0.247,
    "measured": "exact",
    "volume": null,
    "area": null,
@@ -178,7 +187,7 @@
    "case": "boolean/sphere-lens",
    "outcome": "refused",
    "why": "truck-shapeops `and` returned None",
-   "seconds": 0.164,
+   "seconds": 0.172,
    "measured": "exact",
    "volume": null,
    "area": null,
@@ -189,7 +198,7 @@
    "case": "boolean/sphere-pocket",
    "outcome": "pass",
    "why": "",
-   "seconds": 0.678,
+   "seconds": 0.744,
    "measured": "mesh",
    "volume": null,
    "area": null,
@@ -202,15 +211,15 @@
     "degenerate": 0,
     "unmatched_edges": 0,
     "closed": true,
-    "volume": 3738.3166715620955,
-    "area": 1678.513275624421
+    "volume": 3738.3166715621196,
+    "area": 1678.5132756244084
    }
   },
   {
    "case": "boolean/spheres-union",
    "outcome": "refused",
    "why": "truck-shapeops `or` returned None",
-   "seconds": 0.145,
+   "seconds": 0.158,
    "measured": "exact",
    "volume": null,
    "area": null,
@@ -221,7 +230,7 @@
    "case": "boolean/steinmetz-common",
    "outcome": "crashed",
    "why": "panicked at truck-topology/src/lib.rs:187:56: This shell is not oriented and closed.",
-   "seconds": 0.231,
+   "seconds": 0.262,
    "measured": "exact",
    "volume": null,
    "area": null,
@@ -232,7 +241,7 @@
    "case": "boolean/steinmetz-union",
    "outcome": "crashed",
    "why": "panicked at truck-topology/src/lib.rs:187:56: This shell is not oriented and closed.",
-   "seconds": 0.218,
+   "seconds": 0.236,
    "measured": "exact",
    "volume": null,
    "area": null,
@@ -243,7 +252,7 @@
    "case": "boolean/stepped-shaft",
    "outcome": "refused",
    "why": "truck-shapeops `or` returned None",
-   "seconds": 0.041,
+   "seconds": 0.039,
    "measured": "exact",
    "volume": null,
    "area": null,
@@ -254,7 +263,7 @@
    "case": "boolean/tube",
    "outcome": "crashed",
    "why": "panicked at truck-geometry/src/decorators/intersection_curve.rs:220:67: called `Option::unwrap()` on a `None` value",
-   "seconds": 0.299,
+   "seconds": 0.325,
    "measured": "exact",
    "volume": null,
    "area": null,
@@ -276,7 +285,7 @@
    "case": "fillet/box-all-edges",
    "outcome": "refused",
    "why": "truck-shapeops rounds only a single edge whose ends each meet exactly three faces (`fillet_with_side`); here three rounds meet at every corner, and its fillet along connected edges is unsupported (commented out in truck-shapeops)",
-   "seconds": 0.002,
+   "seconds": 0.003,
    "measured": "exact",
    "volume": null,
    "area": null,
@@ -287,7 +296,7 @@
    "case": "fillet/box-one-edge",
    "outcome": "pass",
    "why": "",
-   "seconds": 0.19,
+   "seconds": 0.202,
    "measured": "mesh",
    "volume": null,
    "area": null,
@@ -317,9 +326,9 @@
   },
   {
    "case": "parts/flange",
-   "outcome": "missing",
-   "why": "no implementation",
-   "seconds": 0.0,
+   "outcome": "refused",
+   "why": "truck-shapeops `and` (the bolt hole at 180\u00b0) returned None",
+   "seconds": 1.065,
    "measured": "exact",
    "volume": null,
    "area": null,
@@ -328,20 +337,30 @@
   },
   {
    "case": "parts/pin-lug",
-   "outcome": "missing",
-   "why": "no implementation",
-   "seconds": 0.0,
-   "measured": "exact",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.392,
+   "measured": "mesh",
    "volume": null,
    "area": null,
-   "faces": null,
-   "mesh": null
+   "faces": {
+    "bspline": 4,
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 8600,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 29990.177194168355,
+    "area": 8900.580668999592
+   }
   },
   {
    "case": "parts/pocketed-tray",
-   "outcome": "missing",
-   "why": "no implementation",
-   "seconds": 0.0,
+   "outcome": "crashed",
+   "why": "panicked at truck-geometry/src/decorators/intersection_curve.rs:220:67: called `Option::unwrap()` on a `None` value",
+   "seconds": 0.413,
    "measured": "exact",
    "volume": null,
    "area": null,
@@ -350,47 +369,85 @@
   },
   {
    "case": "parts/shelf-bracket",
-   "outcome": "missing",
-   "why": "no implementation",
-   "seconds": 0.0,
-   "measured": "exact",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.022,
+   "measured": "mesh",
    "volume": null,
    "area": null,
-   "faces": null,
-   "mesh": null
+   "faces": {
+    "bspline": 1,
+    "plane": 8
+   },
+   "mesh": {
+    "triangles": 2070,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 40137.54836906365,
+    "area": 12393.16067724889
+   }
   },
   {
    "case": "parts/star-handle",
-   "outcome": "missing",
-   "why": "no implementation",
-   "seconds": 0.0,
-   "measured": "exact",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.396,
+   "measured": "mesh",
    "volume": null,
    "area": null,
-   "faces": null,
-   "mesh": null
+   "faces": {
+    "bspline": 16,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 30644,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 19178.79452782732,
+    "area": 6148.595479609881
+   }
   },
   {
    "case": "parts/turned-shaft",
-   "outcome": "missing",
-   "why": "no implementation",
-   "seconds": 0.0,
-   "measured": "exact",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.102,
+   "measured": "mesh",
    "volume": null,
    "area": null,
-   "faces": null,
-   "mesh": null
+   "faces": {
+    "other": 24
+   },
+   "mesh": {
+    "triangles": 4520,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 120867.85888343734,
+    "area": 17468.024507779945
+   }
   },
   {
    "case": "parts/v-belt-pulley",
-   "outcome": "missing",
-   "why": "no implementation",
-   "seconds": 0.0,
-   "measured": "exact",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.463,
+   "measured": "mesh",
    "volume": null,
    "area": null,
-   "faces": null,
-   "mesh": null
+   "faces": {
+    "other": 44
+   },
+   "mesh": {
+    "triangles": 4948,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 41487.15988504798,
+    "area": 10483.815117287308
+   }
   },
   {
    "case": "primitives/box",
@@ -416,7 +473,7 @@
    "case": "primitives/cone-frustum",
    "outcome": "pass",
    "why": "",
-   "seconds": 0.023,
+   "seconds": 0.038,
    "measured": "mesh",
    "volume": null,
    "area": null,
@@ -436,7 +493,7 @@
    "case": "primitives/cylinder",
    "outcome": "pass",
    "why": "",
-   "seconds": 0.441,
+   "seconds": 0.521,
    "measured": "mesh",
    "volume": null,
    "area": null,
@@ -498,7 +555,7 @@
    "case": "primitives/revolved-washer",
    "outcome": "pass",
    "why": "",
-   "seconds": 0.111,
+   "seconds": 0.117,
    "measured": "mesh",
    "volume": null,
    "area": null,
@@ -518,7 +575,7 @@
    "case": "primitives/sphere",
    "outcome": "wrong",
    "why": "triangles not closed (33 edges unmatched)",
-   "seconds": 1.453,
+   "seconds": 1.484,
    "measured": "mesh",
    "volume": null,
    "area": null,
@@ -538,7 +595,7 @@
    "case": "primitives/torus",
    "outcome": "pass",
    "why": "",
-   "seconds": 1.052,
+   "seconds": 0.888,
    "measured": "mesh",
    "volume": null,
    "area": null,
@@ -558,7 +615,7 @@
    "case": "sweep/circle-along-arc",
    "outcome": "pass",
    "why": "",
-   "seconds": 0.275,
+   "seconds": 0.297,
    "measured": "mesh",
    "volume": null,
    "area": null,
@@ -577,14 +634,24 @@
   },
   {
    "case": "sweep/duct-elbow",
-   "outcome": "missing",
-   "why": "no implementation",
-   "seconds": 0.0,
-   "measured": "exact",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.058,
+   "measured": "mesh",
    "volume": null,
    "area": null,
-   "faces": null,
-   "mesh": null
+   "faces": {
+    "other": 8,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 1552,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 6031.737093706595,
+    "area": 6287.857273699851
+   }
   },
   {
    "case": "sweep/helical-pipe",
@@ -610,20 +677,30 @@
   },
   {
    "case": "sweep/hollow-reducer",
-   "outcome": "missing",
-   "why": "no implementation",
-   "seconds": 0.0,
-   "measured": "exact",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.005,
+   "measured": "mesh",
    "volume": null,
    "area": null,
-   "faces": null,
-   "mesh": null
+   "faces": {
+    "bspline": 8,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 32,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 5120.0,
+    "area": 5433.279594536112
+   }
   },
   {
    "case": "sweep/narrowing-bend",
-   "outcome": "missing",
-   "why": "no implementation",
-   "seconds": 0.0,
+   "outcome": "refused",
+   "why": "truck-modeling sweeps a section only unchanged, by translation (`tsweep`) or rotation (`rsweep`); this section shrinks as it turns, its corners tracing spirals that no truck curve (line, B-spline, NURBS) represents, and `try_wire_homotopy` lofts only along straight lines",
+   "seconds": 0.002,
    "measured": "exact",
    "volume": null,
    "area": null,
@@ -632,14 +709,24 @@
   },
   {
    "case": "sweep/twisted-duct",
-   "outcome": "missing",
-   "why": "no implementation",
-   "seconds": 0.0,
-   "measured": "exact",
+   "outcome": "wrong",
+   "why": "volume 9173.333333333332 against 12373.3333333; area 3725.0981505479563 against 3515.67071004; triangles' volume 9173.33",
+   "seconds": 0.003,
+   "measured": "mesh",
    "volume": null,
    "area": null,
-   "faces": null,
-   "mesh": null
+   "faces": {
+    "bspline": 4,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 12,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 9173.333333333332,
+    "area": 3725.0981505479563
+   }
   }
  ]
 }
