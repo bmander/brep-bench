@@ -40,6 +40,7 @@ def build():
     moved.SetTranslation(slide)
     wheel_at_end = BRepBuilderAPI_Transform(wheel, moved, True).Shape()
 
+    # workaround: no sweep of a solid
     # OCCT's prism sweeps no solid ("Solids are not Processed"), but it sweeps a shell, each face
     # to the solid that face passes through. A face swept whole is only what it passes through if
     # the slide never runs along it inside it. The torus's normal, at the point of its tube's
