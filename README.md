@@ -79,9 +79,9 @@ python3 harness/site.py            # the scoreboard and a page per case: site/
 Python's standard library (3.11 or later).
 
 On GitHub, a push to `main` runs only what it changed (`harness/changed.py` decides: a case, a
-kernel's implementation of one, or a kernel's runner), on top of the last run's results, and the
-site is published after every push. The whole suite runs nightly, and when the harness's running
-or grading changes.
+kernel's implementation of one, or a kernel's runner), on top of the last run's results; a push
+that changes no case skips the bench, building nothing. The site is published after every push.
+The whole suite runs nightly, and when the harness's running or grading changes.
 
 ## Kernels
 
