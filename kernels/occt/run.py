@@ -39,10 +39,12 @@ from OCP.TopoDS import TopoDS  # noqa: E402
 sys.path.insert(0, HERE)
 from bench import Refused  # noqa: E402
 
-# How finely the measures integrate, and how near the mesh keeps to the solid (a fraction of the
-# diagonal of the solid's bounding box).
+# How finely the measures integrate, and how near the mesh keeps to the solid: a fraction of the
+# diagonal of the solid's bounding box, and no more than a fraction of its thickness (volume over
+# area), so a thin solid is meshed as closely as a stout one.
 MEASURE_EPS = 1e-10
 MESH_DEFLECTION = 1e-4
+THICKNESS_DEFLECTION = 5e-3
 
 KINDS = {
     GeomAbs_SurfaceType.GeomAbs_Plane: "plane",
@@ -88,7 +90,10 @@ def measure(shape, out_stl):
     box = Bnd_Box()
     BRepBndLib.Add_s(shape, box)
     diagonal = box.CornerMin().Distance(box.CornerMax())
-    BRepMesh_IncrementalMesh(shape, MESH_DEFLECTION * diagonal, False, 0.1, True)
+    thickness = volume.Mass() / surface.Mass() if surface.Mass() > 0 else diagonal
+    # never below OCCT's own precision (Precision::Confusion, 1e-7), which BRepMesh refuses
+    deflection = max(min(MESH_DEFLECTION * diagonal, THICKNESS_DEFLECTION * thickness), 2e-7)
+    BRepMesh_IncrementalMesh(shape, deflection, False, 0.1, True)
     writer = StlAPI_Writer()
     writer.ASCIIMode = False
     if not writer.Write(shape, out_stl):
