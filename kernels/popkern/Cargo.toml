@@ -1,0 +1,23 @@
+[package]
+name = "brep-bench-popkern"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+description = "The brep-bench runner for popkern: it runs each case's Rhai script and reports the part."
+publish = false
+
+# popkern is not on crates.io: its crates come from its repository, at the commit Cargo.lock holds
+[dependencies]
+popkern-core = { git = "https://github.com/popkern-dev/popkern" }
+popkern-rhai = { git = "https://github.com/popkern-dev/popkern" }
+popkern-assembly = { git = "https://github.com/popkern-dev/popkern" }
+popkern-part = { git = "https://github.com/popkern-dev/popkern" }
+popkern-mesh = { git = "https://github.com/popkern-dev/popkern" }
+popkern-measure = { git = "https://github.com/popkern-dev/popkern" }
+# the weld popkern uses to make one indexed mesh of a part's faces
+popkern-analysis = { git = "https://github.com/popkern-dev/popkern" }
+popkern-analysis-brep = { git = "https://github.com/popkern-dev/popkern" }
+serde_json = "1"
+
+[profile.release]
+debug = 0

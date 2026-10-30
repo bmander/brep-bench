@@ -114,7 +114,27 @@
       "source": "kernels/vcad/src/cases/{category}/{name_snake}.rs"
     },
     {"name": "brepkit", "kernel": "https://github.com/andymai/brepkit", "license": "AGPL-3.0 or commercial", "language": "Rust", "command": null},
-    {"name": "popkern", "kernel": "https://github.com/popkern-dev/popkern", "license": "AGPL-3.0 with exception", "language": "Rust", "command": null},
+    {
+      "name": "popkern",
+      "kernel": "https://github.com/popkern-dev/popkern",
+      "license": "AGPL-3.0 with exception",
+      "language": "Rhai (popkern's scripts), run from Rust",
+      "build": [
+        "cargo",
+        "build",
+        "--release",
+        "--manifest-path",
+        "kernels/popkern/Cargo.toml"
+      ],
+      "command": [
+        "kernels/popkern/target/release/brep-bench-popkern"
+      ],
+      "version": [
+        "kernels/popkern/target/release/brep-bench-popkern",
+        "--version"
+      ],
+      "source": "kernels/popkern/cases/{category}/{name_snake}.rhai"
+    },
     {"name": "next.BREP", "kernel": "https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL", "license": "custom", "language": "Rust", "command": null}
   ]
 }
