@@ -5,10 +5,12 @@ tags = ["tangent", "boolean", "common", "analytic", "near-degenerate", "sliver"]
 [volume]
 value = 7.853981372175095e-12
 exact = "π(4r + d)(2r − d)²/12, r = 5, d = 9.999999, 2r − d = 10⁻⁶"
+tex = '\tfrac{\pi}{12}(4r + d)(2r - d)^2,\quad r = 5,\ d = 9.999999,\ 2r - d = 10^{-6}'
 
 [area]
 value = 3.1415926535897935e-05
 exact = "2·2πr(r − d/2) = 4π·5·(5·10⁻⁷) = π·10⁻⁵, r = 5, d = 9.999999"
+tex = '2\cdot 2\pi r\left(r - \tfrac{d}{2}\right) = 4\pi\cdot 5\cdot\left(5\cdot 10^{-7}\right) = \pi\cdot 10^{-5}'
 +++
 
 Two balls of radius 5, one centred on the origin and one at (9.999999, 0, 0), so that they

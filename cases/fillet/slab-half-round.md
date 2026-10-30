@@ -5,10 +5,12 @@ tags = ["fillet", "vanishing-face"]
 [volume]
 value = 222.83185307179588
 exact = "10·(4·4 + π2²/2) = 160 + 20π: the section is a 4 × 4 square under a half disc of radius 2"
+tex = '10\left(4\cdot 4 + \tfrac{\pi\cdot 2^2}{2}\right) = 160 + 20\pi'
 
 [area]
 value = 227.39822368615503
 exact = "2(16 + 2π) + 40 + 2·40 + π·2·10 = 152 + 24π"
+tex = '2(16 + 2\pi) + 40 + 2\cdot 40 + 10\pi\cdot 2 = 152 + 24\pi'
 +++
 
 A block from the origin to (10, 4, 6). Round the two edges of its top face z = 6 that run along

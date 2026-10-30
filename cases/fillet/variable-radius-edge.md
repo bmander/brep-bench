@@ -5,10 +5,12 @@ tags = ["fillet", "variable-radius"]
 [volume]
 value = 994.9926238126071
 exact = "1000 − (1 − π/4)∫₀¹⁰(1 + z/10)²dz = 1000 − (70/3)(1 − π/4)"
+tex = '1000 - \left(1 - \tfrac{\pi}{4}\right)\int_0^{10}\left(1 + \tfrac{z}{10}\right)^2 dz = 1000 - \tfrac{70}{3}\left(1 - \tfrac{\pi}{4}\right)'
 
 [area]
 value = 592.4995517137655
 exact = "600 − 2∫₀¹⁰ r dz − (1 − π/4)(1² + 2²) + ∫₀¹⁰ r dz·∫₀^{π/2}√(1 + (r′)²(1 − sin θ − cos θ)²)dθ, r = 1 + z/10, r′ = 1/10: 570 − 5(1 − π/4) + 15·I, I = ∫₀^{π/2}√(1 + (1 − sin θ − cos θ)²/100)dθ = 1.5715040597852221 (the round's area separates as ∫ r dz times I)"
+tex = '\begin{array}{l} 570 - 5\left(1 - \tfrac{\pi}{4}\right) + 15I \\ I = \displaystyle\int_0^{\pi/2}\sqrt{1 + \tfrac{(1 - \sin\theta - \cos\theta)^2}{100}}\,d\theta = 1.5715040597852221 \end{array}'
 +++
 
 A cube of side 10 between the origin and (10, 10, 10). Round the edge where its faces x = 10 and

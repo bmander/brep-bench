@@ -5,10 +5,12 @@ tags = ["tangent", "boolean", "union", "analytic", "point-contact"]
 [volume]
 value = 1000
 exact = "10³: the union is the cube"
+tex = '10^3'
 
 [area]
 value = 600
 exact = "6·10²: the union is the cube"
+tex = '6\cdot 10^2'
 +++
 
 A cube of side 10 between the origin and (10, 10, 10), united with the ball of radius 5 centred

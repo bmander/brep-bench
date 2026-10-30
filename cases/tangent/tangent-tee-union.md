@@ -5,10 +5,12 @@ tags = ["tangent", "boolean", "union", "ssi", "singular-curve"]
 [volume]
 value = 2964.678077834993
 exact = "π5²·30 + π3²·30 − V₀ = 1020π − 96√15 + 128L, L = asinh(√6/2), V₀ = 96√15 − 128L the common part (tangent/tangent-tee-common)"
+tex = '30\pi\cdot 5^2 + 30\pi\cdot 3^2 - V_0 = 1020\pi - 96\sqrt{15} + 128L,\quad V_0 = 96\sqrt{15} - 128L,\ L = \operatorname{asinh}\tfrac{\sqrt{6}}{2}'
 
 [area]
 value = 1506.736833112261
 exact = "(2π5·30 + 2π5²) + (2π3·30 + 2π3²) − A₀ = 548π − 64√15 + 32L, L = asinh(√6/2), A₀ = 64√15 − 32L the common part's surface, which the union loses from both walls (tangent/tangent-tee-common)"
+tex = '\left(2\pi\cdot 5\cdot 30 + 2\pi\cdot 5^2\right) + \left(2\pi\cdot 3\cdot 30 + 2\pi\cdot 3^2\right) - A_0 = 548\pi - 64\sqrt{15} + 32L,\quad A_0 = 64\sqrt{15} - 32L'
 +++
 
 Two solid cylinders crossing at right angles. The first, the main, of radius 5, lies along the x

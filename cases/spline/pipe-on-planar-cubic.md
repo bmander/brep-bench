@@ -5,10 +5,12 @@ tags = ["spline", "sweep", "planar-path", "bezier", "near-cusp"]
 [volume]
 value = 65345.12719466769
 exact = "πr²L, r = 20, L = 52: a tube whose radius is below the path's least radius of curvature (24) and whose sections never meet holds πr² per unit length (Pappus/Weyl). The path is a Pythagorean-hodograph cubic, |c′(t)| = 12(4 + (2t − 1)²), so L = ∫₀¹ |c′| dt = 12·(4 + 1/3) = 52 exactly"
+tex = '\pi r^2 L,\quad r = 20,\ L = \int_0^1 12\left(4 + (2t - 1)^2\right)dt = 12\left(4 + \tfrac{1}{3}\right) = 52'
 
 [area]
 value = 9047.786842338604
 exact = "2πrL + 2πr² = 2080π + 800π = 2880π: the wall holds 2πr per unit length for the same reason, and the two ends are discs"
+tex = '2\pi r L + 2\pi r^2 = 2080\pi + 800\pi = 2880\pi'
 +++
 
 A pipe of circular section, radius 20, swept along a planar cubic Bézier curve in the xy plane.

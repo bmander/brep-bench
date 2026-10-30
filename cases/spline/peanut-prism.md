@@ -5,6 +5,7 @@ tags = ["spline", "extrude", "periodic", "sliver"]
 [volume]
 value = 2472.152777777778
 exact = "10 × the section's area, 10·35599/144 = 177995/72: ½∮(x dy − y dx) over the twelve spans, each a polynomial (Green's theorem)"
+tex = '10A = 10\cdot\tfrac{35599}{144} = \tfrac{177995}{72},\quad A = \tfrac{1}{2}\oint\left(x\,dy - y\,dx\right)'
 
 [area]
 value = 1319.2165440112476

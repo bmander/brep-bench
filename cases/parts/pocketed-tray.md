@@ -6,10 +6,12 @@ origin = "geomsolver rust/examples/solid_tray.sv"
 [volume]
 value = 21371.150263212312
 exact = "72·48·16 − 66·42·13 + 4·π(5² − 2²)·8 = 19260 + 672π"
+tex = '72\cdot 48\cdot 16 - 66\cdot 42\cdot 13 + 4\pi\left(5^2 - 2^2\right)\cdot 8 = 19260 + 672\pi'
 
 [area]
 value = 14967.43350880821
 exact = "2·72·48 + 2·(72 + 48)·16 + 2·(66 + 42)·13 + 4·(2π·5·8 + 2π·2·8) = 13560 + 448π"
+tex = '2\cdot 72\cdot 48 + 2(72 + 48)\cdot 16 + 2(66 + 42)\cdot 13 + 4\left(2\pi\cdot 5\cdot 8 + 2\pi\cdot 2\cdot 8\right) = 13560 + 448\pi'
 +++
 
 An open tray lying on its back, its opening facing −y. It is made in three steps.

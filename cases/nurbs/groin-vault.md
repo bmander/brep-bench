@@ -5,10 +5,12 @@ tags = ["nurbs", "rational", "weights", "boolean", "common", "tangent-crossing",
 [volume]
 value = 7632.0
 exact = "24²·10 + 8∫₀¹² x(√(225 − x²) − 9) dx = 5760 + 8(882 − 648): above z = 10 the solid's height over (x, y) is 1 + √(225 − m²), m = max(|x|, |y|), so each of the eight triangles 0 ≤ |y| ≤ |x| ≤ 12 (and the same with x, y swapped) integrates in x alone"
+tex = '24^2\cdot 10 + 8\int_0^{12} x\left(\sqrt{225 - x^2} - 9\right)dx = 5760 + 8(882 - 648)'
 
 [area]
 value = 2256.0
 exact = "floor 24² + four sides 4·24·10 + the vaulted top 8∫₀¹² x·15/√(225 − x²) dx = 576 + 960 + 8·90"
+tex = '24^2 + 4\cdot 24\cdot 10 + 8\int_0^{12}\frac{15x}{\sqrt{225 - x^2}}\,dx = 576 + 960 + 8\cdot 90'
 +++
 
 The common part of two blocks with barrel-vaulted tops, the second the first turned a quarter

@@ -6,10 +6,12 @@ origin = "geomsolver rust/examples/rounded_bracket.sv"
 [volume]
 value = 40137.3451754256
 exact = "10·(120·20 + 80·20 + 8²(1 − π/4)) = 40640 − 160π"
+tex = '10\left(120\cdot 20 + 80\cdot 20 + 8^2\left(1 - \tfrac{\pi}{4}\right)\right) = 40640 - 160\pi'
 
 [area]
 value = 12393.13274122872
 exact = "2(4064 − 16π) + 10·(20 + 92 + 4π + 72 + 20 + 100 + 120) = 12368 + 8π"
+tex = '2(4064 - 16\pi) + 10(20 + 92 + 4\pi + 72 + 20 + 100 + 120) = 12368 + 8\pi'
 +++
 
 An L-shaped plate bracket, 10 thick: its outline lies in the xz plane and is extruded from

@@ -21,7 +21,9 @@ def read_case(path):
         "title": meta.get("title", cid),
         "tags": meta.get("tags", []),
         # an unsettled case (`settled = false`) has no answer yet: what each kernel builds is shown
-        "expect": ({k: {"value": float(meta[k]["value"]), "exact": meta[k]["exact"]}
+        # `tex` is the closed form in LaTeX, for the case's page; absent where there is none
+        "expect": ({k: {"value": float(meta[k]["value"]), "exact": meta[k]["exact"],
+                        "tex": meta[k].get("tex")}
                     for k in ("volume", "area")}
                    if meta.get("settled", True) else None),
         "description": body.strip(),

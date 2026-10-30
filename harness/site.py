@@ -16,6 +16,7 @@ SITE = os.path.join(ROOT, "site")
 REPO = "https://github.com/bmander/brep-bench"
 OUTCOMES = ["pass", "built", "refused", "wrong", "crashed", "timeout", "missing"]
 THREE = "https://cdn.jsdelivr.net/npm/three@0.160.0"
+KATEX = "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist"
 
 STYLE = """
 :root { --bg: #fff; --fg: #1d1d1f; --muted: #6b6b70; --line: #e3e3e6; --card: #f6f6f4;
@@ -63,6 +64,8 @@ img.thumb { width: 64px; height: 64px; object-fit: contain; border-radius: 4px;
 .pick button { font: inherit; padding: 4px 12px; border-radius: 999px; cursor: pointer;
                border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
 .pick button[aria-pressed=true] { border-color: var(--accent); color: var(--accent); }
+td.closed .katex-display { margin: 0; }
+td.closed .katex-display > .katex { text-align: left; }
 pre { background: var(--card); padding: 12px; border-radius: 6px; overflow-x: auto;
       font-size: 0.85em; margin: 6px 0 0; }
 """
@@ -200,10 +203,15 @@ def case_page(c, registry, results, drawing):
                    "whatever its measures; the table says which kernels agree with which.</p>")
     else:
         out.append("<div class=scroll><table><tr><th></th><th>expected</th>"
-                   "<th>where it comes from</th></tr>")
+                   "<th>closed form</th></tr>")
         for key in ("volume", "area"):
-            out.append(f"<tr><td>{key}</td><td>{exp[key]['value']:.10g}</td>"
-                       f"<td class=muted>{e(exp[key]['exact'])}</td></tr>")
+            x = exp[key]
+            # the closed form typeset by KaTeX, with the case's own words until it loads (and
+            # where there is no closed form)
+            form = (f"<td class=closed title='{e(x['exact'])}'><span class=tex "
+                    f"data-tex='{e(x['tex'])}'>{e(x['exact'])}</span></td>" if x["tex"]
+                    else f"<td class='muted why'>{e(x['exact'])}</td>")
+            out.append(f"<tr><td>{key}</td><td>{x['value']:.10g}</td>{form}</tr>")
         out.append("</table></div>")
 
 
@@ -311,12 +319,25 @@ def case_page(c, registry, results, drawing):
                "the case as written.</p>")
     if meshes:
         out.append(VIEWER.replace("{cdn}", THREE))
+    if exp and any(exp[k]["tex"] for k in exp):
+        out.append(TEX.replace("{cdn}", KATEX))
     out.append("</body></html>")
     path = os.path.join(SITE, "cases", cid + ".html")
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         f.write("\n".join(out))
 
+
+TEX = """<link rel=stylesheet href='{cdn}/katex.min.css'>
+<script src='{cdn}/katex.min.js'></script>
+<script>
+if (window.katex) {
+  for (const el of document.querySelectorAll('.tex')) {
+    katex.render(el.dataset.tex, el, { displayMode: true, throwOnError: false });
+  }
+}
+</script>
+"""
 
 VIEWER = """<script type=importmap>
 {"imports": {"three": "{cdn}/build/three.module.js", "three/addons/": "{cdn}/examples/jsm/"}}

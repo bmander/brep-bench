@@ -5,6 +5,7 @@ tags = ["nurbs", "bezier", "surface"]
 [volume]
 value = 3150.0
 exact = "400·Σzᵢⱼ/16 = 25·126: x = 20u and y = 20v, and each cubic Bernstein polynomial integrates to ¼ over [0, 1]"
+tex = '400\cdot\tfrac{1}{16}\sum_{i,j} z_{ij} = 25\cdot 126'
 
 [area]
 value = 1309.3229262031609

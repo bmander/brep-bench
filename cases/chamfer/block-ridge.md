@@ -5,10 +5,12 @@ tags = ["chamfer", "vanishing-face"]
 [volume]
 value = 200.0
 exact = "10·(4·4 + 4·2/2): the section is a 4 × 4 square under a right isosceles triangle"
+tex = '10\left(4\cdot 4 + \tfrac{4\cdot 2}{2}\right)'
 
 [area]
 value = 216.5685424949238
 exact = "2·20 + 40 + 2·40 + 2·2√2·10 = 160 + 40√2"
+tex = '2\cdot 20 + 40 + 2\cdot 40 + 2\cdot 2\sqrt{2}\cdot 10 = 160 + 40\sqrt{2}'
 +++
 
 A block from the origin to (10, 4, 6). Chamfer the two edges of its top face z = 6 that run

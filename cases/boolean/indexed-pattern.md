@@ -6,10 +6,12 @@ origin = "geomsolver rust/examples/solid_indexed_pattern.sv"
 [volume]
 value = 5906.194188748813
 exact = "π·20²·5 − 6·π·2²·5 = 1880π"
+tex = '5\pi\cdot 20^2 - 6\cdot 5\pi\cdot 2^2 = 1880\pi'
 
 [area]
 value = 3367.7873246482577
 exact = "2(π·20² − 6·π·2²) + 2π·20·5 + 6·2π·2·5 = 1072π"
+tex = '2\left(\pi\cdot 20^2 - 6\pi\cdot 2^2\right) + 2\pi\cdot 20\cdot 5 + 6\cdot 2\pi\cdot 2\cdot 5 = 1072\pi'
 +++
 
 A round disc of radius 20 on the z axis, from z = −5 to z = 0. Six round holes of radius 2 go

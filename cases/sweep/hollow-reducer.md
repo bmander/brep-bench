@@ -6,10 +6,12 @@ origin = "geomsolver rust/examples/solid_loft.sv"
 [volume]
 value = 5119.999999999596
 exact = "(40/3)(24² + 12² + 24·12) − (40/3)(20² + 8² + 20·8) = 13440 − 8320 = 5120"
+tex = '\tfrac{40}{3}\left(24^2 + 12^2 + 24\cdot 12\right) - \tfrac{40}{3}\left(20^2 + 8^2 + 20\cdot 8\right) = 13440 - 8320 = 5120'
 
 [area]
 value = 5433.279594536134
 exact = "(24² − 20²) + (12² − 8²) + 4·((24 + 12)/2 + (20 + 8)/2)·√(40² + 6²) = 256 + 256√409"
+tex = '\left(24^2 - 20^2\right) + \left(12^2 - 8^2\right) + 4\left(\tfrac{24 + 12}{2} + \tfrac{20 + 8}{2}\right)\sqrt{40^2 + 6^2} = 256 + 256\sqrt{409}'
 +++
 
 A hollow square tube that tapers along the y axis, from y = 0 to y = 40.

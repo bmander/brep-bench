@@ -5,10 +5,12 @@ tags = ["chamfer", "asymmetric", "corner"]
 [volume]
 value = 1142.6666666666667
 exact = "20·10·4 + ∫₀²(20 − s)(10 − s)ds = 800 + 1028/3 = 3428/3"
+tex = '20\cdot 10\cdot 4 + \int_0^2 (20 - s)(10 - s)\,ds = 800 + \tfrac{1028}{3} = \tfrac{3428}{3}'
 
 [area]
 value = 709.2198067399883
 exact = "200 + 2(20 + 10)·4 + 18·8 + 2·19√5 + 2·9√5 = 584 + 56√5"
+tex = '200 + 2(20 + 10)\cdot 4 + 18\cdot 8 + 2\cdot 19\sqrt{5} + 2\cdot 9\sqrt{5} = 584 + 56\sqrt{5}'
 +++
 
 A box from the origin to (20, 10, 6). Chamfer the four edges around its top face z = 6, each with

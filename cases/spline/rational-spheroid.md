@@ -5,10 +5,12 @@ tags = ["spline", "revolve", "rational", "weights", "pole", "knots"]
 [volume]
 value = 1507.9644737231006
 exact = "4πab²/3 = 480π, a = 10, b = 6: the weighted spline is exactly half the ellipse x²/36 + z²/100 = 1, so the solid is a prolate spheroid"
+tex = '\tfrac{4}{3}\pi a b^2 = 480\pi,\quad a = 10,\ b = 6'
 
 [area]
 value = 663.1722477458867
 exact = "2πb²(1 + (a/(be))·asin e), e = √(1 − b²/a²) = 4/5: 72π + 150π·asin(4/5)"
+tex = '2\pi b^2\left(1 + \tfrac{a}{be}\arcsin e\right) = 72\pi + 150\pi\arcsin\tfrac{4}{5},\quad e = \sqrt{1 - \tfrac{b^2}{a^2}} = \tfrac{4}{5}'
 +++
 
 A solid made by turning a plane region a full turn about the z axis. The region lies in the xz

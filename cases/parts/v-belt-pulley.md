@@ -6,10 +6,12 @@ origin = "geomsolver rust/examples/solid_pulley.sv"
 [volume]
 value = 41490.56537700988
 exact = "π(28² − 6²)·18 + π(12² − 6²)·10 − ∫₂₂²⁸ 2πr·(10/7)(r − 22) dr = 14544π − 9360π/7 = 92448π/7"
+tex = '\pi\left(28^2 - 6^2\right)\cdot 18 + \pi\left(12^2 - 6^2\right)\cdot 10 - \int_{22}^{28} 2\pi r\cdot\tfrac{10}{7}(r - 22)\,dr = 14544\pi - \tfrac{9360\pi}{7} = \tfrac{92448\pi}{7}'
 
 [area]
 value = 10484.569630424683
 exact = "2π(12² − 6²) + 2·2π·12·5 + 2π(28² − 12²) + 2π·6·28 + 2π·28·(18 − 60/7) + 2·π(22 + 28)·√(6² + (30/7)²) = 2600π + 600√74·π/7"
+tex = '\begin{array}{l} 2\pi\left(12^2 - 6^2\right) + 2\cdot 2\pi\cdot 12\cdot 5 + 2\pi\left(28^2 - 12^2\right) + 2\pi\cdot 6\cdot 28 + 2\pi\cdot 28\left(18 - \tfrac{60}{7}\right) \\ \quad + 2\pi(22 + 28)\sqrt{6^2 + \left(\tfrac{30}{7}\right)^2} = 2600\pi + \tfrac{600\sqrt{74}}{7}\pi \end{array}'
 +++
 
 A pulley turned about the z axis, symmetric about the plane z = 0:

@@ -6,10 +6,12 @@ origin = "geomsolver rust/examples/star_handle.sv"
 [volume]
 value = 19179.040932717548
 exact = "A₀H − P₀tH²/2 + πt²H³/3, H = 12, t = tan 2°; P₀ = 8L + 56θ − 6π, A₀ = 4(4a·sin θ + 7θ + (a·cos θ + 4)L + 3c·sin(θ − π/4) + 9π/4), a = 33.1, c = 15.9, D = √(a² + c² − √2ac), L = √(D² − 7²), θ = atan2(c/√2, c/√2 − a) − arccos(7/D)"
+tex = '\begin{array}{l} A_0 H - \tfrac{1}{2}P_0 t H^2 + \tfrac{1}{3}\pi t^2 H^3,\quad H = 12,\ t = \tan 2^\circ \\ P_0 = 8L + 56\theta - 6\pi,\quad A_0 = 4\left(4a\sin\theta + 7\theta + (a\cos\theta + 4)L + 3c\sin\left(\theta - \tfrac{\pi}{4}\right) + \tfrac{9\pi}{4}\right) \\ a = 33.1,\ c = 15.9,\ D = \sqrt{a^2 + c^2 - \sqrt{2}\,ac},\ L = \sqrt{D^2 - 7^2},\ \theta = \operatorname{atan2}\left(\tfrac{c}{\sqrt{2}}, \tfrac{c}{\sqrt{2}} - a\right) - \arccos\tfrac{7}{D} \end{array}'
 
 [area]
 value = 6148.760045500778
 exact = "A₀ + (A₀ − P₀tH + πt²H²) + (P₀H − πtH²)/cos 2°, with H, t, A₀ and P₀ as for the volume"
+tex = 'A_0 + \left(A_0 - P_0 t H + \pi t^2 H^2\right) + \frac{P_0 H - \pi t H^2}{\cos 2^\circ},\quad \text{with}\ H,\ t,\ A_0,\ P_0\ \text{as for the volume}'
 +++
 
 A four-armed star handle, as on a radiator valve: a flat star outline in the xz plane, extruded

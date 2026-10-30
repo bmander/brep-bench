@@ -5,10 +5,12 @@ tags = ["fillet", "concave", "torus", "vanishing-face"]
 [volume]
 value = 6718.978234245993
 exact = "40²·4 + π5²·4 + 2π(1 − π/4)r²·[(5 + d) − (5 − d)], d = r(10 − 3π)/(12 − 3π), r = 2 (Pappus) = 6400 + 100π + (8π/3)(10 − 3π)"
+tex = '\begin{array}{l} 4\cdot 40^2 + 4\pi\cdot 5^2 + 2\pi\left(1 - \tfrac{\pi}{4}\right)r^2\left[(5 + d) - (5 - d)\right] = 6400 + 100\pi + \tfrac{8\pi}{3}(10 - 3\pi) \\ d = \frac{r(10 - 3\pi)}{12 - 3\pi},\ r = 2 \end{array}'
 
 [area]
 value = 3911.7283818781953
 exact = "1600 + 640 + (1600 − 49π) + 9π + 2π·π(3 + 4/π) + 2π·π(7 − 4/π) (Pappus) = 3840 − 40π + 20π²"
+tex = '1600 + 640 + (1600 - 49\pi) + 9\pi + 2\pi^2\left(3 + \tfrac{4}{\pi}\right) + 2\pi^2\left(7 - \tfrac{4}{\pi}\right) = 3840 - 40\pi + 20\pi^2'
 +++
 
 A square plate from (−20, −20, 0) to (20, 20, 4), and a round boss on it: a cylinder of radius 5

@@ -5,10 +5,12 @@ tags = ["tangent", "boolean", "cut", "planar", "near-degenerate", "sliver"]
 [volume]
 value = 999.99995
 exact = "10³ − w·10·5, w = 10⁻⁶"
+tex = '10^3 - 10\cdot 5w,\quad w = 10^{-6}'
 
 [area]
 value = 699.99999
 exact = "6·10² + 2·10·5 − 2·5w, w = 10⁻⁶ (the slot's two walls added; the strip it takes from the top is its floor; it opens a slit 5 × w in the front and the back)"
+tex = '6\cdot 10^2 + 2\cdot 10\cdot 5 - 2\cdot 5w,\quad w = 10^{-6}'
 +++
 
 A cube of side 10 between the origin and (10, 10, 10), with a saw cut a millionth wide down into

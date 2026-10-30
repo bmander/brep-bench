@@ -5,10 +5,12 @@ tags = ["swept", "solid-sweep", "slide", "polyhedron", "zonotope"]
 [volume]
 value = 812.0
 exact = "abc + |dx|bc + |dy|ca + |dz|ab, a, b, c = 10, 6, 4, d = (8, 5, 3)"
+tex = 'abc + |d_x|\,bc + |d_y|\,ca + |d_z|\,ab,\quad (a, b, c) = (10, 6, 4),\ d = (8, 5, 3)'
 
 [area]
 value = 542.6189318971692
 exact = "2(ab + bc + ca) + 2(a|e₁×d| + b|e₂×d| + c|e₃×d|)"
+tex = '2(ab + bc + ca) + 2\left(a\,|e_1 \times d| + b\,|e_2 \times d| + c\,|e_3 \times d|\right)'
 +++
 
 The solid a box fills as it slides along a straight line without turning. The box starts as the box

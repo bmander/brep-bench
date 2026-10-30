@@ -5,10 +5,12 @@ tags = ["boolean", "common", "planar"]
 [volume]
 value = 250
 exact = "5·5·10"
+tex = '5\cdot 5\cdot 10'
 
 [area]
 value = 250
 exact = "2·25 + 20·10"
+tex = '2\cdot 25 + 20\cdot 10'
 +++
 
 Two blocks 10 high, both standing on the xy plane. The first spans x and y from 0 to 10; the second spans x and y from 5 to 15. Make the part common to both.

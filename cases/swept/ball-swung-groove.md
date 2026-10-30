@@ -6,10 +6,12 @@ origin = "geomsolver rust/examples/solid_sweeps/ball.sv"
 [volume]
 value = 4284.972013405971
 exact = "24·24·8 − ½(πr²·Rθ + 4πr³/3), r = 3, R = 12, θ = π/2"
+tex = '24\cdot 24\cdot 8 - \tfrac{1}{2}\left(\pi r^2 R\theta + \tfrac{4}{3}\pi r^3\right),\quad r = 3,\ R = 12,\ \theta = \tfrac{\pi}{2}'
 
 [area]
 value = 2012.829877572684
 exact = "box − (2rRθ + πr²) + (πrRθ + 2πr²)"
+tex = 'A_{\text{box}} - \left(2rR\theta + \pi r^2\right) + \left(\pi r R\theta + 2\pi r^2\right)'
 +++
 
 A block, the box from (−6, −6, −8) to (18, 18, 0), with a curved groove cut into its top face by a

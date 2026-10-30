@@ -6,10 +6,12 @@ origin = "geomsolver rust/examples/solid_bend.sv"
 [volume]
 value = 4900.88453960008
 exact = "∫ 30·A dθ over the quarter turn, A = (2h)² − (2h − 4)² = 16(h − 1), h running 9 → 6: 30·16·6.5·π/2 = 1560π"
+tex = '\int 30A\,d\theta = 30\cdot 16\cdot 6.5\cdot\tfrac{\pi}{2} = 1560\pi,\quad A = (2h)^2 - (2h - 4)^2 = 16(h - 1),\ h: 9 \to 6'
 
 [area]
 value = 5119.172836922541
 exact = "208 + (π/6)·[18F(39) − 12F(36) + 12F(24) − 18F(21) + 14F(37) − 8F(34) + 8F(26) − 14F(23)], F(ρ) = ½(ρ√(ρ² + c²) + c²·asinh(ρ/c)), c = 6/π (the half-width's change per radian); 208 = 128 + 80 the two ends"
+tex = '\begin{array}{l} 208 + \tfrac{\pi}{6}\left[18F(39) - 12F(36) + 12F(24) - 18F(21) + 14F(37) - 8F(34) + 8F(26) - 14F(23)\right] \\ F(\rho) = \tfrac{1}{2}\left(\rho\sqrt{\rho^2 + c^2} + c^2\operatorname{asinh}\tfrac{\rho}{c}\right),\quad c = \tfrac{6}{\pi} \end{array}'
 +++
 
 A hollow square duct that narrows as it bends through a quarter turn. Its centreline is an arc of

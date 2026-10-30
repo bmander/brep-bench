@@ -5,10 +5,12 @@ tags = ["chamfer", "corner"]
 [volume]
 value = 802.6666666666666
 exact = "a³ − 12·(d²/2)(a − 2d) − 8·(d³ − d³/6) = a³ − 6ad² + (16/3)d³, a = 10, d = 2: twelve prisms along the edges, and in each corner's cube of side d all but the tetrahedron (d, d, d), (d, d, 0), (d, 0, d), (0, d, d) cut away = 2408/3"
+tex = 'a^3 - 12\cdot\tfrac{d^2}{2}(a - 2d) - 8\left(d^3 - \tfrac{d^3}{6}\right) = a^3 - 6ad^2 + \tfrac{16}{3}d^3 = \tfrac{2408}{3},\quad a = 10,\ d = 2'
 
 [area]
 value = 447.3595659028278
 exact = "6(a − 2d)² + 12(a − 2d)·d√2 + 8·(√3/4)(d√2)² = 216 + 144√2 + 16√3"
+tex = '6(a - 2d)^2 + 12(a - 2d)\,d\sqrt{2} + 8\cdot\tfrac{\sqrt{3}}{4}\left(d\sqrt{2}\right)^2 = 216 + 144\sqrt{2} + 16\sqrt{3},\quad a = 10,\ d = 2'
 +++
 
 A cube of side 10 between the origin and (10, 10, 10). Chamfer all twelve of its edges, each with
