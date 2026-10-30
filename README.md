@@ -26,13 +26,19 @@ one is used, and what each one cannot yet do.
 
 ## What it checks
 
-There are 33 cases so far:
+The first 33 cases are textbook solids:
 
 - **Primitives:** box, cylinder, cone, sphere, torus, extrusion, revolution.
 - **Booleans:** coincident and partly coincident faces, tangencies, Steinmetz solids, spheres, tori,
   and a run of nine cuts.
 - **Sweeps:** a circle along helices and arcs.
 - **Fillets:** one edge, every edge of a box (three meeting at each corner), and a cylinder's rim.
+
+Then come real parts, taken from [geomsolver](https://github.com/bmander/geomsolver)'s example
+documents: a flange, a pulley, a tray, ducts swept along a bend. Their answers have no closed form.
+Each one's answer is what Solvent (the language those documents are written in) reports, and it is
+only accepted when an OCCT model, built independently from the case's words alone, agrees. That
+agreement also shows the words describe one solid.
 
 A case **passes** when three things hold:
 
@@ -74,6 +80,7 @@ Python's standard library (3.11 or later).
 | [arris](https://github.com/arris-labs/arris) | `kernels/arris` (Rust) |
 | [cad-kernel](https://github.com/bmander/cad-kernel) | `kernels/cad-kernel` (Rust) |
 | [truck](https://github.com/ricosjp/truck) | `kernels/truck` (Rust); measured from its mesh |
+| [Solvent](https://github.com/bmander/geomsolver) | `kernels/solvent` (Solvent documents, built by cad-kernel) |
 | [monstertruck](https://github.com/virtualritz/monstertruck), [kentron](https://github.com/rsz269/kentron), [vcad](https://github.com/ecto/vcad), [brepkit](https://github.com/andymai/brepkit), [popkern](https://github.com/popkern-dev/popkern), [next.BREP](https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL) | wanted |
 
 ## Contributing

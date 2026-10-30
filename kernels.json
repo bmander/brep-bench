@@ -69,6 +69,26 @@
     },
     {"name": "monstertruck", "kernel": "https://github.com/virtualritz/monstertruck", "license": "Apache-2.0", "language": "Rust", "command": null},
     {
+      "name": "solvent",
+      "kernel": "https://github.com/bmander/geomsolver",
+      "license": "MIT",
+      "language": "Solvent (on cad-kernel)",
+      "build": [
+        "sh",
+        "kernels/solvent/build.sh"
+      ],
+      "command": [
+        "python3",
+        "kernels/solvent/run.py"
+      ],
+      "version": [
+        "python3",
+        "kernels/solvent/run.py",
+        "--version"
+      ],
+      "source": "kernels/solvent/cases/{category}/{name_snake}.sv"
+    },
+    {
       "name": "arris",
       "kernel": "https://github.com/arris-labs/arris",
       "license": "MIT OR Apache-2.0",

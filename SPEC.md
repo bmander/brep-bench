@@ -43,6 +43,8 @@ A ball of radius 5 centred on the origin, with a hole of radius 3 bored right th
 z axis.
 ```
 
+The header may also say where a case came from: `origin = "geomsolver rust/examples/solid_flange.sv"`.
+
 How a description is written:
 
 - **Coordinates** are right-handed x, y, z, with z up. Lengths have no unit. Angles are in degrees,
