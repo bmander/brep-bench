@@ -188,11 +188,16 @@ def case_page(c, registry, results, drawing):
                f"{e(', '.join(c['tags']))}</p>")
     out.append(f"<div class=description>{paragraphs(c['description'])}</div>")
     exp = c["expect"]
-    out.append("<div class=scroll><table><tr><th></th><th>expected</th><th>closed form</th></tr>")
+    out.append("<div class=scroll><table><tr><th></th><th>expected</th><th>where it comes from</th>"
+               "</tr>")
     for key in ("volume", "area"):
         out.append(f"<tr><td>{key}</td><td>{exp[key]['value']:.10g}</td>"
                    f"<td class=muted>{e(exp[key]['exact'])}</td></tr>")
     out.append("</table></div>")
+    script = os.path.join(ROOT, "cases", cid + ".py")
+    if os.path.exists(script):
+        out.append(f"<p class=muted>The answer is integrated by <a href='{REPO}/blob/main/cases/"
+                   f"{e(cid)}.py'>cases/{e(cid)}.py</a>, from the geometry the words define.</p>")
 
     if drawing:
         d = f"{up}drawings/{e(cid)}"

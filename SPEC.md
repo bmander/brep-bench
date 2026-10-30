@@ -1,4 +1,4 @@
-# brep-bench specification, version 1
+# brep-bench specification, version 1.1
 
 brep-bench works like Rosetta Code. Each **case** describes a solid in plain words and gives its
 volume and area as closed forms. Each **kernel** has its own **implementation** of each case,
@@ -11,9 +11,15 @@ result the same way.
 - **No canonical script.** A case is a description of a solid, not code. There is no case language
   for a kernel to translate, and no implementation is privileged. Reading one case's
   implementations side by side shows how each kernel is used.
-- **Neutral answers.** Every expected value is a closed form, written beside the number (`exact`),
-  so it can be checked without trusting any kernel. A case whose answer has no closed form takes
-  its answer from at least two independent kernels that agree, and says so.
+- **Neutral answers.** Every expected value comes from outside the kernels, so it can be checked
+  without trusting any of them, and `exact` says where it came from. In order of preference:
+  - a closed form, written beside the number;
+  - a numerical integration of the geometry the description defines: a Python script beside the
+    case, `cases/<category>/<name>.py`, using only the standard library, that prints the volume
+    and the area to ten significant digits or better;
+  - at least two independent kernels that agree, each built from the description alone.
+
+  No answer ever comes from a single kernel.
 - **The same rules for every kernel.** The rules change only by a versioned edit to this file,
   made before any results under the new rules are published.
 - **A refusal ranks above a wrong answer.** A kernel that says "I cannot" is more useful than one
@@ -165,10 +171,11 @@ One entry per kernel:
 | `version` | the command that prints the kernel's version |
 | `source` | the pattern of an implementation's path |
 | `measured` | `"mesh"` for a kernel with no exact measures |
-| `reference` | `true` for the kernel whose results the drawings are made from (it must pass) |
+| `reference` | `true` for the kernel whose results the drawings are made from where it passes (else the first kernel that does) |
 
 ## Versions
 
+- **1.1:** an answer may come from a numerical integration script beside the case.
 - **1:** a case is a description in words with its closed forms. Each kernel implements every case
   in its own idioms, one file per case. A case with no implementation is *missing*.
 - **0.2:** seams were never selected edges, and a curve stored in pieces was selected whole. The
