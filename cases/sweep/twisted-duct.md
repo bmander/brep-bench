@@ -4,12 +4,12 @@ tags = ["sweep", "loft", "ruled", "twisted"]
 origin = "geomsolver rust/examples/solid_twist.sv"
 
 [volume]
-value = 12373.333333333314
+value = 12373.333333333334
 exact = "40·(A₀ + 4A½ + A₁)/6 = 40·(400 + 4·292 + 288)/6 = 37120/3 (each section's area is quadratic in y)"
 
 [area]
-value = 3515.6707100381514
-exact = "Solvent and OCCT agree (independent builds from this description)"
+value = 3515.670710036986
+exact = "no closed form (twisted ruled faces): OCCT and arris, built independently from this description, agree to 7e-13"
 +++
 
 A solid duct running along the y axis from y = 0 to y = 40, with a square at its start and a

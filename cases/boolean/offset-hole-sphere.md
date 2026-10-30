@@ -4,12 +4,12 @@ tags = ["boolean", "cut", "analytic", "off-axis"]
 origin = "geomsolver rust/examples/pierced_sphere.sv"
 
 [volume]
-value = 29240.844398085323
-exact = "Solvent and OCCT agree (independent builds from this description)"
+value = 29240.844399008805
+exact = "no closed form (an off-axis hole needs elliptic integrals): OCCT and arris, built independently from this description, agree to 7e-11"
 
 [area]
-value = 6171.861947555933
-exact = "Solvent and OCCT agree (independent builds from this description)"
+value = 6171.861947620873
+exact = "no closed form: OCCT and arris, built independently from this description, agree to 5e-11"
 +++
 
 A ball of radius 20 centred on the origin, with a round hole of radius 6 bored right through it
