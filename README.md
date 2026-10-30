@@ -86,7 +86,8 @@ Python's standard library (3.11 or later).
 | [arris](https://github.com/arris-labs/arris) | `kernels/arris` (Rust) |
 | [cad-kernel](https://github.com/bmander/cad-kernel) | `kernels/cad-kernel` (Rust) |
 | [truck](https://github.com/ricosjp/truck) | `kernels/truck` (Rust); measured from its mesh; frozen at the first 46 cases |
-| [monstertruck](https://github.com/virtualritz/monstertruck), [kentron](https://github.com/rsz269/kentron), [vcad](https://github.com/ecto/vcad), [brepkit](https://github.com/andymai/brepkit), [popkern](https://github.com/popkern-dev/popkern), [next.BREP](https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL) | wanted |
+| [vcad](https://github.com/ecto/vcad) | `kernels/vcad` (Rust); measured from its mesh |
+| [monstertruck](https://github.com/virtualritz/monstertruck), [kentron](https://github.com/rsz269/kentron), [brepkit](https://github.com/andymai/brepkit), [popkern](https://github.com/popkern-dev/popkern), [next.BREP](https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL) | wanted |
 
 ## Contributing
 
