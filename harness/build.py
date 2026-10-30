@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Build every adapter in adapters.json that has a `build` command (or those named).
+"""Build every kernel's runner in kernels.json that has a `build` command (or those named).
 
     python3 harness/build.py                 # all
     python3 harness/build.py truck arris     # these
 
-An adapter that fails to build is reported and left out; the others still build. Standard library
+A runner that fails to build is reported and left out; the others still build. Standard library
 only.
 """
 import json
@@ -16,8 +16,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def main():
-    with open(os.path.join(ROOT, "adapters.json")) as f:
-        adapters = json.load(f)["adapters"]
+    with open(os.path.join(ROOT, "kernels.json")) as f:
+        adapters = json.load(f)["kernels"]
     wanted = set(sys.argv[1:])
     failed = []
     for a in adapters:

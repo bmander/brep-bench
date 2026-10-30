@@ -1,0 +1,98 @@
+{
+  "kernels": [
+    {
+      "name": "cad-kernel",
+      "kernel": "https://github.com/bmander/cad-kernel",
+      "license": "MIT OR Apache-2.0",
+      "language": "Rust",
+      "build": [
+        "cargo",
+        "build",
+        "--release",
+        "--manifest-path",
+        "kernels/cad-kernel/Cargo.toml"
+      ],
+      "command": [
+        "kernels/cad-kernel/target/release/brep-bench-cad-kernel"
+      ],
+      "version": [
+        "kernels/cad-kernel/target/release/brep-bench-cad-kernel",
+        "--version"
+      ],
+      "source": "kernels/cad-kernel/src/cases/{category}/{name_snake}.rs"
+    },
+    {
+      "name": "occt",
+      "reference": true,
+      "kernel": "https://github.com/Open-Cascade-SAS/OCCT",
+      "license": "LGPL-2.1 with exception",
+      "language": "C++ (through the OCP Python bindings)",
+      "build": [
+        "python3",
+        "-m",
+        "pip",
+        "install",
+        "cadquery-ocp"
+      ],
+      "command": [
+        "python3",
+        "kernels/occt/run.py"
+      ],
+      "version": [
+        "python3",
+        "kernels/occt/run.py",
+        "--version"
+      ],
+      "source": "kernels/occt/cases/{category}/{name_snake}.py"
+    },
+    {
+      "name": "truck",
+      "kernel": "https://github.com/ricosjp/truck",
+      "license": "Apache-2.0",
+      "language": "Rust",
+      "command": [
+        "kernels/truck/target/release/brep-bench-truck"
+      ],
+      "measured": "mesh",
+      "build": [
+        "cargo",
+        "build",
+        "--release",
+        "--manifest-path",
+        "kernels/truck/Cargo.toml"
+      ],
+      "version": [
+        "kernels/truck/target/release/brep-bench-truck",
+        "--version"
+      ],
+      "source": "kernels/truck/src/cases/{category}/{name_snake}.rs"
+    },
+    {"name": "monstertruck", "kernel": "https://github.com/virtualritz/monstertruck", "license": "Apache-2.0", "language": "Rust", "command": null},
+    {
+      "name": "arris",
+      "kernel": "https://github.com/arris-labs/arris",
+      "license": "MIT OR Apache-2.0",
+      "language": "Rust",
+      "command": [
+        "kernels/arris/target/release/brep-bench-arris"
+      ],
+      "build": [
+        "cargo",
+        "build",
+        "--release",
+        "--manifest-path",
+        "kernels/arris/Cargo.toml"
+      ],
+      "version": [
+        "kernels/arris/target/release/brep-bench-arris",
+        "--version"
+      ],
+      "source": "kernels/arris/src/cases/{category}/{name_snake}.rs"
+    },
+    {"name": "kentron", "kernel": "https://github.com/rsz269/kentron", "license": "MIT OR Apache-2.0", "language": "Rust", "command": null},
+    {"name": "vcad", "kernel": "https://github.com/ecto/vcad", "license": "Apache-2.0", "language": "Rust", "command": null},
+    {"name": "brepkit", "kernel": "https://github.com/andymai/brepkit", "license": "AGPL-3.0 or commercial", "language": "Rust", "command": null},
+    {"name": "popkern", "kernel": "https://github.com/popkern-dev/popkern", "license": "AGPL-3.0 with exception", "language": "Rust", "command": null},
+    {"name": "next.BREP", "kernel": "https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL", "license": "custom", "language": "Rust", "command": null}
+  ]
+}

@@ -1,0 +1,20 @@
+//! Two balls of radius 5, one centred on the origin and one at (6, 0, 0), united.
+use cad_kernel::boolean::{combined, Op};
+use cad_kernel::build::{ball_section, revolve};
+use cad_kernel::geom::{Frame, V};
+use cad_kernel::topo::Brep;
+use std::f64::consts::TAU;
+
+const RADIUS: f64 = 5.;
+
+/// The ball of radius `RADIUS` about `centre`: its half disc in the xz plane turned once about the
+/// vertical through the centre.
+fn ball(centre: V) -> Result<Brep, String> {
+    let xz = Frame::new(centre, [0., -1., 0.], [1., 0., 0.]);
+    revolve(&ball_section(&xz, RADIUS), centre, xz.y, TAU)
+}
+
+pub fn build() -> Result<Brep, String> {
+    let (first, second) = (ball([0., 0., 0.])?, ball([6., 0., 0.])?);
+    Ok(combined(&first, &second, Op::Union, 0.)?)
+}

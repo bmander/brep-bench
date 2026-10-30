@@ -1,11 +1,17 @@
 # brep-bench
 
-A neutral conformance suite and scoreboard for B-rep (boundary representation) solid-modelling and
-CAD kernels. Every kernel runs the same cases. Each expected answer is a closed form, so it can be
-checked without trusting any kernel. The results are published side by side:
-**https://bmander.github.io/brep-bench/**. Each case has its own page with a drawing of the expected
-solid (three views and an isometric), a 3D viewer of every kernel's result (with any open edges of
-its mesh marked in red), and each result's STL to download.
+Rosetta Code for B-rep (boundary representation) solid-modelling and CAD kernels. Each case
+describes a solid in plain words and gives its volume and area as closed forms. Each kernel builds
+every case in its own language and idioms, and every result is graded the same way. The results
+are published side by side: **https://bmander.github.io/brep-bench/**
+
+Each case has its own page with:
+
+- the description;
+- a drawing of the expected solid (three views and an isometric);
+- a 3D viewer of every kernel's result, with any open edges of its mesh marked in red;
+- each result's STL to download;
+- every kernel's code for it, side by side.
 
 ## Why
 
@@ -14,58 +20,76 @@ help. Each one invents its own tests, so none can show how it compares with the 
 is the shared yardstick: one set of hard cases, one way of grading them, and every kernel in one
 table. Pooling effort begins with knowing where each kernel stands.
 
+There is no case language to translate: a case is a description, and each kernel's implementation
+is written the way that kernel's users write. Reading one case across the kernels shows how each
+one is used, and what each one cannot yet do.
+
 ## What it checks
 
-There are 33 cases in version 0. Each one gives a volume and an area as closed forms:
+There are 33 cases so far:
 
 - **Primitives:** box, cylinder, cone, sphere, torus, extrusion, revolution.
 - **Booleans:** coincident and partly coincident faces, tangencies, Steinmetz solids, spheres, tori,
   and a run of nine cuts.
-- **Sweeps:** a disc along helices and arcs.
+- **Sweeps:** a circle along helices and arcs.
 - **Fillets:** one edge, every edge of a box (three meeting at each corner), and a cylinder's rim.
 
-An adapter returns the kernel's exact volume and area, and the triangles of its solid. A case
-**passes** when three things hold:
+A case **passes** when three things hold:
 
-- the measures are within 1e-6 of the closed form;
-- the triangles are watertight and consistently oriented;
+- the kernel's volume and area are within 1e-6 of the closed forms;
+- the triangles it writes are watertight and consistently oriented;
 - the triangles bound the expected volume.
 
-A kernel that **refuses** a case ranks above one that answers it **wrong**. The full rules are in
+A kernel that **refuses** a case ranks above one that answers it **wrong**. A case with no
+implementation yet is **missing**, which says nothing about the kernel. The full rules are in
 [SPEC.md](SPEC.md).
+
+## Layout
+
+```
+cases/<category>/<name>.md         a case: its closed forms (TOML header) and its description
+kernels.json                       the kernels: how to build and run each, where its cases live
+kernels/<kernel>/                  a kernel's runner and its implementation of each case
+harness/                           build, run and grade, draw, and render the site
+results/<kernel>.json              the last whole run
+```
 
 ## Running it
 
 ```bash
-python3 cases/generate.py                       # write the case files
-python3 harness/build.py                        # every adapter's build (cargo, pip)
-python3 harness/run.py                          # every adapter, every case: results/*.json
-python3 harness/draw.py                         # each case's drawing: site/drawings/
-python3 harness/site.py                         # the scoreboard and a page per case: site/
+python3 harness/build.py           # every kernel's runner (cargo, pip)
+python3 harness/run.py             # every kernel, every case: results/*.json
+python3 harness/draw.py            # each case's drawing: site/drawings/
+python3 harness/site.py            # the scoreboard and a page per case: site/
 ```
 
-`harness/run.py --adapter NAME --case boolean/` runs part of the suite. The harness uses only
-Python's standard library.
+`harness/run.py --kernel NAME --case boolean/` runs part of the suite. The harness uses only
+Python's standard library (3.11 or later).
 
 ## Kernels
 
-| kernel | adapter |
+| kernel | its implementations |
 |---|---|
-| [Open CASCADE](https://github.com/Open-Cascade-SAS/OCCT) | `adapters/occt` (Python, through OCP), the reference row |
-| [arris](https://github.com/arris-labs/arris) | `adapters/arris` (Rust) |
-| [cad-kernel](https://github.com/bmander/cad-kernel) | `adapters/cad-kernel` (Rust) |
-| [truck](https://github.com/ricosjp/truck) | `adapters/truck` (Rust); measured from its mesh |
+| [Open CASCADE](https://github.com/Open-Cascade-SAS/OCCT) | `kernels/occt` (Python, through OCP), the reference |
+| [arris](https://github.com/arris-labs/arris) | `kernels/arris` (Rust) |
+| [cad-kernel](https://github.com/bmander/cad-kernel) | `kernels/cad-kernel` (Rust) |
+| [truck](https://github.com/ricosjp/truck) | `kernels/truck` (Rust); measured from its mesh |
 | [monstertruck](https://github.com/virtualritz/monstertruck), [kentron](https://github.com/rsz269/kentron), [vcad](https://github.com/ecto/vcad), [brepkit](https://github.com/andymai/brepkit), [popkern](https://github.com/popkern-dev/popkern), [next.BREP](https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL) | wanted |
 
-**Writing an adapter** is a small job. Write a program that reads a case, builds it with your
-kernel, writes an STL, and prints one line of JSON (see [SPEC.md](SPEC.md#an-adapter)). Then add it
-to `adapters.json` and open a pull request. If your kernel cannot do something, refuse it with a
-reason: that is an honest result.
+## Contributing
 
-**Adding a case** means adding it to `cases/generate.py` with its closed form. Hard cases are the
-most valuable, especially ones your own kernel gets wrong.
+- **A kernel:** add `kernels/<kernel>/` with a runner (it is given a case id and an output path,
+  and prints one line of JSON; see [SPEC.md](SPEC.md#a-runner)) and an implementation of as many
+  cases as you like, then add the kernel to `kernels.json`. Unwritten cases show as missing. If
+  your kernel cannot do something, write the case anyway and refuse with the reason: that is an
+  honest result.
+- **A case:** add `cases/<category>/<name>.md` with its closed forms and a description that two
+  careful readers would build the same way. Hard cases are the most valuable, especially ones
+  your own kernel gets wrong.
+- **A better implementation:** welcome when it is more idiomatic, or when it builds what the
+  description asks where the old one refused.
 
 ## Licence
 
-The harness, the cases and the adapters written here are MIT OR Apache-2.0, at your option. Each
-kernel keeps its own licence. An adapter only calls its kernel; it does not include it.
+The harness, the cases and the implementations written here are MIT OR Apache-2.0, at your option.
+Each kernel keeps its own licence. An implementation only calls its kernel; it does not include it.

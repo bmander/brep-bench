@@ -5,7 +5,7 @@ scale, and an isometric view), as PNGs under site/drawings/<case>/.
     python3 harness/draw.py              # every case
     python3 harness/draw.py boolean/     # the cases whose id starts with this
 
-The solid drawn is a result that passed: the reference kernel's (adapters.json, `"reference":
+The solid drawn is a result that passed: the reference kernel's (kernels.json, `"reference":
 true`) where it passed, else the first kernel's that did. Its triangles are rasterised with a
 depth buffer, lightly shaded, and outlined where the depth jumps (silhouettes) or the surface turns
 sharply (creases), as a technical drawing is. Standard library only.
@@ -241,8 +241,8 @@ def drawn_from(case_id, results, order):
 
 def main():
     prefix = sys.argv[1] if len(sys.argv) > 1 else ""
-    with open(os.path.join(ROOT, "adapters.json")) as f:
-        adapters = json.load(f)["adapters"]
+    with open(os.path.join(ROOT, "kernels.json")) as f:
+        adapters = json.load(f)["kernels"]
     results = {}
     for a in adapters:
         path = os.path.join(ROOT, "results", a["name"] + ".json")

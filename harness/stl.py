@@ -1,7 +1,7 @@
 """Reading an STL, and what can be checked of a solid from its triangles alone.
 
-The harness does not trust an adapter's own word that its solid is valid: it reads the triangles
-the adapter wrote and checks them independently.
+The harness does not trust a runner's own word that its solid is valid: it reads the triangles
+the runner wrote and checks them independently.
 """
 import struct
 

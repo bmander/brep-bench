@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
 """Render the results as a static site: the scoreboard (site/index.html) and a page for each case
-(site/cases/<case>.html) with its drawing, a 3D viewer of every kernel's result, and the results'
-STL files to download. Run harness/draw.py first for the drawings. Standard library only."""
+(site/cases/<case>.html) with its description, its drawing, a 3D viewer of every kernel's result,
+the results' STL files to download, and every kernel's implementation of it. Run harness/draw.py
+first for the drawings. Standard library only."""
 import html
 import json
 import os
+import re
 import shutil
+import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from suite import ROOT, cases as read_cases, kernels as read_kernels, source  # noqa: E402
 SITE = os.path.join(ROOT, "site")
 REPO = "https://github.com/bmander/brep-bench"
-OUTCOMES = ["pass", "refused", "wrong", "crashed", "timeout"]
+OUTCOMES = ["pass", "refused", "wrong", "crashed", "timeout", "missing"]
 THREE = "https://cdn.jsdelivr.net/npm/three@0.160.0"
 
 STYLE = """
@@ -36,6 +40,10 @@ td.cell { text-align: center; font-size: 0.85em; }
 td.cell a { text-decoration: none; display: block; }
 td.pass { background: var(--pass); } td.refused { background: var(--refused); }
 td.wrong { background: var(--wrong); } td.crashed, td.timeout { background: var(--crashed); }
+td.missing { color: var(--muted); }
+td.case small { display: block; color: var(--muted); }
+details { margin: 0 0 12px; } summary { cursor: pointer; font-weight: 600; }
+.description { max-width: 70ch; font-size: 1.05em; }
 td.why { white-space: normal; min-width: 240px; font-size: 0.9em; }
 .muted { color: var(--muted); }
 a { color: inherit; }
@@ -53,7 +61,7 @@ img.thumb { width: 64px; height: 64px; object-fit: contain; border-radius: 4px;
                border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
 .pick button[aria-pressed=true] { border-color: var(--accent); color: var(--accent); }
 pre { background: var(--card); padding: 12px; border-radius: 6px; overflow-x: auto;
-      font-size: 0.85em; }
+      font-size: 0.85em; margin: 6px 0 0; }
 """
 
 
@@ -69,22 +77,17 @@ def head(title, description, depth):
 
 
 def load():
-    with open(os.path.join(ROOT, "adapters.json")) as f:
-        registry = {a["name"]: a for a in json.load(f)["adapters"]}
+    registry = {k["name"]: k for k in read_kernels()}
     results = []
     rdir = os.path.join(ROOT, "results")
     for name in sorted(os.listdir(rdir)) if os.path.isdir(rdir) else []:
         if name.endswith(".json"):
             with open(os.path.join(rdir, name)) as f:
-                results.append(json.load(f))
-    results.sort(key=lambda r: (-r["tally"].get("pass", 0), r["adapter"]))
-    cases = {}
-    for dirpath, _, files in os.walk(os.path.join(ROOT, "cases")):
-        for fname in files:
-            if fname.endswith(".json"):
-                with open(os.path.join(dirpath, fname)) as f:
-                    c = json.load(f)
-                cases[c["id"]] = c
+                r = json.load(f)
+            r.setdefault("kernel", r.get("adapter"))
+            results.append(r)
+    results.sort(key=lambda r: (-r["tally"].get("pass", 0), r["kernel"]))
+    cases = {c["id"]: c for c in read_cases()}
     drawings = {}
     index = os.path.join(SITE, "drawings", "index.json")
     if os.path.exists(index):
@@ -93,21 +96,31 @@ def load():
     return registry, results, cases, drawings
 
 
+def paragraphs(text):
+    """A description's paragraphs as HTML: blank lines part them, `code` is code."""
+    out = []
+    for para in re.split(r"\n\s*\n", text.strip()):
+        h = html.escape(" ".join(para.split()))
+        out.append("<p>" + re.sub(r"`([^`]+)`", r"<code>\1</code>", h) + "</p>")
+    return "\n".join(out)
+
+
 def scoreboard(registry, results, cases, drawings):
     e = html.escape
     out = head("brep-bench", "A neutral conformance suite and scoreboard for B-rep and CAD "
                "kernels: the same cases against every kernel.", 0)
     out += ["<h1>brep-bench</h1>",
-            "<p class=lede>The same solid-modelling cases run against every B-rep kernel, each "
-            "answer a closed form. A refusal ranks above a wrong answer. Each case has a drawing, "
-            f"a 3D viewer of every kernel's result, and their STL files. <a href='{REPO}'>Cases, "
-            "harness and adapters</a>.</p>",
+            "<p class=lede>Rosetta Code for B-rep kernels. Each case describes a solid in words "
+            "and gives its volume and area as closed forms. Each kernel builds it in its own "
+            "idioms, and every result is graded the same way; a refusal ranks above a wrong "
+            "answer. Open a case for its drawing, every kernel's result in 3D, and every kernel's "
+            f"code. <a href='{REPO}'>Cases, harness and implementations</a>.</p>",
             "<h2>Kernels</h2><div class=scroll><table><tr><th>kernel</th>"]
     out += [f"<th>{o}</th>" for o in OUTCOMES]
     out.append("<th>version</th><th>licence</th><th>run</th></tr>")
     for r in results:
-        a = registry.get(r["adapter"], {})
-        name = e(r["adapter"])
+        a = registry.get(r["kernel"], {})
+        name = e(r["kernel"])
         if a.get("kernel"):
             name = f"<a href='{e(a['kernel'])}'>{name}</a>"
         if r.get("measured") == "mesh":
@@ -121,19 +134,20 @@ def scoreboard(registry, results, cases, drawings):
     out.append("</table></div>")
     waiting = [a for a in registry.values() if not a.get("command")]
     if waiting:
-        out.append("<p class=muted>Awaiting an adapter: " + ", ".join(
+        out.append("<p class=muted>Awaiting implementations: " + ", ".join(
             f"<a href='{e(a['kernel'])}'>{e(a['name'])}</a>" for a in waiting) +
-            ". Adapters are welcome from anyone, the kernel's authors first.</p>")
+            ". They are welcome from anyone, the kernel's authors first.</p>")
 
     out.append("<h2>Cases</h2><div class=scroll><table><tr><th></th><th>case</th>")
-    out += [f"<th>{e(r['adapter'])}</th>" for r in results]
+    out += [f"<th>{e(r['kernel'])}</th>" for r in results]
     out.append("</tr>")
     by = [{c["case"]: c for c in r["cases"]} for r in results]
     for cid in sorted(cases):
         page = f"cases/{e(cid)}.html"
         thumb = (f"<a href='{page}'><img class=thumb src='drawings/{e(cid)}/iso.png' alt='' "
                  "loading=lazy></a>" if cid in drawings else "")
-        out.append(f"<tr><td>{thumb}</td><td><a href='{page}'>{e(cid)}</a></td>")
+        out.append(f"<tr><td>{thumb}</td><td class=case><a href='{page}'>"
+                   f"{e(cases[cid]['title'])}</a><small>{e(cid)}</small></td>")
         for rows in by:
             c = rows.get(cid)
             if c is None:
@@ -144,7 +158,7 @@ def scoreboard(registry, results, cases, drawings):
                        f"<a href='{page}#{e(rows_anchor(c))}'>{c['outcome']}</a></td>")
         out.append("</tr>")
     out.append("</table></div>")
-    out.append("<p class=muted>Times include starting the adapter's process. Hover a cell for "
+    out.append("<p class=muted>Times include starting the runner's process. Hover a cell for "
                "why it failed or how long it took, or open the case. A kernel marked (mesh) has no "
                "exact volume or area of its own: it is graded on its triangles, to 1e-3.</p>"
                "</body></html>")
@@ -167,17 +181,17 @@ def case_page(c, registry, results, drawing):
     cid = c["id"]
     depth = cid.count("/") + 1
     up = "../" * depth
-    out = head(f"{cid} · brep-bench", f"The brep-bench case {cid}: its drawing, every kernel's "
-               "result in 3D, and their STL files.", depth)
+    out = head(f"{c['title']} · brep-bench", f"The brep-bench case {cid}: its description, its "
+               "drawing, every kernel's result in 3D and every kernel's code.", depth)
     out.append(f"<p><a href='{up}index.html'>← brep-bench</a></p>")
-    out.append(f"<h1>{e(cid)}</h1>")
-    if c.get("note"):
-        out.append(f"<p class=lede>{e(c['note'])}</p>")
+    out.append(f"<h1>{e(c['title'])}</h1><p class=muted>{e(cid)} · "
+               f"{e(', '.join(c['tags']))}</p>")
+    out.append(f"<div class=description>{paragraphs(c['description'])}</div>")
     exp = c["expect"]
     out.append("<div class=scroll><table><tr><th></th><th>expected</th><th>closed form</th></tr>")
     for key in ("volume", "area"):
         out.append(f"<tr><td>{key}</td><td>{exp[key]['value']:.10g}</td>"
-                   f"<td class=muted>{e(exp[key]['source'])}</td></tr>")
+                   f"<td class=muted>{e(exp[key]['exact'])}</td></tr>")
     out.append("</table></div>")
 
     if drawing:
@@ -203,14 +217,14 @@ def case_page(c, registry, results, drawing):
         row = next((x for x in r["cases"] if x["case"] == cid), None)
         if row is None:
             continue
-        stl = os.path.join(ROOT, "results", "meshes", r["adapter"], cid + ".stl")
+        stl = os.path.join(ROOT, "results", "meshes", r["kernel"], cid + ".stl")
         link = ""
         if os.path.exists(stl):
-            dest = os.path.join(SITE, "meshes", r["adapter"], cid + ".stl")
+            dest = os.path.join(SITE, "meshes", r["kernel"], cid + ".stl")
             os.makedirs(os.path.dirname(dest), exist_ok=True)
             shutil.copyfile(stl, dest)
-            href = f"{up}meshes/{e(r['adapter'])}/{e(cid)}.stl"
-            meshes.append((r["adapter"], href, row["outcome"]))
+            href = f"{up}meshes/{e(r['kernel'])}/{e(cid)}.stl"
+            meshes.append((r["kernel"], href, row["outcome"]))
             mb = os.path.getsize(stl) / 1e6
             link = f"<a href='{href}' download>STL</a> <span class=muted>{mb:.1f} MB</span>"
         rows.append((r, row, link))
@@ -235,7 +249,7 @@ def case_page(c, registry, results, drawing):
         area = mesh.get("area") if measured_mesh else row.get("area")
         faces = ", ".join(f"{n} {k}" for k, n in (row.get("faces") or {}).items())
         out.append(
-            f"<tr><td>{e(r['adapter'])}{' <span class=muted>(mesh)</span>' if measured_mesh else ''}"
+            f"<tr><td>{e(r['kernel'])}{' <span class=muted>(mesh)</span>' if measured_mesh else ''}"
             f"</td><td class='cell {row['outcome']}'>{row['outcome']}</td>"
             f"<td>{relative(vol, exp['volume']['value'])}</td>"
             f"<td>{relative(area, exp['area']['value'])}</td>"
@@ -243,10 +257,23 @@ def case_page(c, registry, results, drawing):
             f"<td class=why>{e(row['why'])}</td></tr>")
     out.append("</table></div>")
 
-    out.append("<h2>The case</h2>")
-    out.append(f"<pre>{e(json.dumps(c['ops'], indent=1))}</pre>")
-    out.append(f"<p><a href='{REPO}/blob/main/cases/{e(cid)}.json'>{e(cid)}.json</a> · tags: "
-               f"{e(', '.join(c.get('tags', [])))}</p>")
+    out.append("<h2 id=code>How each kernel builds it</h2>")
+    for r in results:
+        k = registry.get(r["kernel"], {})
+        row = next((x for x in r["cases"] if x["case"] == cid), None)
+        src = source(k, cid)
+        if not src or not os.path.exists(src):
+            out.append(f"<p class=muted>{e(r['kernel'])}: no implementation yet.</p>")
+            continue
+        with open(src, encoding="utf-8") as f:
+            code = f.read()
+        rel = os.path.relpath(src, ROOT)
+        outcome = row["outcome"] if row else ""
+        out.append(f"<details open><summary>{e(r['kernel'])} <span class=muted>"
+                   f"{e(outcome)} · <a href='{REPO}/blob/main/{e(rel)}'>{e(rel)}</a></span>"
+                   f"</summary><pre>{e(code)}</pre></details>")
+    out.append(f"<p class=muted><a href='{REPO}/blob/main/cases/{e(cid)}.md'>{e(cid)}.md</a>, "
+               "the case as written.</p>")
     if meshes:
         out.append(VIEWER.replace("{cdn}", THREE))
     out.append("</body></html>")

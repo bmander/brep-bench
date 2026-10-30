@@ -1,130 +1,133 @@
-# brep-bench specification, version 0.2
+# brep-bench specification, version 1
 
-This document defines four things: what a case is, how an adapter is called and must answer, how a
-run is graded, and how the suite changes.
+brep-bench works like Rosetta Code. Each **case** describes a solid in plain words and gives its
+volume and area as closed forms. Each **kernel** has its own **implementation** of each case,
+written the way that kernel's users write: in its own language, with its own API and idioms. A
+**runner** builds the case with the kernel and reports what it made. The **harness** grades every
+result the same way.
 
 ## Principles
 
-- **Neutral answers.** Every expected value is a closed form, written in the case beside the number
-  (`source`), so it can be checked without trusting any kernel. A case whose answer has no closed
-  form takes one from at least two independent kernels that agree, and says so in its source.
-- **The same rules for every kernel.** The rules change only by a versioned edit to this file, made
-  before any results under the new rules are published.
-- **Adapters are separate processes.** A kernel takes part whatever its language or licence, and an
-  adapter cannot affect the harness or another kernel.
+- **No canonical script.** A case is a description of a solid, not code. There is no case language
+  for a kernel to translate, and no implementation is privileged. Reading one case's
+  implementations side by side shows how each kernel is used.
+- **Neutral answers.** Every expected value is a closed form, written beside the number (`exact`),
+  so it can be checked without trusting any kernel. A case whose answer has no closed form takes
+  its answer from at least two independent kernels that agree, and says so.
+- **The same rules for every kernel.** The rules change only by a versioned edit to this file,
+  made before any results under the new rules are published.
 - **A refusal ranks above a wrong answer.** A kernel that says "I cannot" is more useful than one
-  that returns the wrong solid.
+  that returns the wrong solid. A case with no implementation yet is *missing*, which is neither.
 
 ## A case
 
-A case is a JSON file `cases/<category>/<name>.json`, written by `cases/generate.py`:
+A case is a Markdown file, `cases/<category>/<name>.md`. Its id is the path without the extension,
+for example `boolean/napkin-ring`. A TOML header between `+++` lines holds what is graded; the
+text after it describes the solid.
+
+```
++++
+title = "A napkin ring"
+tags = ["boolean", "cut", "analytic"]
+
+[volume]
+value = 268.082573106329
+exact = "πh³/6, h = 2√(5² − 3²) = 8"
+
+[area]
+value = 402.1238596594935
+exact = "2πRh + 2πrh"
++++
+
+A ball of radius 5 centred on the origin, with a hole of radius 3 bored right through it along the
+z axis.
+```
+
+How a description is written:
+
+- **Coordinates** are right-handed x, y, z, with z up. Lengths have no unit. Angles are in degrees,
+  and a turn about an axis is right-handed unless the text says otherwise.
+- **It names the solid and where it lies.** Placement is not graded (volume and area do not depend
+  on it), but it keeps every kernel's result in the same place, so the drawings and the 3D viewer
+  can compare them.
+- **It says what to build, not how.** Hints that keep a construction away from an accidental
+  degeneracy are allowed ("if you cut the hole with a cylinder, make it run past both faces"). So is
+  saying which operation a case is about ("drill them one after another, each hole its own cut").
+- **It must be unambiguous enough to have one answer.** If two careful readers could build
+  different solids from it, that is a bug in the case.
+
+## An implementation
+
+Each kernel lives in `kernels/<kernel>/`, listed in `kernels.json`. The directory holds a runner and
+one source file per case. The file's path comes from the kernel's `source` pattern in
+`kernels.json`, for example `kernels/arris/src/cases/{category}/{name_snake}.rs`. The pattern's
+fields:
+
+- `{case}`: the id, `boolean/napkin-ring`;
+- `{category}`: `boolean`;
+- `{name}`: `napkin-ring`;
+- `{name_snake}`: `napkin_ring`.
+
+An implementation builds the described solid the way a user of its kernel would:
+
+- **It may** use anything in the kernel's public API. It may compose the kernel's operations (a
+  sphere as a revolved half disc, where there is no sphere primitive), place things with rigid
+  motions, and select edges and faces however the kernel does. A small helper module shared by one
+  kernel's implementations is fine. Each case file should still read as an example of that kernel's
+  use.
+- **It may not:**
+  - compute the expected answer;
+  - build geometry outside the kernel (no hand-made meshes or surfaces);
+  - patch the kernel;
+  - catch a crash and report it as a refusal;
+  - work around the grading.
+- **A case the kernel cannot do** still has a file. The file refuses, saying precisely why (for
+  example, "truck has no helical curve, and sweeps only by translation and rotation"). That result
+  is graded as *refused*.
+- **A case with no file is missing.** Nobody has written it yet. That says nothing about the kernel.
+
+## A runner
+
+The harness runs a kernel's `command` from `kernels.json` once per case:
+
+```
+<command> CASE OUT.stl
+```
+
+`CASE` is the case's id. The runner builds that case with its implementation, writes the result's
+triangles to `OUT.stl` (binary or ASCII), and prints one line of JSON as the last line of its
+standard output:
 
 ```json
-{
-  "id": "boolean/box-minus-through-cylinder",
-  "tags": ["boolean", "cut", "analytic"],
-  "note": "",
-  "ops": [
-    {"op": "box", "id": "a", "min": [0, 0, 0], "max": [10, 10, 10]},
-    {"op": "cylinder", "id": "b", "base": [5, 5, -1], "axis": [0, 0, 1], "radius": 3, "height": 12},
-    {"op": "cut", "id": "out", "a": "a", "b": "b"}
-  ],
-  "result": "out",
-  "expect": {
-    "volume": {"value": 717.2566611769, "source": "10³ − π·3²·10"},
-    "area": {"value": 731.946891451, "source": "600 − 2·9π + 2π·3·10"},
-    "valid": true
-  }
-}
+{"status": "ok", "volume": 268.082573106329, "area": 402.1238596594935,
+ "faces": {"sphere": 1, "cylinder": 1}, "valid": true}
 ```
 
-The ops run in order. Each `id` names its solid for the ops after it, and `result` names the solid
-that is graded. Lengths have no unit. Angles are in degrees. Every axis is a vector, which need not
-be unit length.
-
-| op | fields | the solid |
-|---|---|---|
-| `box` | `min`, `max` | the axis-aligned box between two corners |
-| `cylinder` | `base`, `axis`, `radius`, `height` | the cylinder from `base` along `axis` |
-| `cone` | `base`, `axis`, `radius1`, `radius2`, `height` | the frustum, with `radius1` at `base` |
-| `sphere` | `center`, `radius` | the ball |
-| `torus` | `center`, `axis`, `major`, `minor` | the torus about `axis` |
-| `extrude` | `polygon` (points), `vector` | the planar polygon swept along `vector` |
-| `revolve` | `polygon`, `axis_origin`, `axis`, `angle` | the polygon turned about the line, right-handed |
-| `sweep_circle` | `radius`, `helix`, `ends` | the disc square to a helix, swept along it (see below) |
-| `union`, `cut`, `common` | `a`, `b` | the Boolean of two solids built before; `cut` is `a` minus `b` |
-| `fillet` | `target`, `radius`, `edges` | the target with the selected edges rounded |
-
-**The `helix` field** of `sweep_circle` has these fields:
-
-- `center` and `axis`: the line the helix turns about.
-- `radius`: its distance from that line.
-- `pitch`: the rise per turn. A pitch of 0 makes the path a circular arc.
-- `turns`: how many turns it makes, which may be fractional.
-
-The path starts at `center + radius·x`, and turns right-handed about `axis`. Here `x` is the
-direction (1, 0, 0) made square to the axis (its part along the axis taken away, then made unit
-length); where the axis lies along (1, 0, 0) it is (0, 1, 0) instead.
-
-**The `ends` field** is `flat` (the end discs) or `round` (a half ball on each end, as a ball rolled
-along the path leaves).
-
-**Edge selectors** pick edges by geometry, never by a kernel's own numbering. An *edge* here is a
-whole curve along which two faces meet. So:
-
-- a seam, where a closed face meets itself, is never an edge;
-- a kernel that stores one such curve as several pieces (a circle as arcs) selects all of them
-  together.
-
-The selectors are:
-
-- `{"all": true}`: every edge.
-- `{"nearest": [p, …]}`: for each point `p`, the edge nearest it. Every case places `p` off the
-  solid, clearly nearer one edge than any other, and away from where any kernel is likely to put a
-  seam.
-
-## An adapter
-
-An adapter is any command, listed in `adapters.json`. The harness runs it as:
-
-```
-<command> CASE.json OUT.stl
-```
-
-The adapter builds the case's result. It writes the result's triangles to `OUT.stl` (binary or
-ASCII) and prints one line of JSON as the last line of its standard output:
+or, when the implementation refuses or a kernel operation declines:
 
 ```json
-{"status": "ok", "volume": 717.2566611769, "area": 731.946891451,
- "faces": {"plane": 6, "cylinder": 1}, "valid": true}
+{"status": "refused", "reason": "…"}
 ```
 
-or, when the kernel cannot build the case:
-
-```json
-{"status": "refused", "reason": "no edge fillet in the public API"}
-```
-
-The fields of the reply:
+The reply's fields:
 
 - **`volume` and `area`** are the kernel's own measures of its exact solid, not of the triangles.
 - **`faces`** counts faces by surface kind: `plane`, `cylinder`, `cone`, `sphere`, `torus`,
   `bspline` or `other`.
 - **`valid`** is the kernel's own validity check.
 
-`faces` and `valid` are reported but not graded, because kernels split faces differently.
+`faces` and `valid` are reported but not graded, because kernels split and check faces differently.
+A runner must also answer `--version` with one line naming the kernel and its version.
 
-**Welding.** The harness joins only vertices whose coordinates are exactly equal. An adapter may
-weld its triangles with its own kernel's tools, but no further: a gap the kernel leaves is the
-kernel's to close.
+**Welding.** The harness joins only vertices whose coordinates are exactly equal. A runner may weld
+its triangles with its own kernel's tools, but no further: a gap the kernel leaves is the kernel's
+to close.
 
-**A kernel with no exact measures.** Some kernels can measure only their meshes. An adapter for one
-of these answers `"measured": "mesh"` in place of `volume` and `area`. The harness then takes both
-measures from the triangles it reads, and grades them to 1e-3 instead of 1e-6, so the adapter must
-mesh finely enough for that. Such a kernel is marked *(mesh)* on the board, and `adapters.json`
-says so too (`"measured": "mesh"`).
-
-An adapter must also answer `--version` with one line naming the kernel and its version.
+**A kernel with no exact measures.** Some kernels can only measure their meshes. A runner for one
+answers `"measured": "mesh"` in place of `volume` and `area`. The harness then takes both measures
+from the triangles it reads and grades them to 1e-3 instead of 1e-6, so the runner must mesh finely
+enough for that. Such a kernel is marked *(mesh)* on the board, and `kernels.json` says
+`"measured": "mesh"`.
 
 ## Grading
 
@@ -133,31 +136,54 @@ Each case and kernel get one outcome. The outcomes, best first:
 | outcome | when |
 |---|---|
 | **pass** | `volume` and `area` are within 1e-6 of the expected values (relative; 1e-3 for a kernel measured from its mesh), **and** the triangles are closed (every edge used exactly twice, once each way) with a volume within 2e-2 of the expected volume |
-| **refused** | the adapter answered `refused` |
+| **refused** | the runner answered `refused` |
 | **wrong** | it answered `ok`, but some condition of a pass fails; the reason is recorded |
 | **crashed** | it exited non-zero, or printed no JSON |
 | **timeout** | it ran past the time limit (60 s by default) |
+| **missing** | the kernel has no implementation of the case; not ranked |
 
 The harness checks the triangles itself. They are what a kernel's solid looks like to every program
-downstream of it, and checking them keeps an adapter's word about its own solid from being the only
+downstream of it, and checking them keeps a runner's word about its own solid from being the only
 evidence.
 
-Times are reported as wall-clock time, including starting the adapter's process. They are not
+Times are reported as wall-clock time, including starting the runner's process. They are not
 graded.
+
+## `kernels.json`
+
+One entry per kernel:
+
+| field | meaning |
+|---|---|
+| `name` | the kernel's name on the board |
+| `kernel` | its home page |
+| `license`, `language` | shown on the board |
+| `build` | the command that builds the runner (`harness/build.py` runs it) |
+| `command` | the runner; `null` lists the kernel as awaiting an implementation |
+| `version` | the command that prints the kernel's version |
+| `source` | the pattern of an implementation's path |
+| `measured` | `"mesh"` for a kernel with no exact measures |
+| `reference` | `true` for the kernel whose results the drawings are made from (it must pass) |
 
 ## Versions
 
-- **0.2**: seams are never selected edges, and a curve stored in pieces is selected whole. The
-  `cylinder-rim` point moved off the seam line, where it tied the rim with the seam. The helix's
-  `x` is defined for any axis. An adapter welds with its own kernel's tools, no further.
-- **0.1**: a kernel with no exact measures may be graded on its own triangles, to 1e-3, marked
-  *(mesh)* on the board.
-- **0**: the first rules.
+- **1:** a case is a description in words with its closed forms. Each kernel implements every case
+  in its own idioms, one file per case. A case with no implementation is *missing*.
+- **0.2:** seams were never selected edges, and a curve stored in pieces was selected whole. The
+  `cylinder-rim` point moved off the seam line. The helix's `x` was defined for any axis. An
+  adapter could weld only with its own kernel's tools.
+- **0.1:** a kernel with no exact measures could be graded on its own triangles, to 1e-3.
+- **0:** cases were JSON programs in a small op language, which one adapter per kernel
+  interpreted.
 
 ## Changing the suite
 
-- **A new case** is a pull request to `cases/generate.py`, with its closed form in `source`.
-- **A new op** is a pull request to this file, the generator and at least one adapter.
-- **A new adapter** is a pull request adding its directory under `adapters/` and its entry in
-  `adapters.json`. A kernel's own authors are its best adapter writers. An adapter by anyone else is
-  welcome too, and the kernel's authors may fix it.
+- **A new case** is a pull request adding its Markdown file, with its closed forms in `exact`.
+  Hard cases are the most valuable, especially ones your own kernel gets wrong. Implementations
+  can follow in later pull requests: until then the case is *missing* for every kernel.
+- **A new kernel** is a pull request adding `kernels/<kernel>/` and its entry in `kernels.json`. A
+  kernel's own authors write its best implementations. Implementations by anyone else are welcome
+  too, and the kernel's authors may improve them.
+- **A better implementation** of a case is welcome when it is more idiomatic, or when it builds
+  what the case describes where the old one refused. Judge it against the description, not against
+  the grade.

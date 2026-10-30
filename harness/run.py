@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Run every case against every adapter and grade the results.
+"""Run every case against every kernel and grade the results.
 
-    python3 harness/run.py                     # every adapter in adapters.json, every case
-    python3 harness/run.py --adapter cad-kernel --case boolean/
+    python3 harness/run.py                     # every kernel in kernels.json, every case
+    python3 harness/run.py --kernel arris --case boolean/
     python3 harness/run.py --timeout 120
 
-Writes results/<adapter>.json after a run of the whole suite (not of a part, `--case`), and keeps
-each result's triangles as results/meshes/<adapter>/<case>.stl for the drawings and the viewer.
-Standard library only.
+A kernel's runner is asked for each case it has an implementation of (SPEC.md); a case it has none
+of is missing. Writes results/<kernel>.json after a run of the whole suite (not of a part,
+`--case`), and keeps each result's triangles as results/meshes/<kernel>/<case>.stl for the drawings
+and the viewer. Standard library only.
 """
 import argparse
 import json
@@ -21,30 +22,16 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import stl  # noqa: E402
-
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from suite import ROOT, cases, kernels, source  # noqa: E402
 
 # How near a measure must be to the expected value, relative to it.
 EXACT = 1e-6
-# How near the volume of the adapter's own triangles must be: a mesh is within its sag of the
+# How near the volume of the runner's own triangles must be: a mesh is within its sag of the
 # solid, so this only catches a mesh of some other solid.
 MESHED = 2e-2
 # How near the measures must be for a kernel with no exact measures of its own, which the harness
-# then takes from the adapter's triangles (`"measured": "mesh"`, SPEC.md).
+# then takes from the runner's triangles (`"measured": "mesh"`, SPEC.md).
 FROM_MESH = 1e-3
-
-
-def cases(prefix):
-    out = []
-    for dirpath, _, files in os.walk(os.path.join(ROOT, "cases")):
-        for f in sorted(files):
-            if f.endswith(".json"):
-                path = os.path.join(dirpath, f)
-                with open(path) as fh:
-                    c = json.load(fh)
-                if c["id"].startswith(prefix):
-                    out.append((path, c))
-    return sorted(out, key=lambda pc: pc[1]["id"])
 
 
 def near(got, want, rel):
@@ -78,7 +65,7 @@ def grade(case, reply, mesh):
 
 
 def why_crashed(stderr, code):
-    """What a crashed adapter said last: a Rust panic's place and message, else its last line."""
+    """What a crashed runner said last: a Rust panic's place and message, else its last line."""
     lines = [l for l in stderr.strip().splitlines() if l.strip() and not l.startswith("note:")]
     for i, line in enumerate(lines):
         if "panicked at" in line:
@@ -89,13 +76,13 @@ def why_crashed(stderr, code):
     return (lines[-1] if lines else f"exit {code}")[:300]
 
 
-def run_one(command, case_path, timeout, keep):
+def run_one(command, case, timeout, keep):
     with tempfile.TemporaryDirectory() as tmp:
         out_stl = os.path.join(tmp, "result.stl")
         start = time.monotonic()
         try:
             env = dict(os.environ, RUST_BACKTRACE="0")
-            p = subprocess.run(command + [case_path, out_stl], capture_output=True, text=True,
+            p = subprocess.run(command + [case["id"], out_stl], capture_output=True, text=True,
                                timeout=timeout, cwd=ROOT, env=env)
         except subprocess.TimeoutExpired:
             return "timeout", f"over {timeout} s", None, None, timeout
@@ -115,31 +102,31 @@ def run_one(command, case_path, timeout, keep):
             # kept for the drawings and the viewer (results/meshes, not committed)
             os.makedirs(os.path.dirname(keep), exist_ok=True)
             shutil.copyfile(out_stl, keep)
-        return (*grade(json.load(open(case_path)), reply, mesh), reply, mesh, seconds)
+        return (*grade(case, reply, mesh), reply, mesh, seconds)
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--adapter", action="append", help="adapter name (repeatable)")
+    ap.add_argument("--kernel", action="append", help="kernel name (repeatable)")
     ap.add_argument("--case", default="", help="run the cases whose id starts with this")
     ap.add_argument("--timeout", type=float, default=60)
     args = ap.parse_args()
-    with open(os.path.join(ROOT, "adapters.json")) as f:
-        adapters = json.load(f)["adapters"]
-    if args.adapter:
-        adapters = [a for a in adapters if a["name"] in args.adapter]
+    chosen = [k for k in kernels() if not args.kernel or k["name"] in args.kernel]
     os.makedirs(os.path.join(ROOT, "results"), exist_ok=True)
-    for a in adapters:
-        if not a.get("command"):
+    for k in chosen:
+        if not k.get("command"):
             continue
-        command = a["command"]
         rows = []
         tally = {}
-        for path, c in cases(args.case):
-            keep = os.path.join(ROOT, "results", "meshes", a["name"], c["id"] + ".stl")
+        for c in cases(args.case):
+            keep = os.path.join(ROOT, "results", "meshes", k["name"], c["id"] + ".stl")
             if os.path.exists(keep):
                 os.remove(keep)
-            outcome, why, reply, mesh, seconds = run_one(command, path, args.timeout, keep)
+            src = source(k, c["id"])
+            if src and not os.path.exists(src):
+                outcome, why, reply, mesh, seconds = "missing", "no implementation", None, None, 0.0
+            else:
+                outcome, why, reply, mesh, seconds = run_one(k["command"], c, args.timeout, keep)
             tally[outcome] = tally.get(outcome, 0) + 1
             rows.append({
                 "case": c["id"], "outcome": outcome, "why": why, "seconds": round(seconds, 3),
@@ -147,24 +134,24 @@ def main():
                 "volume": (reply or {}).get("volume"), "area": (reply or {}).get("area"),
                 "faces": (reply or {}).get("faces"), "mesh": mesh,
             })
-            print(f"{a['name']:<14} {outcome:<8} {c['id']:<44} {why[:90]}", flush=True)
+            print(f"{k['name']:<14} {outcome:<8} {c['id']:<44} {why[:90]}", flush=True)
         version = None
-        if a.get("version"):
+        if k.get("version"):
             try:
-                version = subprocess.run(a["version"], capture_output=True, text=True,
+                version = subprocess.run(k["version"], capture_output=True, text=True,
                                          cwd=ROOT, timeout=60).stdout.strip() or None
             except (OSError, subprocess.TimeoutExpired):
                 pass
-        result = {"adapter": a["name"], "version": version,
-                  "measured": a.get("measured", "exact"),
+        result = {"kernel": k["name"], "version": version,
+                  "measured": k.get("measured", "exact"),
                   "run": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                   "tally": tally, "cases": rows}
         # a part of the suite is a check in hand, not a result: only a whole run is recorded
         if not args.case:
-            with open(os.path.join(ROOT, "results", a["name"] + ".json"), "w") as f:
+            with open(os.path.join(ROOT, "results", k["name"] + ".json"), "w") as f:
                 json.dump(result, f, indent=1)
                 f.write("\n")
-        print(f"{a['name']}: {tally}")
+        print(f"{k['name']}: {tally}")
 
 
 if __name__ == "__main__":
