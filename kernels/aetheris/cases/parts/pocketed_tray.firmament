@@ -1,0 +1,34 @@
+// Compose builds up along +z only, so the tray is made opening upward: its x as the case's x, its
+// y as the case's z, and its z as 16 - y (the floor from z = 0 to 3, the opening at z = 16). In
+// the case's three steps: the block, the pocket taken 13 deep from its top, and four tubes raised 8
+// on the pocket's floor (`on: Top`, the material's top under each tube once the pocket is cut),
+// each tube's hole stopping on the floor.
+Model PocketedTray {
+  units: mm
+  Concept Struct layout on XY {
+    Rect2 block { center: [0mm, 0mm]; size: [72mm, 48mm] }
+    Rect2 recess { center: [0mm, 0mm]; size: [66mm, 42mm] }
+    Circle2 tubeNE { center: [26mm, 14mm]; radius: 5mm }
+    Circle2 boreNE { center: [26mm, 14mm]; radius: 2mm }
+    Circle2 tubeNW { center: [-26mm, 14mm]; radius: 5mm }
+    Circle2 boreNW { center: [-26mm, 14mm]; radius: 2mm }
+    Circle2 tubeSW { center: [-26mm, -14mm]; radius: 5mm }
+    Circle2 boreSW { center: [-26mm, -14mm]; radius: 2mm }
+    Circle2 tubeSE { center: [26mm, -14mm]; radius: 5mm }
+    Circle2 boreSE { center: [26mm, -14mm]; radius: 2mm }
+  }
+  Profile stockOutline using layout { Loop Outer { block |> TraceLoop } }
+  Profile recessOutline using layout { Loop Outer { recess |> TraceLoop } }
+  Profile standoffNE using layout { Loop Outer { tubeNE |> TraceLoop } Loop Inner { boreNE |> TraceLoop } }
+  Profile standoffNW using layout { Loop Outer { tubeNW |> TraceLoop } Loop Inner { boreNW |> TraceLoop } }
+  Profile standoffSW using layout { Loop Outer { tubeSW |> TraceLoop } Loop Inner { boreSW |> TraceLoop } }
+  Profile standoffSE using layout { Loop Outer { tubeSE |> TraceLoop } Loop Inner { boreSE |> TraceLoop } }
+  Compose tray {
+    Base stock { profile: stockOutline; from: 0mm; to: 16mm; role: Stock }
+    Pocket recess { on: Top; profile: recessOutline; depth: 13mm; minimumFloorThickness: 3mm }
+    Boss standoff1 { on: Top; profile: standoffNE; height: 8mm }
+    Boss standoff2 { on: Top; profile: standoffNW; height: 8mm }
+    Boss standoff3 { on: Top; profile: standoffSW; height: 8mm }
+    Boss standoff4 { on: Top; profile: standoffSE; height: 8mm }
+  }
+}

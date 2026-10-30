@@ -1,0 +1,11 @@
+// The cube, and a saw cut taken from its top: a block a millionth wide, from x = 5 to 5.000001,
+// running past the cube's front and back (y from -1 to 11), 5 deep.
+Model HairlineSlot {
+  units: mm
+  Profile cube = Rect2 { center: [5mm, 5mm]; size: [10mm, 10mm] }
+  Profile cut = Rect2 { center: [5.0000005mm, 5mm]; size: [0.000001mm, 12mm] }
+  Compose block {
+    Base stock { profile: cube; from: 0mm; to: 10mm; role: Stock }
+    RemoveOffset<Prism> slot { Target: block; On: Top; Profile: cut; Depth: 5mm }
+  }
+}

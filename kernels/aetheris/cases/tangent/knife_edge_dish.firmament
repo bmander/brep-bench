@@ -1,0 +1,25 @@
+// Aetheris has no public Boolean subtraction (and declines a Sphere taken from a body), so the
+// dished cylinder is turned from its section in the xz plane: the bottom, the wall, and the ball's
+// quarter circle from the rim at (5, 10) down to the dish's lowest point at (0, 5), closed along
+// the z axis.
+Model KnifeEdgeDish {
+  units: mm
+  Axis z { origin: [0mm, 0mm, 0mm]; direction: [0, 0, 1] }
+  Concept Struct layout on XZ {
+    Point2 foot { position: [0mm, 0mm] }
+    Point2 heel { position: [5mm, 0mm] }
+    Point2 rim { position: [5mm, 10mm] }
+    Point2 bottom { position: [0mm, 5mm] }
+    Point2 centre { position: [0mm, 10mm] }
+    Circle2 ball { center: centre; radius: 5mm }
+    Line2 base { from: foot; to: heel }
+    Line2 wall { from: heel; to: rim }
+    Line2 axis { from: bottom; to: foot }
+  }
+  Profile section using layout {
+    Loop Outer {
+      base |> wall |> Reverse ball from rim to bottom as dish |> axis |> Close
+    }
+  }
+  Revolve dish { profile: section; about: z; angle: full }
+}

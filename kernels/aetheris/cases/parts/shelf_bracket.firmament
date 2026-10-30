@@ -1,0 +1,20 @@
+// The bracket's outline in the xz plane, walked from the foot of the post: the inside corner
+// turns right along a quarter circle of radius 8. Extruded from y = -5 to y = 5.
+Model ShelfBracket {
+  units: mm
+  Concept Struct layout on XZ {
+    Path outline {
+      start: Point2(0mm, 0mm)
+      heading: 0deg
+      Line foot { length: 20mm }
+      Line postInside { Turn: 90deg; length: 92mm }
+      Arc corner { Radius: 8mm; Turn: -90deg }
+      Line armUnderside { length: 72mm }
+      Line armEnd { Turn: 90deg; length: 20mm }
+      Line top { Turn: 90deg; length: 100mm }
+      Close back
+    }
+  }
+  Profile section using layout { Loop Outer { outline |> TraceLoop } }
+  Extrude bracket { profile: section; from: -5mm; to: 5mm }
+}

@@ -1,0 +1,3 @@
+// Refused: Aetheris has no public Boolean union, and its coaxial Compose of cylinders joins
+// spans end to end, each standing on the last one's top: it rejects overlapping spans, so the
+// second cylinder cannot start at z = 6 inside the first.

@@ -1,0 +1,3 @@
+// Refused: Aetheris has no draft: an Extrude takes no taper, and an angular Draft of existing
+// faces is not a feature of the modern Firmament path (only a Rib's own sides take a draft). Nor
+// does a Loft help: it joins only two circle or ellipse sections.

@@ -1,0 +1,20 @@
+// Aetheris has no public Boolean union, so the ice-cream cone is turned from its section in the xz
+// plane: the cone's side from the apex at (0, -25) up to the circle of contact at (12, -9), the
+// sphere's arc on to the top pole at (0, 15), closed along the z axis.
+Model IceCreamCone {
+  units: mm
+  Axis z { origin: [0mm, 0mm, 0mm]; direction: [0, 0, 1] }
+  Concept Struct layout on XZ {
+    Point2 apex { position: [0mm, -25mm] }
+    Point2 contact { position: [12mm, -9mm] }
+    Point2 north { position: [0mm, 15mm] }
+    Point2 centre { position: [0mm, 0mm] }
+    Circle2 ball { center: centre; radius: 15mm }
+    Line2 side { from: apex; to: contact }
+    Line2 axis { from: north; to: apex }
+  }
+  Profile section using layout {
+    Loop Outer { side |> ball from contact to north as scoop |> axis |> Close }
+  }
+  Revolve cone { profile: section; about: z; angle: full }
+}

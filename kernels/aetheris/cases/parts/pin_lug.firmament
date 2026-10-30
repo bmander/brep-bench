@@ -1,0 +1,14 @@
+// The lug's outline in the xz plane, with the pin hole as its inner loop, extruded through its
+// thickness from y = -5 to y = 5.
+Model PinLug {
+  units: mm
+  Concept Struct layout on XZ {
+    Rect2 plate { center: [40mm, 20mm]; size: [80mm, 40mm] }
+    Circle2 pin { center: [60mm, 20mm]; radius: 8mm }
+  }
+  Profile outline using layout {
+    Loop Outer { plate |> TraceLoop }
+    Loop Inner { pin |> TraceLoop }
+  }
+  Extrude lug { profile: outline; from: -5mm; to: 5mm }
+}

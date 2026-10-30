@@ -1,0 +1,30 @@
+// Aetheris has no public Boolean union, so the banded ball is turned from its section in the xz
+// plane: the lower cap's arc from the pole up to the ledge at (4, -3), the ledge, the band's wall,
+// the upper ledge and cap to the top pole, closed along the z axis.
+Model BallInBand {
+  units: mm
+  Axis z { origin: [0mm, 0mm, 0mm]; direction: [0, 0, 1] }
+  Concept Struct layout on XZ {
+    Point2 south { position: [0mm, -5mm] }
+    Point2 north { position: [0mm, 5mm] }
+    Point2 centre { position: [0mm, 0mm] }
+    Point2 lowerLedge { position: [4mm, -3mm] }
+    Point2 lowerRim { position: [5mm, -3mm] }
+    Point2 upperRim { position: [5mm, 3mm] }
+    Point2 upperLedge { position: [4mm, 3mm] }
+    Circle2 ball { center: centre; radius: 5mm }
+    Line2 lowerStep { from: lowerLedge; to: lowerRim }
+    Line2 band { from: lowerRim; to: upperRim }
+    Line2 upperStep { from: upperRim; to: upperLedge }
+    Line2 axis { from: north; to: south }
+  }
+  Profile section using layout {
+    Loop Outer {
+      ball from south to lowerLedge as lowerCap
+      |> lowerStep |> band |> upperStep
+      |> ball from upperLedge to north as upperCap
+      |> axis |> Close
+    }
+  }
+  Revolve banded { profile: section; about: z; angle: full }
+}
