@@ -91,7 +91,28 @@
       "source": "kernels/arris/src/cases/{category}/{name_snake}.rs"
     },
     {"name": "kentron", "kernel": "https://github.com/rsz269/kentron", "license": "MIT OR Apache-2.0", "language": "Rust", "command": null},
-    {"name": "vcad", "kernel": "https://github.com/ecto/vcad", "license": "Apache-2.0", "language": "Rust", "command": null},
+    {
+      "name": "vcad",
+      "kernel": "https://github.com/ecto/vcad",
+      "license": "MIT",
+      "language": "Rust",
+      "command": [
+        "kernels/vcad/target/release/brep-bench-vcad"
+      ],
+      "measured": "mesh",
+      "build": [
+        "cargo",
+        "build",
+        "--release",
+        "--manifest-path",
+        "kernels/vcad/Cargo.toml"
+      ],
+      "version": [
+        "kernels/vcad/target/release/brep-bench-vcad",
+        "--version"
+      ],
+      "source": "kernels/vcad/src/cases/{category}/{name_snake}.rs"
+    },
     {"name": "brepkit", "kernel": "https://github.com/andymai/brepkit", "license": "AGPL-3.0 or commercial", "language": "Rust", "command": null},
     {"name": "popkern", "kernel": "https://github.com/popkern-dev/popkern", "license": "AGPL-3.0 with exception", "language": "Rust", "command": null},
     {"name": "next.BREP", "kernel": "https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL", "license": "custom", "language": "Rust", "command": null}
