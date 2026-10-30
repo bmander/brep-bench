@@ -4,7 +4,8 @@
       "name": "cad-kernel",
       "kernel": "https://github.com/bmander/cad-kernel",
       "license": "MIT OR Apache-2.0",
-      "language": "Rust",
+      "backend": "Rust",
+      "frontend": "Rust",
       "build": [
         "cargo",
         "build",
@@ -26,7 +27,8 @@
       "reference": true,
       "kernel": "https://github.com/Open-Cascade-SAS/OCCT",
       "license": "LGPL-2.1 with exception",
-      "language": "C++ (through the OCP Python bindings)",
+      "backend": "C++",
+      "frontend": "Python (the OCP bindings)",
       "build": [
         "python3",
         "-m",
@@ -49,7 +51,8 @@
       "name": "truck",
       "kernel": "https://github.com/ricosjp/truck",
       "license": "Apache-2.0",
-      "language": "Rust",
+      "backend": "Rust",
+      "frontend": "Rust",
       "command": [
         "kernels/truck/target/release/brep-bench-truck"
       ],
@@ -68,12 +71,13 @@
       "source": "kernels/truck/src/cases/{category}/{name_snake}.rs",
       "note": "frozen: its first 46 cases stay; no implementations of newer cases are being written"
     },
-    {"name": "monstertruck", "kernel": "https://github.com/virtualritz/monstertruck", "license": "Apache-2.0", "language": "Rust", "command": null},
+    {"name": "monstertruck", "kernel": "https://github.com/virtualritz/monstertruck", "license": "Apache-2.0", "backend": "Rust", "frontend": "Rust", "command": null},
     {
       "name": "arris",
       "kernel": "https://github.com/arris-labs/arris",
       "license": "MIT OR Apache-2.0",
-      "language": "Rust",
+      "backend": "Rust",
+      "frontend": "Rust",
       "command": [
         "kernels/arris/target/release/brep-bench-arris"
       ],
@@ -90,12 +94,13 @@
       ],
       "source": "kernels/arris/src/cases/{category}/{name_snake}.rs"
     },
-    {"name": "kentron", "kernel": "https://github.com/rsz269/kentron", "license": "MIT OR Apache-2.0", "language": "Rust", "command": null},
+    {"name": "kentron", "kernel": "https://github.com/rsz269/kentron", "license": "MIT OR Apache-2.0", "backend": "Rust", "frontend": "Rust", "command": null},
     {
       "name": "vcad",
       "kernel": "https://github.com/ecto/vcad",
       "license": "MIT",
-      "language": "Rust",
+      "backend": "Rust",
+      "frontend": "Rust",
       "command": [
         "kernels/vcad/target/release/brep-bench-vcad"
       ],
@@ -113,12 +118,13 @@
       ],
       "source": "kernels/vcad/src/cases/{category}/{name_snake}.rs"
     },
-    {"name": "brepkit", "kernel": "https://github.com/andymai/brepkit", "license": "AGPL-3.0 or commercial", "language": "Rust", "command": null},
+    {"name": "brepkit", "kernel": "https://github.com/andymai/brepkit", "license": "AGPL-3.0 or commercial", "backend": "Rust", "frontend": "Rust", "command": null},
     {
       "name": "popkern",
       "kernel": "https://github.com/popkern-dev/popkern",
       "license": "AGPL-3.0 with exception",
-      "language": "Rhai (popkern's scripts), run from Rust",
+      "backend": "Rust",
+      "frontend": "Rhai (popkern's scripts)",
       "build": [
         "cargo",
         "build",
@@ -139,7 +145,8 @@
       "name": "aetheris",
       "kernel": "https://github.com/yuechen-li-dev/Aetheris",
       "license": "AGPL-3.0",
-      "language": "Firmament (Aetheris's modelling language), compiled from C#",
+      "backend": "C#",
+      "frontend": "Firmament (Aetheris's modelling language)",
       "build": [
         "python3",
         "kernels/aetheris/build.py"
@@ -156,6 +163,6 @@
       "measured": "mesh",
       "source": "kernels/aetheris/cases/{category}/{name_snake}.firmament"
     },
-    {"name": "next.BREP", "kernel": "https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL", "license": "custom", "language": "Rust", "command": null}
+    {"name": "next.BREP", "kernel": "https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL", "license": "custom", "backend": "Rust", "frontend": "Rust", "command": null}
   ]
 }

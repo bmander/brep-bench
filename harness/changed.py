@@ -15,7 +15,7 @@ changed decides it:
   workarounds.toml, which only the site reads;
 - a kernel's entry in kernels.json, added or changed in how it is built or run: that kernel runs
   every case again. A change to which kernel is the reference draws every case again; a change to
-  what the board only shows (its licence, language, note) runs nothing;
+  what the board only shows (its licence, languages, note) runs nothing;
 - how a run is made or graded (harness/run.py, stl.py, suite.py, build.py): the whole suite runs
   again;
 - anything else (the site, the drawings' code, the docs): nothing runs, the site is only made
