@@ -1,0 +1,1718 @@
+{
+ "kernel": "vcad",
+ "version": "vcad-kernel 0.10.0 (runner 0.1.0)",
+ "measured": "mesh",
+ "run": "2026-10-30T09:39:11Z",
+ "tally": {
+  "pass": 44,
+  "wrong": 22,
+  "refused": 29,
+  "timeout": 3
+ },
+ "cases": [
+  {
+   "case": "boolean/box-minus-through-cylinder",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.022,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 1,
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 528,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 717.370197273164,
+    "area": 731.9506740441864
+   }
+  },
+  {
+   "case": "boolean/boxes-common",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.005,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 12,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 249.99999999999991,
+    "area": 250.0
+   }
+  },
+  {
+   "case": "boolean/boxes-cut",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.004,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 12
+   },
+   "mesh": {
+    "triangles": 28,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 749.9999999999998,
+    "area": 550.0
+   }
+  },
+  {
+   "case": "boolean/boxes-sharing-a-face",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.005,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 10
+   },
+   "mesh": {
+    "triangles": 20,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 1999.9999999999998,
+    "area": 1000.0
+   }
+  },
+  {
+   "case": "boolean/boxes-sharing-part-of-a-face",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.004,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 16
+   },
+   "mesh": {
+    "triangles": 36,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 2000.0000000000002,
+    "area": 1100.0
+   }
+  },
+  {
+   "case": "boolean/boxes-union",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.004,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 22
+   },
+   "mesh": {
+    "triangles": 52,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 1750.0,
+    "area": 950.0
+   }
+  },
+  {
+   "case": "boolean/drilled-plate",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.488,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 9,
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 4656,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 18869.48092149769,
+    "area": 7304.755925682756
+   }
+  },
+  {
+   "case": "boolean/half-cylinder-boss-tangent",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.078,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 2,
+    "plane": 9
+   },
+   "mesh": {
+    "triangles": 644,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 1392.5965683999825,
+    "area": 735.5886943519569
+   }
+  },
+  {
+   "case": "boolean/half-torus",
+   "outcome": "wrong",
+   "why": "volume 394.2959245047352 against 394.784176044; area 424.3854721750806 against 419.916917272",
+   "seconds": 6.381,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 17014
+   },
+   "mesh": {
+    "triangles": 17014,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 394.2959245047352,
+    "area": 424.3854721750806
+   }
+  },
+  {
+   "case": "boolean/hemisphere",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.076,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 1,
+    "sphere": 1
+   },
+   "mesh": {
+    "triangles": 16382,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 261.6548531027097,
+    "area": 235.5445462020898
+   }
+  },
+  {
+   "case": "boolean/indexed-pattern",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 5.66,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 7,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 4368,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 5905.928402767069,
+    "area": 3367.6328779175137
+   }
+  },
+  {
+   "case": "boolean/napkin-ring",
+   "outcome": "wrong",
+   "why": "volume 266.5229678714774 against 268.082573106; triangles not closed (512 edges unmatched)",
+   "seconds": 3.36,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 12848
+   },
+   "mesh": {
+    "triangles": 12848,
+    "degenerate": 0,
+    "unmatched_edges": 512,
+    "closed": false,
+    "volume": 266.5229678714774,
+    "area": 402.2180279531355
+   }
+  },
+  {
+   "case": "boolean/offset-hole-sphere",
+   "outcome": "wrong",
+   "why": "area 6300.5913687181655 against 6171.86194762",
+   "seconds": 3.07,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 18658
+   },
+   "mesh": {
+    "triangles": 18658,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 29221.154839426275,
+    "area": 6300.5913687181655
+   }
+  },
+  {
+   "case": "boolean/sphere-lens",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.147,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "sphere": 2
+   },
+   "mesh": {
+    "triangles": 32512,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 108.85382775983413,
+    "area": 125.62306918680329
+   }
+  },
+  {
+   "case": "boolean/sphere-pocket",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.078,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 6,
+    "sphere": 1
+   },
+   "mesh": {
+    "triangles": 16398,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 3738.3451468973185,
+    "area": 1678.5279908627047
+   }
+  },
+  {
+   "case": "boolean/spheres-union",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.12,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "sphere": 2
+   },
+   "mesh": {
+    "triangles": 32512,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 937.6616592506537,
+    "area": 502.4908186574075
+   }
+  },
+  {
+   "case": "boolean/steinmetz-common",
+   "outcome": "wrong",
+   "why": "volume 661.8591265520159 against 666.666666667; area 397.5943949503288 against 400; triangles not closed (8 edges unmatched)",
+   "seconds": 0.004,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 240
+   },
+   "mesh": {
+    "triangles": 240,
+    "degenerate": 0,
+    "unmatched_edges": 8,
+    "closed": false,
+    "volume": 661.8591265520159,
+    "area": 397.5943949503288
+   }
+  },
+  {
+   "case": "boolean/steinmetz-union",
+   "outcome": "wrong",
+   "why": "volume 3995.556283080246 against 4045.72231372; area 1771.7804429873877 against 1799.11485751; triangles not closed (40 edges unmatched)",
+   "seconds": 0.005,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 768
+   },
+   "mesh": {
+    "triangles": 768,
+    "degenerate": 0,
+    "unmatched_edges": 40,
+    "closed": false,
+    "volume": 3995.556283080246,
+    "area": 1771.7804429873877
+   }
+  },
+  {
+   "case": "boolean/stepped-shaft",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.094,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 2,
+    "plane": 3
+   },
+   "mesh": {
+    "triangles": 1140,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 1067.820974794254,
+    "area": 659.6534335421454
+   }
+  },
+  {
+   "case": "boolean/tube",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.185,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 2,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 1144,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 502.56135884256645,
+    "area": 603.1274719469765
+   }
+  },
+  {
+   "case": "boolean/tube-flush-ends",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.177,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 2,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 1144,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 502.56135884256645,
+    "area": 603.1274719469765
+   }
+  },
+  {
+   "case": "chamfer/block-ridge",
+   "outcome": "wrong",
+   "why": "volume 198.75000000000182 against 200; area 277.5957061547739 against 216.568542495",
+   "seconds": 0.051,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 3078
+   },
+   "mesh": {
+    "triangles": 3206,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 198.75000000000182,
+    "area": 277.5957061547739
+   }
+  },
+  {
+   "case": "chamfer/box-top-asymmetric",
+   "outcome": "refused",
+   "why": "vcad has no chamfer with two distances: `Solid::chamfer` and `edge_blend`'s `BlendSection` take one `size`, the same setback on both faces of the edge; and `edge_blend` blends no two edges that share a vertex (`apply_edge_blend` skips them), so the four edges of a ring cannot be chamfered together",
+   "seconds": 0.003,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "chamfer/cube-all-edges",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.003,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 26
+   },
+   "mesh": {
+    "triangles": 44,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 802.6666666666666,
+    "area": 447.35956590282785
+   }
+  },
+  {
+   "case": "chamfer/cylinder-rim-to-point",
+   "outcome": "refused",
+   "why": "vcad cannot chamfer one edge of a curved solid: `Solid::chamfer` chamfers every edge and only of an all-planar solid (`chamfer_all_edges_checked` refuses a non-planar face), and `edge_blend` selects only edges between two planes, so the rim between the top and the cylinder's side cannot be picked",
+   "seconds": 0.003,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "chamfer/l-block-inside-consumed",
+   "outcome": "refused",
+   "why": "blend produced invalid geometry (cracked shell or volume gain)",
+   "seconds": 0.007,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "fillet/ball-and-post",
+   "outcome": "refused",
+   "why": "vcad cannot round one chosen edge of a curved solid: `edge_blend` selects only edges between two planes, and `Solid::fillet` rounds every edge (here the post's top rim as well); the curved per-edge pipeline under it (`fillet_edges_detailed`) insets every face by the radius, which is right only when every edge is rounded",
+   "seconds": 0.002,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "fillet/boss-s-curve",
+   "outcome": "refused",
+   "why": "vcad cannot round chosen edges of a curved solid: `edge_blend` selects only edges between two planes, and `Solid::fillet` rounds every edge (here the plate's twelve as well); and every blend refuses a solid whose faces have inner loops (`BlendError::InnerLoops`), as the plate's top has round the boss's root once they are joined",
+   "seconds": 0.003,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "fillet/box-all-edges",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.355,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 12,
+    "plane": 6,
+    "sphere": 8
+   },
+   "mesh": {
+    "triangles": 194796,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 975.5789735601381,
+    "area": 547.3585854622386
+   }
+  },
+  {
+   "case": "fillet/box-one-edge",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.009,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 1542
+   },
+   "mesh": {
+    "triangles": 1658,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 991.4033087510029,
+    "area": 589.693432849996
+   }
+  },
+  {
+   "case": "fillet/cylinder-rim",
+   "outcome": "refused",
+   "why": "vcad cannot round one chosen edge of a curved solid: `edge_blend` selects only edges between two planes, and `Solid::fillet` rounds every edge (here both rims, and on a cylinder it declines as diverged); the curved per-edge pipeline under it (`fillet_edges_detailed`) insets every face by the radius, which is right only when every edge is rounded",
+   "seconds": 0.002,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "fillet/cylinder-rim-to-dome",
+   "outcome": "refused",
+   "why": "vcad cannot round one chosen edge of a curved solid: `edge_blend` selects only edges between two planes, and `Solid::fillet` rounds every edge (here both rims, and on a cylinder it declines as diverged); the curved per-edge pipeline under it (`fillet_edges_detailed`) insets every face by the radius, which is right only when every edge is rounded",
+   "seconds": 0.002,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "fillet/hole-waist",
+   "outcome": "refused",
+   "why": "vcad cannot round chosen edges of a curved solid: `edge_blend` selects only edges between two planes, and `Solid::fillet` rounds every edge (here the plate's twelve as well); and every blend refuses a solid whose faces have inner loops (`BlendError::InnerLoops`), as the plate's top and bottom have round the hole",
+   "seconds": 0.002,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "fillet/l-block-inside-consumed",
+   "outcome": "refused",
+   "why": "blend produced invalid geometry (cracked shell or volume gain)",
+   "seconds": 0.007,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "fillet/slab-half-round",
+   "outcome": "wrong",
+   "why": "volume 220.8439182492982 against 222.831853072; area 288.46884830598304 against 227.398223686",
+   "seconds": 0.048,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 3078
+   },
+   "mesh": {
+    "triangles": 3206,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 220.8439182492982,
+    "area": 288.46884830598304
+   }
+  },
+  {
+   "case": "fillet/sliver-strip",
+   "outcome": "refused",
+   "why": "blend produced invalid geometry (cracked shell or volume gain)",
+   "seconds": 0.018,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "fillet/variable-radius-edge",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.009,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 1542
+   },
+   "mesh": {
+    "triangles": 1658,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 994.9852650266114,
+    "area": 592.49562752529
+   }
+  },
+  {
+   "case": "nurbs/bezier-dome",
+   "outcome": "refused",
+   "why": "vcad has no operation that makes a face on a B-spline surface given by its control points: its B-spline and NURBS surfaces (vcad-kernel-nurbs's BSplineSurface and NurbsSurface) are not part of vcad-kernel's API, sketches hold only lines and arcs, loft is ruled with planar faces (its Smooth mode falls back to ruled), and only STEP import (and the rolling-ball fillet's own blends) makes B-spline faces, so not the block under a bicubic B\u00e9zier patch",
+   "seconds": 0.002,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "nurbs/bspline-dome",
+   "outcome": "refused",
+   "why": "vcad has no operation that makes a face on a B-spline surface given by its control points: its B-spline and NURBS surfaces (vcad-kernel-nurbs's BSplineSurface and NurbsSurface) are not part of vcad-kernel's API, sketches hold only lines and arcs, loft is ruled with planar faces (its Smooth mode falls back to ruled), and only STEP import (and the rolling-ball fillet's own blends) makes B-spline faces, so not the block under a bicubic B-spline surface",
+   "seconds": 0.002,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "nurbs/drilled-dome",
+   "outcome": "refused",
+   "why": "vcad has no operation that makes a face on a B-spline surface given by its control points: its B-spline and NURBS surfaces (vcad-kernel-nurbs's BSplineSurface and NurbsSurface) are not part of vcad-kernel's API, sketches hold only lines and arcs, loft is ruled with planar faces (its Smooth mode falls back to ruled), and only STEP import (and the rolling-ball fillet's own blends) makes B-spline faces, so not the block under a bicubic B\u00e9zier patch to drill",
+   "seconds": 0.002,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "nurbs/groin-vault",
+   "outcome": "wrong",
+   "why": "volume 3840.0 against 7632; area 1536.0 against 2256; triangles not closed (4 edges unmatched); triangles' volume 3840",
+   "seconds": 0.006,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 5
+   },
+   "mesh": {
+    "triangles": 10,
+    "degenerate": 0,
+    "unmatched_edges": 4,
+    "closed": false,
+    "volume": 3840.0,
+    "area": 1536.0
+   }
+  },
+  {
+   "case": "nurbs/sliced-dome",
+   "outcome": "refused",
+   "why": "vcad has no operation that makes a face on a B-spline surface given by its control points: its B-spline and NURBS surfaces (vcad-kernel-nurbs's BSplineSurface and NurbsSurface) are not part of vcad-kernel's API, sketches hold only lines and arcs, loft is ruled with planar faces (its Smooth mode falls back to ruled), and only STEP import (and the rolling-ball fillet's own blends) makes B-spline faces, so not the block under a bicubic B\u00e9zier patch to slice",
+   "seconds": 0.002,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "nurbs/vault-tangent-plane",
+   "outcome": "wrong",
+   "why": "volume 8160.184809604023 against 8175.39417721; area 2401.192864567247 against 2404.93540506; triangles not closed (176 edges unmatched)",
+   "seconds": 0.005,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 2,
+    "plane": 5
+   },
+   "mesh": {
+    "triangles": 184,
+    "degenerate": 0,
+    "unmatched_edges": 176,
+    "closed": false,
+    "volume": 8160.184809604023,
+    "area": 2401.192864567247
+   }
+  },
+  {
+   "case": "parts/flange",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 12.208,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 9,
+    "plane": 3
+   },
+   "mesh": {
+    "triangles": 6576,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 22135.179323305252,
+    "area": 9324.047954787455
+   }
+  },
+  {
+   "case": "parts/pin-lug",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.038,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 1,
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 812,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 29989.71486374227,
+    "area": 8900.576904378384
+   }
+  },
+  {
+   "case": "parts/pocketed-tray",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 2.075,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 8,
+    "plane": 26
+   },
+   "mesh": {
+    "triangles": 4620,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 21370.649308806453,
+    "area": 14967.326893596037
+   }
+  },
+  {
+   "case": "parts/shelf-bracket",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.005,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 1,
+    "plane": 8
+   },
+   "mesh": {
+    "triangles": 52,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 40140.56872515256,
+    "area": 12393.575690993684
+   }
+  },
+  {
+   "case": "parts/star-handle",
+   "outcome": "refused",
+   "why": "vcad has no drafted extrusion: `extrude_with_options` tapers only by `scale_end`, a uniform scale of the whole section about the sketch origin (its arcs cut into lines), which moves each side by an amount that depends on its distance from that origin and scales every arc's radius, where a draft moves every side and arc inward by the same h\u00b7tan 2\u00b0; and vcad has no draft of a solid's faces",
+   "seconds": 0.003,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "parts/turned-shaft",
+   "outcome": "refused",
+   "why": "arc segments not supported for revolve operation",
+   "seconds": 0.003,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "parts/v-belt-pulley",
+   "outcome": "wrong",
+   "why": "volume 41250.438803827274 against 41490.565377; area 10439.128273924753 against 10484.5696304",
+   "seconds": 12.186,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 1524
+   },
+   "mesh": {
+    "triangles": 1524,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 41250.438803827274,
+    "area": 10439.128273924753
+   }
+  },
+  {
+   "case": "primitives/box",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.003,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 12,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 6000.0,
+    "area": 2200.0
+   }
+  },
+  {
+   "case": "primitives/cone-frustum",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.005,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cone": 1,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 1024,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 245.01962393591467,
+    "area": 238.61222417033937
+   }
+  },
+  {
+   "case": "primitives/cylinder",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.004,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 1,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 1024,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 785.3193068721461,
+    "area": 471.21524031679195
+   }
+  },
+  {
+   "case": "primitives/extruded-l",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.002,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 8
+   },
+   "mesh": {
+    "triangles": 20,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 1200.0000000000002,
+    "area": 860.0
+   }
+  },
+  {
+   "case": "primitives/revolved-sector",
+   "outcome": "wrong",
+   "why": "volume 199.7724897777891 against 201.06192983; area 232.25579668903134 against 233.06192983",
+   "seconds": 0.003,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 34
+   },
+   "mesh": {
+    "triangles": 68,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 199.7724897777891,
+    "area": 232.25579668903134
+   }
+  },
+  {
+   "case": "primitives/revolved-washer",
+   "outcome": "wrong",
+   "why": "volume 805.1189044354287 against 804.247719319; area 805.6251600696962 against 804.247719319; triangles not closed (576 edges unmatched)",
+   "seconds": 0.011,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 2,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 1664,
+    "degenerate": 0,
+    "unmatched_edges": 576,
+    "closed": false,
+    "volume": 805.1189044354287,
+    "area": 805.6251600696962
+   }
+  },
+  {
+   "case": "primitives/sphere",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.088,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "sphere": 1
+   },
+   "mesh": {
+    "triangles": 65024,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 523.4673655660662,
+    "area": 314.1198396999879
+   }
+  },
+  {
+   "case": "primitives/torus",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.2,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "torus": 1
+   },
+   "mesh": {
+    "triangles": 131072,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 789.4098205692203,
+    "area": 789.4989919659342
+   }
+  },
+  {
+   "case": "spline/peanut-prism",
+   "outcome": "refused",
+   "why": "vcad has no spline in a sketch: `SketchSegment` is a line or a circular arc, and `Solid::extrude` extrudes only a sketch; no vcad operation makes a solid from a B-spline section",
+   "seconds": 0.003,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "spline/pipe-on-planar-cubic",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.06,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "other": 16364,
+    "plane": 22
+   },
+   "mesh": {
+    "triangles": 33020,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 65316.61231362939,
+    "area": 9045.97933231412
+   }
+  },
+  {
+   "case": "spline/pipe-on-twisted-cubic",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.058,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "other": 16367,
+    "plane": 19
+   },
+   "mesh": {
+    "triangles": 33020,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 8038.7600100958625,
+    "area": 2412.3035993157564
+   }
+  },
+  {
+   "case": "spline/rational-cap",
+   "outcome": "refused",
+   "why": "vcad revolves only sketches of line segments (`Solid::revolve`; arcs are `ArcNotSupported`) and has no spline in a sketch: no vcad operation turns a rational B\u00e9zier arc into a solid",
+   "seconds": 0.003,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "spline/rational-spheroid",
+   "outcome": "refused",
+   "why": "vcad revolves only sketches of line segments (`Solid::revolve`; arcs are `ArcNotSupported`) with no vertex on the axis, and has no spline in a sketch: no vcad operation turns a rational B-spline into a solid",
+   "seconds": 0.003,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "spline/revolved-cubic-dome",
+   "outcome": "refused",
+   "why": "vcad revolves only sketches of line segments (`Solid::revolve`; arcs are `ArcNotSupported`) and has no spline in a sketch: no vcad operation turns a B\u00e9zier curve into a solid",
+   "seconds": 0.002,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "spline/square-on-planar-cubic",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.006,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 514
+   },
+   "mesh": {
+    "triangles": 1028,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 15999.616619429693,
+    "area": 3999.9520899283716
+   }
+  },
+  {
+   "case": "sweep/circle-along-arc",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.089,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 23042
+   },
+   "mesh": {
+    "triangles": 46332,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 197.31032054812604,
+    "area": 222.49335255686145
+   }
+  },
+  {
+   "case": "sweep/duct-elbow",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.217,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 1456
+   },
+   "mesh": {
+    "triangles": 2928,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 6031.781510445732,
+    "area": 6287.810056702562
+   }
+  },
+  {
+   "case": "sweep/helical-pipe",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.192,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "other": 46918,
+    "plane": 2236
+   },
+   "mesh": {
+    "triangles": 98556,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 593.5728259746716,
+    "area": 1193.9617273134775
+   }
+  },
+  {
+   "case": "sweep/helical-pipe-round-ends",
+   "outcome": "wrong",
+   "why": "volume 601.9483039097065 against 598.237095238; area 1219.091314665701 against 1200.66298068",
+   "seconds": 6.842,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "other": 46918,
+    "plane": 2236,
+    "sphere": 2
+   },
+   "mesh": {
+    "triangles": 227964,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 601.9483039097065,
+    "area": 1219.091314665701
+   }
+  },
+  {
+   "case": "sweep/hollow-reducer",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.005,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 32
+   },
+   "mesh": {
+    "triangles": 64,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 5119.999999999991,
+    "area": 5433.279594536113
+   }
+  },
+  {
+   "case": "sweep/narrowing-bend",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.398,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "other": 723,
+    "plane": 743
+   },
+   "mesh": {
+    "triangles": 2940,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 4900.031504897272,
+    "area": 5118.6178834528755
+   }
+  },
+  {
+   "case": "sweep/twisted-duct",
+   "outcome": "wrong",
+   "why": "volume 15573.333333333334 against 12373.3333333; area 3661.1530098402895 against 3515.67071004; triangles' volume 15573.3",
+   "seconds": 0.003,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 12,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 15573.333333333334,
+    "area": 3661.1530098402895
+   }
+  },
+  {
+   "case": "swept/ball-along-spline-groove",
+   "outcome": "timeout",
+   "why": "over 60 s",
+   "seconds": 60,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/ball-swung-groove",
+   "outcome": "timeout",
+   "why": "over 60 s",
+   "seconds": 60,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/ball-thread-groove",
+   "outcome": "timeout",
+   "why": "over 60 s",
+   "seconds": 60,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/box-slid-aslant",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.015,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 56
+   },
+   "mesh": {
+    "triangles": 56,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 812.0,
+    "area": 542.6189318971692
+   }
+  },
+  {
+   "case": "swept/plus-cut-wheel",
+   "outcome": "refused",
+   "why": "vcad has no sweep of a solid along a motion (its sweeps move a sketch profile along a curve); the wheel's cut is bounded by envelopes of the rolling tool's sides and the trochoids of its corners, which vcad cannot build",
+   "seconds": 0.003,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/rack-cut-tooth-space",
+   "outcome": "refused",
+   "why": "vcad has no sweep of a solid along a rolling motion, and no involute or trochoid (a sketch holds only lines and circular arcs): the tooth space's flanks are envelopes of the rack's",
+   "seconds": 0.003,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/torus-screwed-through-rod",
+   "outcome": "refused",
+   "why": "vcad has no sweep of a solid along a screw motion; the groove's wall is the envelope of the screwed torus, whose section is none of the torus's circles and would have to be computed outside the kernel",
+   "seconds": 0.002,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/torus-slid-through-rod",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.102,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 880
+   },
+   "mesh": {
+    "triangles": 880,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 1494.900799688746,
+    "area": 794.7301084351367
+   }
+  },
+  {
+   "case": "swept/torus-turned-across-block",
+   "outcome": "refused",
+   "why": "vcad has no sweep of a solid; the groove's wall is the envelope of the leaning torus turned about the z axis, none of its own circles, and would have to be computed outside the kernel",
+   "seconds": 0.005,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/tumbling-torus",
+   "outcome": "refused",
+   "why": "vcad has no sweep of a solid along a motion; the tumbling torus's boundary is its envelope, which would have to be computed outside the kernel",
+   "seconds": 0.002,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/two-beads-slid-through-rod",
+   "outcome": "wrong",
+   "why": "triangles not closed (6 edges unmatched)",
+   "seconds": 0.109,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 992
+   },
+   "mesh": {
+    "triangles": 992,
+    "degenerate": 0,
+    "unmatched_edges": 6,
+    "closed": false,
+    "volume": 1487.6542001972325,
+    "area": 787.8823900744163
+   }
+  },
+  {
+   "case": "swept/v-wheel-screwed-through-rod",
+   "outcome": "refused",
+   "why": "vcad has no sweep of a solid along a screw motion; the groove's flanks are envelopes of the wheel's conical flanks screwed, which would have to be computed outside the kernel",
+   "seconds": 0.003,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "tangent/ball-in-band",
+   "outcome": "wrong",
+   "why": "area 421.7516463475731 against 370.707933124",
+   "seconds": 6.156,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 23062
+   },
+   "mesh": {
+    "triangles": 23062,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 579.7374716571319,
+    "area": 421.7516463475731
+   }
+  },
+  {
+   "case": "tangent/coaxial-overlap",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.046,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 3,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 1264,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 1256.3067185486652,
+    "area": 659.6601124131548
+   }
+  },
+  {
+   "case": "tangent/cone-tip-on-face",
+   "outcome": "wrong",
+   "why": "area 1891.9829335457684 against 1781.61362388; triangles not closed (543 edges unmatched)",
+   "seconds": 0.016,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cone": 1,
+    "plane": 7
+   },
+   "mesh": {
+    "triangles": 555,
+    "degenerate": 0,
+    "unmatched_edges": 543,
+    "closed": false,
+    "volume": 4276.286300414959,
+    "area": 1891.9829335457684
+   }
+  },
+  {
+   "case": "tangent/grazing-cylinders",
+   "outcome": "refused",
+   "why": "the solid is empty",
+   "seconds": 0.051,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "tangent/hairline-slot",
+   "outcome": "wrong",
+   "why": "triangles not closed (6 edges unmatched)",
+   "seconds": 0.006,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 15
+   },
+   "mesh": {
+    "triangles": 30,
+    "degenerate": 0,
+    "unmatched_edges": 6,
+    "closed": false,
+    "volume": 999.9999999999999,
+    "area": 700.0
+   }
+  },
+  {
+   "case": "tangent/ice-cream-cone",
+   "outcome": "wrong",
+   "why": "volume 7644.23008546124 against 15079.6447372; area 3121.070324983668 against 3015.92894745; triangles not closed (128 edges unmatched); triangles' volume 7644.23",
+   "seconds": 9.218,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 26148
+   },
+   "mesh": {
+    "triangles": 19970,
+    "degenerate": 0,
+    "unmatched_edges": 128,
+    "closed": false,
+    "volume": 7644.23008546124,
+    "area": 3121.070324983668
+   }
+  },
+  {
+   "case": "tangent/inscribed-ball-common",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.14,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "sphere": 1
+   },
+   "mesh": {
+    "triangles": 65024,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 523.4673658772812,
+    "area": 314.11983982540806
+   }
+  },
+  {
+   "case": "tangent/inscribed-ball-union",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.033,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 12,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 999.9999999999999,
+    "area": 600.0
+   }
+  },
+  {
+   "case": "tangent/knife-edge-dish",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.151,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 1,
+    "plane": 1,
+    "sphere": 1
+   },
+   "mesh": {
+    "triangles": 36538,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 523.5186688685737,
+    "area": 549.7173609654063
+   }
+  },
+  {
+   "case": "tangent/midsphere-common",
+   "outcome": "wrong",
+   "why": "volume 785.082776696941 against 965.068858215; area 471.0496660181649 against 547.46671805; triangles not closed (768 edges unmatched); triangles' volume 785.083",
+   "seconds": 0.158,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 756,
+    "degenerate": 0,
+    "unmatched_edges": 768,
+    "closed": false,
+    "volume": 785.082776696941,
+    "area": 471.0496660181649
+   }
+  },
+  {
+   "case": "tangent/tangent-tee-common",
+   "outcome": "refused",
+   "why": "the solid is empty",
+   "seconds": 0.052,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "tangent/tangent-tee-union",
+   "outcome": "wrong",
+   "why": "volume 3203.465861360678 against 2964.67807783; area 1721.4102824832728 against 1506.73683311; triangles' volume 3203.47",
+   "seconds": 0.067,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 2,
+    "plane": 4
+   },
+   "mesh": {
+    "triangles": 1140,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 3203.465861360678,
+    "area": 1721.4102824832728
+   }
+  },
+  {
+   "case": "tangent/thin-lens",
+   "outcome": "refused",
+   "why": "the solid is empty",
+   "seconds": 0.028,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "tangent/torus-in-drum",
+   "outcome": "wrong",
+   "why": "volume 2493.3889761831915 against 2098.60998432; area 1375.7577095808588 against 1442.48139977; triangles not closed (256 edges unmatched); triangles' volume 2493.39",
+   "seconds": 0.948,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 1,
+    "plane": 2,
+    "torus": 1
+   },
+   "mesh": {
+    "triangles": 132344,
+    "degenerate": 0,
+    "unmatched_edges": 256,
+    "closed": false,
+    "volume": 2493.3889761831915,
+    "area": 1375.7577095808588
+   }
+  }
+ ]
+}
