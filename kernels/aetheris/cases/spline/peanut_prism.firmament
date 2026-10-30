@@ -1,0 +1,68 @@
+// Firmament has no B-spline curve, so the peanut's periodic cubic B-spline is drawn as its twelve
+// spans: each an exact cubic Curve2, the uniform cubic B-spline segment of four consecutive control
+// points (wrapping round), by the case's own formula. Traced in order they close the section, which
+// is extruded from z = 0 to z = 10.
+Function Span(t: Float, a: Point2, b: Point2, c: Point2, d: Point2) -> Point2 = Point2(
+    ((1 - t) * (1 - t) * (1 - t) * a.X + (3 * t * t * t - 6 * t * t + 4) * b.X
+      + (-3 * t * t * t + 3 * t * t + 3 * t + 1) * c.X + t * t * t * d.X) / 6,
+    ((1 - t) * (1 - t) * (1 - t) * a.Y + (3 * t * t * t - 6 * t * t + 4) * b.Y
+      + (-3 * t * t * t + 3 * t * t + 3 * t + 1) * c.Y + t * t * t * d.Y) / 6);
+Model PeanutPrism {
+  units: mm
+  Concept Struct layout {
+    Curve2 span0 {
+      parameter: t; domain: [0, 1]; on: XY; representation: Exact;
+      from: Span(t, Point2(14mm, 0mm), Point2(12mm, 8mm), Point2(4mm, 6mm), Point2(0mm, -2.625mm));
+    }
+    Curve2 span1 {
+      parameter: t; domain: [0, 1]; on: XY; representation: Exact;
+      from: Span(t, Point2(12mm, 8mm), Point2(4mm, 6mm), Point2(0mm, -2.625mm), Point2(-4mm, 6mm));
+    }
+    Curve2 span2 {
+      parameter: t; domain: [0, 1]; on: XY; representation: Exact;
+      from: Span(t, Point2(4mm, 6mm), Point2(0mm, -2.625mm), Point2(-4mm, 6mm), Point2(-12mm, 8mm));
+    }
+    Curve2 span3 {
+      parameter: t; domain: [0, 1]; on: XY; representation: Exact;
+      from: Span(t, Point2(0mm, -2.625mm), Point2(-4mm, 6mm), Point2(-12mm, 8mm), Point2(-14mm, 0mm));
+    }
+    Curve2 span4 {
+      parameter: t; domain: [0, 1]; on: XY; representation: Exact;
+      from: Span(t, Point2(-4mm, 6mm), Point2(-12mm, 8mm), Point2(-14mm, 0mm), Point2(-12mm, -8mm));
+    }
+    Curve2 span5 {
+      parameter: t; domain: [0, 1]; on: XY; representation: Exact;
+      from: Span(t, Point2(-12mm, 8mm), Point2(-14mm, 0mm), Point2(-12mm, -8mm), Point2(-4mm, -6mm));
+    }
+    Curve2 span6 {
+      parameter: t; domain: [0, 1]; on: XY; representation: Exact;
+      from: Span(t, Point2(-14mm, 0mm), Point2(-12mm, -8mm), Point2(-4mm, -6mm), Point2(0mm, 2.625mm));
+    }
+    Curve2 span7 {
+      parameter: t; domain: [0, 1]; on: XY; representation: Exact;
+      from: Span(t, Point2(-12mm, -8mm), Point2(-4mm, -6mm), Point2(0mm, 2.625mm), Point2(4mm, -6mm));
+    }
+    Curve2 span8 {
+      parameter: t; domain: [0, 1]; on: XY; representation: Exact;
+      from: Span(t, Point2(-4mm, -6mm), Point2(0mm, 2.625mm), Point2(4mm, -6mm), Point2(12mm, -8mm));
+    }
+    Curve2 span9 {
+      parameter: t; domain: [0, 1]; on: XY; representation: Exact;
+      from: Span(t, Point2(0mm, 2.625mm), Point2(4mm, -6mm), Point2(12mm, -8mm), Point2(14mm, 0mm));
+    }
+    Curve2 span10 {
+      parameter: t; domain: [0, 1]; on: XY; representation: Exact;
+      from: Span(t, Point2(4mm, -6mm), Point2(12mm, -8mm), Point2(14mm, 0mm), Point2(12mm, 8mm));
+    }
+    Curve2 span11 {
+      parameter: t; domain: [0, 1]; on: XY; representation: Exact;
+      from: Span(t, Point2(12mm, -8mm), Point2(14mm, 0mm), Point2(12mm, 8mm), Point2(4mm, 6mm));
+    }
+  }
+  Profile section {
+    Loop Outer {
+      layout.span0 |> layout.span1 |> layout.span2 |> layout.span3 |> layout.span4 |> layout.span5 |> layout.span6 |> layout.span7 |> layout.span8 |> layout.span9 |> layout.span10 |> layout.span11 |> Close
+    }
+  }
+  Extrude prism { profile: section; from: 0mm; to: 10mm }
+}

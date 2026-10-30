@@ -1,0 +1,3 @@
+// Refused: a Firmament part has no B-spline or Bézier surface to make the dome of (its one
+// authored patch, a sculpting SurfacePatch, keeps a planar face's straight edges; this dome's edges
+// are cubic curves), and a Hole enters only a planar support, not a freeform top.

@@ -1,0 +1,25 @@
+// Firmament has no rational curve, so the meridian's rational quadratic Bézier is drawn as the arc
+// it is exactly: of the circle of radius 10 about the origin, from (5√3, −5) to (0, 10). With the
+// axis and the radius of the base it bounds the region in the xz plane, turned a full turn about z.
+Model RationalCap {
+  units: mm
+  Axis z { origin: [0mm, 0mm, 0mm]; direction: [0, 0, 1] }
+  Concept Struct layout on XZ {
+    Point2 centre { position: [0mm, 0mm] }
+    Point2 rim { position: [8.660254037844386mm, -5mm] }
+    Point2 top { position: [0mm, 10mm] }
+    Point2 foot { position: [0mm, -5mm] }
+    Circle2 sphere { center: centre; radius: 10mm }
+    Line2 axis { from: top; to: foot }
+    Line2 base { from: foot; to: rim }
+  }
+  Profile meridian using layout {
+    Loop Outer {
+      sphere from rim to top as cap
+      |> axis as axisClosure
+      |> base as floor
+      |> Close
+    }
+  }
+  Revolve cap { profile: meridian; about: z; angle: full }
+}

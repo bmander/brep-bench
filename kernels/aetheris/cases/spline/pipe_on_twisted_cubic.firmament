@@ -1,0 +1,3 @@
+// Refused: Sweep carries a circle only along a planar XY path of lines and circular arcs; a cubic
+// that leaves its plane, or any Bézier, is no path it accepts, and no other construction sweeps a
+// section along a space curve.

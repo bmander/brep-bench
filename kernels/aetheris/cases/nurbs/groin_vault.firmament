@@ -1,0 +1,3 @@
+// Refused: Firmament has no Boolean intersection (no public Union, Subtract or Intersect), so it
+// cannot make the common part of the two vaulted blocks. It has no rational B-spline surface for
+// the vaults either, though each is exactly an extruded circular arch.

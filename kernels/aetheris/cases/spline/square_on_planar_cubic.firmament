@@ -1,0 +1,3 @@
+// Refused: Sweep carries only a circular section, along a path of lines and circular arcs; there is
+// no sweep of a square, and no Bézier path. The bar's upright sides are offsets of the cubic, which
+// Firmament cannot draw.

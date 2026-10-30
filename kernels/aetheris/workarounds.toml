@@ -1,2 +1,4 @@
 # The cases aetheris builds by working around a feature it lacks, and what that is
 # (SPEC.md, "A workaround is flagged").
+
+"spline/rational-spheroid" = "no NURBS curve"
