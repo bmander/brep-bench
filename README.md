@@ -52,6 +52,10 @@ A case **passes** when three things hold:
 - the triangles it writes are watertight and consistently oriented;
 - the triangles bound the expected volume.
 
+An implementation that gets there by working around a feature its kernel lacks (a ball turned
+from a half disc where there is no sphere primitive, a sweep built from its faces where there is no
+sweep of a solid) is flagged **workaround**: it is graded the same, but the board marks it †.
+
 A kernel that **refuses** a case ranks above one that answers it **wrong**. A case with no
 implementation yet is **missing**, which says nothing about the kernel. The full rules are in
 [SPEC.md](SPEC.md).
