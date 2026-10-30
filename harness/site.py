@@ -46,6 +46,19 @@ td.pass { background: var(--pass); } td.refused { background: var(--refused); }
 td.wrong { background: var(--wrong); } td.crashed, td.timeout { background: var(--crashed); }
 td.missing { color: var(--muted); }
 td.built { background: var(--built); }
+td.kernel small { display: block; white-space: normal; max-width: 30ch; }
+td.rate { text-align: right; }
+td.wrap { white-space: normal; min-width: 12ch; max-width: 22ch; }
+.bar { display: flex; width: 160px; height: 14px; border-radius: 3px; overflow: hidden; }
+.bar span, .key span { display: inline-block; }
+.key { white-space: nowrap; margin-right: 10px; }
+.key span { width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
+.bar .pass, .key .pass { background: var(--pass); }
+.bar .built, .key .built { background: var(--built); }
+.bar .refused, .key .refused { background: var(--refused); }
+.bar .wrong, .key .wrong { background: var(--wrong); }
+.bar .crashed, .bar .timeout, .key .crashed, .key .timeout { background: var(--crashed); }
+.bar .missing, .key .missing { background: var(--line); }
 .wa { color: var(--muted); }
 td.case small { display: block; color: var(--muted); }
 details { margin: 0 0 12px; } summary { cursor: pointer; font-weight: 600; }
@@ -123,27 +136,60 @@ def paragraphs(text):
     return "\n".join(out)
 
 
-def contestants(registry, results):
-    """The table of every kernel in kernels.json: the language it is written in (its back end),
-    the language an implementation is written in (its front end), and its licence. Those with
-    results come first, in the board's order; those awaiting an implementation after."""
+def kernels_table(registry, results, cases):
+    """One row per kernel in kernels.json: its languages and licence, and what its last run made
+    of the cases, as a pass rate and a bar of every outcome. Kernels with results come first, in
+    the board's order; those awaiting an implementation after."""
     e = html.escape
-    ran = [r["kernel"] for r in results if r["kernel"] in registry]
-    order = ran + [n for n in registry if n not in ran]
-    out = ["<h2>Contestants</h2><div class=scroll><table><tr><th>kernel</th>"
+    total = len(cases)
+    ran = {r["kernel"]: r for r in results}
+    order = [r["kernel"] for r in results] + [n for n in registry if n not in ran]
+    out = ["<h2>Kernels</h2><div class=scroll><table><tr><th>kernel</th>"
            "<th title='the language the kernel is written in'>back end</th>"
            "<th title='the language its implementations of the cases are written in'>front end</th>"
-           "<th>licence</th></tr>"]
+           "<th>licence</th><th>pass rate</th><th>outcomes</th>"
+           "<th title='passed or built by working around a feature the kernel lacks'>†</th></tr>"]
     for n in order:
-        a = registry[n]
+        a = registry.get(n, {"name": n})
+        r = ran.get(n)
         name = e(n)
         if a.get("kernel"):
             name = f"<a href='{e(a['kernel'])}'>{name}</a>"
-        if not a.get("command"):
-            name += " <span class=muted>(awaiting)</span>"
-        out.append(f"<tr><td>{name}</td><td>{e(a.get('backend', ''))}</td>"
-                   f"<td>{e(a.get('frontend', ''))}</td><td>{e(a.get('license', ''))}</td></tr>")
+        if r and r.get("measured") == "mesh":
+            name += (" <span class=muted title='no exact measures: graded on its triangles, "
+                     "to 1e-3'>(mesh)</span>")
+        if r:
+            name += (f"<small class=muted>{e(r.get('version') or '')} · "
+                     f"run {e(r['run'][:10])}</small>")
+        if a.get("note"):
+            name += f"<small class=muted>{e(a['note'])}</small>"
+        out.append(f"<tr><td class=kernel>{name}</td><td>{e(a.get('backend', ''))}</td>"
+                   f"<td class=wrap>{e(a.get('frontend', ''))}</td>"
+                   f"<td class=wrap>{e(a.get('license', ''))}</td>")
+        if not r:
+            out.append("<td class=muted colspan=3>awaiting an implementation</td></tr>")
+            continue
+        tally = {o: 0 for o in OUTCOMES}
+        for c in r["cases"]:
+            if c["case"] in cases:
+                tally[c["outcome"]] += 1
+        tally["missing"] += total - sum(tally.values())
+        flagged = workarounds(a)
+        worked = sum(1 for c in r["cases"]
+                     if c["outcome"] in ("pass", "built") and c["case"] in flagged)
+        breakdown = ", ".join(f"{tally[o]} {o}" for o in OUTCOMES if tally[o])
+        bar = "".join(f"<span class={o} style='flex-grow:{tally[o]}' title='{tally[o]} {o}'></span>"
+                      for o in OUTCOMES if tally[o])
+        out.append(f"<td class=rate title='{tally['pass']} of {total} cases pass'>"
+                   f"{100 * tally['pass'] / total:.0f}% <span class=muted>{tally['pass']}/{total}"
+                   f"</span></td><td><div class=bar role=img aria-label='{e(breakdown)}'>{bar}"
+                   f"</div></td><td class=muted>{worked or ''}</td></tr>")
     out.append("</table></div>")
+    out.append("<p class=muted>Outcomes: " + " ".join(
+        f"<span class=key><span class={o}></span>{o}</span>" for o in OUTCOMES) +
+        "<br>Missing means no implementation yet, and says "
+        "nothing about the kernel. Implementations for the kernels awaiting one are welcome from "
+        "anyone, the kernel's authors first.</p>")
     return out
 
 
@@ -157,35 +203,7 @@ def scoreboard(registry, results, cases, drawings):
             "idioms, and every result is graded the same way; a refusal ranks above a wrong "
             "answer. Open a case for its drawing, every kernel's result in 3D, and every kernel's "
             f"code. <a href='{REPO}'>Cases, harness and implementations</a>.</p>"]
-    out += contestants(registry, results)
-    out.append("<h2>Kernels</h2><div class=scroll><table><tr><th>kernel</th>")
-    out += [f"<th>{o}</th>" for o in OUTCOMES]
-    out.append("<th title='passed or built by working around a feature the kernel lacks'>"
-               "by workaround</th><th>version</th><th>run</th></tr>")
-    for r in results:
-        a = registry.get(r["kernel"], {})
-        flagged = workarounds(a)
-        worked = sum(1 for c in r["cases"]
-                     if c["outcome"] in ("pass", "built") and c["case"] in flagged)
-        name = e(r["kernel"])
-        if a.get("kernel"):
-            name = f"<a href='{e(a['kernel'])}'>{name}</a>"
-        if r.get("measured") == "mesh":
-            name += (" <span class=muted title='no exact measures: graded on its triangles, "
-                     "to 1e-3'>(mesh)</span>")
-        if a.get("note"):
-            name += f"<br><span class=muted>{e(a['note'])}</span>"
-        out.append(f"<tr><td>{name}</td>")
-        out += [f"<td>{r['tally'].get(o, 0)}</td>" for o in OUTCOMES]
-        out.append(f"<td>{worked}</td><td class=muted>{e(r.get('version') or '')}</td>"
-                   f"<td class=muted>{e(r['run'])}</td></tr>")
-    out.append("</table></div>")
-    waiting = [a for a in registry.values() if not a.get("command")]
-    if waiting:
-        out.append("<p class=muted>Awaiting implementations: " + ", ".join(
-            f"<a href='{e(a['kernel'])}'>{e(a['name'])}</a>" for a in waiting) +
-            ". They are welcome from anyone, the kernel's authors first.</p>")
-
+    out += kernels_table(registry, results, cases)
     out.append("<h2>Cases</h2><div class=scroll><table><tr><th></th><th>case</th>")
     out += [f"<th>{e(r['kernel'])}</th>" for r in results]
     out.append("</tr>")
