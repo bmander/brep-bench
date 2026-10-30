@@ -65,7 +65,8 @@
         "kernels/truck/target/release/brep-bench-truck",
         "--version"
       ],
-      "source": "kernels/truck/src/cases/{category}/{name_snake}.rs"
+      "source": "kernels/truck/src/cases/{category}/{name_snake}.rs",
+      "note": "frozen: its first 46 cases stay; no implementations of newer cases are being written"
     },
     {"name": "monstertruck", "kernel": "https://github.com/virtualritz/monstertruck", "license": "Apache-2.0", "language": "Rust", "command": null},
     {

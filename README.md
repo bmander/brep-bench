@@ -79,7 +79,7 @@ Python's standard library (3.11 or later).
 | [Open CASCADE](https://github.com/Open-Cascade-SAS/OCCT) | `kernels/occt` (Python, through OCP), the reference |
 | [arris](https://github.com/arris-labs/arris) | `kernels/arris` (Rust) |
 | [cad-kernel](https://github.com/bmander/cad-kernel) | `kernels/cad-kernel` (Rust) |
-| [truck](https://github.com/ricosjp/truck) | `kernels/truck` (Rust); measured from its mesh |
+| [truck](https://github.com/ricosjp/truck) | `kernels/truck` (Rust); measured from its mesh; frozen at the first 46 cases |
 | [monstertruck](https://github.com/virtualritz/monstertruck), [kentron](https://github.com/rsz269/kentron), [vcad](https://github.com/ecto/vcad), [brepkit](https://github.com/andymai/brepkit), [popkern](https://github.com/popkern-dev/popkern), [next.BREP](https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL) | wanted |
 
 ## Contributing

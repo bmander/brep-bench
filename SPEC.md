@@ -178,6 +178,7 @@ One entry per kernel:
 | `version` | the command that prints the kernel's version |
 | `source` | the pattern of an implementation's path |
 | `measured` | `"mesh"` for a kernel with no exact measures |
+| `note` | shown beside the kernel on the board (e.g. that no new implementations are being written) |
 | `reference` | `true` for the kernel whose results the drawings are made from where it passes (else the first kernel that does) |
 
 ## Versions

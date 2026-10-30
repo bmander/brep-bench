@@ -129,6 +129,8 @@ def scoreboard(registry, results, cases, drawings):
         if r.get("measured") == "mesh":
             name += (" <span class=muted title='no exact measures: graded on its triangles, "
                      "to 1e-3'>(mesh)</span>")
+        if a.get("note"):
+            name += f"<br><span class=muted>{e(a['note'])}</span>"
         out.append(f"<tr><td>{name}</td>")
         out += [f"<td>{r['tally'].get(o, 0)}</td>" for o in OUTCOMES]
         out.append(f"<td class=muted>{e(r.get('version') or '')}</td>"
