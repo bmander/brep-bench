@@ -1,0 +1,2 @@
+// Refused: Firmament has no Intersect of two solids. A Compose could hold both cylinders' discs
+// only in one frame, and these two lie along different axes.

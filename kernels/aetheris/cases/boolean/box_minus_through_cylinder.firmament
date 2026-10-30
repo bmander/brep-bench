@@ -1,0 +1,9 @@
+// The cube drawn from the origin to (10, 10) and extruded to z = 10, drilled through along z.
+Model BoxMinusThroughCylinder {
+  units: mm
+  Profile square = Rect2 { center: [5mm, 5mm]; size: [10mm, 10mm] }
+  Extrude cube { profile: square; from: 0mm; to: 10mm }
+  Modify cube {
+    Hole<Shaft> bore { on: +Z; center: [5mm, 5mm]; diameter: 6mm; end: ThroughAll }
+  }
+}

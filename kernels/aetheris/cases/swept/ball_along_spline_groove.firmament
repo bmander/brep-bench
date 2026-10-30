@@ -1,0 +1,5 @@
+// A ball carried along a Bézier curve in a block's top face, cutting a groove.
+//
+// Refused: Aetheris has no sweep of a solid and no general subtraction, and its one feature that
+// cuts such a groove, Groove<Semicircular>, follows only a line or an arc: a CubicBezier2 is a span
+// of a Profile, not a path a groove can follow.

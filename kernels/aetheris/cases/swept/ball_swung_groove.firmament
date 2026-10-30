@@ -1,0 +1,18 @@
+// The ball's sweep follows by elementary geometry: its centre stays in the top face, so the groove
+// is a semicircular channel of radius 3 along the quarter arc its centre travels, closed at each
+// end by a quarter ball: a Groove<Semicircular> with round ends.
+//
+// A Box stands centred on the z axis from z = 0, and a Model cannot move it, so this block is the
+// case's moved by (−6, −6, 8): the arc is about (−6, −6), from (6, −6) to (−6, 6).
+Model BallSwungGroove {
+  units: mm
+  Path swing {
+    start: Point2(6mm, -6mm)
+    heading: 90deg
+    Arc quarter { radius: 12mm; turn: 90deg }
+  }
+  Box block { size: [24mm, 24mm, 8mm] }
+  Modify block {
+    Groove<Semicircular> groove { on: +Z; path: swing; radius: 3mm; ends: Round }
+  }
+}

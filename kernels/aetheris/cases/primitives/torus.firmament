@@ -1,0 +1,7 @@
+// A Torus is centred on the origin with its axis on y, not z, and a Model cannot turn it. (A
+// circle revolved about the z axis would lie where the case says, but Revolve declines a closed
+// curve: firmament-revolve-full-closed-curve-materialization-not-supported.)
+Model Torus {
+  units: mm
+  Torus ring { majorRadius: 10mm; minorRadius: 2mm }
+}

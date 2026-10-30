@@ -1,0 +1,10 @@
+// The first cylinder as the stock, the second raised on its top as a Boss.
+Model SteppedShaft {
+  units: mm
+  Profile lower = Circle2 { center: [0mm, 0mm]; radius: 5mm }
+  Profile upper = Circle2 { center: [0mm, 0mm]; radius: 3mm }
+  Compose shaft {
+    Base stock { profile: lower; from: 0mm; to: 10mm; role: Stock }
+    Boss step { on: Top; profile: upper; height: 10mm }
+  }
+}

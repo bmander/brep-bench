@@ -1,0 +1,4 @@
+// The solid a torus fills as it turns about one axis, seen from a frame turning about another.
+//
+// Refused: Aetheris has no sweep of a solid, and this sweep's wall is an envelope: no line of the
+// torus stays fixed, so its boundary is an envelope of no simpler kind.

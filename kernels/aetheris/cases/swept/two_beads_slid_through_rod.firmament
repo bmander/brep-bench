@@ -1,0 +1,15 @@
+// The wheel's sweep follows by elementary geometry. Seen along z, edge on, each bead is a slot: the
+// disc of its tube's radius carried along its tube's centres, from x = 5.5 to 17.5. Sliding along
+// z from wholly below the rod to wholly above it, the wheel passes through everything above or
+// below either slot, so the rod loses the prism on each: two through cuts, one for each bead.
+Model TwoBeadsSlidThroughRod {
+  units: mm
+  Profile rodSection = Circle2 { center: [0mm, 0mm]; radius: 5mm }
+  Profile firstBeadEdgeOn = Slot2 { center: [11.5mm, 0mm]; length: 16mm; width: 4mm }
+  Profile secondBeadEdgeOn = Slot2 { center: [11.5mm, 1.5mm]; length: 15mm; width: 3mm }
+  Compose rod {
+    Base stock { profile: rodSection; from: 0mm; to: 20mm; role: Stock }
+    RemoveOffset<Prism> firstGroove { Target: rod; On: Top; Profile: firstBeadEdgeOn; Termination: ThroughAll }
+    RemoveOffset<Prism> secondGroove { Target: rod; On: Top; Profile: secondBeadEdgeOn; Termination: ThroughAll }
+  }
+}

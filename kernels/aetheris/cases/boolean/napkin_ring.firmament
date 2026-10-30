@@ -1,0 +1,8 @@
+// The ball, bored through along the z axis.
+Model NapkinRing {
+  units: mm
+  Sphere ball { radius: 5mm }
+  Modify ball {
+    Hole<Shaft> bore { on: +Z; center: Point2(0mm, 0mm); diameter: 6mm; end: ThroughAll }
+  }
+}

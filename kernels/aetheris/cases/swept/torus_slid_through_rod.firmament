@@ -1,0 +1,13 @@
+// The wheel's sweep follows by elementary geometry. Seen along z, edge on, the torus is a slot: the
+// disc of its tube's radius carried along its tube's centres, from x = 5.5 to 17.5. Sliding along
+// z from wholly below the rod to wholly above it, it passes through everything above or below that
+// slot, so the rod loses the prism on the slot: a through cut.
+Model TorusSlidThroughRod {
+  units: mm
+  Profile rodSection = Circle2 { center: [0mm, 0mm]; radius: 5mm }
+  Profile wheelSeenEdgeOn = Slot2 { center: [11.5mm, 0mm]; length: 16mm; width: 4mm }
+  Compose rod {
+    Base stock { profile: rodSection; from: 0mm; to: 20mm; role: Stock }
+    RemoveOffset<Prism> groove { Target: rod; On: Top; Profile: wheelSeenEdgeOn; Termination: ThroughAll }
+  }
+}

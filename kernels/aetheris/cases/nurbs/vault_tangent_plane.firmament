@@ -1,0 +1,4 @@
+// Refused: Firmament has no Boolean subtraction (no public Union, Subtract or Intersect), so it
+// cannot cut the block with a box; a Pocket cuts only into the top of a block drawn on XY, and this
+// vault is drawn on YZ. It has no rational B-spline surface for the vault either, though the vault
+// is exactly an extruded circular arch.

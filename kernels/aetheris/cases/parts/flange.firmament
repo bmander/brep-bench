@@ -1,0 +1,18 @@
+// The plate, a disc of radius 32, with the hub raised on it and the bore drilled through both.
+// One bolt hole is drilled through the plate at (24, 0), and repeated about the z axis six times
+// round the full turn.
+Model Flange {
+  units: mm
+  Axis z { origin: [0mm, 0mm, 0mm]; direction: [0, 0, 1] }
+  Profile plateOutline = Circle2 { center: [0mm, 0mm]; radius: 32mm }
+  Profile hubOutline = Circle2 { center: [0mm, 0mm]; radius: 15mm }
+  Compose flange {
+    Base plate { profile: plateOutline; from: 0mm; to: 6mm; role: Stock }
+    Boss hub { on: Top; profile: hubOutline; height: 10mm }
+    Hole<Shaft> bore { on: +Z; center: [0mm, 0mm]; diameter: 16mm; end: ThroughAll }
+  }
+  Modify flange {
+    Hole<Shaft> bolt { on: +Z; center: Point2(24mm, 0mm); diameter: 6mm; end: ThroughAll }
+    Radial Pattern bolts { source: bolt; about: z; count: 6; angle: full }
+  }
+}

@@ -1,0 +1,11 @@
+// The disc, and the first hole repeated six times about the z axis.
+Model IndexedPattern {
+  units: mm
+  Axis z { origin: [0mm, 0mm, 0mm]; direction: [0, 0, 1] }
+  Profile outline = Circle2 { center: [0mm, 0mm]; radius: 20mm }
+  Extrude disc { profile: outline; from: -5mm; to: 0mm }
+  Modify disc {
+    Hole<Shaft> first { on: +Z; center: Point2(12mm, 0mm); diameter: 4mm; end: ThroughAll }
+    Radial Pattern holes { source: first; about: z; count: 6; angle: full }
+  }
+}

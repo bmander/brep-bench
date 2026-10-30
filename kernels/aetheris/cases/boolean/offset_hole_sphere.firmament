@@ -1,0 +1,8 @@
+// The ball, bored through parallel to the y axis on the line x = 5, z = 0.
+Model OffsetHoleSphere {
+  units: mm
+  Sphere ball { radius: 20mm }
+  Modify ball {
+    Hole<Shaft> bore { on: +Y; center: Point2(5mm, 0mm); diameter: 12mm; end: ThroughAll }
+  }
+}

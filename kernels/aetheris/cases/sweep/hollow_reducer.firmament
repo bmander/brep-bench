@@ -1,0 +1,51 @@
+// A ruled SectionChain between the hollow square at y = 0 and the hollow square at y = 40, each
+// an outer loop with a square hole.
+Model HollowReducer {
+  units: mm
+
+  Concept Struct Frames {
+    Near: Plane { origin: [0mm, 0mm, 0mm]; normal: [0, 1, 0]; up: [0, 0, 1] }
+    Far: Plane { origin: [0mm, 40mm, 0mm]; normal: [0, 1, 0]; up: [0, 0, 1] }
+  }
+  Construction Plane NearFrame { Trace: Frames.Near }
+  Construction Plane FarFrame { Trace: Frames.Far }
+
+  Concept Struct NearSketch on XY {
+    Rect2 nearOutside { center: [0mm, 0mm]; size: [24mm, 24mm] }
+    Rect2 nearHole { center: [0mm, 0mm]; size: [20mm, 20mm] }
+  }
+  Profile NearSection using NearSketch {
+    Loop Outer {
+      nearOutside.Bottom as South |> nearOutside.Right as East
+      |> nearOutside.Top as North |> nearOutside.Left as West |> Close
+    }
+    Loop Inner {
+      nearHole.Bottom as InnerSouth |> nearHole.Right as InnerEast
+      |> nearHole.Top as InnerNorth |> nearHole.Left as InnerWest |> Close
+    }
+  }
+
+  Concept Struct FarSketch on XY {
+    Rect2 farOutside { center: [0mm, 0mm]; size: [12mm, 12mm] }
+    Rect2 farHole { center: [0mm, 0mm]; size: [8mm, 8mm] }
+  }
+  Profile FarSection using FarSketch {
+    Loop Outer {
+      farOutside.Bottom as South |> farOutside.Right as East
+      |> farOutside.Top as North |> farOutside.Left as West |> Close
+    }
+    Loop Inner {
+      farHole.Bottom as InnerSouth |> farHole.Right as InnerEast
+      |> farHole.Top as InnerNorth |> farHole.Left as InnerWest |> Close
+    }
+  }
+
+  SectionChain Reducer {
+    continuity: G0
+    Transition: Ruled
+    Section Near { frame: NearFrame; profile: NearSection; seam: South }
+    Section Far { frame: FarFrame; profile: FarSection; seam: South }
+    start: Cap
+    end: Cap
+  }
+}

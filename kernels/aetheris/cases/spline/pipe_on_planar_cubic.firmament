@@ -1,0 +1,2 @@
+// Refused: Sweep carries a circle only along a path of lines and circular arcs; a Concept Path has
+// no Bézier segment, and no other construction sweeps a section along a curve.

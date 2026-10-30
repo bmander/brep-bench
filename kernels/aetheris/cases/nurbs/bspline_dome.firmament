@@ -1,0 +1,3 @@
+// Refused: a Firmament part has no B-spline surface to make a face of. Its one authored patch, a
+// sculpting SurfacePatch, only replaces a planar four-line face with a full-domain bicubic Bézier
+// graph that keeps that face's straight edges; this top is a multi-span B-spline with curved edges.

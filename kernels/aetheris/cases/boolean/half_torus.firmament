@@ -1,0 +1,11 @@
+// The tube's circle, drawn in the yz plane at y = 10, turned half a turn about the z axis the
+// other way, through +x to y = -10: the half of the torus where x >= 0.
+Model HalfTorus {
+  units: mm
+  Axis z { origin: [0mm, 0mm, 0mm]; direction: [0, 0, 1] }
+  Concept Struct layout on YZ {
+    Circle2 tube { center: [10mm, 0mm]; radius: 2mm }
+  }
+  Profile meridian using layout { Loop Outer { tube |> TraceLoop } }
+  Revolve half { profile: meridian; about: z; angle: -180deg }
+}

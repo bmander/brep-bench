@@ -1,0 +1,10 @@
+Model ExtrudedL {
+  units: mm
+  Concept Struct layout on XY {
+    Polygon2<Explicit> outline {
+      points: [[0mm, 0mm], [20mm, 0mm], [20mm, 5mm], [5mm, 5mm], [5mm, 15mm], [0mm, 15mm]]
+    }
+  }
+  Profile section using layout { Loop Outer { outline |> TraceLoop } }
+  Extrude plate { profile: section; from: 0mm; to: 8mm }
+}

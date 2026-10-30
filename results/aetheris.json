@@ -1,0 +1,1351 @@
+{
+ "kernel": "aetheris",
+ "version": "Aetheris 2.0.0 at 4feb05276b93 (runner 0.1.0)",
+ "measured": "mesh",
+ "run": "2026-10-30T21:00:48Z",
+ "tally": {
+  "pass": 25,
+  "refused": 70,
+  "wrong": 2,
+  "crashed": 1
+ },
+ "cases": [
+  {
+   "case": "boolean/box-minus-through-cylinder",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 1.227,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 4,
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 3920,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 717.3140746852303,
+    "area": 731.9488051347953
+   }
+  },
+  {
+   "case": "boolean/boxes-common",
+   "outcome": "refused",
+   "why": "Firmament has no Intersect. A Compose builds a body only by adding to and removing from its Base (Add, Remove, Boss, Pocket, Hole), and there is no public Union, Subtract or Intersect of two solids.",
+   "seconds": 0.091,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "boolean/boxes-cut",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 1.103,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 8
+   },
+   "mesh": {
+    "triangles": 20,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 750.0000000000001,
+    "area": 550.0
+   }
+  },
+  {
+   "case": "boolean/boxes-sharing-a-face",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.832,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 8
+   },
+   "mesh": {
+    "triangles": 20,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 2000.0000000000002,
+    "area": 1000.0
+   }
+  },
+  {
+   "case": "boolean/boxes-sharing-part-of-a-face",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 1.026,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 16
+   },
+   "mesh": {
+    "triangles": 36,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 1999.9999999999998,
+    "area": 1100.0
+   }
+  },
+  {
+   "case": "boolean/boxes-union",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.901,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 10
+   },
+   "mesh": {
+    "triangles": 28,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 1749.9999999999995,
+    "area": 950.0
+   }
+  },
+  {
+   "case": "boolean/drilled-plate",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 4.087,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 36,
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 32640,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 18869.25626053299,
+    "area": 7304.767212628609
+   }
+  },
+  {
+   "case": "boolean/half-cylinder-boss-tangent",
+   "outcome": "refused",
+   "why": "arrangement-rejected:ambiguous-tangent-crossing:compose:stock.square.Outer.Bottom:compose:boss.disc.Outer.disc__Boundary_Curve.quarter2:context=slab=(0,10); arrangement-rejected:ambiguous-tangent-crossing:compose:stock.square.Outer.Bottom:compose:boss.disc.Outer.disc__Boundary_Curve.quarter3:context=slab=(0,10); arrangement-rejected:ambiguous-tangent-crossing:compose:stock.square.Outer.Top:compose:boss.disc.Outer.disc__Boundary_Curve.quarter0:context=slab=(0,10); arrangement-rejected:ambiguous-tangent-crossing:compose:stock.square.Outer.Top:compose:boss.disc.Outer.disc__Boundary_Curve.quarter1:context=slab=(0,10)",
+   "seconds": 0.552,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "boolean/half-torus",
+   "outcome": "refused",
+   "why": "firmament-revolve-full-closed-curve-materialization-not-supported:half",
+   "seconds": 0.355,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "boolean/hemisphere",
+   "outcome": "refused",
+   "why": "firmament-revolve-axis-touch-materialization-not-supported:dome",
+   "seconds": 0.337,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "boolean/indexed-pattern",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 2.378,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 28,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 26452,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 5905.446852492886,
+    "area": 3367.4486508918862
+   }
+  },
+  {
+   "case": "boolean/napkin-ring",
+   "outcome": "refused",
+   "why": "firmament-v2-modify-target-not-solid",
+   "seconds": 0.386,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "boolean/offset-hole-sphere",
+   "outcome": "refused",
+   "why": "firmament-v2-modify-target-not-solid",
+   "seconds": 0.345,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "boolean/sphere-lens",
+   "outcome": "refused",
+   "why": "Firmament has no Intersect, and a Sphere takes no features: there is no public Union, Subtract or Intersect of two solids, and a Modify does not admit a Sphere as its target.",
+   "seconds": 0.089,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "boolean/sphere-pocket",
+   "outcome": "refused",
+   "why": "Aetheris does not subtract a Sphere from a block: there is no public Subtract, and a Pocket is a prism of a Profile with a flat floor. Its guide says so: \"Subtracting a Sphere from a block, a hemispherical arbitrary cavity, public Union / Subtract / Intersect, and general CSG trees are not Preview 3 Firmament features.\"",
+   "seconds": 0.117,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "boolean/spheres-union",
+   "outcome": "refused",
+   "why": "Firmament has no Union of two solids: a Model has one material body, a Compose adds only prisms of a Profile to its Base, and a Sphere takes no features.",
+   "seconds": 0.085,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "boolean/steinmetz-common",
+   "outcome": "refused",
+   "why": "Firmament has no Intersect of two solids. A Compose could hold both cylinders' discs only in one frame, and these two lie along different axes.",
+   "seconds": 0.083,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "boolean/steinmetz-union",
+   "outcome": "refused",
+   "why": "Firmament has no Union of two solids. A Compose adds prisms of a Profile only in its Base's frame, along one axis, and these two cylinders lie along different axes.",
+   "seconds": 0.102,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "boolean/stepped-shaft",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 1.43,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 8,
+    "plane": 3
+   },
+   "mesh": {
+    "triangles": 7252,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 1067.92458890665,
+    "area": 659.6770364848328
+   }
+  },
+  {
+   "case": "boolean/tube",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 1.327,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 8,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 7312,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 502.5527425027107,
+    "area": 603.1398518444383
+   }
+  },
+  {
+   "case": "boolean/tube-flush-ends",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 1.442,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 8,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 7312,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 502.5527425027107,
+    "area": 603.1398518444383
+   }
+  },
+  {
+   "case": "chamfer/block-ridge",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.793,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 7
+   },
+   "mesh": {
+    "triangles": 16,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 200.00000000000003,
+    "area": 216.5685424949238
+   }
+  },
+  {
+   "case": "chamfer/box-top-asymmetric",
+   "outcome": "refused",
+   "why": "Aetheris's EdgeFinish<Chamfer> takes one distance, the same on both faces; it has no chamfer with two distances. (A CornerProfile chamfer of an outline takes two setbacks, but that cuts a corner of a Profile, not the edges round a face.)",
+   "seconds": 0.074,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "chamfer/cube-all-edges",
+   "outcome": "refused",
+   "why": "firmament-v2-uniform-stock-fillet-unsupported: target: AllEdges uses EdgeFinish<Fillet> with radius and no face selector. Whole-stock chamfer is not currently admitted.",
+   "seconds": 0.32,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "chamfer/cylinder-rim-to-point",
+   "outcome": "refused",
+   "why": "chamfer-distance-too-large:circular-top-rim",
+   "seconds": 0.369,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "chamfer/l-block-inside-consumed",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.789,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 7
+   },
+   "mesh": {
+    "triangles": 16,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 754.9999999999999,
+    "area": 509.99494936611666
+   }
+  },
+  {
+   "case": "fillet/ball-and-post",
+   "outcome": "refused",
+   "why": "Firmament has no union of solids. A Sphere is a standalone body, a coaxial Compose joins only Cylinder and Frustum spans, and Revolve admits an arc in its meridian only as a semicircle closed by its diameter, so the ball and post cannot be made one solid, nor their edge rounded.",
+   "seconds": 0.074,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "fillet/boss-s-curve",
+   "outcome": "refused",
+   "why": "ProfileBoundaryEdgeFinishSequenceUnsupported: This Profile materializer admits one EdgeFinish operation; multiple requested finishes cannot be compiled as a first-operation-only result.",
+   "seconds": 0.69,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "fillet/box-all-edges",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 4.085,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 12,
+    "plane": 6,
+    "sphere": 8
+   },
+   "mesh": {
+    "triangles": 246444,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 975.5710704653097,
+    "area": 547.3543694081625
+   }
+  },
+  {
+   "case": "fillet/box-one-edge",
+   "outcome": "refused",
+   "why": "no mesh: A cell has zero area.",
+   "seconds": 1.052,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "fillet/cylinder-rim",
+   "outcome": "refused",
+   "why": "chamfer-invalid-kind:expected-chamfer",
+   "seconds": 0.43,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "fillet/cylinder-rim-to-dome",
+   "outcome": "refused",
+   "why": "chamfer-invalid-kind:expected-chamfer",
+   "seconds": 0.386,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "fillet/hole-waist",
+   "outcome": "refused",
+   "why": "Aetheris finishes the rim of a face's outer boundary (a Box face, a Profile's cap), not the rim of a hole: a hole's entry and exit loops can be selected only for PMI, and the only finish of a hole's entry is a countersink's cone, never a round.",
+   "seconds": 0.084,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "fillet/l-block-inside-consumed",
+   "outcome": "refused",
+   "why": "no mesh: SurfaceMeshIR lowers the body to no triangles",
+   "seconds": 0.825,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "fillet/slab-half-round",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.974,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 1,
+    "plane": 5
+   },
+   "mesh": {
+    "triangles": 1952,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 222.81909325426483,
+    "area": 227.3924814200528
+   }
+  },
+  {
+   "case": "fillet/sliver-strip",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.951,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 2,
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 2004,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 391.41126058323846,
+    "area": 501.9715019118178
+   }
+  },
+  {
+   "case": "fillet/variable-radius-edge",
+   "outcome": "refused",
+   "why": "Aetheris's EdgeFinish<Fillet> takes one constant radius; it has no variable-radius fillet.",
+   "seconds": 0.068,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "nurbs/bezier-dome",
+   "outcome": "refused",
+   "why": "a Firmament part has no B-spline or B\u00e9zier surface to make a face of. Its one authored patch, a sculpting SurfacePatch, only replaces a planar four-line face with a graph that keeps that face's straight edges; this dome's edges are cubic curves.",
+   "seconds": 0.081,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "nurbs/bspline-dome",
+   "outcome": "refused",
+   "why": "a Firmament part has no B-spline surface to make a face of. Its one authored patch, a sculpting SurfacePatch, only replaces a planar four-line face with a full-domain bicubic B\u00e9zier graph that keeps that face's straight edges; this top is a multi-span B-spline with curved edges.",
+   "seconds": 0.087,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "nurbs/drilled-dome",
+   "outcome": "refused",
+   "why": "a Firmament part has no B-spline or B\u00e9zier surface to make the dome of (its one authored patch, a sculpting SurfacePatch, keeps a planar face's straight edges; this dome's edges are cubic curves), and a Hole enters only a planar support, not a freeform top.",
+   "seconds": 0.075,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "nurbs/groin-vault",
+   "outcome": "refused",
+   "why": "Firmament has no Boolean intersection (no public Union, Subtract or Intersect), so it cannot make the common part of the two vaulted blocks. It has no rational B-spline surface for the vaults either, though each is exactly an extruded circular arch.",
+   "seconds": 0.086,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "nurbs/sliced-dome",
+   "outcome": "refused",
+   "why": "a Firmament part has no B-spline or B\u00e9zier surface to make the dome of (its one authored patch, a sculpting SurfacePatch, keeps a planar face's straight edges; this dome's edges are cubic curves), and no cut by an inclined plane: Firmament has no Boolean subtraction.",
+   "seconds": 0.073,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "nurbs/vault-tangent-plane",
+   "outcome": "refused",
+   "why": "Firmament has no Boolean subtraction (no public Union, Subtract or Intersect), so it cannot cut the block with a box; a Pocket cuts only into the top of a block drawn on XY, and this vault is drawn on YZ. It has no rational B-spline surface for the vault either, though the vault is exactly an extruded circular arch.",
+   "seconds": 0.085,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "parts/flange",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 2.905,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 40,
+    "plane": 3
+   },
+   "mesh": {
+    "triangles": 38528,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 22133.736644997185,
+    "area": 9323.73246185276
+   }
+  },
+  {
+   "case": "parts/pin-lug",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 1.14,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 1,
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 1052,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 29989.788928134985,
+    "area": 8900.587098756161
+   }
+  },
+  {
+   "case": "parts/pocketed-tray",
+   "outcome": "refused",
+   "why": "compose-rejected:disconnected-3d-solid:components=5",
+   "seconds": 0.638,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "parts/shelf-bracket",
+   "outcome": "refused",
+   "why": "no mesh: SurfaceMeshIR does not support trim topology on planar face 1.",
+   "seconds": 0.91,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "parts/star-handle",
+   "outcome": "refused",
+   "why": "Aetheris has no draft: an Extrude takes no taper, and an angular Draft of existing faces is not a feature of the modern Firmament path (only a Rib's own sides take a draft). Nor does a Loft help: it joins only two circle or ellipse sections.",
+   "seconds": 0.103,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "parts/turned-shaft",
+   "outcome": "refused",
+   "why": "firmament-revolve-axis-touch-materialization-not-supported:shaft",
+   "seconds": 0.441,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "parts/v-belt-pulley",
+   "outcome": "refused",
+   "why": "no closed mesh: 0 cracks, 0 non-manifold edges, 803 edges whose faces disagree in orientation, not oriented outward",
+   "seconds": 1.172,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "primitives/box",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.823,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 6
+   },
+   "mesh": {
+    "triangles": 12,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 6000.0,
+    "area": 2200.0
+   }
+  },
+  {
+   "case": "primitives/cone-frustum",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.828,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cone": 1,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 716,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 244.9944646952008,
+    "area": 238.5968112517944
+   }
+  },
+  {
+   "case": "primitives/cylinder",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.853,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 1,
+    "plane": 2
+   },
+   "mesh": {
+    "triangles": 716,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 785.2386657046827,
+    "area": 471.191046991495
+   }
+  },
+  {
+   "case": "primitives/extruded-l",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.752,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 8
+   },
+   "mesh": {
+    "triangles": 20,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 1200.0,
+    "area": 860.0
+   }
+  },
+  {
+   "case": "primitives/revolved-sector",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 0.911,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "cylinder": 2,
+    "plane": 4
+   },
+   "mesh": {
+    "triangles": 1900,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 201.0210970010873,
+    "area": 233.03640916932196
+   }
+  },
+  {
+   "case": "primitives/revolved-washer",
+   "outcome": "refused",
+   "why": "no closed mesh: 0 cracks, 0 non-manifold edges, 360 edges whose faces disagree in orientation, not oriented outward",
+   "seconds": 1.014,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "primitives/sphere",
+   "outcome": "wrong",
+   "why": "volume 507.2849058944527 against 523.598775598; area 309.0527898319215 against 314.159265359; triangles' volume 507.285",
+   "seconds": 0.587,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "sphere": 1
+   },
+   "mesh": {
+    "triangles": 432,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 507.2849058944527,
+    "area": 309.0527898319215
+   }
+  },
+  {
+   "case": "primitives/torus",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 1.861,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "torus": 1
+   },
+   "mesh": {
+    "triangles": 64800,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 789.2477176433439,
+    "area": 789.4280635270244
+   }
+  },
+  {
+   "case": "spline/peanut-prism",
+   "outcome": "refused",
+   "why": "no mesh: SurfaceMeshIR does not support face 3: the face has no bound Plane/Cylinder/Cone/Sphere/Torus/Ellipsoid support.",
+   "seconds": 1.682,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "spline/pipe-on-planar-cubic",
+   "outcome": "refused",
+   "why": "Sweep carries a circle only along a path of lines and circular arcs; a Concept Path has no B\u00e9zier segment, and no other construction sweeps a section along a curve.",
+   "seconds": 0.093,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "spline/pipe-on-twisted-cubic",
+   "outcome": "refused",
+   "why": "Sweep carries a circle only along a planar XY path of lines and circular arcs; a cubic that leaves its plane, or any B\u00e9zier, is no path it accepts, and no other construction sweeps a section along a space curve.",
+   "seconds": 0.092,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "spline/rational-cap",
+   "outcome": "refused",
+   "why": "firmament-revolve-axis-touch-materialization-not-supported:cap",
+   "seconds": 0.411,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "spline/rational-spheroid",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 9.897,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "other": 8
+   },
+   "mesh": {
+    "triangles": 603720,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 1507.822620505877,
+    "area": 663.1501257754707
+   }
+  },
+  {
+   "case": "spline/revolved-cubic-dome",
+   "outcome": "crashed",
+   "why": "   at Runner.Main(String[] args) in /home/user/brep-bench/kernels/aetheris/Program.cs:line 148",
+   "seconds": 0.424,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "spline/square-on-planar-cubic",
+   "outcome": "refused",
+   "why": "Sweep carries only a circular section, along a path of lines and circular arcs; there is no sweep of a square, and no B\u00e9zier path. The bar's upright sides are offsets of the cubic, which Firmament cannot draw.",
+   "seconds": 0.083,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "sweep/circle-along-arc",
+   "outcome": "pass",
+   "why": "",
+   "seconds": 1.084,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 2,
+    "torus": 1
+   },
+   "mesh": {
+    "triangles": 16556,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 197.31192941142726,
+    "area": 222.48465433501838
+   }
+  },
+  {
+   "case": "sweep/duct-elbow",
+   "outcome": "refused",
+   "why": "firmament-revolve-inner-loops-not-supported:duct",
+   "seconds": 0.386,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "sweep/helical-pipe",
+   "outcome": "refused",
+   "why": "no mesh: SurfaceMeshIR does not support face 1: the face has no bound Plane/Cylinder/Cone/Sphere/Torus/Ellipsoid support.",
+   "seconds": 3.443,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "sweep/helical-pipe-round-ends",
+   "outcome": "refused",
+   "why": "a WireForm's ends are flat caps, and Aetheris has no union to join a Sphere to each: Firmament makes one body per Model and has no public Boolean.",
+   "seconds": 0.076,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "sweep/hollow-reducer",
+   "outcome": "refused",
+   "why": "section-chain-profile-loop-count-invalid:Near; section-chain-profile-loop-count-invalid:Far",
+   "seconds": 0.417,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "sweep/narrowing-bend",
+   "outcome": "refused",
+   "why": "Revolve keeps its section's size and declines a section with a hole (firmament-revolve-inner-loops-not-supported); a SectionChain's sections hold one outer loop and no hole (section-chain-profile-loop-count-invalid), and it joins its stations by ruled or polynomial transitions, not by a straight side carried along the corners' spirals.",
+   "seconds": 0.102,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "sweep/twisted-duct",
+   "outcome": "refused",
+   "why": "no mesh: SurfaceMeshIR does not support face 1: the face has no bound Plane/Cylinder/Cone/Sphere/Torus/Ellipsoid support.",
+   "seconds": 0.829,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/ball-along-spline-groove",
+   "outcome": "refused",
+   "why": "Aetheris has no sweep of a solid and no general subtraction, and its one feature that cuts such a groove, Groove<Semicircular>, follows only a line or an arc: a CubicBezier2 is a span of a Profile, not a path a groove can follow.",
+   "seconds": 0.077,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/ball-swung-groove",
+   "outcome": "refused",
+   "why": "path-feature-arc: groove: open arcs currently require Flat ends and a positive sweep no greater than 180deg.",
+   "seconds": 0.35,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/ball-thread-groove",
+   "outcome": "refused",
+   "why": "Aetheris has no sweep of a solid and no general subtraction. Its Helix makes a wire, not a cut, its Groove features cut a rod only along full circles (helical channels reject), and its Thread cuts only the metric 60\u00b0 profile.",
+   "seconds": 0.073,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/box-slid-aslant",
+   "outcome": "refused",
+   "why": "Aetheris has no sweep of a solid and no union. The solid is a convex polyhedron of twelve faces, but Firmament makes polyhedra only by extruding or lofting a profile, or as the regular Polyhedron<N>, and this one is none of those: each end is three faces of the box.",
+   "seconds": 0.083,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/plus-cut-wheel",
+   "outcome": "refused",
+   "why": "Aetheris has no sweep of a solid and no general subtraction, and this sweep's wall is an envelope: as seen from the wheel the tool turns about a moving axis, so its boundary is a curve Firmament has no construction for.",
+   "seconds": 0.076,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/rack-cut-tooth-space",
+   "outcome": "refused",
+   "why": "Aetheris has no sweep of a solid and no general subtraction. The space's flanks are involutes and its root the curve the tooth's corners trace: an envelope of the rolling rack. Aetheris's involute gears are made whole from a standard, not generated by a rack.",
+   "seconds": 0.076,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/torus-screwed-through-rod",
+   "outcome": "refused",
+   "why": "Aetheris has no sweep of a solid and no general subtraction, and this sweep's wall is an envelope: the wheel leans to the screw's axis, so its groove's wall is none of the torus's own circles. Its Thread cuts only the metric 60\u00b0 profile.",
+   "seconds": 0.077,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/torus-slid-through-rod",
+   "outcome": "refused",
+   "why": "no mesh: SurfaceMeshIR lowers the body to no triangles",
+   "seconds": 1.077,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/torus-turned-across-block",
+   "outcome": "refused",
+   "why": "Aetheris has no sweep of a solid and no general subtraction, and this sweep's wall is an envelope: the cutter's axis is skew to the turn's, so the groove's wall is none of the torus's own circles.",
+   "seconds": 0.104,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/tumbling-torus",
+   "outcome": "refused",
+   "why": "Aetheris has no sweep of a solid, and this sweep's wall is an envelope: no line of the torus stays fixed, so its boundary is an envelope of no simpler kind.",
+   "seconds": 0.085,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/two-beads-slid-through-rod",
+   "outcome": "refused",
+   "why": "no mesh: SurfaceMeshIR lowers the body to no triangles",
+   "seconds": 1.082,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "swept/v-wheel-screwed-through-rod",
+   "outcome": "refused",
+   "why": "Aetheris has no sweep of a solid and no general subtraction, and this sweep's wall is an envelope: the wheel leans to the screw's axis, so its groove's flanks are none of the wheel's own cones. Its Thread cuts only the metric 60\u00b0 profile, about the axis, not by a leaning wheel.",
+   "seconds": 0.084,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "tangent/ball-in-band",
+   "outcome": "refused",
+   "why": "firmament-revolve-axis-touch-materialization-not-supported:banded",
+   "seconds": 0.421,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "tangent/coaxial-overlap",
+   "outcome": "refused",
+   "why": "Aetheris has no public Boolean union, and its coaxial Compose of cylinders joins spans end to end, each standing on the last one's top: it rejects overlapping spans, so the second cylinder cannot start at z = 6 inside the first.",
+   "seconds": 0.089,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "tangent/cone-tip-on-face",
+   "outcome": "refused",
+   "why": "Aetheris has no public Boolean union. A Compose adds material only as a Profile raised from a support (Boss) or a coaxial stack of primitives; neither unites a cone with a block that it enters through the block's bottom face.",
+   "seconds": 0.09,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "tangent/grazing-cylinders",
+   "outcome": "refused",
+   "why": "Aetheris has no public Boolean intersection (no Intersect, no CSG tree), so the solid common to two crossing cylinders cannot be written.",
+   "seconds": 0.079,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "tangent/hairline-slot",
+   "outcome": "wrong",
+   "why": "area 600.0 against 699.99999",
+   "seconds": 1.089,
+   "measured": "mesh",
+   "volume": null,
+   "area": null,
+   "faces": {
+    "plane": 14
+   },
+   "mesh": {
+    "triangles": 32,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 1000.0000000000001,
+    "area": 600.0
+   }
+  },
+  {
+   "case": "tangent/ice-cream-cone",
+   "outcome": "refused",
+   "why": "firmament-revolve-axis-touch-materialization-not-supported:cone",
+   "seconds": 0.408,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "tangent/inscribed-ball-common",
+   "outcome": "refused",
+   "why": "Aetheris has no public Boolean intersection (no Intersect, no CSG tree), so the solid common to a cube and a ball cannot be written.",
+   "seconds": 0.09,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "tangent/inscribed-ball-union",
+   "outcome": "refused",
+   "why": "Aetheris has no public Boolean union (no Union, no CSG tree), so a cube and a ball cannot be united.",
+   "seconds": 0.091,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "tangent/knife-edge-dish",
+   "outcome": "refused",
+   "why": "firmament-revolve-axis-touch-materialization-not-supported:dish",
+   "seconds": 0.437,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "tangent/midsphere-common",
+   "outcome": "refused",
+   "why": "Aetheris has no public Boolean intersection (no Intersect, no CSG tree), so the solid common to a cube and a ball cannot be written.",
+   "seconds": 0.085,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "tangent/tangent-tee-common",
+   "outcome": "refused",
+   "why": "Aetheris has no public Boolean intersection (no Intersect, no CSG tree), so the solid common to two crossing cylinders cannot be written.",
+   "seconds": 0.098,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "tangent/tangent-tee-union",
+   "outcome": "refused",
+   "why": "Aetheris has no public Boolean union (no Union, no CSG tree), so two crossing cylinders cannot be united.",
+   "seconds": 0.094,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "tangent/thin-lens",
+   "outcome": "refused",
+   "why": "Aetheris has no public Boolean intersection (no Intersect, no CSG tree), so the lens common to two balls cannot be written.",
+   "seconds": 0.074,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "tangent/torus-in-drum",
+   "outcome": "refused",
+   "why": "Aetheris has no public Boolean union (no Union, no CSG tree), so a torus and a cylinder cannot be united.",
+   "seconds": 0.084,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  }
+ ]
+}

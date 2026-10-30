@@ -1,0 +1,23 @@
+// The shaft's section in the xz plane, walked from the axis at z = 0: out along the end, up the
+// thick part, in along the shoulder, round the inside corner (a quarter circle of radius 4,
+// turning left), up the thin part and back in to the axis, closed down the axis. Turned a full
+// turn about the z axis.
+Model TurnedShaft {
+  units: mm
+  Axis z { origin: [0mm, 0mm, 0mm]; direction: [0, 0, 1] }
+  Concept Struct layout on XZ {
+    Path meridian {
+      start: Point2(0mm, 0mm)
+      heading: 0deg
+      Line thickEnd { length: 20mm }
+      Line thickSide { Turn: 90deg; length: 60mm }
+      Line shoulder { Turn: 90deg; length: 4mm }
+      Arc round { Radius: 4mm; Turn: -90deg }
+      Line thinSide { length: 96mm }
+      Line thinEnd { Turn: 90deg; length: 12mm }
+      Close axis
+    }
+  }
+  Profile section using layout { Loop Outer { meridian |> TraceLoop } }
+  Revolve shaft { profile: section; about: z; angle: full }
+}

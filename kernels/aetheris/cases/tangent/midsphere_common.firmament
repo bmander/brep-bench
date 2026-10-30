@@ -1,0 +1,2 @@
+// Refused: Aetheris has no public Boolean intersection (no Intersect, no CSG tree), so the solid
+// common to a cube and a ball cannot be written.

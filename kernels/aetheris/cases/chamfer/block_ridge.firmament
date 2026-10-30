@@ -1,0 +1,13 @@
+// Aetheris finishes one connected chain of a Profile's cap rim, so the block extruded upwards
+// cannot have its two long top edges chamfered (ProfileBoundaryEdgeFinishSelectionKindUnsupported),
+// and a corner chamfer of its outline may not consume a side (semantic-edge-corner-consumption-
+// invalid). So the outline is drawn with its corners cut: the block's end section in the yz plane,
+// a 4 × 4 square under the ridge at (2, 6), extruded along x from x = 0 to x = 10.
+Model BlockRidge {
+  units: mm
+  Concept Struct layout on YZ {
+    Polygon2<Explicit> outline { points: [[0mm, 0mm], [4mm, 0mm], [4mm, 4mm], [2mm, 6mm], [0mm, 4mm]] }
+  }
+  Profile section using layout { Loop Outer { outline |> TraceLoop } }
+  Extrude block { profile: section; from: 0mm; to: 10mm }
+}

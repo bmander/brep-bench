@@ -1,0 +1,15 @@
+// A circular Sweep along a planar path: a quarter arc of radius 10 about the z axis, starting at
+// (10, 0) heading along +y.
+Model CircleAlongArc {
+  units: mm
+  Path centerline {
+    start: Point2(10mm, 0mm)
+    heading: 90deg
+    Arc bend { radius: 10mm; turn: 90deg }
+  }
+  Sweep pipe {
+    path: centerline
+    diameter: 4mm
+    material: Standard.Materials.StainlessSteel.304_Annealed
+  }
+}

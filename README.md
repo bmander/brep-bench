@@ -74,14 +74,15 @@ results/<kernel>.json              the last whole run
 ## Running it
 
 ```bash
-python3 harness/build.py           # every kernel's runner (cargo, pip)
+python3 harness/build.py           # every kernel's runner (cargo, pip, dotnet)
 python3 harness/run.py             # every kernel, every case: results/*.json
 python3 harness/draw.py            # each case's drawing: site/drawings/
 python3 harness/site.py            # the scoreboard and a page per case: site/
 ```
 
 `harness/run.py --kernel NAME --case boolean/` runs part of the suite. The harness uses only
-Python's standard library (3.11 or later).
+Python's standard library (3.11 or later). The runners need their own toolchains: Rust, Python's
+pip, and the .NET 10 SDK for Aetheris.
 
 On GitHub, a push to `main` runs only what it changed (`harness/changed.py` decides: a case, a
 kernel's implementation of one, or a kernel's runner), on top of the last run's results; a push
@@ -98,6 +99,7 @@ The whole suite runs nightly, and when the harness's running or grading changes.
 | [truck](https://github.com/ricosjp/truck) | `kernels/truck` (Rust); measured from its mesh; frozen at the first 46 cases |
 | [vcad](https://github.com/ecto/vcad) | `kernels/vcad` (Rust); measured from its mesh |
 | [popkern](https://github.com/popkern-dev/popkern) | `kernels/popkern` (Rhai, popkern's scripts, run by a Rust runner) |
+| [Aetheris](https://github.com/yuechen-li-dev/Aetheris) | `kernels/aetheris` (Firmament, Aetheris's modelling language, compiled by a C# runner); measured from its mesh |
 | [monstertruck](https://github.com/virtualritz/monstertruck), [kentron](https://github.com/rsz269/kentron), [brepkit](https://github.com/andymai/brepkit), [next.BREP](https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL) | wanted |
 
 ## Contributing

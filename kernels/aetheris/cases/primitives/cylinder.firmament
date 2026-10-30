@@ -1,0 +1,5 @@
+// A Cylinder stands on the xy plane with its axis on z.
+Model Cylinder {
+  units: mm
+  Cylinder body { radius: 5mm; height: 10mm }
+}

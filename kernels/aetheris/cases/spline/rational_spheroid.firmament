@@ -1,0 +1,7 @@
+// Firmament has no rational curve to draw the meridian with, and Revolve does not trace part of an
+// ellipse. But the meridian is exactly half the ellipse x²/36 + z²/100 = 1, so the solid is the
+// spheroid of semi-axes 6, 6 and 10 about the z axis: an Ellipsoid, centred on the origin.
+Model RationalSpheroid {
+  units: mm
+  Ellipsoid spheroid { radii: [6mm, 6mm, 10mm] }
+}

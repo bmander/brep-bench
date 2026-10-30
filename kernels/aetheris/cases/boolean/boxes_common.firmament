@@ -1,0 +1,3 @@
+// Refused: Firmament has no Intersect. A Compose builds a body only by adding to and removing
+// from its Base (Add, Remove, Boss, Pocket, Hole), and there is no public Union, Subtract or
+// Intersect of two solids.

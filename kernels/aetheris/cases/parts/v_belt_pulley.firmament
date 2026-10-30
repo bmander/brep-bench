@@ -1,0 +1,16 @@
+// Aetheris has no public Boolean subtraction, so the groove is drawn into the pulley's section
+// rather than cut by a revolved triangle: in the xz plane, the bore, the hub's ends and the rim's
+// faces, and the groove's two flanks from the rim's face at z = ±30/7 down to its root at
+// (22, 0). Turned a full turn about the z axis.
+Model VBeltPulley {
+  units: mm
+  Axis z { origin: [0mm, 0mm, 0mm]; direction: [0, 0, 1] }
+  Concept Struct layout on XZ {
+    Polygon2<Explicit> outline {
+      points: [[6mm, -14mm], [12mm, -14mm], [12mm, -9mm], [28mm, -9mm], [28mm, -30mm / 7],
+               [22mm, 0mm], [28mm, 30mm / 7], [28mm, 9mm], [12mm, 9mm], [12mm, 14mm], [6mm, 14mm]]
+    }
+  }
+  Profile section using layout { Loop Outer { outline |> TraceLoop } }
+  Revolve pulley { profile: section; about: z; angle: full }
+}

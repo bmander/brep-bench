@@ -1,0 +1,5 @@
+// A plate with a hole through it, both rims of the hole rounded.
+//
+// Refused: Aetheris finishes the rim of a face's outer boundary (a Box face, a Profile's cap), not
+// the rim of a hole: a hole's entry and exit loops can be selected only for PMI, and the only
+// finish of a hole's entry is a countersink's cone, never a round.

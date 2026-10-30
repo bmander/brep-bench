@@ -1,0 +1,17 @@
+// The plate, and nine holes drilled through it one after another.
+Model DrilledPlate {
+  units: mm
+  Profile outline = Rect2 { center: [50mm, 10mm]; size: [100mm, 20mm] }
+  Extrude plate { profile: outline; from: 0mm; to: 10mm }
+  Modify plate {
+    Hole<Shaft> h1 { on: +Z; center: [10mm, 10mm]; diameter: 4mm; end: ThroughAll }
+    Hole<Shaft> h2 { on: +Z; center: [20mm, 10mm]; diameter: 4mm; end: ThroughAll }
+    Hole<Shaft> h3 { on: +Z; center: [30mm, 10mm]; diameter: 4mm; end: ThroughAll }
+    Hole<Shaft> h4 { on: +Z; center: [40mm, 10mm]; diameter: 4mm; end: ThroughAll }
+    Hole<Shaft> h5 { on: +Z; center: [50mm, 10mm]; diameter: 4mm; end: ThroughAll }
+    Hole<Shaft> h6 { on: +Z; center: [60mm, 10mm]; diameter: 4mm; end: ThroughAll }
+    Hole<Shaft> h7 { on: +Z; center: [70mm, 10mm]; diameter: 4mm; end: ThroughAll }
+    Hole<Shaft> h8 { on: +Z; center: [80mm, 10mm]; diameter: 4mm; end: ThroughAll }
+    Hole<Shaft> h9 { on: +Z; center: [90mm, 10mm]; diameter: 4mm; end: ThroughAll }
+  }
+}

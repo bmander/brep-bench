@@ -1,0 +1,5 @@
+// A ball carried along a helix round a rod, cutting a round-bottomed thread.
+//
+// Refused: Aetheris has no sweep of a solid and no general subtraction. Its Helix makes a wire,
+// not a cut, its Groove features cut a rod only along full circles (helical channels reject), and
+// its Thread cuts only the metric 60° profile.

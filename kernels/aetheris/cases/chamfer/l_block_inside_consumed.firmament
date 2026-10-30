@@ -1,0 +1,12 @@
+// Aetheris finishes the edges of a Profile's cap rims, not an edge along its extrusion. Its way
+// to break such an edge is to cut the corner from the outline itself: the L's inside corner cut
+// off by the line from (10, 3) to (3, 10), 7 back along both of its sides, and the section that
+// leaves extruded from y = 0 to y = 10 (an XZ layout extrudes towards -y).
+Model LBlockInsideConsumed {
+  units: mm
+  Concept Struct layout on XZ {
+    Polygon2<Explicit> outline { points: [[0mm, 0mm], [10mm, 0mm], [10mm, 3mm], [3mm, 10mm], [0mm, 10mm]] }
+  }
+  Profile section using layout { Loop Outer { outline |> TraceLoop } }
+  Extrude block { profile: section; from: -10mm; to: 0mm }
+}

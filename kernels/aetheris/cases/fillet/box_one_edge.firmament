@@ -1,0 +1,13 @@
+// The cube as its square section in the yz plane, extruded along x from x = 0 to x = 10, so that
+// the edge to round, where x = 10 meets y = 10, is the right (y = 10) edge of its top (x = 10) cap.
+Model BoxOneEdge {
+  units: mm
+  Concept Struct layout on YZ {
+    Rect2 square { center: [5mm, 5mm]; size: [10mm, 10mm] }
+  }
+  Profile section using layout { Loop Outer { square |> TraceLoop } }
+  Extrude cube { profile: section; from: 0mm; to: 10mm }
+  Modify cube {
+    EdgeFinish<Fillet> round { target: section.Outer.Right; on: Top; radius: 2mm }
+  }
+}

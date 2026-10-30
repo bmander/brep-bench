@@ -1,0 +1,24 @@
+// The meridian drawn in the xz plane: the cubic Bézier from the base's rim over to the axis, the
+// axis down to the origin, and the base's radius out to the rim. Turned a full turn about z.
+Model RevolvedCubicDome {
+  units: mm
+  Axis z { origin: [0mm, 0mm, 0mm]; direction: [0, 0, 1] }
+  Concept Struct layout on XZ {
+    Point2 rim { position: [9mm, 0mm] }
+    Point2 lift { position: [12mm, 4mm] }
+    Point2 curl { position: [9mm, 10mm] }
+    Point2 top { position: [0mm, 10mm] }
+    Point2 origin { position: [0mm, 0mm] }
+    CubicBezier2 dome { from: rim; control1: lift; control2: curl; to: top }
+    Line2 axis { from: top; to: origin }
+    Line2 base { from: origin; to: rim }
+  }
+  Profile meridian using layout {
+    Loop Outer {
+      Segment Dome { Trace: dome; From: rim; To: top }
+      Segment Axis { Trace: axis; From: top; To: origin }
+      Segment Base { Trace: base; From: origin; To: rim }
+    }
+  }
+  Revolve dome { profile: meridian; about: z; angle: full }
+}

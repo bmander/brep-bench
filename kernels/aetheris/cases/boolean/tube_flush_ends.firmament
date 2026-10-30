@@ -1,0 +1,10 @@
+// The first cylinder as the stock, the second's disc removed over exactly the same heights.
+Model TubeFlushEnds {
+  units: mm
+  Profile outer = Circle2 { center: [0mm, 0mm]; radius: 5mm }
+  Profile inner = Circle2 { center: [0mm, 0mm]; radius: 3mm }
+  Compose tube {
+    Base stock { profile: outer; from: 0mm; to: 10mm; role: Stock }
+    Remove bore { profile: inner; from: 0mm; to: 10mm; role: ThroughCut }
+  }
+}

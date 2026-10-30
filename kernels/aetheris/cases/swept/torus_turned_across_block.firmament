@@ -1,0 +1,5 @@
+// A curved block grooved by a leaning torus turned past it about the block's axis.
+//
+// Refused: Aetheris has no sweep of a solid and no general subtraction, and this sweep's wall is
+// an envelope: the cutter's axis is skew to the turn's, so the groove's wall is none of the
+// torus's own circles.

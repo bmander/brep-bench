@@ -1,0 +1,11 @@
+# The cases aetheris builds by working around a feature it lacks, and what that is
+# (SPEC.md, "A workaround is flagged").
+
+"chamfer/block-ridge" = "no chamfer of two disjoint edges of a cap"
+"chamfer/l-block-inside-consumed" = "no chamfer of an edge along an extrusion"
+"fillet/l-block-inside-consumed" = "no fillet of an edge along an extrusion"
+"fillet/slab-half-round" = "no fillet of two disjoint edges of a cap"
+"fillet/sliver-strip" = "no fillet of edges on both caps"
+"spline/rational-spheroid" = "no NURBS curve"
+"swept/torus-slid-through-rod" = "no sweep of a solid"
+"swept/two-beads-slid-through-rod" = "no sweep of a solid"

@@ -1,0 +1,17 @@
+// The half disc y >= 0 of radius 5 in the xy plane, turned half a turn about the x axis, from +y
+// towards +z: the half of the ball above the xy plane.
+Model Hemisphere {
+  units: mm
+  Axis x { origin: [0mm, 0mm, 0mm]; direction: [1, 0, 0] }
+  Point2 west { position: [-5mm, 0mm] }
+  Point2 east { position: [5mm, 0mm] }
+  Point2 center { position: [0mm, 0mm] }
+  Concept Circle2 rim { center: center; radius: 5mm }
+  Line2 diameter { from: west; to: east }
+  Profile section {
+    rim from east to west as arc
+    |> diameter as axisClosure
+    |> Close
+  }
+  Revolve dome { profile: section; about: x; angle: half }
+}
