@@ -200,7 +200,8 @@ One entry per kernel:
 |---|---|
 | `name` | the kernel's name on the board |
 | `kernel` | its home page |
-| `license`, `language` | shown on the board |
+| `license` | shown on the board |
+| `backend`, `frontend` | the language the kernel is written in, and the language its implementations are written in: shown on the board |
 | `build` | the command that builds the runner (`harness/build.py` runs it) |
 | `command` | the runner; `null` lists the kernel as awaiting an implementation |
 | `version` | the command that prints the kernel's version |

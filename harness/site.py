@@ -123,6 +123,30 @@ def paragraphs(text):
     return "\n".join(out)
 
 
+def contestants(registry, results):
+    """The table of every kernel in kernels.json: the language it is written in (its back end),
+    the language an implementation is written in (its front end), and its licence. Those with
+    results come first, in the board's order; those awaiting an implementation after."""
+    e = html.escape
+    ran = [r["kernel"] for r in results if r["kernel"] in registry]
+    order = ran + [n for n in registry if n not in ran]
+    out = ["<h2>Contestants</h2><div class=scroll><table><tr><th>kernel</th>"
+           "<th title='the language the kernel is written in'>back end</th>"
+           "<th title='the language its implementations of the cases are written in'>front end</th>"
+           "<th>licence</th></tr>"]
+    for n in order:
+        a = registry[n]
+        name = e(n)
+        if a.get("kernel"):
+            name = f"<a href='{e(a['kernel'])}'>{name}</a>"
+        if not a.get("command"):
+            name += " <span class=muted>(awaiting)</span>"
+        out.append(f"<tr><td>{name}</td><td>{e(a.get('backend', ''))}</td>"
+                   f"<td>{e(a.get('frontend', ''))}</td><td>{e(a.get('license', ''))}</td></tr>")
+    out.append("</table></div>")
+    return out
+
+
 def scoreboard(registry, results, cases, drawings):
     e = html.escape
     out = head("brep-bench", "A neutral conformance suite and scoreboard for B-rep and CAD "
@@ -132,11 +156,12 @@ def scoreboard(registry, results, cases, drawings):
             "and gives its volume and area as closed forms. Each kernel builds it in its own "
             "idioms, and every result is graded the same way; a refusal ranks above a wrong "
             "answer. Open a case for its drawing, every kernel's result in 3D, and every kernel's "
-            f"code. <a href='{REPO}'>Cases, harness and implementations</a>.</p>",
-            "<h2>Kernels</h2><div class=scroll><table><tr><th>kernel</th>"]
+            f"code. <a href='{REPO}'>Cases, harness and implementations</a>.</p>"]
+    out += contestants(registry, results)
+    out.append("<h2>Kernels</h2><div class=scroll><table><tr><th>kernel</th>")
     out += [f"<th>{o}</th>" for o in OUTCOMES]
     out.append("<th title='passed or built by working around a feature the kernel lacks'>"
-               "by workaround</th><th>version</th><th>licence</th><th>run</th></tr>")
+               "by workaround</th><th>version</th><th>run</th></tr>")
     for r in results:
         a = registry.get(r["kernel"], {})
         flagged = workarounds(a)
@@ -153,7 +178,6 @@ def scoreboard(registry, results, cases, drawings):
         out.append(f"<tr><td>{name}</td>")
         out += [f"<td>{r['tally'].get(o, 0)}</td>" for o in OUTCOMES]
         out.append(f"<td>{worked}</td><td class=muted>{e(r.get('version') or '')}</td>"
-                   f"<td class=muted>{e(a.get('license', ''))}</td>"
                    f"<td class=muted>{e(r['run'])}</td></tr>")
     out.append("</table></div>")
     waiting = [a for a in registry.values() if not a.get("command")]
