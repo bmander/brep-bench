@@ -6,7 +6,8 @@
 //! Builds the case `CASE` (`boolean/napkin-ring`) with its implementation,
 //! `src/cases/boolean/napkin_ring.rs`, writes the solid's triangles to `OUT.stl` and prints one
 //! line of JSON: arris's own measures of the solid, its faces by surface kind and whether it passes
-//! arris's checker, or a refusal. An arris error is a refusal: the kernel declined, saying why.
+//! arris's checker, or a refusal. An arris error is a refusal: the kernel declined, saying why. A
+//! case may also refuse in its own words, where arris has no operation for what it describes.
 use arris::check::{check, Level};
 use arris::geom::SurfaceKind;
 use arris::math::Control;
@@ -19,12 +20,41 @@ use std::process::ExitCode;
 
 mod solids;
 
-/// A case's implementation: the solid it builds in `m`, or why arris would not.
-type Build = fn(&mut Model) -> Result<Body, OpError>;
+/// A case's implementation: the solid it builds in `m`, or why it was not built.
+type Build = fn(&mut Model) -> Result<Body, Refusal>;
+
+/// Why a case was not built: an arris error, in arris's own words, or a case that refuses in its
+/// own because arris has no operation for what it describes.
+#[derive(Debug)]
+pub struct Refusal(String);
+
+impl From<OpError> for Refusal {
+    fn from(e: OpError) -> Self {
+        Refusal(e.to_string())
+    }
+}
+
+impl From<&str> for Refusal {
+    fn from(why: &str) -> Self {
+        Refusal(why.to_owned())
+    }
+}
+
+impl From<String> for Refusal {
+    fn from(why: String) -> Self {
+        Refusal(why)
+    }
+}
+
+impl std::fmt::Display for Refusal {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
 
 /// One module per case file, and `CASES`, written by `build.rs`.
 mod cases {
-    use super::Build;
+    use super::{Build, Refusal};
     include!(concat!(env!("OUT_DIR"), "/cases.rs"));
 }
 
@@ -85,7 +115,7 @@ fn main() -> ExitCode {
         return ExitCode::from(2);
     };
     let mut m = Model::default();
-    let reply = match build(&mut m).and_then(|body| report(&m, body, out)) {
+    let reply = match build(&mut m).and_then(|body| Ok(report(&m, body, out)?)) {
         Ok(reply) => reply,
         Err(e) => refused(e),
     };

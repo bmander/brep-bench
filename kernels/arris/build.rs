@@ -1,9 +1,11 @@
 //! Finds the case implementations and the arris version for the runner.
 //!
 //! Every `src/cases/<category>/<name_snake>.rs` is one case, `<category>/<name>` with the name's
-//! underscores as hyphens, and must define `pub fn build(m: &mut Model) -> Result<Body, OpError>`.
-//! This writes `$OUT_DIR/cases.rs`: a module per file (a raw identifier, so `box.rs` is one) and
-//! `CASES`, the table from case id to its `build`. Adding a case is adding its file.
+//! underscores as hyphens, and must define `pub fn build(m: &mut Model) -> Result<Body, E>`, where
+//! `E` is `OpError` or, for a case that refuses in its own words, the runner's `Refusal`. This
+//! writes `$OUT_DIR/cases.rs`: a module per file (a raw identifier, so `box.rs` is one) and
+//! `CASES`, the table from case id to its `build`, its error made a `Refusal`. Adding a case is
+//! adding its file.
 //!
 //! It also sets `ARRIS_VERSION` to the version of arris in `Cargo.lock`.
 use std::fmt::Write as _;
@@ -43,7 +45,7 @@ fn main() {
             .unwrap();
             writeln!(
                 table,
-                "    ({:?}, {category}::r#{name}::build),",
+                "    ({:?}, |m| {category}::r#{name}::build(m).map_err(Refusal::from)),",
                 format!("{category}/{}", name.replace('_', "-"))
             )
             .unwrap();
