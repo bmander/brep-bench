@@ -1,0 +1,61 @@
+// A ruled SectionChain between the square at y = 0 and the diamond at y = 40. Both frames face +y
+// with z up, so a profile's local x is world −x. Each section traces its corners A, B, C, D in
+// order (A′ written Ap), and sides of the same name correspond, so each corner runs straight to
+// its own.
+Model TwistedDuct {
+  units: mm
+
+  Concept Struct Frames {
+    Near: Plane { origin: [0mm, 0mm, 0mm]; normal: [0, 1, 0]; up: [0, 0, 1] }
+    Far: Plane { origin: [0mm, 40mm, 0mm]; normal: [0, 1, 0]; up: [0, 0, 1] }
+  }
+  Construction Plane StartFrame { Trace: Frames.Near }
+  Construction Plane EndFrame { Trace: Frames.Far }
+
+  Concept Struct SquareSketch on XY {
+    Point2 A { position: [-10mm, -10mm] }
+    Point2 B { position: [10mm, -10mm] }
+    Point2 C { position: [10mm, 10mm] }
+    Point2 D { position: [-10mm, 10mm] }
+    Line2 AB { from: A; to: B }
+    Line2 BC { from: B; to: C }
+    Line2 CD { from: C; to: D }
+    Line2 DA { from: D; to: A }
+  }
+  Profile Square using SquareSketch {
+    Loop Outer {
+      Segment AB { trace: AB; from: A; to: B }
+      Segment BC { trace: BC; from: B; to: C }
+      Segment CD { trace: CD; from: C; to: D }
+      Segment DA { trace: DA; from: D; to: A }
+    }
+  }
+
+  Concept Struct DiamondSketch on XY {
+    Point2 Ap { position: [0mm, -12mm] }
+    Point2 Bp { position: [12mm, 0mm] }
+    Point2 Cp { position: [0mm, 12mm] }
+    Point2 Dp { position: [-12mm, 0mm] }
+    Line2 ApBp { from: Ap; to: Bp }
+    Line2 BpCp { from: Bp; to: Cp }
+    Line2 CpDp { from: Cp; to: Dp }
+    Line2 DpAp { from: Dp; to: Ap }
+  }
+  Profile Diamond using DiamondSketch {
+    Loop Outer {
+      Segment AB { trace: ApBp; from: Ap; to: Bp }
+      Segment BC { trace: BpCp; from: Bp; to: Cp }
+      Segment CD { trace: CpDp; from: Cp; to: Dp }
+      Segment DA { trace: DpAp; from: Dp; to: Ap }
+    }
+  }
+
+  SectionChain Duct {
+    continuity: G0
+    Transition: Ruled
+    Section Start { frame: StartFrame; profile: Square; seam: AB }
+    Section End { frame: EndFrame; profile: Diamond; seam: AB }
+    start: Cap
+    end: Cap
+  }
+}

@@ -1,0 +1,5 @@
+// A wheel cut by a plus-shaped tool turning in mesh with it.
+//
+// Refused: Aetheris has no sweep of a solid and no general subtraction, and this sweep's wall is
+// an envelope: as seen from the wheel the tool turns about a moving axis, so its boundary is a
+// curve Firmament has no construction for.

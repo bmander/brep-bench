@@ -1,0 +1,20 @@
+// The hollow square, drawn in the xz plane, turned a quarter about the z axis, from +x towards +y.
+Model DuctElbow {
+  units: mm
+  Axis z { origin: [0mm, 0mm, 0mm]; direction: [0, 0, 1] }
+  Concept Struct layout on XZ {
+    Rect2 outside { center: [30mm, 0mm]; size: [18mm, 18mm] }
+    Rect2 bore { center: [30mm, 0mm]; size: [14mm, 14mm] }
+  }
+  Profile section using layout {
+    Loop Outer {
+      outside.Bottom as outerBottom |> outside.Right as outerRight
+      |> outside.Top as outerTop |> outside.Left as outerLeft |> Close
+    }
+    Loop Inner {
+      bore.Bottom as innerBottom |> bore.Right as innerRight
+      |> bore.Top as innerTop |> bore.Left as innerLeft |> Close
+    }
+  }
+  Revolve duct { profile: section; about: z; angle: 90deg }
+}

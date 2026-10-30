@@ -1,0 +1,6 @@
+// A hollow square duct that narrows as it bends.
+//
+// Refused: Revolve keeps its section's size and declines a section with a hole
+// (firmament-revolve-inner-loops-not-supported); a SectionChain's sections hold one outer loop and
+// no hole (section-chain-profile-loop-count-invalid), and it joins its stations by ruled or
+// polynomial transitions, not by a straight side carried along the corners' spirals.

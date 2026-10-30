@@ -1,0 +1,5 @@
+// A rod with a helical V groove ground by a V-rimmed wheel carried along a screw.
+//
+// Refused: Aetheris has no sweep of a solid and no general subtraction, and this sweep's wall is
+// an envelope: the wheel leans to the screw's axis, so its groove's flanks are none of the wheel's
+// own cones. Its Thread cuts only the metric 60° profile, about the axis, not by a leaning wheel.

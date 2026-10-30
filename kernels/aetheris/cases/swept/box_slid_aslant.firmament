@@ -1,0 +1,5 @@
+// A box slid along a straight line, aslant to its faces.
+//
+// Refused: Aetheris has no sweep of a solid and no union. The solid is a convex polyhedron of
+// twelve faces, but Firmament makes polyhedra only by extruding or lofting a profile, or as the
+// regular Polyhedron<N>, and this one is none of those: each end is three faces of the box.

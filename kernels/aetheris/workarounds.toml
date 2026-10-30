@@ -2,3 +2,5 @@
 # (SPEC.md, "A workaround is flagged").
 
 "spline/rational-spheroid" = "no NURBS curve"
+"swept/torus-slid-through-rod" = "no sweep of a solid"
+"swept/two-beads-slid-through-rod" = "no sweep of a solid"

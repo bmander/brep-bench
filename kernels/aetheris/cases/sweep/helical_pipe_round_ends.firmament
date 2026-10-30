@@ -1,0 +1,4 @@
+// A helical pipe closed at each end by a half ball.
+//
+// Refused: a WireForm's ends are flat caps, and Aetheris has no union to join a Sphere to each:
+// Firmament makes one body per Model and has no public Boolean.

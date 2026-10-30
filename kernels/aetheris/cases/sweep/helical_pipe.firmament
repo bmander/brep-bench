@@ -1,0 +1,12 @@
+// A wire wound as a Helix. A Helix starts at the wire's start and keeps its tangent there; its
+// axis follows from that tangent and the frame's Up. Starting at (10, 0, 0) along the helix's own
+// tangent (0, 2π·10, 5), with Up square to it in the yz plane, puts the axis on the z axis.
+Model HelicalPipe {
+  units: mm
+  WireForm pipe {
+    diameter: 2mm
+    material: Standard.Materials.StainlessSteel.304_Annealed
+    StartFrame { Origin: [10mm, 0mm, 0mm]; Tangent: [0, 62.83185307179586, 5]; Up: [0, -5, 62.83185307179586] }
+    Helix coil { radius: 10mm; turns: 3; pitch: 5mm; handedness: RightHanded; startPhase: 0deg }
+  }
+}
