@@ -1,0 +1,5 @@
+// A Sphere is centred on the origin.
+Model Sphere {
+  units: mm
+  Sphere ball { radius: 5mm }
+}

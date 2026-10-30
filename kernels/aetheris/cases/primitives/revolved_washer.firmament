@@ -1,0 +1,10 @@
+// The rectangle drawn in the xz plane, turned a full turn about the z axis.
+Model RevolvedWasher {
+  units: mm
+  Axis z { origin: [0mm, 0mm, 0mm]; direction: [0, 0, 1] }
+  Concept Struct layout on XZ {
+    Rect2 section { center: [8mm, 2mm]; size: [4mm, 4mm] }
+  }
+  Profile meridian using layout { Loop Outer { section |> TraceLoop } }
+  Revolve washer { profile: meridian; about: z; angle: full }
+}

@@ -1,0 +1,7 @@
+// A rectangle from the origin to (10, 20) in the xy plane, extruded from z = 0 to z = 30. (Box
+// would build the same block, but it stands centred on the z axis, and a Model cannot move it.)
+Model Box {
+  units: mm
+  Profile outline = Rect2 { center: [5mm, 10mm]; size: [10mm, 20mm] }
+  Extrude block { profile: outline; from: 0mm; to: 30mm }
+}

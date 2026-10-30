@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The brep-bench runner for Aetheris. build.py fetches Aetheris's source at AetherisCommit
+       into upstream/ and builds this against it. -->
+  <PropertyGroup>
+    <AetherisCommit>4feb05276b93f3a96c9b4b2e023fc193e188effa</AetherisCommit>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Version>0.1.0</Version>
+    <DefaultItemExcludes>$(DefaultItemExcludes);upstream/**;cases/**</DefaultItemExcludes>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="upstream/Aetheris.Kernel.Firmament/Aetheris.Kernel.Firmament.csproj" />
+    <AssemblyMetadata Include="AetherisCommit" Value="$(AetherisCommit)" />
+  </ItemGroup>
+</Project>

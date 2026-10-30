@@ -135,6 +135,27 @@
       ],
       "source": "kernels/popkern/cases/{category}/{name_snake}.rhai"
     },
+    {
+      "name": "aetheris",
+      "kernel": "https://github.com/yuechen-li-dev/Aetheris",
+      "license": "AGPL-3.0",
+      "language": "Firmament (Aetheris's modelling language), compiled from C#",
+      "build": [
+        "python3",
+        "kernels/aetheris/build.py"
+      ],
+      "command": [
+        "dotnet",
+        "kernels/aetheris/bin/Release/net10.0/brep-bench-aetheris.dll"
+      ],
+      "version": [
+        "dotnet",
+        "kernels/aetheris/bin/Release/net10.0/brep-bench-aetheris.dll",
+        "--version"
+      ],
+      "measured": "mesh",
+      "source": "kernels/aetheris/cases/{category}/{name_snake}.firmament"
+    },
     {"name": "next.BREP", "kernel": "https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL", "license": "custom", "language": "Rust", "command": null}
   ]
 }

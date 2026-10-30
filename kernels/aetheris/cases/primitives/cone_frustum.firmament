@@ -1,0 +1,5 @@
+// A Frustum stands on the xy plane with its axis on z.
+Model ConeFrustum {
+  units: mm
+  Frustum body { bottomRadius: 5mm; topRadius: 2mm; height: 6mm }
+}
