@@ -1,5 +1,10 @@
-# Run every kernel over every case, and publish the scoreboard to GitHub Pages: on every push to
-# main, nightly, and by hand.  Pages must be set to deploy from GitHub Actions (Settings ▸ Pages).
+# Run the kernels over the cases, and publish the scoreboard to GitHub Pages: on every push to main,
+# nightly, and by hand.  Pages must be set to deploy from GitHub Actions (Settings ▸ Pages).
+#
+# A push runs only what it changed (harness/changed.py): the cases it touched, with the kernels whose
+# implementations of them it touched, on top of the last run's results, which the Actions cache
+# keeps along with the commit they were made at. The nightly run, and a run by hand unless told
+# otherwise, runs the whole suite. Every run renders and deploys the site, even when the bench fails.
 name: bench
 
 on:
@@ -8,6 +13,11 @@ on:
   schedule:
     - cron: "17 7 * * *"
   workflow_dispatch:
+    inputs:
+      full:
+        description: Run the whole suite, not only what changed since the last run
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -21,29 +31,75 @@ concurrency:
 jobs:
   bench:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Build the adapters
-        run: python harness/build.py
-      - name: Run the suite
-        run: python harness/run.py --timeout 120
-      - name: Draw the cases
-        run: python harness/draw.py
-      - name: Render the scoreboard and the case pages
-        run: python harness/site.py
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-
-  deploy:
-    needs: bench
-    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      FULL: ${{ github.event_name == 'schedule' || inputs.full == true }}
+      # the last results: each kernel's, their triangles, the drawings, and the commit they are of
+      STATE: |
+        results
+        site/drawings
+        .bench-state
     steps:
-      - id: deployment
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # to diff against the commit the last results were made at
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Restore the last results
+        if: env.FULL != 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.STATE }}
+          key: bench-state-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: bench-state-
+      - name: Plan what to run
+        id: plan
+        run: |
+          if [ "$FULL" = true ]; then
+            python harness/changed.py --full > plan.json
+          else
+            python harness/changed.py --base "$(cat .bench-state 2>/dev/null)" > plan.json
+          fi
+          cat plan.json
+      - name: Build the adapters
+        if: steps.plan.outputs.build != ''
+        env:
+          BUILD: ${{ steps.plan.outputs.build }}
+        run: python harness/build.py $BUILD
+      - name: Run the cases
+        if: steps.plan.outputs.work == 'true'
+        run: python harness/run.py --plan plan.json --timeout 120
+      - name: Draw the cases
+        if: steps.plan.outputs.draw != ''
+        env:
+          DRAW: ${{ steps.plan.outputs.draw }}
+        run: |
+          if [ "$DRAW" = all ]; then python harness/draw.py; else python harness/draw.py $DRAW; fi
+      # only when every step so far succeeded: else the next run starts again from the last results
+      - name: Mark the results as of this commit
+        if: steps.plan.outputs.work == 'true'
+        run: git rev-parse HEAD > .bench-state
+      - name: Keep the results for the next run
+        if: steps.plan.outputs.work == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.STATE }}
+          key: bench-state-${{ github.run_id }}-${{ github.run_attempt }}
+      # the site is published whatever happened above, from the results there are
+      - name: Render the scoreboard and the case pages
+        id: site
+        if: ${{ !cancelled() }}
+        run: python harness/site.py
+      - name: Upload the site
+        id: upload
+        if: ${{ !cancelled() && steps.site.outcome == 'success' }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Deploy the site
+        id: deployment
+        if: ${{ !cancelled() && steps.upload.outcome == 'success' }}
         uses: actions/deploy-pages@v4

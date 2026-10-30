@@ -4,6 +4,7 @@ scale, and an isometric view), as PNGs under site/drawings/<case>/.
 
     python3 harness/draw.py              # every case
     python3 harness/draw.py boolean/     # the cases whose id starts with this
+    python3 harness/draw.py a/b c/d      # the cases whose id starts with any of these
 
 The solid drawn is a result that passed: the reference kernel's (kernels.json, `"reference":
 true`) where it passed, else the first kernel's that did. Its triangles are rasterised with a
@@ -240,7 +241,7 @@ def drawn_from(case_id, results, order):
 
 
 def main():
-    prefix = sys.argv[1] if len(sys.argv) > 1 else ""
+    prefixes = tuple(sys.argv[1:]) or ("",)
     with open(os.path.join(ROOT, "kernels.json")) as f:
         adapters = json.load(f)["kernels"]
     results = {}
@@ -253,21 +254,25 @@ def main():
              sorted((n for n in results), key=lambda n: -sum(
                  c["outcome"] == "pass" for c in results[n].values())))
     index = {}
+    undrawn = set()
     case_ids = sorted({cid for r in results.values() for cid in r})
     for cid in case_ids:
-        if not cid.startswith(prefix):
+        if not cid.startswith(prefixes):
             continue
         name, mesh = drawn_from(cid, results, order)
         if not mesh:
             print(f"{cid}: no passing result to draw")
+            undrawn.add(cid)
             continue
         sizes = sheet(stl.read(mesh), os.path.join(ROOT, "site", "drawings", cid))
         index[cid] = {"from": name, "sizes": sizes}
         print(f"{cid}: drawn from {name}", flush=True)
     path = os.path.join(ROOT, "site", "drawings", "index.json")
-    if prefix and os.path.exists(path):
+    if prefixes != ("",) and os.path.exists(path):
         with open(path) as f:
-            index = {**json.load(f), **index}
+            # the others' drawings are kept, but not of a case with nothing to draw any more
+            index = {cid: d for cid, d in {**json.load(f), **index}.items()
+                     if cid in case_ids and cid not in undrawn}
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         json.dump(index, f, indent=1)
