@@ -4,6 +4,7 @@ use truck_modeling::*;
 
 const RADIUS: f64 = 5.0;
 
+// workaround: no sphere primitive
 pub fn build() -> crate::Built {
     // as truck's `sphere` example: the meridian from the north pole down through +x to the south
     // pole, a half turn about the y axis in three arcs, so that no edge runs round the equator

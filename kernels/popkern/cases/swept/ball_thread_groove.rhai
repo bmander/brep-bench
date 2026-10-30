@@ -1,3 +1,4 @@
+// workaround: no sweep of a solid, no sphere primitive
 // popkern has no ball primitive: a half disc revolved about its diameter on the z axis.
 fn ball(m, r) {
     m.profile(xz()).path(0.0, -r).arc_to([r, 0.0], [0.0, r]).line_to(0.0, -r).close()

@@ -5,6 +5,7 @@ use truck_modeling::*;
 const RADIUS: f64 = 5.0;
 const SECOND_CENTRE: f64 = 6.0; // on the x axis
 
+// workaround: no sphere primitive
 pub fn build() -> Built {
     let first = shapes::ball(Point3::origin(), RADIUS);
     let second = shapes::ball(Point3::new(SECOND_CENTRE, 0.0, 0.0), RADIUS);

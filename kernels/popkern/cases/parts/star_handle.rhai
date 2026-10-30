@@ -1,5 +1,6 @@
 // A four-armed star handle: its outline in the plane y = 0, extruded 12 along y with a 2° draft.
 //
+// workaround: no draft
 // popkern's scripts extrude without draft (neither an extrude's draft angle nor the draft
 // feature is bound in them yet), but the drafted solid is a loft: its section at y = 12 is the
 // outline moved 12·tan 2° inward, every side and arc of one section matches one of the other,

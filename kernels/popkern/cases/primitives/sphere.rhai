@@ -1,3 +1,4 @@
+// workaround: no sphere primitive
 // popkern has no ball primitive: a half disc of radius 5 in the xz plane, its diameter on the
 // z axis, revolved a full turn about z.
 let m = model();

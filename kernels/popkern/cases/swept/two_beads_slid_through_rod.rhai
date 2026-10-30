@@ -3,6 +3,7 @@
 // centred at (11.5, 0, -9) with centre circle 6 and tube 2, the second at (11.5, 1.5, -9) with
 // centre circle 6 and tube 1.5.
 //
+// workaround: no sweep of a solid
 // popkern has no sweep of a solid. The wheel's sweep is the union of its beads' sweeps. Sliding
 // fills each bead's hole (the slide, 40, is longer than any hole is wide), so a bead sweeps what
 // the solid of its outline does: the convex solid of revolution about its axis whose section is

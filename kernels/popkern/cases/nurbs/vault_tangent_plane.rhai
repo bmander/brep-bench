@@ -1,6 +1,7 @@
 // A barrel-vaulted block on the square |x|, |y| <= 12, with everything above its crown, z = 16,
 // cut away by a box whose floor is that plane: the floor touches the vault along its crown.
 //
+// workaround: no NURBS surface
 // popkern's scripts make no surface from control points, but the vault's weighted quadratic arc
 // is exactly the circle of radius 15 about (y, z) = (0, 1), as the case says, and a profile draws
 // that arc exactly: the vault is its section in the yz plane (u = y, v = z), floor, sides and the

@@ -4,6 +4,7 @@ use truck_modeling::*;
 
 const RADIUS: f64 = 5.0;
 
+// workaround: no sphere primitive
 pub fn build() -> Built {
     let ball = shapes::ball(Point3::origin(), RADIUS);
     // everything below the xy plane, as far as the ball reaches: a block under it

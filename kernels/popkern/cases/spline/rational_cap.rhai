@@ -2,6 +2,7 @@
 // out to 5√3, and the rational quadratic Bézier arc from (5√3, 0, -5) to (0, 0, 10), turned a
 // full turn about z.
 //
+// workaround: no NURBS curve
 // popkern's scripts make no spline curve, but with its weights the Bézier arc is exactly the arc
 // of the circle of radius 10 about the origin, as the case says, over its widest point
 // (10, 0, 0), and a profile draws that arc exactly (u = x, v = z).

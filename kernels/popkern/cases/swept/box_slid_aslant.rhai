@@ -1,6 +1,7 @@
 // The solid the box from the origin to (10, 6, 4) fills as it slides, without turning, along
 // (8, 5, 3).
 //
+// workaround: no sweep of a solid
 // popkern has no sweep of a solid. The box slid along a line is the sum of its edges' three
 // vectors e1 = (10, 0, 0), e2 = (0, 6, 0), e3 = (0, 0, 4) and the slide v = (8, 5, 3): the convex
 // polyhedron with a pair of parallel faces square to the cross product of each two of the four,

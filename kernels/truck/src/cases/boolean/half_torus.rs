@@ -6,6 +6,7 @@ use truck_modeling::*;
 const RING_RADIUS: f64 = 10.0;
 const TUBE_RADIUS: f64 = 2.0;
 
+// workaround: no torus primitive
 pub fn build() -> Built {
     let torus = shapes::torus(Point3::origin(), RING_RADIUS, TUBE_RADIUS);
     // everything where x < 0, as far as the torus reaches (12 from the axis, 2 from the xy
