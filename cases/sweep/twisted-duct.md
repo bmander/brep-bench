@@ -6,6 +6,7 @@ origin = "geomsolver rust/examples/solid_twist.sv"
 [volume]
 value = 12373.333333333334
 exact = "40·(A₀ + 4A½ + A₁)/6 = 40·(400 + 4·292 + 288)/6 = 37120/3 (each section's area is quadratic in y)"
+tex = '\tfrac{40}{6}\left(A_0 + 4A_{1/2} + A_1\right) = \tfrac{40}{6}(400 + 4\cdot 292 + 288) = \tfrac{37120}{3}'
 
 [area]
 value = 3515.670710036986

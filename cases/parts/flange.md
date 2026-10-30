@@ -6,10 +6,12 @@ origin = "geomsolver rust/examples/solid_flange.sv"
 [volume]
 value = 22135.66183719368
 exact = "π(32² − 8²)·6 + π(15² − 8²)·10 − 6·π·3²·6 = 7046π"
+tex = '\pi\left(32^2 - 8^2\right)\cdot 6 + \pi\left(15^2 - 8^2\right)\cdot 10 - 6\pi\cdot 3^2\cdot 6 = 7046\pi'
 
 [area]
 value = 9324.246995854506
 exact = "π(32² − 8²) + π(32² − 15²) + π(15² − 8²) + 2π·32·6 + 2π·15·10 + 2π·8·16 − 12π·3² + 6·2π·3·6 = 2968π"
+tex = '\begin{array}{l} \pi\left(32^2 - 8^2\right) + \pi\left(32^2 - 15^2\right) + \pi\left(15^2 - 8^2\right) + 2\pi\cdot 32\cdot 6 + 2\pi\cdot 15\cdot 10 \\ \quad + 2\pi\cdot 8\cdot 16 - 12\pi\cdot 3^2 + 6\cdot 2\pi\cdot 3\cdot 6 = 2968\pi \end{array}'
 +++
 
 A round mounting flange on the z axis, its base on the plane z = 0:

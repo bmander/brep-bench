@@ -5,10 +5,12 @@ tags = ["fillet", "sliver"]
 [volume]
 value = 391.41764326475004
 exact = "20·(10·2 − 2(1 − π/4)r²), r = 0.9999"
+tex = '20\left(10\cdot 2 - 2\left(1 - \tfrac{\pi}{4}\right)r^2\right),\quad r = 0.9999'
 
 [area]
 value = 501.97533421296373
 exact = "2·20(10 − r) + 20(2 − 2r) + 20·2 + 2(20 − 2(1 − π/4)r²) + 2·(π/2)r·20, r = 0.9999"
+tex = '40(10 - r) + 20(2 - 2r) + 20\cdot 2 + 2\left(20 - 2\left(1 - \tfrac{\pi}{4}\right)r^2\right) + 2\cdot\tfrac{\pi}{2}r\cdot 20,\quad r = 0.9999'
 +++
 
 A plate from the origin to (20, 10, 2). Round the two edges of its face y = 10 that run along x,

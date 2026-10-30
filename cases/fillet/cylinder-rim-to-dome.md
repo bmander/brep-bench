@@ -5,10 +5,12 @@ tags = ["fillet", "vanishing-face", "sphere"]
 [volume]
 value = 654.4984694978735
 exact = "π5²·5 + (2/3)π5³ = 625π/3"
+tex = '5\pi\cdot 5^2 + \tfrac{2}{3}\pi\cdot 5^3 = \tfrac{625\pi}{3}'
 
 [area]
 value = 392.6990816987241
 exact = "π5² + 2π·5·5 + 2π5² = 125π"
+tex = '\pi\cdot 5^2 + 2\pi\cdot 5\cdot 5 + 2\pi\cdot 5^2 = 125\pi'
 +++
 
 A cylinder of radius 5 on the z axis, from z = 0 to z = 10. Round the circular edge around its

@@ -6,10 +6,12 @@ origin = "geomsolver rust/examples/solid_sweeps/slide.sv"
 [volume]
 value = 1493.7545729515407
 exact = "πR²h − h·lens(R = 5, r = 2, d = 5.5), h = 20"
+tex = '\pi R^2 h - h\,A_{\text{lens}}(R = 5,\ r = 2,\ d = 5.5),\quad h = 20'
 
 [area]
 value = 794.3608989284018
 exact = "2(πR² − lens) + h(2πR − 2αR) + h·2βr, cos α = (d² + R² − r²)/2dR, cos β = (d² + r² − R²)/2dr"
+tex = '2\left(\pi R^2 - A_{\text{lens}}\right) + h(2\pi R - 2\alpha R) + 2\beta r h,\quad \cos\alpha = \frac{d^2 + R^2 - r^2}{2dR},\ \cos\beta = \frac{d^2 + r^2 - R^2}{2dr}'
 +++
 
 A rod, the cylinder of radius 5 about the z axis from z = 0 to z = 20, grooved along its length by a

@@ -4,6 +4,7 @@ tags = ["nurbs", "bezier", "boolean", "cut", "cylinder"]
 [volume]
 value = 2872.944892550934
 exact = "3150 − ∬ over the hole's disc of the patch's height = 3150 − 88.18937971875π: the height is a bicubic polynomial in x and y, and over a disc of radius a about c it integrates to πa²h + (πa⁴/8)(h_xx + h_yy) + (πa⁶/96)h_xxyy at c"
+tex = '\begin{array}{l} 3150 - \displaystyle\iint_{|p - c| \le a} h\,dA = 3150 - 88.18937971875\,\pi \\ \displaystyle\iint_{|p - c| \le a} h\,dA = \pi a^2 h + \tfrac{\pi a^4}{8}\left(h_{xx} + h_{yy}\right) + \tfrac{\pi a^6}{96}h_{xxyy}\ \text{at}\ c \end{array}'
 
 [area]
 value = 1431.7956857724895

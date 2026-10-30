@@ -5,10 +5,12 @@ tags = ["chamfer", "vanishing-face", "cone"]
 [volume]
 value = 523.5987755982989
 exact = "π5²·5 + π5²·5/3 = 500π/3"
+tex = '5\pi\cdot 5^2 + \tfrac{5\pi\cdot 5^2}{3} = \tfrac{500\pi}{3}'
 
 [area]
 value = 346.69152247319363
 exact = "π5² + 2π·5·5 + π·5·5√2 = 75π + 25√2π"
+tex = '\pi\cdot 5^2 + 2\pi\cdot 5\cdot 5 + \pi\cdot 5\cdot 5\sqrt{2} = 75\pi + 25\sqrt{2}\,\pi'
 +++
 
 A cylinder of radius 5 on the z axis, from z = 0 to z = 10. Chamfer the circular edge around its

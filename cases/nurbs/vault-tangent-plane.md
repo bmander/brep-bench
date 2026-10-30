@@ -5,10 +5,12 @@ tags = ["nurbs", "rational", "weights", "boolean", "cut", "tangent-line"]
 [volume]
 value = 8175.394177208706
 exact = "the cut removes nothing: 24·∫₋₁₂¹² (1 + √(225 − y²)) dy = 24(132 + 225·asin(4/5)) = 3168 + 5400·asin(4/5)"
+tex = '24\int_{-12}^{12}\left(1 + \sqrt{225 - y^2}\right)dy = 24\left(132 + 225\arcsin\tfrac{4}{5}\right) = 3168 + 5400\arcsin\tfrac{4}{5}'
 
 [area]
 value = 2404.9354050618863
 exact = "floor 576 + flat sides 2·24·10 + arched sides 2(132 + 225·asin(4/5)) + vault 24·15·2·asin(4/5) = 1320 + 1170·asin(4/5)"
+tex = '576 + 2\cdot 24\cdot 10 + 2\left(132 + 225\arcsin\tfrac{4}{5}\right) + 24\cdot 15\cdot 2\arcsin\tfrac{4}{5} = 1320 + 1170\arcsin\tfrac{4}{5}'
 +++
 
 A block with a barrel-vaulted top, from which everything above the plane z = 16 is cut away. That

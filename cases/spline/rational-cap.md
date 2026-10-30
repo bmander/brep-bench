@@ -5,10 +5,12 @@ tags = ["spline", "revolve", "rational", "weights", "pole"]
 [volume]
 value = 3534.2917352885174
 exact = "πh²(3R − h)/3 = 1125π, R = 10, h = 15: the weighted arc is exactly a circular arc of radius 10 about the origin, so the solid is a cap of a ball"
+tex = '\tfrac{\pi h^2}{3}(3R - h) = 1125\pi,\quad R = 10,\ h = 15'
 
 [area]
 value = 1178.0972450961724
 exact = "2πRh + π(5√3)² = 300π + 75π = 375π: the cap's spherical zone and the flat disc it stands on"
+tex = '2\pi R h + \pi\left(5\sqrt{3}\right)^2 = 300\pi + 75\pi = 375\pi'
 +++
 
 A solid made by turning a plane region a full turn about the z axis. The region lies in the xz

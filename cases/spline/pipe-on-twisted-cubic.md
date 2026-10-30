@@ -5,10 +5,12 @@ tags = ["spline", "sweep", "space-path", "bezier", "torsion"]
 [volume]
 value = 8042.47719318987
 exact = "πr²L = 2560π, r = 8, L = 40: a tube whose radius is below the path's least radius of curvature (10.28) and whose sections never meet holds πr² per unit length whatever the path's torsion. The path is a spatial Pythagorean-hodograph cubic, |c′(t)| = 6(10(1 − t)² + 2t(1 − t) + 9t²), so L = 2·(10 + 1 + 9) = 40 exactly"
+tex = '\pi r^2 L = 2560\pi,\quad r = 8,\ L = \int_0^1 6\left(10(1 - t)^2 + 2t(1 - t) + 9t^2\right)dt = 40'
 
 [area]
 value = 2412.743157956961
 exact = "2πrL + 2πr² = 640π + 128π = 768π: the wall holds 2πr per unit length (torsion only slides the section round in its own plane), and the two ends are discs"
+tex = '2\pi r L + 2\pi r^2 = 640\pi + 128\pi = 768\pi'
 +++
 
 A pipe of circular section, radius 8, swept along a cubic Bézier curve that does not lie in a

@@ -5,10 +5,12 @@ tags = ["tangent", "boolean", "common", "ssi", "singular-curve"]
 [volume]
 value = 239.74642882659614
 exact = "∫ 2√(9 − (z − 2)²)·2√(25 − z²) dz over z from −1 to 5 = 96√15 − 128L, L = asinh(√6/2) = ln((√6 + √10)/2) (z = 2 − 3cos θ, s = sin(θ/2): 1728∫₀¹ (s² − s⁴)√(s² + 2/3) ds); OCCT and arris agree with it to 1.3e-9 and 1e-11"
+tex = '\int_{-1}^{5} 2\sqrt{9 - (z - 2)^2}\cdot 2\sqrt{25 - z^2}\,dz = 96\sqrt{15} - 128L,\quad L = \operatorname{asinh}\tfrac{\sqrt{6}}{2} = \ln\tfrac{\sqrt{6} + \sqrt{10}}{2}'
 
 [area]
 value = 214.8559410549457
 exact = "64√15 − 32L, L = asinh(√6/2): the first's wall inside the second, 20∫₀⁶ √(t/(t + 4)) dt = 40√15 − 80L, and the second's inside the first, 24√6∫₀¹ √(4 + 6c²) dc = 24√15 + 48L; OCCT and arris agree with it to 1.2e-9 and 2e-11"
+tex = '20\int_0^6\sqrt{\tfrac{t}{t + 4}}\,dt + 24\sqrt{6}\int_0^1\sqrt{4 + 6c^2}\,dc = 64\sqrt{15} - 32L,\quad L = \operatorname{asinh}\tfrac{\sqrt{6}}{2}'
 +++
 
 Two solid cylinders crossing at right angles. The first, of radius 5, lies along the x axis from

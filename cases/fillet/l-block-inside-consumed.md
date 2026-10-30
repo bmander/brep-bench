@@ -5,10 +5,12 @@ tags = ["fillet", "concave", "vanishing-face"]
 [volume]
 value = 615.1548999352503
 exact = "10·(10² − πr²/4), r = 7: the section is the 10 × 10 square less a quarter disc of radius 7"
+tex = '10\left(10^2 - \tfrac{\pi r^2}{4}\right),\quad r = 7'
 
 [area]
 value = 492.98672286269283
 exact = "2·(100 − 49π/4) + 10·(10 + 3 + 7π/2 + 3 + 10) = 460 + 21π/2"
+tex = '2\left(100 - \tfrac{49\pi}{4}\right) + 10\left(10 + 3 + \tfrac{7\pi}{2} + 3 + 10\right) = 460 + \tfrac{21\pi}{2}'
 +++
 
 An L-shaped block. Its section in the xz plane is the polygon through (0, 0, 0), (10, 0, 0),

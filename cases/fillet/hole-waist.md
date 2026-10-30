@@ -5,10 +5,12 @@ tags = ["fillet", "torus", "vanishing-face"]
 [volume]
 value = 734.7586624846977
 exact = "20²·2 − π3²·2 − 2·2π(3 + d)(1 − π/4)r², d = r(10 − 3π)/(12 − 3π), r = 1 (Pappus)"
+tex = '2\cdot 20^2 - 2\pi\cdot 3^2 - 2\cdot 2\pi(3 + d)\left(1 - \tfrac{\pi}{4}\right)r^2,\quad d = \frac{r(10 - 3\pi)}{12 - 3\pi},\ r = 1'
 
 [area]
 value = 925.8594996794824
 exact = "2(400 − 16π) + 4·20·2 + 2π(4 − 2/π)·π (Pappus) = 960 − 36π + 8π²"
+tex = '2(400 - 16\pi) + 4\cdot 20\cdot 2 + 2\pi\left(4 - \tfrac{2}{\pi}\right)\pi = 960 - 36\pi + 8\pi^2'
 +++
 
 A square plate from (−10, −10, 0) to (10, 10, 2), with a hole of radius 3 through it on the z

@@ -5,10 +5,12 @@ tags = ["tangent", "boolean", "union", "analytic", "curve-contact"]
 [volume]
 value = 15079.644737231007
 exact = "πρ²·16/3 + 4πR³/3 − πh²(3R − h)/3 = 768π + 4500π − 468π = 4800π, R = 15, ρ = 12, h = 6"
+tex = '\tfrac{16}{3}\pi\rho^2 + \tfrac{4}{3}\pi R^3 - \tfrac{\pi h^2}{3}(3R - h) = 768\pi + 4500\pi - 468\pi = 4800\pi,\quad R = 15,\ \rho = 12,\ h = 6'
 
 [area]
 value = 3015.928947446201
 exact = "πρs + 4πR² − 2πRh = 240π + 900π − 180π = 960π, s = 20 the cone's slant, R = 15, ρ = 12, h = 6"
+tex = '\pi\rho s + 4\pi R^2 - 2\pi R h = 240\pi + 900\pi - 180\pi = 960\pi,\quad s = 20,\ R = 15,\ \rho = 12,\ h = 6'
 +++
 
 A ball of radius 15 centred on the origin, united with a solid cone on the z axis whose apex is

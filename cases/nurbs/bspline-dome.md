@@ -5,6 +5,7 @@ tags = ["nurbs", "bspline", "knots", "surface"]
 [volume]
 value = 3081.0055555555555
 exact = "Σᵢⱼ zᵢⱼ·aᵢ·bⱼ = 554581/180, aᵢ = ∫Nᵢ(u)x′(u)du (119, 117, 231, 224, 153, 156)/50, bⱼ = ∫Mⱼ(v)y′(v)dv (105, 187, 151, 157, 120)/36, exact piecewise-polynomial integrals"
+tex = '\sum_{i,j} z_{ij}\,a_i b_j = \tfrac{554581}{180},\quad a_i = \int N_i(u)\,x^\prime(u)\,du,\ b_j = \int M_j(v)\,y^\prime(v)\,dv'
 
 [area]
 value = 1285.368404802979

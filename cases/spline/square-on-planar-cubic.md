@@ -5,10 +5,12 @@ tags = ["spline", "sweep", "planar-path", "bezier", "offset"]
 [volume]
 value = 16000.0
 exact = "A·L = 20²·40: the section is centred on a planar path and stays square to it, below the least radius of curvature (15), so it holds A per unit length (Pappus). The path is a Pythagorean-hodograph cubic, |c′(t)| = 6((3 − 2t)² + (1 + t)²), so L = 2·(10 + 5 + 5) = 40 exactly"
+tex = 'AL = 20^2\cdot 40,\quad L = \int_0^1 6\left((3 - 2t)^2 + (1 + t)^2\right)dt = 2(10 + 5 + 5) = 40'
 
 [area]
 value = 4000.0
 exact = "8hL + 2(2h)², h = 10: the top and bottom are flat strips of width 2h centred on the path (area 2hL each); the two upright sides are swept by the path's offsets at ±h, of lengths L ∓ h·(π/2), which add to 2L, each 2h tall; the ends are squares. 1600 + 1600 + 800"
+tex = '8hL + 2(2h)^2 = 1600 + 1600 + 800,\quad h = 10'
 +++
 
 A bar of square section, 20 × 20, bent along a planar cubic Bézier curve in the xy plane. The

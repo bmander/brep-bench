@@ -5,10 +5,12 @@ tags = ["tangent", "boolean", "common", "analytic", "point-contact", "pinched-fa
 [volume]
 value = 965.0688582149972
 exact = "4πR³/3 − 6·πh²(3R − h)/3 = π(1250 − 2000√2/3), R = 5√2, h = R − 5 (the ball less six caps that touch but do not overlap)"
+tex = '\tfrac{4}{3}\pi R^3 - 6\cdot\tfrac{\pi h^2}{3}(3R - h) = \pi\left(1250 - \tfrac{2000\sqrt{2}}{3}\right),\quad R = 5\sqrt{2},\ h = R - 5'
 
 [area]
 value = 547.4667180500616
 exact = "4πR² − 6·2πRh + 6·π5² = π(300√2 − 250), R = 5√2, h = R − 5"
+tex = '4\pi R^2 - 6\cdot 2\pi R h + 6\pi\cdot 5^2 = \pi\left(300\sqrt{2} - 250\right),\quad R = 5\sqrt{2},\ h = R - 5'
 +++
 
 A cube of side 10 centred on the origin, from (−5, −5, −5) to (5, 5, 5), and a ball centred on
