@@ -1,0 +1,8 @@
+// A Box stands centred on the z axis; every edge of it rounded at once.
+Model BoxAllEdges {
+  units: mm
+  Box cube { size: [10mm, 10mm, 10mm] }
+  Modify cube {
+    EdgeFinish<Fillet> rounding { target: AllEdges; radius: 1mm }
+  }
+}

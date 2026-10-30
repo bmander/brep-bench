@@ -19,6 +19,7 @@
 // does not parse, or names an unknown field) is a fault of the implementation, not a refusal: the
 // runner prints it and exits non-zero, so the harness records a crash.
 using System.Reflection;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Aetheris.Kernel.Core.Brep;
@@ -36,8 +37,12 @@ static class Runner
 
     // Diagnostics that say the source is wrong, not that Aetheris declines it.
     static readonly Regex AuthoringFault = new(
-        "parse|syntax|unknown|unexpected|unit-mismatch|missing-field|field-required|duplicate",
+        "parse|syntax|unknown|unexpected|malformed|unit-mismatch|missing-field|missing-required|field-required|"
+        + "field-value-invalid|duplicate|identity-collision",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    // refusals are Aetheris's words: keep their quotes and brackets readable
+    static readonly JsonSerializerOptions Json = new() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
 
     sealed class Refused(string why) : Exception(why);
     sealed class Fault(string what) : Exception(what);
@@ -110,8 +115,10 @@ static class Runner
             || !SurfaceMeshIrValidator.TryValidate(document, out failure))
             throw new Refused("no mesh: " + (failure ?? "SurfaceMeshIR does not support this body"));
         if (!SurfaceMeshIrTessellator.TryLowerToTriangleMesh(document, out var mesh, out var topology))
-            throw new Refused($"no closed mesh: {topology.CrackCount} cracks, {topology.NonManifoldEdgeCount} "
-                + $"non-manifold edges, {topology.OrientationConflictEdgeCount} edges whose faces disagree in orientation");
+            throw new Refused(topology.TriangleCount == 0 ? "no mesh: SurfaceMeshIR lowers the body to no triangles"
+                : $"no closed mesh: {topology.CrackCount} cracks, {topology.NonManifoldEdgeCount} non-manifold edges, "
+                + $"{topology.OrientationConflictEdgeCount} edges whose faces disagree in orientation"
+                + (topology.IsOutwardOriented ? "" : ", not oriented outward") + (topology.IsConnected ? "" : ", not connected"));
         BinaryStlExporter.Export(output, mesh);
         return new { status = "ok", measured = "mesh", faces, valid };
     }
@@ -138,11 +145,11 @@ static class Runner
         }
         try
         {
-            Console.WriteLine(JsonSerializer.Serialize(Build(path, output)));
+            Console.WriteLine(JsonSerializer.Serialize(Build(path, output), Json));
         }
         catch (Refused refused)
         {
-            Console.WriteLine(JsonSerializer.Serialize(new { status = "refused", reason = refused.Message }));
+            Console.WriteLine(JsonSerializer.Serialize(new { status = "refused", reason = refused.Message }, Json));
         }
         catch (Fault fault)
         {

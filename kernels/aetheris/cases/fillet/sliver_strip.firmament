@@ -1,0 +1,34 @@
+// Aetheris finishes one connected chain of one cap rim of a Profile, so the plate extruded upwards
+// cannot have the top and bottom edges of its face y = 10 rounded (one finish per construction:
+// ProfileBoundaryEdgeFinishSequenceUnsupported). Its way to round edges along an extrusion is to
+// round the corners of the outline itself: the plate's end section in the yz plane, its two corners
+// at y = 10 rounded to radius 0.9999 about (9.0001, 0.9999) and (9.0001, 1.0001), leaving the strip
+// between them, extruded along x from x = 0 to x = 20.
+Model SliverStrip {
+  units: mm
+  Concept Struct layout on YZ {
+    Point2 a { position: [0mm, 0mm] }
+    Point2 b { position: [9.0001mm, 0mm] }
+    Point2 c { position: [10mm, 0.9999mm] }
+    Point2 d { position: [10mm, 1.0001mm] }
+    Point2 e { position: [9.0001mm, 2mm] }
+    Point2 f { position: [0mm, 2mm] }
+    Point2 lowerAxis { position: [9.0001mm, 0.9999mm] }
+    Point2 upperAxis { position: [9.0001mm, 1.0001mm] }
+    Line2 bottom { from: a; to: b }
+    Circle2 lowerRound { center: lowerAxis; radius: 0.9999mm }
+    Line2 strip { from: c; to: d }
+    Circle2 upperRound { center: upperAxis; radius: 0.9999mm }
+    Line2 top { from: e; to: f }
+    Line2 back { from: f; to: a }
+  }
+  Profile section using layout { Loop Outer {
+    Segment south { trace: bottom; from: a; to: b }
+    Segment lower { trace: lowerRound; from: b; to: c; sweep: CounterClockwise }
+    Segment sliver { trace: strip; from: c; to: d }
+    Segment upper { trace: upperRound; from: d; to: e; sweep: CounterClockwise }
+    Segment north { trace: top; from: e; to: f }
+    Segment west { trace: back; from: f; to: a }
+  } }
+  Extrude plate { profile: section; from: 0mm; to: 20mm }
+}

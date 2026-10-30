@@ -1,0 +1,15 @@
+// The plate as stock from z = 0 to z = 4 and the round boss raised 4 on its top, both rims of the
+// boss rounded: its top rim, and its root where it meets the plate.
+Model BossSCurve {
+  units: mm
+  Profile plateOutline = Rect2 { center: [0mm, 0mm]; size: [40mm, 40mm] }
+  Profile bossOutline = Circle2 { center: [0mm, 0mm]; radius: 5mm }
+  Compose body {
+    Base plate { profile: plateOutline; from: 0mm; to: 4mm; role: Stock }
+    Boss boss { on: Top; profile: bossOutline; height: 4mm }
+  }
+  Modify body {
+    EdgeFinish<Fillet> rim { target: bossOutline.Outer; on: Top; radius: 2mm }
+    EdgeFinish<Fillet> root { target: bossOutline.Outer; on: Bottom; radius: 2mm }
+  }
+}

@@ -1,0 +1,26 @@
+// Aetheris finishes one connected chain of a Profile's cap rim, so the block extruded upwards
+// cannot have its two long top edges rounded (ProfileBoundaryEdgeFinishSelectionKindUnsupported).
+// Its way to round edges along an extrusion is to round the corners of the outline itself: the
+// block's end section in the yz plane, its two top corners rounded to radius 2, which meet in the
+// half circle about (2, 4), extruded along x from x = 0 to x = 10.
+Model SlabHalfRound {
+  units: mm
+  Concept Struct layout on YZ {
+    Point2 a { position: [0mm, 0mm] }
+    Point2 b { position: [4mm, 0mm] }
+    Point2 c { position: [4mm, 4mm] }
+    Point2 d { position: [0mm, 4mm] }
+    Point2 axis { position: [2mm, 4mm] }
+    Line2 bottom { from: a; to: b }
+    Line2 right { from: b; to: c }
+    Circle2 top { center: axis; radius: 2mm }
+    Line2 left { from: d; to: a }
+  }
+  Profile section using layout { Loop Outer {
+    Segment south { trace: bottom; from: a; to: b }
+    Segment east { trace: right; from: b; to: c }
+    Segment halfRound { trace: top; from: c; to: d; sweep: CounterClockwise }
+    Segment west { trace: left; from: d; to: a }
+  } }
+  Extrude slab { profile: section; from: 0mm; to: 10mm }
+}

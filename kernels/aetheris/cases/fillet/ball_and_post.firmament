@@ -1,0 +1,5 @@
+// A ball with a post joined to it, the edge where they meet rounded.
+//
+// Refused: Firmament has no union of solids. A Sphere is a standalone body, a coaxial Compose joins
+// only Cylinder and Frustum spans, and Revolve admits an arc in its meridian only as a semicircle
+// closed by its diameter, so the ball and post cannot be made one solid, nor their edge rounded.

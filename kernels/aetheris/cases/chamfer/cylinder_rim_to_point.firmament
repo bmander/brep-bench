@@ -1,0 +1,8 @@
+// A Cylinder stands on the xy plane with its axis on z; the rim of its top face chamfered.
+Model CylinderRimToPoint {
+  units: mm
+  Cylinder body { radius: 5mm; height: 10mm }
+  Modify body {
+    EdgeFinish<Chamfer> rim { face: +Z; target: Boundary; distance: 5mm }
+  }
+}

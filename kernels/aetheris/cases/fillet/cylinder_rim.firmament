@@ -1,0 +1,8 @@
+// A Cylinder stands on the xy plane with its axis on z; the rim of its top face rounded.
+Model CylinderRim {
+  units: mm
+  Cylinder body { radius: 5mm; height: 10mm }
+  Modify body {
+    EdgeFinish<Fillet> rim { face: +Z; target: Boundary; radius: 1mm }
+  }
+}

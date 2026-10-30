@@ -1,0 +1,5 @@
+// A box's top rim chamfered 1 across the top and 2 down the sides.
+//
+// Refused: Aetheris's EdgeFinish<Chamfer> takes one distance, the same on both faces; it has no
+// chamfer with two distances. (A CornerProfile chamfer of an outline takes two setbacks, but that
+// cuts a corner of a Profile, not the edges round a face.)

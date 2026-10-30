@@ -1,0 +1,4 @@
+// A cube's edge rounded with a radius that grows linearly along it.
+//
+// Refused: Aetheris's EdgeFinish<Fillet> takes one constant radius; it has no variable-radius
+// fillet.

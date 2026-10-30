@@ -1,0 +1,28 @@
+// Aetheris rounds the edges of a Profile's cap rims, not an edge along its extrusion. Its way to
+// round such an edge is to round the corner of the outline itself: the L's inside corner rounded
+// to radius 7, the arc about (10, 10) from (10, 3) to (3, 10), and the section that leaves
+// extruded from y = 0 to y = 10 (an XZ layout extrudes towards -y).
+Model LBlockInsideConsumed {
+  units: mm
+  Concept Struct layout on XZ {
+    Point2 a { position: [0mm, 0mm] }
+    Point2 b { position: [10mm, 0mm] }
+    Point2 c { position: [10mm, 3mm] }
+    Point2 d { position: [3mm, 10mm] }
+    Point2 e { position: [0mm, 10mm] }
+    Point2 corner { position: [10mm, 10mm] }
+    Line2 bottom { from: a; to: b }
+    Line2 right { from: b; to: c }
+    Circle2 round { center: corner; radius: 7mm }
+    Line2 top { from: d; to: e }
+    Line2 left { from: e; to: a }
+  }
+  Profile section using layout { Loop Outer {
+    Segment south { trace: bottom; from: a; to: b }
+    Segment east { trace: right; from: b; to: c }
+    Segment inside { trace: round; from: c; to: d; sweep: Clockwise }
+    Segment north { trace: top; from: d; to: e }
+    Segment west { trace: left; from: e; to: a }
+  } }
+  Extrude block { profile: section; from: -10mm; to: 0mm }
+}
