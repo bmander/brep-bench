@@ -34,6 +34,12 @@ The first 33 cases are textbook solids:
 - **Sweeps:** a circle along helices and arcs.
 - **Fillets:** one edge, every edge of a box (three meeting at each corner), and a cylinder's rim.
 
+Then come harder ones: NURBS surfaces in Booleans, tangent and near-tangent contact, fillets and
+chamfers that consume faces, splines, and **solid sweeps**: everything a tool passes through as it
+moves, from a ball swung through a block (a closed form) to a wheel screwed along a rod, a rack
+rolled round a gear blank and a torus tumbling through space, whose walls are envelopes no kernel
+here can yet build.
+
 Then come real parts, whose scenarios are taken from the example documents of
 [geomsolver](https://github.com/bmander/geomsolver) and written out in plain words: a flange, a
 pulley, a tray, a star handle, a turned shaft, ducts swept along a bend. Most have closed forms;

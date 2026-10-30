@@ -1,4 +1,4 @@
-# brep-bench specification, version 1.3
+# brep-bench specification, version 1.4
 
 brep-bench works like Rosetta Code. Each **case** describes a solid in plain words and gives its
 volume and area as closed forms. Each **kernel** has its own **implementation** of each case,
@@ -92,6 +92,14 @@ An implementation builds the described solid the way a user of its kernel would:
   - patch the kernel;
   - catch a crash and report it as a refusal;
   - work around the grading.
+- **A swept solid** (everything a solid passes through as it moves, a case in `swept/`) is built
+  with the kernel's own sweep of a solid where it has one. Where it has none, the implementation may
+  build the same solid from the kernel's other operations when its shape follows from the
+  description by elementary geometry, stated in a comment beside the code: a ball's sweep is the
+  tube about its centre's path with a ball at each end; a box slid along a line is the box at each
+  end and each face slid along the line. An envelope the implementation would have to compute
+  itself, such as a curve fitted to the points where a moving tool touches its own sweep, is
+  geometry made outside the kernel: that case is refused.
 - **A case the kernel cannot do** still has a file. The file refuses, saying precisely why (for
   example, "truck has no helical curve, and sweeps only by translation and rotation"). That result
   is graded as *refused*.
@@ -183,6 +191,9 @@ One entry per kernel:
 
 ## Versions
 
+- **1.4:** a swept solid is built by the kernel's own sweep of a solid, or from its other
+  operations where the shape follows by elementary geometry; an envelope the implementation
+  computes is refused.
 - **1.3:** unsettled cases, with no answer yet, are kept: their sound results are graded *built*,
   and the board shows which kernels agree.
 - **1.2:** no integration scripts: an answer is a closed form or two kernels agreeing to 1e-8.
