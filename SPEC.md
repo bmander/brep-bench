@@ -1,4 +1,4 @@
-# brep-bench specification, version 1.4
+# brep-bench specification, version 1.5
 
 brep-bench works like Rosetta Code. Each **case** describes a solid in plain words and gives its
 volume and area as closed forms. Each **kernel** has its own **implementation** of each case,
@@ -105,6 +105,21 @@ An implementation builds the described solid the way a user of its kernel would:
   end and each face slid along the line. An envelope the implementation would have to compute
   itself, such as a curve fitted to the points where a moving tool touches its own sweep, is
   geometry made outside the kernel: that case is refused.
+- **A workaround is flagged.** An implementation that builds the solid without a feature the
+  natural construction calls for, because its kernel lacks it (a sphere primitive, a sweep of a
+  solid, a draft, a chamfer with two distances), and makes the same solid from the kernel's other
+  operations instead, is flagged outside its code, in `kernels/<kernel>/workarounds.toml`: one
+  line per such case, its id and what the kernel lacks, briefly (several joined with commas):
+
+  ```
+  "primitives/sphere" = "no sphere primitive"
+  "swept/box-slid-aslant" = "no sweep of a solid"
+  ```
+
+  The board marks the implementation's result †, and counts each kernel's passes made by
+  workaround. A workaround is graded like any other implementation: the flag only says how the
+  result was reached. A refusal is never flagged, and nor is composition the case itself describes
+  (a hole cut from a block), nor a choice between operations the kernel has.
 - **A case the kernel cannot do** still has a file. The file refuses, saying precisely why (for
   example, "truck has no helical curve, and sweeps only by translation and rotation"). That result
   is graded as *refused*.
@@ -196,6 +211,8 @@ One entry per kernel:
 
 ## Versions
 
+- **1.5:** an implementation that works around a feature its kernel lacks is flagged in its
+  kernel's `workarounds.toml`, and the board marks it. Grading is unchanged.
 - **1.4:** a swept solid is built by the kernel's own sweep of a solid, or from its other
   operations where the shape follows by elementary geometry; an envelope the implementation
   computes is refused.

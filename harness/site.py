@@ -9,6 +9,7 @@ import os
 import re
 import shutil
 import sys
+import tomllib
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from suite import ROOT, cases as read_cases, kernels as read_kernels, source  # noqa: E402
@@ -45,6 +46,7 @@ td.pass { background: var(--pass); } td.refused { background: var(--refused); }
 td.wrong { background: var(--wrong); } td.crashed, td.timeout { background: var(--crashed); }
 td.missing { color: var(--muted); }
 td.built { background: var(--built); }
+.wa { color: var(--muted); }
 td.case small { display: block; color: var(--muted); }
 details { margin: 0 0 12px; } summary { cursor: pointer; font-weight: 600; }
 .description { max-width: 70ch; font-size: 1.05em; }
@@ -102,6 +104,16 @@ def load():
     return registry, results, cases, drawings
 
 
+def workarounds(kernel):
+    """What each of `kernel`'s implementations works around, by case id: its workarounds.toml
+    beside its runner (SPEC.md), or nothing."""
+    path = os.path.join(ROOT, "kernels", kernel.get("name", ""), "workarounds.toml")
+    if not os.path.exists(path):
+        return {}
+    with open(path, "rb") as f:
+        return tomllib.load(f)
+
+
 def paragraphs(text):
     """A description's paragraphs as HTML: blank lines part them, `code` is code."""
     out = []
@@ -123,9 +135,13 @@ def scoreboard(registry, results, cases, drawings):
             f"code. <a href='{REPO}'>Cases, harness and implementations</a>.</p>",
             "<h2>Kernels</h2><div class=scroll><table><tr><th>kernel</th>"]
     out += [f"<th>{o}</th>" for o in OUTCOMES]
-    out.append("<th>version</th><th>licence</th><th>run</th></tr>")
+    out.append("<th title='passed or built by working around a feature the kernel lacks'>"
+               "by workaround</th><th>version</th><th>licence</th><th>run</th></tr>")
     for r in results:
         a = registry.get(r["kernel"], {})
+        flagged = workarounds(a)
+        worked = sum(1 for c in r["cases"]
+                     if c["outcome"] in ("pass", "built") and c["case"] in flagged)
         name = e(r["kernel"])
         if a.get("kernel"):
             name = f"<a href='{e(a['kernel'])}'>{name}</a>"
@@ -136,7 +152,7 @@ def scoreboard(registry, results, cases, drawings):
             name += f"<br><span class=muted>{e(a['note'])}</span>"
         out.append(f"<tr><td>{name}</td>")
         out += [f"<td>{r['tally'].get(o, 0)}</td>" for o in OUTCOMES]
-        out.append(f"<td class=muted>{e(r.get('version') or '')}</td>"
+        out.append(f"<td>{worked}</td><td class=muted>{e(r.get('version') or '')}</td>"
                    f"<td class=muted>{e(a.get('license', ''))}</td>"
                    f"<td class=muted>{e(r['run'])}</td></tr>")
     out.append("</table></div>")
@@ -149,26 +165,34 @@ def scoreboard(registry, results, cases, drawings):
     out.append("<h2>Cases</h2><div class=scroll><table><tr><th></th><th>case</th>")
     out += [f"<th>{e(r['kernel'])}</th>" for r in results]
     out.append("</tr>")
-    by = [{c["case"]: c for c in r["cases"]} for r in results]
+    by = [(workarounds(registry.get(r["kernel"], {})), {c["case"]: c for c in r["cases"]})
+          for r in results]
     for cid in sorted(cases):
         page = f"cases/{e(cid)}.html"
         thumb = (f"<a href='{page}'><img class=thumb src='drawings/{e(cid)}/iso.png' alt='' "
                  "loading=lazy></a>" if cid in drawings else "")
         out.append(f"<tr><td>{thumb}</td><td class=case><a href='{page}'>"
                    f"{e(cases[cid]['title'])}</a><small>{e(cid)}</small></td>")
-        for rows in by:
+        for flagged, rows in by:
             c = rows.get(cid)
             if c is None:
                 out.append("<td class=cell></td>")
                 continue
             tip = c["why"] or f"{c['seconds']} s"
+            wa = flagged.get(cid)
+            mark = ""
+            if wa:
+                tip = f"workaround: {wa} · {tip}"
+                mark = " <span class=wa>†</span>"
             out.append(f"<td class='cell {c['outcome']}' title='{e(tip)}'>"
-                       f"<a href='{page}#{e(rows_anchor(c))}'>{c['outcome']}</a></td>")
+                       f"<a href='{page}#{e(rows_anchor(c))}'>{c['outcome']}{mark}</a></td>")
         out.append("</tr>")
     out.append("</table></div>")
     out.append("<p class=muted>Times include starting the runner's process. Hover a cell for "
-               "why it failed or how long it took, or open the case. A kernel marked (mesh) has no "
-               "exact volume or area of its own: it is graded on its triangles, to 1e-3.</p>"
+               "why it failed or how long it took, or open the case. † marks an implementation that "
+               "works around a feature its kernel lacks, building the solid from other operations; "
+               "hover for which. A kernel marked (mesh) has no exact volume or area of its own: it "
+               "is graded on its triangles, to 1e-3.</p>"
                "</body></html>")
     with open(os.path.join(SITE, "index.html"), "w") as f:
         f.write("\n".join(out))
@@ -280,9 +304,10 @@ def case_page(c, registry, results, drawing):
             "<th>volume</th><th>area</th>")
     out.append("<h2 id=results>Results</h2><div class=scroll><table><tr><th>kernel</th>"
                f"<th>outcome</th>{columns}<th>agrees with</th><th>faces</th><th>time</th>"
-               "<th>mesh</th><th>why</th></tr>")
+               "<th>mesh</th><th>workaround</th><th>why</th></tr>")
     for r, row, link in rows:
         name = r["kernel"]
+        wa = workarounds(registry.get(name, {})).get(cid)
         measured_mesh = row.get("measured") == "mesh"
         vol, area, _ = measured.get(name, (None, None, False))
         if exp:
@@ -297,7 +322,7 @@ def case_page(c, registry, results, drawing):
             f"</td><td class='cell {row['outcome']}'>{row['outcome']}</td>"
             f"<td>{vcell}</td><td>{acell}</td><td class=muted>{e(friends)}</td>"
             f"<td class=muted>{e(faces)}</td><td>{row['seconds']} s</td><td>{link}</td>"
-            f"<td class=why>{e(row['why'])}</td></tr>")
+            f"<td class=muted>{e(wa or '')}</td><td class=why>{e(row['why'])}</td></tr>")
     out.append("</table></div>")
 
     out.append("<h2 id=code>How each kernel builds it</h2>")
@@ -312,6 +337,9 @@ def case_page(c, registry, results, drawing):
             code = f.read()
         rel = os.path.relpath(src, ROOT)
         outcome = row["outcome"] if row else ""
+        wa = workarounds(k).get(cid)
+        if wa:
+            outcome += f" · workaround: {wa}"
         out.append(f"<details open><summary>{e(r['kernel'])} <span class=muted>"
                    f"{e(outcome)} · <a href='{REPO}/blob/main/{e(rel)}'>{e(rel)}</a></span>"
                    f"</summary><pre>{e(code)}</pre></details>")
@@ -464,6 +492,9 @@ renderer.setAnimationLoop(() => {
 
 def main():
     registry, results, cases, drawings = load()
+    for k in registry.values():
+        for cid in sorted(set(workarounds(k)) - set(cases)):
+            print(f"kernels/{k['name']}/workarounds.toml: no case {cid}", file=sys.stderr)
     os.makedirs(SITE, exist_ok=True)
     with open(os.path.join(SITE, "style.css"), "w") as f:
         f.write(STYLE)

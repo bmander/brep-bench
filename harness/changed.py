@@ -11,7 +11,8 @@ changed decides it:
 
 - a case (cases/<case>.md): every kernel runs it again;
 - a kernel's implementation of a case: that kernel runs that case again;
-- anything else of a kernel's (kernels/<kernel>/): that kernel runs every case again;
+- anything else of a kernel's (kernels/<kernel>/): that kernel runs every case again, except its
+  workarounds.toml, which only the site reads;
 - how a run is made or graded (kernels.json, harness/run.py, stl.py, suite.py, build.py): the
   whole suite runs again;
 - anything else (the site, the drawings' code, the docs): nothing runs, the site is only made
@@ -35,6 +36,8 @@ from suite import ROOT, cases, kernels  # noqa: E402
 WHOLE_SUITE = {"kernels.json", "harness/run.py", "harness/stl.py", "harness/suite.py",
                "harness/build.py"}
 REDRAW = {"harness/draw.py", "harness/stl.py"}
+# a kernel's flags of its workarounds, which the site reads and no run depends on
+FLAGS = "workarounds.toml"
 
 
 def git(*args):
@@ -90,7 +93,7 @@ def plan(paths, results_dir):
             run.setdefault(name, set()).add(cid)
             continue
         for k in runnable:
-            if path.startswith(f"kernels/{k['name']}/"):
+            if path.startswith(f"kernels/{k['name']}/") and path != f"kernels/{k['name']}/{FLAGS}":
                 # an implementation of a case that is gone needs nothing run
                 if not (k.get("source") and implementation(k["source"]).match(path)):
                     run[k["name"]] = set(ids)
