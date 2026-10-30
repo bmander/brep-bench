@@ -39,7 +39,8 @@ def near(got, want, rel):
 
 
 def grade(case, reply, mesh):
-    """The outcome of one run: pass, refused, wrong (with why) or crashed."""
+    """The outcome of one run: pass (built for an unsettled case), refused, wrong (with why) or
+    crashed."""
     status = reply.get("status")
     if status == "refused":
         return "refused", reply.get("reason", "")
@@ -47,6 +48,13 @@ def grade(case, reply, mesh):
         return "crashed", f"status {status!r}"
     why = []
     exp = case["expect"]
+    if exp is None:
+        # unsettled: no answer to grade against, only whether the solid is sound
+        if mesh is None:
+            return "wrong", "no triangles written"
+        if not mesh["closed"]:
+            return "wrong", f"triangles not closed ({mesh['unmatched_edges']} edges unmatched)"
+        return "built", ""
     from_mesh = reply.get("measured") == "mesh"
     for key in ("volume", "area"):
         got, want = reply.get(key), exp[key]["value"]

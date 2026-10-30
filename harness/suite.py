@@ -20,8 +20,10 @@ def read_case(path):
         "id": cid,
         "title": meta.get("title", cid),
         "tags": meta.get("tags", []),
-        "expect": {k: {"value": float(meta[k]["value"]), "exact": meta[k]["exact"]}
-                   for k in ("volume", "area")},
+        # an unsettled case (`settled = false`) has no answer yet: what each kernel builds is shown
+        "expect": ({k: {"value": float(meta[k]["value"]), "exact": meta[k]["exact"]}
+                    for k in ("volume", "area")}
+                   if meta.get("settled", True) else None),
         "description": body.strip(),
         "path": path,
     }

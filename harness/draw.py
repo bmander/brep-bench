@@ -234,7 +234,7 @@ def drawn_from(case_id, results, order):
     for name in order:
         row = results.get(name, {}).get(case_id)
         mesh = os.path.join(ROOT, "results", "meshes", name, case_id + ".stl")
-        if row and row["outcome"] == "pass" and os.path.exists(mesh):
+        if row and row["outcome"] in ("pass", "built") and os.path.exists(mesh):
             return name, mesh
     return None, None
 

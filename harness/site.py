@@ -14,15 +14,17 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from suite import ROOT, cases as read_cases, kernels as read_kernels, source  # noqa: E402
 SITE = os.path.join(ROOT, "site")
 REPO = "https://github.com/bmander/brep-bench"
-OUTCOMES = ["pass", "refused", "wrong", "crashed", "timeout", "missing"]
+OUTCOMES = ["pass", "built", "refused", "wrong", "crashed", "timeout", "missing"]
 THREE = "https://cdn.jsdelivr.net/npm/three@0.160.0"
 
 STYLE = """
 :root { --bg: #fff; --fg: #1d1d1f; --muted: #6b6b70; --line: #e3e3e6; --card: #f6f6f4;
+        --built: #dbe7f6;
         --pass: #d8f0dd; --refused: #f3ecd0; --wrong: #f6d5d2; --crashed: #e9d6f2;
         --timeout: #e9d6f2; --accent: #2f5fb3; }
 @media (prefers-color-scheme: dark) {
   :root { --bg: #151517; --fg: #ececf0; --muted: #9a9aa2; --line: #2c2c31; --card: #1e1e21;
+          --built: #1f3550;
           --pass: #1f4429; --refused: #4a4120; --wrong: #5a2420; --crashed: #44264f;
           --timeout: #44264f; --accent: #8fb0ff; }
 }
@@ -41,6 +43,7 @@ td.cell a { text-decoration: none; display: block; }
 td.pass { background: var(--pass); } td.refused { background: var(--refused); }
 td.wrong { background: var(--wrong); } td.crashed, td.timeout { background: var(--crashed); }
 td.missing { color: var(--muted); }
+td.built { background: var(--built); }
 td.case small { display: block; color: var(--muted); }
 details { margin: 0 0 12px; } summary { cursor: pointer; font-weight: 600; }
 .description { max-width: 70ch; font-size: 1.05em; }
@@ -188,12 +191,18 @@ def case_page(c, registry, results, drawing):
                f"{e(', '.join(c['tags']))}</p>")
     out.append(f"<div class=description>{paragraphs(c['description'])}</div>")
     exp = c["expect"]
-    out.append("<div class=scroll><table><tr><th></th><th>expected</th><th>where it comes from</th>"
-               "</tr>")
-    for key in ("volume", "area"):
-        out.append(f"<tr><td>{key}</td><td>{exp[key]['value']:.10g}</td>"
-                   f"<td class=muted>{e(exp[key]['exact'])}</td></tr>")
-    out.append("</table></div>")
+    if exp is None:
+        out.append("<p><strong>Unsettled.</strong> This solid has no closed form, and no two kernels "
+                   "yet agree on it to 1e-8, so it has no answer to grade against. Below is what each "
+                   "kernel builds: <em>built</em> means a watertight, consistently oriented solid, "
+                   "whatever its measures; the table says which kernels agree with which.</p>")
+    else:
+        out.append("<div class=scroll><table><tr><th></th><th>expected</th>"
+                   "<th>where it comes from</th></tr>")
+        for key in ("volume", "area"):
+            out.append(f"<tr><td>{key}</td><td>{exp[key]['value']:.10g}</td>"
+                       f"<td class=muted>{e(exp[key]['exact'])}</td></tr>")
+        out.append("</table></div>")
 
 
     if drawing:
@@ -241,20 +250,42 @@ def case_page(c, registry, results, drawing):
         out.append("<p class=muted>Drag to turn, scroll or pinch to zoom, right-drag to move. "
                    "Black lines are where the surface turns sharply; red ones, seen through the solid, are open edges, where the mesh is not closed.</p>")
 
+    # each result's measures, and which other results they agree with: to 1e-8 between exact
+    # kernels, to 1e-3 where either was measured from its mesh
+    measured = {}
+    for r, row, _ in rows:
+        from_mesh = row.get("measured") == "mesh"
+        m = row.get("mesh") or {}
+        vol = m.get("volume") if from_mesh else row.get("volume")
+        area = m.get("area") if from_mesh else row.get("area")
+        if row["outcome"] in ("pass", "built", "wrong") and vol is not None and area is not None:
+            measured[r["kernel"]] = (vol, area, from_mesh)
+
+    def agrees(a, b):
+        (va, aa, ma), (vb, ab, mb) = measured[a], measured[b]
+        tol = 1e-3 if ma or mb else 1e-8
+        return all(abs(x - y) <= tol * max(abs(x), abs(y), 1e-12) for x, y in ((va, vb), (aa, ab)))
+
+    columns = ("<th>volume (rel. error)</th><th>area (rel. error)</th>" if exp else
+            "<th>volume</th><th>area</th>")
     out.append("<h2 id=results>Results</h2><div class=scroll><table><tr><th>kernel</th>"
-               "<th>outcome</th><th>volume (rel. error)</th><th>area (rel. error)</th>"
-               "<th>faces</th><th>time</th><th>mesh</th><th>why</th></tr>")
+               f"<th>outcome</th>{columns}<th>agrees with</th><th>faces</th><th>time</th>"
+               "<th>mesh</th><th>why</th></tr>")
     for r, row, link in rows:
+        name = r["kernel"]
         measured_mesh = row.get("measured") == "mesh"
-        mesh = row.get("mesh") or {}
-        vol = mesh.get("volume") if measured_mesh else row.get("volume")
-        area = mesh.get("area") if measured_mesh else row.get("area")
+        vol, area, _ = measured.get(name, (None, None, False))
+        if exp:
+            vcell, acell = relative(vol, exp["volume"]["value"]), relative(area, exp["area"]["value"])
+        else:
+            vcell = "" if vol is None else f"{vol:.12g}"
+            acell = "" if area is None else f"{area:.12g}"
+        friends = ", ".join(o for o in measured if o != name and name in measured and agrees(name, o))
         faces = ", ".join(f"{n} {k}" for k, n in (row.get("faces") or {}).items())
         out.append(
-            f"<tr><td>{e(r['kernel'])}{' <span class=muted>(mesh)</span>' if measured_mesh else ''}"
+            f"<tr><td>{e(name)}{' <span class=muted>(mesh)</span>' if measured_mesh else ''}"
             f"</td><td class='cell {row['outcome']}'>{row['outcome']}</td>"
-            f"<td>{relative(vol, exp['volume']['value'])}</td>"
-            f"<td>{relative(area, exp['area']['value'])}</td>"
+            f"<td>{vcell}</td><td>{acell}</td><td class=muted>{e(friends)}</td>"
             f"<td class=muted>{e(faces)}</td><td>{row['seconds']} s</td><td>{link}</td>"
             f"<td class=why>{e(row['why'])}</td></tr>")
     out.append("</table></div>")

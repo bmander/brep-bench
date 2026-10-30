@@ -1,4 +1,4 @@
-# brep-bench specification, version 1.2
+# brep-bench specification, version 1.3
 
 brep-bench works like Rosetta Code. Each **case** describes a solid in plain words and gives its
 volume and area as closed forms. Each **kernel** has its own **implementation** of each case,
@@ -18,6 +18,11 @@ result the same way.
   own triangles: watertight, consistently oriented, bounding the expected volume.
 
   No answer ever comes from a single kernel.
+- **The hardest cases are kept even without an answer.** A case that has no closed form and that no
+  two kernels yet agree on is *unsettled* (`settled = false` in its header, and no `[volume]` or
+  `[area]`). It still describes one definite solid. The board shows what each kernel builds for
+  it (its measures, whether its mesh is sound, the solid in 3D) and which kernels agree with which.
+  Once two kernels agree to 1e-8, the case can be settled with their mean.
 - **The same rules for every kernel.** The rules change only by a versioned edit to this file,
   made before any results under the new rules are published.
 - **A refusal ranks above a wrong answer.** A kernel that says "I cannot" is more useful than one
@@ -148,6 +153,10 @@ Each case and kernel get one outcome. The outcomes, best first:
 | **timeout** | it ran past the time limit (60 s by default) |
 | **missing** | the kernel has no implementation of the case; not ranked |
 
+An unsettled case has no answer to meet, so a sound result is graded **built** instead of pass:
+the runner answered `ok`, and its triangles are closed and consistently oriented. Triangles that are
+not closed are **wrong**; refused, crashed and timeout are as above.
+
 The harness checks the triangles itself. They are what a kernel's solid looks like to every program
 downstream of it, and checking them keeps a runner's word about its own solid from being the only
 evidence.
@@ -173,6 +182,8 @@ One entry per kernel:
 
 ## Versions
 
+- **1.3:** unsettled cases, with no answer yet, are kept: their sound results are graded *built*,
+  and the board shows which kernels agree.
 - **1.2:** no integration scripts: an answer is a closed form or two kernels agreeing to 1e-8.
 - **1.1:** an answer could come from a numerical integration script beside the case.
 - **1:** a case is a description in words with its closed forms. Each kernel implements every case
