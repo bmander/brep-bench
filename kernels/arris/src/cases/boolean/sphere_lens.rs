@@ -7,6 +7,7 @@ use arris::topo::{Body, Model};
 const RADIUS: f64 = 5.0;
 const SPACING: f64 = 6.0;
 
+// workaround: no sphere primitive
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
     let (first, _) = ball(m, Point3::origin(), RADIUS, &Control::NONE)?;
     let (second, _) = ball(m, Point3::new(SPACING, 0.0, 0.0), RADIUS, &Control::NONE)?;

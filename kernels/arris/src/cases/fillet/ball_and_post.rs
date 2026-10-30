@@ -11,6 +11,7 @@ const POST_RADIUS: f64 = 4.0;
 const POST_HEIGHT: f64 = 15.0;
 const ROUND: f64 = 2.0;
 
+// workaround: no sphere primitive
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
     let (sphere, turned) = ball(m, Point3::origin(), BALL_RADIUS, &Control::NONE)?;
     let axis = Axis::z_at(Point3::origin());

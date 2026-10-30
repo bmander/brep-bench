@@ -40,6 +40,7 @@ fn half_ball(m: &mut Model, centre: Point3, outward: Vec3, radius: f64) -> Resul
     Ok(revolve(m, &quarter_disc, Axis::new(centre, outward)?, TAU, &Control::NONE)?.0)
 }
 
+// workaround: no sweep of a solid, no sphere primitive
 pub fn build(m: &mut Model) -> Result<Body, Refusal> {
     let [x0, y0, z0] = BLOCK_LOW;
     let [x1, y1, z1] = BLOCK_HIGH;

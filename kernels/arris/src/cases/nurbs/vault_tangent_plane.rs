@@ -11,6 +11,7 @@ const CROWN: f64 = 16.0;
 /// How far the box reaches past the block on every side but its floor.
 const OVERRUN: f64 = 4.0;
 
+// workaround: no solid from a NURBS surface
 pub fn build(m: &mut Model) -> Result<Body, Refusal> {
     let block = vault(m)?;
     let reach = HALF + OVERRUN;

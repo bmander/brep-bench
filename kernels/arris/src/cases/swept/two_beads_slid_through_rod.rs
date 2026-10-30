@@ -28,6 +28,7 @@ const SLIDE: f64 = 40.0;
 /// tube's centres, and its tube's.
 const BEADS: [(f64, f64, f64); 2] = [(0.0, 6.0, 2.0), (1.5, 6.0, 1.5)];
 
+// workaround: no sweep of a solid
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
     let axis = Axis::z_at(Point3::origin());
     let (rod, _) = primitive_cylinder(m, axis, ROD_RADIUS, ROD_LENGTH, &Control::NONE)?;

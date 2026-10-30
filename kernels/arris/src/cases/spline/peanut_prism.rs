@@ -24,6 +24,7 @@ const CONTROL: [(f64, f64); 12] = [
 const HEIGHT: f64 = 10.0;
 const DEGREE: usize = 3;
 
+// workaround: no NURBS curve in a profile
 pub fn build(m: &mut Model) -> Result<Body, Refusal> {
     let geom = |e: GeomError| Refusal::from(e.to_string());
     let tol = m.precision().tolerance();

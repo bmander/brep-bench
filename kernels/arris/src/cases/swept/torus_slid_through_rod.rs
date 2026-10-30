@@ -27,6 +27,7 @@ const MINOR: f64 = 2.0;
 const START_Z: f64 = -9.0;
 const END_Z: f64 = 29.0;
 
+// workaround: no sweep of a solid
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
     let axis = Axis::z_at(Point3::origin());
     let (rod, _) = primitive_cylinder(m, axis, ROD_RADIUS, ROD_LENGTH, &Control::NONE)?;

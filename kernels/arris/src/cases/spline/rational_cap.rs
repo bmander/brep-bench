@@ -16,6 +16,7 @@ const CONTROL: [[f64; 3]; 3] =
     [[5.0 * ROOT3, 0.0, -5.0], [10.0 * ROOT3, 0.0, 10.0], [0.0, 0.0, 10.0]];
 const WEIGHTS: [f64; 3] = [1.0, 0.5, 1.0];
 
+// workaround: no NURBS curve in a profile
 pub fn build(m: &mut Model) -> Result<Body, Refusal> {
     let points = CONTROL.iter().map(|&[x, y, z]| Point3::new(x, y, z)).collect();
     let arc = NurbsCurve::new(2, vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0], points, WEIGHTS.to_vec())

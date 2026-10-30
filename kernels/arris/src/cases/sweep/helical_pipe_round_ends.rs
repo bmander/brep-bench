@@ -30,6 +30,7 @@ fn half_ball(m: &mut Model, centre: Point3, outward: Vec3, radius: f64) -> Resul
     Ok(revolve(m, &quarter_disc, Axis::new(centre, outward)?, TAU, &Control::NONE)?.0)
 }
 
+// workaround: no sphere primitive
 pub fn build(m: &mut Model) -> Result<Body, OpError> {
     let axis = Axis::z_at(Point3::origin());
     let start = Point3::new(HELIX_RADIUS, 0.0, 0.0);

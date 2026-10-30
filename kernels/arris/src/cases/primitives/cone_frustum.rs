@@ -16,6 +16,7 @@ pub fn build(m: &mut Model) -> Result<Body, OpError> {
             holes: vec![],
         })
     };
+    // workaround: no cone primitive
     // arris has no cone primitive: a ruled loft between the two end circles is one, and arris
     // recognises a span between two coaxial circles as an exact cone
     let sections = [disc(0.0, BASE_RADIUS)?, disc(HEIGHT, TOP_RADIUS)?];
