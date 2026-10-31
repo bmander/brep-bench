@@ -1,0 +1,30 @@
+[package]
+name = "brep-bench-solidcraft"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+description = "The brep-bench runner for SolidCraft's kernel, and its implementation of every case."
+publish = false
+
+# SolidCraft's B-rep kernel boundary (https://solidcraft.io), from its repository at one commit:
+# the crate is not published on its own.
+[dependencies]
+solidcraft-kernel = { git = "https://github.com/tangency-labs/solidcraft", rev = "cf0508e5c877bf758479aeb1a985a756bc0ec6b4" }
+solidcraft-geom = { git = "https://github.com/tangency-labs/solidcraft", rev = "cf0508e5c877bf758479aeb1a985a756bc0ec6b4" }
+serde_json = "1"
+
+# SolidCraft builds truck with its own fixes (its `vendor/`, wired in by its workspace's
+# `[patch.crates-io]`), and so does this runner: the kernel as SolidCraft ships it.
+[patch.crates-io]
+truck-geometry = { git = "https://github.com/tangency-labs/solidcraft", rev = "cf0508e5c877bf758479aeb1a985a756bc0ec6b4" }
+truck-shapeops = { git = "https://github.com/tangency-labs/solidcraft", rev = "cf0508e5c877bf758479aeb1a985a756bc0ec6b4" }
+truck-stepio = { git = "https://github.com/tangency-labs/solidcraft", rev = "cf0508e5c877bf758479aeb1a985a756bc0ec6b4" }
+truck-meshalgo = { git = "https://github.com/tangency-labs/solidcraft", rev = "cf0508e5c877bf758479aeb1a985a756bc0ec6b4" }
+matext4cgmath = { git = "https://github.com/tangency-labs/solidcraft", rev = "cf0508e5c877bf758479aeb1a985a756bc0ec6b4" }
+
+[profile.release]
+debug = 0
+# as SolidCraft's own release profile
+opt-level = 3
+lto = "thin"
+codegen-units = 16

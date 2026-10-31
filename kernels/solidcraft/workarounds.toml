@@ -1,0 +1,4 @@
+# The cases SolidCraft's kernel builds by working around a feature it lacks, and what that is
+# (SPEC.md, "A workaround is flagged").
+
+"primitives/cone-frustum" = "no cone primitive"

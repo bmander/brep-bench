@@ -118,6 +118,29 @@
       ],
       "source": "kernels/vcad/src/cases/{category}/{name_snake}.rs"
     },
+    {
+      "name": "solidcraft",
+      "kernel": "https://solidcraft.io",
+      "license": "MIT OR Apache-2.0",
+      "backend": "Rust",
+      "frontend": "Rust (the solidcraft-kernel crate)",
+      "command": [
+        "kernels/solidcraft/target/release/brep-bench-solidcraft"
+      ],
+      "measured": "mesh",
+      "build": [
+        "cargo",
+        "build",
+        "--release",
+        "--manifest-path",
+        "kernels/solidcraft/Cargo.toml"
+      ],
+      "version": [
+        "kernels/solidcraft/target/release/brep-bench-solidcraft",
+        "--version"
+      ],
+      "source": "kernels/solidcraft/src/cases/{category}/{name_snake}.rs"
+    },
     {"name": "brepkit", "kernel": "https://github.com/andymai/brepkit", "license": "AGPL-3.0 or commercial", "backend": "Rust", "frontend": "Rust", "command": null},
     {
       "name": "popkern",
