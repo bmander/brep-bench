@@ -40,6 +40,12 @@ moves, from a ball swung through a block (a closed form) to a wheel screwed alon
 rolled round a gear blank and a torus tumbling through space. Their walls are envelopes; only
 cad-kernel, with its own solid sweep, builds them yet, so they wait for a second kernel to agree.
 
+Then **offsets**: solids grown or shrunk by a distance, to every point within that distance of
+the solid or at least that far inside it. They run from a box grown or shrunk and a cylinder's
+rims rounded, through concave edges kept sharp or rounded and the oblique corners of a tetrahedron
+and a cone's apex, to offsets that cross themselves: a groove grown shut, a flange shrunk away,
+and a torus grown past its hole into an apple.
+
 Then come real parts, whose scenarios are taken from the example documents of
 [geomsolver](https://github.com/bmander/geomsolver) and written out in plain words: a flange, a
 pulley, a tray, a star handle, a turned shaft, ducts swept along a bend. Most have closed forms;
