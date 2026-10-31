@@ -113,6 +113,7 @@ The whole suite runs nightly, and when the harness's running or grading changes.
 | [truck](https://github.com/ricosjp/truck) | `kernels/truck` (Rust); measured from its mesh; frozen at the first 46 cases |
 | [vcad](https://github.com/ecto/vcad) | `kernels/vcad` (Rust); measured from its mesh |
 | [popkern](https://github.com/popkern-dev/popkern) | `kernels/popkern` (Rhai, popkern's scripts, run by a Rust runner) |
+| [SolidCraft](https://solidcraft.io) | `kernels/solidcraft` (Rust, on SolidCraft's kernel crate, solidcraft-kernel); measured from its mesh |
 | [Aetheris](https://github.com/yuechen-li-dev/Aetheris) | `kernels/aetheris` (Firmament, Aetheris's modelling language, compiled by a C# runner); measured from its mesh |
 | [monstertruck](https://github.com/virtualritz/monstertruck), [kentron](https://github.com/rsz269/kentron), [brepkit](https://github.com/andymai/brepkit), [next.BREP](https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL) | wanted |
 
