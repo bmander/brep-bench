@@ -48,6 +48,12 @@ square tapering through a half turn and a blade 40 × 0.4 twisted through a whol
 square-to-round have closed forms; its cones' area is an elliptic integral, which OCCT and
 cad-kernel agree on.
 
+Then **offsets**: solids grown or shrunk by a distance, to every point within that distance of
+the solid or at least that far inside it. They run from a box grown or shrunk and a cylinder's
+rims rounded, through concave edges kept sharp or rounded and the oblique corners of a tetrahedron
+and a cone's apex, to offsets that cross themselves: a groove grown shut, a flange shrunk away,
+and a torus grown past its hole into an apple.
+
 Then come real parts, whose scenarios are taken from the example documents of
 [geomsolver](https://github.com/bmander/geomsolver) and written out in plain words: a flange, a
 pulley, a tray, a star handle, a turned shaft, ducts swept along a bend. Most have closed forms;
