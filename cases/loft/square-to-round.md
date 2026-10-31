@@ -1,7 +1,15 @@
 +++
 title = "A square-to-round transition"
 tags = ["loft", "ruled", "transition", "unequal-sections", "hull", "cone"]
-settled = false
+
+[volume]
+value = 35068.58347057703
+exact = "28000 + 2250π = 30(1600/3 + 160·15/6 + 225π/3): the section at height z = 30t is the Minkowski combination (1 − t)S + tD of the square and the disc, of area (1 − t)²·1600 + t(1 − t)·160·15 + t²·225π (the mixed term the square's perimeter times the circle's radius)"
+tex = '28000 + 2250\pi = 30\left(\tfrac{1600}{3} + \tfrac{160\cdot 15}{6} + \tfrac{225\pi}{3}\right)'
+
+[area]
+value = 6241.372840065616
+exact = "no closed form (each cone's area is an elliptic integral): OCCT (6241.372839877755) and cad-kernel (6241.372840253477), built independently from this description, agree to 6e-11; the mean. The floor, the disc and the triangles are 1600 + 225π + 400√37"
 +++
 
 A transition piece, as a sheet-metal square-to-round is made, from a square at its foot to a
@@ -23,7 +31,3 @@ So the walls are four flat triangles and four conical pieces, alternating round,
 the convex hull of the square and the circle: its section at every height is the Minkowski
 combination of the two, a square with rounded corners, the rounding growing from nothing at the
 foot to the whole circle at the top. Its floor and top are flat.
-
-The volume has a closed form, 28000 + 2250π (the section at height z = 30t has area
-(1 − t)²·1600 + t(1 − t)·160·15 + t²·225π), but the cones' area does not: each is an elliptic
-integral.

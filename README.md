@@ -45,7 +45,8 @@ a circle, each corner of the square paired with a whole side or arc; rectangles 
 along four Bézier guides, one pinched to 0.4 thick on its way from 24 × 6.4 to 6 × 24.4 and one
 closing to a spire's point; and sections turned as they rise, along spiral and helical guides, a
 square tapering through a half turn and a blade 40 × 0.4 twisted through a whole one. All but the
-square-to-round, whose cones' area is an elliptic integral, have closed forms.
+square-to-round have closed forms; its cones' area is an elliptic integral, which OCCT and
+cad-kernel agree on.
 
 Then come real parts, whose scenarios are taken from the example documents of
 [geomsolver](https://github.com/bmander/geomsolver) and written out in plain words: a flange, a
