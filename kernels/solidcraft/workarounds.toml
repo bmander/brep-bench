@@ -14,3 +14,8 @@
 "spline/pipe-on-planar-cubic" = "no sweep along a spline"
 "spline/square-on-planar-cubic" = "no sweep along a spline"
 "spline/pipe-on-twisted-cubic" = "no space curve, no sweep along a spline"
+"sweep/narrowing-bend" = "no sweep with a law for its section"
+"loft/slab-pinched-on-four-guides" = "no loft along four guides"
+"loft/square-spire-on-four-guides" = "no loft along four guides"
+"loft/square-to-octagon" = "no loft pairing a corner with a side"
+"loft/square-to-round" = "no loft pairing a corner with an arc or a side with a point, no oblique cone"
