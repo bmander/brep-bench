@@ -24,10 +24,8 @@ pub fn half_ball(centre: Vec3, outward: Vec3, radius: f64) -> R<Body> {
 
 pub fn build() -> R<Body> {
     let block = block((-6.0, -6.0, -8.0), (18.0, 18.0, 0.0))?;
-    // the disc about (12, 0, 0) in the xz plane, turned from +x towards +y: the kernel's `revolve`
-    // turns a section on `xz` (whose normal is −y) about its sketch y, +z, from +x towards −y for
-    // a positive angle, so the quarter turn is −90°
-    let mut swept = revolve_z(disc((12.0, 0.0), 3.0), -90.0)?;
+    // the disc about (12, 0, 0) in the xz plane, turned a quarter turn from +x towards +y
+    let mut swept = revolve_z(disc((12.0, 0.0), 3.0), 90.0)?;
     // the half balls beyond the tube's ends: it leaves (12, 0, 0) along +y and reaches (0, 12, 0)
     // along −x
     for (end, outward) in [(v3(12.0, 0.0, 0.0), -Vec3::Y), (v3(0.0, 12.0, 0.0), -Vec3::X)] {

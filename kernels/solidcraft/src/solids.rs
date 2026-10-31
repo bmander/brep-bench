@@ -69,9 +69,11 @@ pub fn disc(c: (f64, f64), r: f64) -> Region2 {
     Region2 { outer: Loop2::circle(v2(c.0, c.1), r), holes: vec![] }
 }
 
-/// A section in x and z (`xz`) turned through `angle` degrees about the z axis, right-handed.
+/// A section in x and z (`xz`) turned through `angle` degrees about the z axis, right-handed:
+/// from +x towards +y. The kernel's `revolve` of a section on `xz` about its sketch y (+z) turns
+/// a positive angle the other way, from +x towards −y, so the angle goes to it negated.
 pub fn revolve_z(section: Region2, angle: f64) -> R<Body> {
-    one(solidcraft_kernel::revolve(&xz(), &[section], Vec2::ZERO, Vec2::Y, angle.to_radians())?)
+    one(solidcraft_kernel::revolve(&xz(), &[section], Vec2::ZERO, Vec2::Y, -angle.to_radians())?)
 }
 
 /// `region` on `plane` extruded from `start` to `end` along the plane's normal.
