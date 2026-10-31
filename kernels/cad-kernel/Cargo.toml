@@ -6,8 +6,11 @@ license = "MIT OR Apache-2.0"
 description = "The brep-bench runner for cad-kernel: one cad-kernel program per case."
 publish = false
 
+# A release of cad-kernel, by its tag: a new one is a commit here, which runs every cad-kernel case
+# again (harness/changed.py), and `--version` names it on the board.  The releases:
+# https://github.com/bmander/cad-kernel/releases
 [dependencies]
-cad-kernel = { git = "https://github.com/bmander/cad-kernel" }
+cad-kernel = { git = "https://github.com/bmander/cad-kernel", tag = "v0.1.0" }
 
 [profile.release]
 debug = 0

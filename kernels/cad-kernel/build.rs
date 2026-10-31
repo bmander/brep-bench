@@ -1,6 +1,6 @@
 //! Finds every case file under `src/cases/<category>/<name_snake>.rs` and writes the table the
 //! runner looks a case id up in (`$OUT_DIR/cases.rs`): adding a case is adding its file. Also reads
-//! which commit of cad-kernel `Cargo.lock` pins, for `--version`.
+//! which release and commit of cad-kernel `Cargo.lock` pins, for `--version`.
 use std::fmt::Write as _;
 use std::path::Path;
 
@@ -36,9 +36,13 @@ fn main() {
     let out_dir = std::env::var("OUT_DIR").unwrap();
     std::fs::write(Path::new(&out_dir).join("cases.rs"), out).unwrap();
 
-    // the commit the lock file pins cad-kernel at: `source = "git+…#<sha>"`
+    // the release and the commit the lock file pins cad-kernel at:
+    // `source = "git+…?tag=<tag>#<sha>"`, the release left out where none is named
     let lock = std::fs::read_to_string(root.join("Cargo.lock")).unwrap_or_default();
-    let rev = lock.split("[[package]]").find(|p| p.contains("name = \"cad-kernel\""))
-        .and_then(|p| p.split('#').nth(1)).and_then(|s| s.get(..7)).unwrap_or("unknown");
+    let source = lock.split("[[package]]").find(|p| p.contains("name = \"cad-kernel\""))
+        .and_then(|p| p.lines().find_map(|l| l.strip_prefix("source = \""))).unwrap_or("");
+    let sha = source.split('#').nth(1).and_then(|s| s.get(..7)).unwrap_or("unknown");
+    let tag = source.split_once("?tag=").map(|(_, t)| t.split('#').next().unwrap_or(t));
+    let rev = match tag { Some(t) => format!("{t} ({sha})"), None => sha.to_string() };
     println!("cargo:rustc-env=CAD_KERNEL_REV={rev}");
 }
