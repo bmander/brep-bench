@@ -40,6 +40,13 @@ moves, from a ball swung through a block (a closed form) to a wheel screwed alon
 rolled round a gear blank and a torus tumbling through space. Their walls are envelopes; only
 cad-kernel, with its own solid sweep, builds them yet, so they wait for a second kernel to agree.
 
+Then come **lofts** beyond two sections joined edge to edge: a square lofted to an octagon and to
+a circle, each corner of the square paired with a whole side or arc; rectangles whose corners run
+along four Bézier guides, one pinched to 0.4 thick on its way from 24 × 6.4 to 6 × 24.4 and one
+closing to a spire's point; and sections turned as they rise, along spiral and helical guides, a
+square tapering through a half turn and a blade 40 × 0.4 twisted through a whole one. All but the
+square-to-round, whose cones' area is an elliptic integral, have closed forms.
+
 Then come real parts, whose scenarios are taken from the example documents of
 [geomsolver](https://github.com/bmander/geomsolver) and written out in plain words: a flange, a
 pulley, a tray, a star handle, a turned shaft, ducts swept along a bend. Most have closed forms;
