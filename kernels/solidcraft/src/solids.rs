@@ -16,9 +16,14 @@ pub fn v2(x: f64, y: f64) -> Vec2 {
     Vec2::new(x, y)
 }
 
-/// A boolean whose result is a solid: an empty result is the kernel's answer that there is none.
+/// How an error begins when the kernel answered that a boolean leaves nothing: an answer, not a
+/// refusal, which the runner reports as an empty solid (graded on its measures, zero).
+pub const EMPTY: &str = "the kernel's answer is empty: ";
+
+/// A boolean whose result is a solid. The kernel answers `None` when it finds the result empty,
+/// which is an answer (`EMPTY`), not a refusal.
 pub fn op(a: &Body, b: &Body, o: BoolOp) -> R<Body> {
-    k::boolean(a, b, o)?.ok_or_else(|| KernelError::Failed(format!("{o:?} left nothing")))
+    k::boolean(a, b, o)?.ok_or_else(|| KernelError::Failed(format!("{EMPTY}{o:?} left nothing")))
 }
 
 pub fn union(a: &Body, b: &Body) -> R<Body> {

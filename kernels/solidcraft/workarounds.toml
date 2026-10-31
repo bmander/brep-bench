@@ -2,3 +2,5 @@
 # (SPEC.md, "A workaround is flagged").
 
 "primitives/cone-frustum" = "no cone primitive"
+"tangent/cone-tip-on-face" = "no cone primitive"
+"tangent/ice-cream-cone" = "no cone primitive"

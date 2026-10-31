@@ -14,7 +14,8 @@
 //! the volume and area from the triangles it writes: SolidCraft's own tessellation of the solid.
 //! A kernel error is a refusal: the kernel declined, saying why (it turns a panic in the truck
 //! crates under it into an error of its own, `KernelError::Internal`). A case may also refuse in
-//! its own words, where the kernel has no operation for what it describes.
+//! its own words, where the kernel has no operation for what it describes. A boolean the kernel
+//! answers is empty is not a refusal but an answer: the runner reports an empty solid.
 use serde_json::{Value, json};
 use solidcraft_kernel::{Body, FaceSurface, KernelError, face_surface, measure};
 use std::collections::BTreeMap;
@@ -142,6 +143,12 @@ fn main() -> ExitCode {
     };
     let reply = match build().and_then(|body| Ok(report(&body, out)?)) {
         Ok(reply) => reply,
+        // the kernel said the solid is empty: no triangles, and the measures of nothing
+        Err(Refusal(why)) if why.contains(solids::EMPTY) => {
+            std::fs::write(out, stl(&solidcraft_geom::Mesh::default())).expect("the STL file writes");
+            json!({"status": "ok", "measured": "mesh", "faces": {}, "valid": false,
+                   "problems": [why]})
+        }
         Err(e) => refused(e),
     };
     println!("{reply}");
