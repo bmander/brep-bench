@@ -35,9 +35,10 @@ The first 33 cases are textbook solids:
 - **Fillets:** one edge, every edge of a box (three meeting at each corner), and a cylinder's rim.
 
 Then come harder ones: NURBS surfaces in Booleans, tangent and near-tangent contact, fillets and
-chamfers that consume faces, splines, and **solid sweeps**: everything a tool passes through as it
-moves, from a ball swung through a block (a closed form) to a wheel screwed along a rod, a rack
-rolled round a gear blank and a torus tumbling through space, whose walls are envelopes no kernel
+chamfers that consume faces, chamfers meeting at a corner mitred or cut flat, three or four to
+it, splines, and **solid sweeps**: everything a tool passes through as it moves, from a ball
+swung through a block (a closed form) to a wheel screwed along a rod, a rack rolled round a gear
+blank and a torus tumbling through space, whose walls are envelopes no kernel
 here can yet build.
 
 Then come **lofts** beyond two sections joined edge to edge: a square lofted to an octagon and to

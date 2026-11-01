@@ -25,3 +25,8 @@ long and 2√2 wide, between two of those squares: the chamfer of the edge from 
 Each corner is the equilateral triangle through the three square corners nearest it: at the
 corner (10, 10, 10) the triangle through (8, 8, 10), (8, 10, 8) and (10, 8, 8), in the plane
 x + y + z = 26.
+
+The solid is the cube cut by the twelve chamfer planes, x + y ≤ 18 for the edge from (10, 10, 0)
+to (10, 10, 10) and the others likewise, and by the eight corner planes, x + y + z ≤ 26 at the
+corner (10, 10, 10) and the others likewise. Without the corner planes the chamfers mitre, the
+three at each corner meeting in a point: that is `chamfer/cube-all-edges-mitred`.
