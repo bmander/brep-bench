@@ -1,0 +1,11 @@
+# The cases next.BREP builds by working around a feature it lacks, and what that is
+# (SPEC.md, "A workaround is flagged").
+
+"thicken/angle-bracket-inward" = "no thicken of a sheet of several faces"
+"thicken/angle-bracket-rounded" = "no thicken of a sheet of several faces, no rounded thicken"
+"thicken/angle-bracket-sharp" = "no thicken of a sheet of several faces"
+"thicken/bent-flange" = "no thicken of a sheet of several faces"
+"thicken/bent-flange-past-its-bend" = "no thicken of a sheet of several faces"
+"thicken/open-box-inward" = "no thicken of a sheet of several faces"
+"thicken/open-box-outward-rounded" = "no thicken of a sheet of several faces, no rounded thicken"
+"thicken/open-box-outward-sharp" = "no thicken of a sheet of several faces"
