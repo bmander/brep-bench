@@ -1,34 +1,20 @@
-//! A wheel, the disc of radius 40 about the vertical line through (−50, 0) from z = −8 to −2, cut by
-//! a plus (four arms 30 long and 8 wide about the origin, z from −10 to 0) turning about z by t
-//! while the wheel turns by −2t/3, t from 0° to 540°.
-use crate::sketch::polygon;
-use cad_kernel::build::{disc, prism};
-use cad_kernel::sweep::cut::{swept_cut, Motion, Tool};
+//! A wheel, the disc of radius 40 about the vertical line through (−50, 0) from z = −8 to −2, cut
+//! by a plus (arms 30 long and 8 wide along ±x and ±y, extruded from z = −10 to 0) turning about z
+//! by t while the wheel turns by −2t/3, over t from 0° to 540°: what is left is what lies outside
+//! the tool at every instant.
+//!
+//! Refused. cad-kernel has no sweep of a solid along a motion. Seen from the wheel the plus moves
+//! in its own plane, turning about a centre that runs round the wheel (a roll of the circles of
+//! radius 20 and 30 about the two axes), and it is a prism square to that plane through the whole
+//! wheel, so the cut is the region the plus sweeps in the plane, extruded — `build::prism` would
+//! extrude it. But that region is bounded by the envelopes of the plus's sides under the roll and
+//! the traces of its corners (trochoids), curves cad-kernel has no form of; written as B-splines
+//! fitted to points of the envelope, they would be geometry made outside the kernel.
 use cad_kernel::topo::Brep;
 
-const WHEEL_CENTRE: [f64; 3] = [-50., 0., 0.];
-const WHEEL_RADIUS: f64 = 40.;
-const WHEEL_SPAN: [f64; 2] = [-8., -2.];
-const ARM: f64 = 30.;
-const HALF_WIDTH: f64 = 4.;
-const TOOL_SPAN: [f64; 2] = [-10., 0.];
-const WHEEL_RATIO: f64 = -2. / 3.;
-const ROLL_DEGREES: f64 = 540.;
-/// How closely the sweep's sheet is held to its surface, in the kernel's millimetres.
-const TOLERANCE: f64 = 1e-4;
-
 pub fn build() -> Result<Brep, String> {
-    let up = [0., 0., 1.];
-    let base = [WHEEL_CENTRE[0], WHEEL_CENTRE[1], WHEEL_SPAN[0]];
-    let wheel = prism(&disc(base, up, WHEEL_RADIUS), 0., WHEEL_SPAN[1] - WHEEL_SPAN[0])?;
-    let (a, w) = (ARM, HALF_WIDTH);
-    let plus = polygon(&[[w, -w, 0.], [a, -w, 0.], [a, w, 0.], [w, w, 0.], [w, a, 0.], [-w, a, 0.],
-        [-w, w, 0.], [-a, w, 0.], [-a, -w, 0.], [-w, -w, 0.], [-w, -a, 0.], [w, -a, 0.]]);
-    let tool = Tool::Prism { name: "plus".into(), profile: plus, from: TOOL_SPAN[0], to: TOOL_SPAN[1],
-        draft: None };
-    // the plus turning about z, seen from the wheel turning two thirds as fast the other way
-    let mesh = Motion::Turn { origin: [0., 0., 0.], axis: up, ratio: 1. }
-        .seen_from(Motion::Turn { origin: WHEEL_CENTRE, axis: up, ratio: WHEEL_RATIO });
-    swept_cut(&wheel, &tool, &mesh, [0., ROLL_DEGREES.to_radians()], Some(TOLERANCE))
-        .map_err(|e| e.to_string())
+    Err("cad-kernel has no sweep of a solid along a motion: seen from the wheel the plus rolls in \
+         its plane, and the wheel's flanks are the envelope of the plus's sides under that roll \
+         and the traces of its corners (trochoids), which it cannot build"
+        .into())
 }

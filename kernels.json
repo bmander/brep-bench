@@ -2,7 +2,7 @@
   "kernels": [
     {
       "name": "cad-kernel",
-      "kernel": "https://github.com/bmander/cad-kernel",
+      "kernel": "https://crates.io/crates/cad-kernel",
       "license": "MIT OR Apache-2.0",
       "backend": "Rust",
       "frontend": "Rust",

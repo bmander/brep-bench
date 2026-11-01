@@ -1,4 +1,4 @@
-//! The brep-bench runner for cad-kernel (https://github.com/bmander/cad-kernel).
+//! The brep-bench runner for cad-kernel (https://crates.io/crates/cad-kernel).
 //!
 //!     brep-bench-cad-kernel CASE OUT.stl      (CASE as `boolean/napkin-ring`)
 //!     brep-bench-cad-kernel --version
