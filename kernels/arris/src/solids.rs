@@ -196,6 +196,87 @@ pub fn rectangle_on_guides(m: &mut Model, control: [[f64; 3]; 4]) -> Result<Body
     Ok(body)
 }
 
+/// The octahedron |x| + |y| + |z| ≤ `size`: its six corners on the axes, `size` from the origin,
+/// and its eight faces the triangles between one corner on each axis, each on its plane, assembled
+/// from its corners, edges and faces and proven by `ops::build`, as another kernel sews the
+/// triangles into a shell.
+pub fn octahedron(m: &mut Model, size: f64) -> Result<Body, Refusal> {
+    let geom = |e: GeomError| Refusal::from(e.to_string());
+    let tol = m.precision().tolerance();
+    let tolerance = m.precision().default_tolerance;
+    // corner 2a + 0 on axis a at +size, 2a + 1 at −size
+    let corner = |k: usize| {
+        let mut p = [0.0; 3];
+        p[k / 2] = if k % 2 == 0 { size } else { -size };
+        Point3::new(p[0], p[1], p[2])
+    };
+    let vertices: Vec<VertexSpec> =
+        (0..6).map(|k| VertexSpec::New { point: corner(k), tolerance }).collect();
+    // an edge between every two corners on different axes, from the lower to the higher
+    let mut edges = Vec::new();
+    let mut lines = BTreeMap::new();
+    for a in 0..6 {
+        for b in a + 1..6 {
+            if a / 2 == b / 2 {
+                continue;
+            }
+            let (from, to) = (corner(a), corner(b));
+            let range = Interval::new(0.0, (to - from).norm()).map_err(|e| e.to_string())?;
+            let curve = Curve::Line { origin: from, direction: UnitVec3::new_normalize(to - from) };
+            let geometry = EdgeGeometry::Curve { curve: m.add_curve(curve.clone()), range };
+            let (start, end) = (VertexKey::New(a), VertexKey::New(b));
+            edges.push(EdgeSpec::New { geometry, start, end, tolerance });
+            lines.insert((a, b), (edges.len() - 1, curve, range));
+        }
+    }
+    let mut meter = Meter::new(&Control::NONE);
+    let mut faces = Vec::new();
+    for octant in 0..8 {
+        // the corner on each axis on this octant's side, walked counter-clockwise about the
+        // outward normal (x, y, z order turns the right way when an even number of signs is −)
+        let side = |a: usize| 2 * a + (octant >> a & 1);
+        let mut walk = [side(0), side(1), side(2)];
+        let outward: Vec3 = (0..3).map(|a| corner(side(a)).coords / size).sum();
+        if octant.count_ones() % 2 == 1 {
+            walk.swap(1, 2);
+        }
+        let origin = Point3::from(outward * (size / 3.0));
+        let across = corner(walk[1]) - corner(walk[0]);
+        let frame = Frame::new(origin, outward, across).map_err(OpError::from)?;
+        let plane = Surface::Plane { frame };
+        let mut uses = Vec::new();
+        for i in 0..3 {
+            let (p, q) = (walk[i], walk[(i + 1) % 3]);
+            let (edge, curve, range) = &lines[&(p.min(q), p.max(q))];
+            let pcurve = pcurve_on(curve, *range, &plane, tol, &mut meter).map_err(geom)?;
+            uses.push(UseSpec {
+                edge: EdgeKey::New(*edge),
+                orientation: if p < q { Orientation::Forward } else { Orientation::Reversed },
+                pcurve: m.add_curve2(pcurve),
+            });
+        }
+        faces.push(FaceSpec::New {
+            surface: m.add_surface(plane),
+            orientation: Orientation::Forward,
+            loops: vec![uses],
+            tolerance,
+        });
+    }
+    let (builder, slots) =
+        Builder::assemble(m, tolerance, Assembly { vertices, edges, shells: vec![faces] })
+            .map_err(OpError::from)?;
+    let keys = BuildKeys {
+        namespace: 0,
+        vertices: keyed(&slots.vertices),
+        edges: keyed(&slots.edges),
+        faces: keyed(&slots.faces[0]),
+        shells: vec![0],
+        body: 0,
+    };
+    let (body, _) = build(m, builder, &keys, &Control::NONE)?;
+    Ok(body)
+}
+
 /// Every slot keyed by its place in the assembly.
 fn keyed<S: Copy + Ord>(slots: &[S]) -> BTreeMap<S, u64> {
     slots.iter().enumerate().map(|(i, &s)| (s, i as u64)).collect()
