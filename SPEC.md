@@ -1,4 +1,4 @@
-# brep-bench specification, version 1.6
+# brep-bench specification, version 1.7
 
 brep-bench works like Rosetta Code. Each **case** describes a solid in plain words and gives its
 volume and area as closed forms. Each **kernel** has its own **implementation** of each case,
@@ -83,6 +83,14 @@ How a description is written:
   faces are left with nearest a vertex is one plane where three faces meet, but where four or more
   do only when those corners happen to lie in a plane (the octahedron's, by its symmetry, and not
   a pyramid's apex on a rectangle), so no case asks for a flat corner where they do not.
+- **A shell says what its wall's inside is.** A wall of constant thickness can be made more than
+  one way where the faces moved to make its inside part or cross. The description says, case by
+  case: at a concave edge, whether the moved faces are extended until they meet (sharp) or the
+  wall is every point within the thickness of the faces (a round about the edge); where an opening
+  meets a wall, that the moved face runs on to the opening's surface, which is the rim; and where
+  the thickness consumes a face, closes a gap or never reaches an opening, what is left. It then
+  states the result exactly, as a composition with one answer: the solid less its cavity, given
+  as a solid, or for a wall grown outward the solid grown less the solid.
 
 ## An implementation
 
@@ -224,6 +232,9 @@ One entry per kernel:
 
 ## Versions
 
+- **1.7:** a shell's description says what its wall's inside is where moved faces part, cross or
+  meet an opening, and states the result exactly, as the solid less its cavity. Grading is
+  unchanged.
 - **1.6:** where blends meet at a corner, a description says what the corner is (a mitre, or a
   corner face) and states the solid as a composition with one answer; a flat corner is asked for
   only where it is one plane. Grading is unchanged.
