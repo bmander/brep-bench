@@ -55,6 +55,16 @@ rims rounded, through concave edges kept sharp or rounded and the oblique corner
 and a cone's apex, to offsets that cross themselves: a groove grown shut, a flange shrunk away,
 and a torus grown past its hole into an apple.
 
+Then **thickened sheets**: a sheet, a face or faces with no solid behind them, thickened into the
+solid between it and its faces moved along their normals, to one side or to both. They run from a
+flat rectangle and a plate with holes, through curved sheets whose rims sweep cones or cylinders
+(a half pipe either way, a whole tube closed on its seam, a spherical cap, a cone's side, the
+saddle of a torus's inner half) and a parabolic trough made as a B-spline, to sheets of several
+faces: a bent flange, an angle and an open box thickened outside their creases with the corners
+kept sharp or rounded, or inside them, where the moved faces cross. The hardest thicken a sheet to
+a point, a hemisphere to its centre; close a sphere's skin into a hollow ball; and thicken a bend
+past its own radius, so that the moved bend turns inside out and is no part of the solid.
+
 Then **shells**: solids hollowed to a wall of constant thickness, open at some of their faces or
 closed round a void. They run from a box open at its top, at two faces opposite or sharing an
 edge, or at every face but one, through walls grown outward rounded or sharp and an L's inside

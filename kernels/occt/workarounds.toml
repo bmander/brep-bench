@@ -15,3 +15,5 @@
 "swept/box-slid-aslant" = "no sweep of a solid"
 "swept/torus-slid-through-rod" = "no sweep of a solid"
 "swept/two-beads-slid-through-rod" = "no sweep of a solid"
+"thicken/hemisphere-both-sides" = "no thickening to both sides"
+"thicken/plate-with-holes" = "no thickening to both sides"
