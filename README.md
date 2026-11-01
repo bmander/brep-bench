@@ -76,6 +76,17 @@ side, a torus hollowed and one halved into a pipe, a bore opened into a hollow b
 open at its side that falls into two discs, and a ball cut by a plane whose cavity reaches it
 aslant, through a pinhole, or not at all.
 
+Then **geometry** beyond the plane, the cylinder, the cone, the sphere and the ring torus: the
+quadrics no circle makes, an ellipsoid of three unequal axes (whole, and halved through its widest
+section), an oblate spheroid, an elliptic cylinder and an elliptic hole, hyperboloids of one sheet
+(turned from a hyperbola, and ruled between two circles a quarter turn apart) and of two, and a
+paraboloid; the tori that pinch, a horn torus closed to a point, a spindle torus whose surface
+passes through itself and the lemon it sweeps twice, and a ring torus whose hole is 0.02 across;
+and B-splines at their edges: a saddle trimmed by a drum and bored through, periodic curves with
+no end swept straight and turned into a ring, a ball and a cone each bounded by one NURBS face
+whose rows of poles collapse to a point, and a Bézier patch of degree 15. All but the last have
+closed forms, some in elliptic integrals.
+
 Then come real parts, whose scenarios are taken from the example documents of
 [geomsolver](https://github.com/bmander/geomsolver) and written out in plain words: a flange, a
 pulley, a tray, a star handle, a turned shaft, ducts swept along a bend. Most have closed forms;
