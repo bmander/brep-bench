@@ -186,6 +186,27 @@
       "measured": "mesh",
       "source": "kernels/aetheris/cases/{category}/{name_snake}.firmament"
     },
-    {"name": "next.BREP", "kernel": "https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL", "license": "custom", "backend": "Rust", "frontend": "Rust", "command": null}
+    {
+      "name": "next.BREP",
+      "kernel": "https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL",
+      "license": "custom",
+      "backend": "Rust",
+      "frontend": "Rust",
+      "build": [
+        "cargo",
+        "build",
+        "--release",
+        "--manifest-path",
+        "kernels/next.BREP/Cargo.toml"
+      ],
+      "command": [
+        "kernels/next.BREP/target/release/brep-bench-next-brep"
+      ],
+      "version": [
+        "kernels/next.BREP/target/release/brep-bench-next-brep",
+        "--version"
+      ],
+      "source": "kernels/next.BREP/src/cases/{category}/{name_snake}.rs"
+    }
   ]
 }

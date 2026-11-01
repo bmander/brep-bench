@@ -1,0 +1,16 @@
+[package]
+name = "brep-bench-next-brep"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "The brep-bench runner for next.BREP's kernel, and its implementation of every case."
+publish = false
+
+# next.BREP's kernel (https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL), as published on
+# crates.io: the package is `BREP_kernel`, the library `brep_kernel`.
+[dependencies]
+brep_kernel = { package = "BREP_kernel", version = "=0.11.0" }
+serde_json = "1"
+
+[profile.release]
+debug = 0
