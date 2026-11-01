@@ -1,9 +1,6 @@
 //! The block from the origin to (20, 20, 10) bored through along x = 10, y = 10 with radius 3,
 //! shelled inward to a wall 1 thick, open at its top.
-#[allow(unused_imports)]
-use crate::sketch::{block, polygon, faces_through, ball_below, rounded_plate, capsule, drilled};
-#[allow(unused_imports)]
-use cad_kernel::build::{cone, disc, kept, prism, sphere, torus};
+use crate::sketch::{faces_through, drilled};
 use cad_kernel::offset::{shelled, Join, Side};
 use cad_kernel::topo::Brep;
 

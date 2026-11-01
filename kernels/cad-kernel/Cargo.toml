@@ -9,8 +9,7 @@ publish = false
 [dependencies]
 # a commit of geomsolver, exactly, until the release after 0.1.0 carries its offsets: the scoreboard
 # says which, and moving to another is a change made here
-cad-kernel = { git = "https://github.com/bmander/geomsolver", rev = "1dd2a55ef40e2b070a539e25875b4ecf35feba95" }
+cad-kernel = { git = "https://github.com/bmander/geomsolver", rev = "2239cf926c4f2bf0e7e842c3937e2315236b85a5" }
 
 [profile.release]
 debug = 0
-

@@ -1,9 +1,6 @@
 //! The box from the origin to (10, 8, 6) shelled inward to a wall 1 thick, open at its top and its
 //! front, y = 0.
-#[allow(unused_imports)]
-use crate::sketch::{block, polygon, faces_through, ball_below, rounded_plate, capsule, drilled};
-#[allow(unused_imports)]
-use cad_kernel::build::{cone, disc, kept, prism, sphere, torus};
+use crate::sketch::{block, faces_through};
 use cad_kernel::offset::{shelled, Join, Side};
 use cad_kernel::topo::Brep;
 

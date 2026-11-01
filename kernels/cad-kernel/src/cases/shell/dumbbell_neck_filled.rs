@@ -1,9 +1,7 @@
 //! A dumbbell-shaped plate, two 10 × 10 squares joined by a neck 4 long and 2 wide, 6 high, shelled
 //! inward to a wall 1.5 thick, open at its top.
-#[allow(unused_imports)]
-use crate::sketch::{block, polygon, faces_through, ball_below, rounded_plate, capsule, drilled};
-#[allow(unused_imports)]
-use cad_kernel::build::{cone, disc, kept, prism, sphere, torus};
+use crate::sketch::{polygon, faces_through};
+use cad_kernel::build::prism;
 use cad_kernel::offset::{shelled, Join, Side};
 use cad_kernel::topo::Brep;
 

@@ -1,12 +1,7 @@
 //! The inner half of the torus about z of tube radius 2 about a middle circle of radius 6, a sheet,
 //! thickened by 1 away from the middle circle, toward the axis.
-#[allow(unused_imports)]
-use crate::sketch::{block, polygon, faces_through, ball_below};
-#[allow(unused_imports)]
-use cad_kernel::boolean::{combined, Op};
-#[allow(unused_imports)]
-use cad_kernel::build::{cone, disc, kept, kept_by_solid, prism, sphere, torus, Profile, ProfileEdge};
-#[allow(unused_imports)]
+use crate::sketch::faces_through;
+use cad_kernel::build::{kept_by_solid, torus};
 use cad_kernel::geom::{Frame, Surface};
 use cad_kernel::offset::{sheet_of, thickened, Join};
 use cad_kernel::topo::Brep;

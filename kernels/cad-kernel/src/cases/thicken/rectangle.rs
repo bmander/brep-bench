@@ -1,12 +1,5 @@
 //! The rectangle from (0, 0, 0) to (10, 8, 0), a sheet, thickened by 2 to its +z side.
-#[allow(unused_imports)]
-use crate::sketch::{block, polygon, faces_through, ball_below};
-#[allow(unused_imports)]
-use cad_kernel::boolean::{combined, Op};
-#[allow(unused_imports)]
-use cad_kernel::build::{cone, disc, kept, kept_by_solid, prism, sphere, torus, Profile, ProfileEdge};
-#[allow(unused_imports)]
-use cad_kernel::geom::{Frame, Surface};
+use crate::sketch::{block, faces_through};
 use cad_kernel::offset::{sheet_of, thickened, Join};
 use cad_kernel::topo::Brep;
 

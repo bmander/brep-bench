@@ -1,13 +1,7 @@
 //! The side of the frustum about z from radius 6 at z = 0 to 3 at z = 4, a sheet, thickened by 1
 //! away from the axis.
-#[allow(unused_imports)]
-use crate::sketch::{block, polygon, faces_through, ball_below};
-#[allow(unused_imports)]
-use cad_kernel::boolean::{combined, Op};
-#[allow(unused_imports)]
-use cad_kernel::build::{cone, disc, kept, kept_by_solid, prism, sphere, torus, Profile, ProfileEdge};
-#[allow(unused_imports)]
-use cad_kernel::geom::{Frame, Surface};
+use crate::sketch::faces_through;
+use cad_kernel::build::cone;
 use cad_kernel::offset::{sheet_of, thickened, Join};
 use cad_kernel::topo::Brep;
 
