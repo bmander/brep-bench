@@ -1,6 +1,14 @@
 # The cases cad-kernel builds by working around a feature it lacks, and what that is
 # (SPEC.md, "A workaround is flagged").
 
+"geometry/elliptic-cylinder" = "no ellipse in a profile"
+"geometry/elliptic-hole" = "no ellipse in a profile"
+"geometry/hyperboloid" = "no hyperbola in a profile"
+"geometry/hyperboloid-of-two-sheets" = "no hyperbola in a profile"
+"geometry/oblate-spheroid" = "no ellipse in a profile"
+"geometry/paraboloid" = "no parabola in a profile"
+"geometry/periodic-bspline-prism" = "no periodic B-spline"
+"geometry/periodic-bspline-ring" = "no periodic B-spline"
 "swept/ball-along-spline-groove" = "no sweep of a solid along a curve"
 "swept/box-slid-aslant" = "no sweep of a solid with ends"
 "swept/torus-slid-through-rod" = "no sweep of a solid"

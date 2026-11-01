@@ -2,6 +2,8 @@
 # (SPEC.md, "A workaround is flagged").
 
 "chamfer/octahedron-all-edges-mitred" = "no mitre where four chamfers meet"
+"geometry/ellipsoid" = "no ellipsoid"
+"geometry/ellipsoid-half" = "no ellipsoid"
 "loft/slab-pinched-on-four-guides" = "no loft along guides"
 "loft/square-spire-on-four-guides" = "no loft along guides"
 "loft/square-to-octagon" = "no loft pairing a corner with a side"
