@@ -1,4 +1,4 @@
-# brep-bench specification, version 1.5
+# brep-bench specification, version 1.6
 
 brep-bench works like Rosetta Code. Each **case** describes a solid in plain words and gives its
 volume and area as closed forms. Each **kernel** has its own **implementation** of each case,
@@ -71,6 +71,18 @@ How a description is written:
   saying which operation a case is about ("drill them one after another, each hole its own cut").
 - **It must be unambiguous enough to have one answer.** If two careful readers could build
   different solids from it, that is a bug in the case.
+- **Where blends meet at a corner, it says what the corner is, as a composition.** Chamfers or
+  fillets meeting at a vertex can close it more than one way: running on until they meet in a
+  mitre, or cut off by a corner face of their own. The words of one kernel's blend are no
+  definition, so the description says which, and states the solid as a composition of operations
+  that have one answer: the solid cut by the chamfers' planes, and by each corner's plane where the
+  corner is cut flat (`chamfer/cube-all-edges`); and where the case is about a mitre, the edges
+  chamfered one after another, each its own chamfer ending on the faces at its ends
+  (`chamfer/cube-all-edges-mitred`). A corner is
+  described only where that composition is one solid. A flat corner face through the corners the
+  faces are left with nearest a vertex is one plane where three faces meet, but where four or more
+  do only when those corners happen to lie in a plane (the octahedron's, by its symmetry, and not
+  a pyramid's apex on a rectangle), so no case asks for a flat corner where they do not.
 
 ## An implementation
 
@@ -212,6 +224,9 @@ One entry per kernel:
 
 ## Versions
 
+- **1.6:** where blends meet at a corner, a description says what the corner is (a mitre, or a
+  corner face) and states the solid as a composition with one answer; a flat corner is asked for
+  only where it is one plane. Grading is unchanged.
 - **1.5:** an implementation that works around a feature its kernel lacks is flagged in its
   kernel's `workarounds.toml`, and the board marks it. Grading is unchanged.
 - **1.4:** a swept solid is built by the kernel's own sweep of a solid, or from its other
