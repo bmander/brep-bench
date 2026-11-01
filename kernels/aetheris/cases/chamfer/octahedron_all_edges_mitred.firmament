@@ -1,0 +1,10 @@
+// The octahedron with every edge chamfered, each edge its own chamfer, so the four at each corner
+// mitre.
+//
+// Refused: Firmament cannot chamfer the octahedron's edges one at a time. Its octahedron is
+// Polyhedron<8>, whose edges an EdgeFinish takes only all at once (target: AllEdges, admitted only
+// as a fillet): it selects no single edge, and no face's boundary (face selectors are the six
+// axes, and a Boundary chamfer of a Polyhedron is declined:
+// chamfer-unsupported-history:expected-history-known-box-or-right-circular-cylinder). Nor can the
+// chamfers be cut as the half-spaces beyond their planes: Firmament has no general subtraction,
+// and a Compose, which removes prisms of a Profile, cannot have a Polyhedron as its Base.

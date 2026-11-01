@@ -1,0 +1,10 @@
+// Polyhedron<8> stands centred on the origin with its corners on the axes, so an edge of 10√2
+// puts them 10 from it, as |x| + |y| + |z| ≤ 10 does; every edge of it chamfered at once, √6
+// across each face.
+Model OctahedronAllEdges {
+  units: mm
+  Polyhedron<8> octahedron { edgeLength: 14.142135623730951mm }
+  Modify octahedron {
+    EdgeFinish<Chamfer> breaks { target: AllEdges; distance: 2.449489742783178mm }
+  }
+}

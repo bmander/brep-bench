@@ -1,0 +1,11 @@
+// A cube with every edge chamfered, each edge its own chamfer, so the three at each corner mitre.
+//
+// Refused: Firmament cannot chamfer the cube's edges one at a time. A Box's EdgeFinish takes a
+// face's whole boundary (target: Boundary) or every edge at once (target: AllEdges, admitted only
+// as a fillet), never one edge, and a second boundary after the first is declined
+// (localized-junction-edges-do-not-share-canonical-endpoint); a Polyhedron<6> takes only AllEdges.
+// One edge is selected only on an extruded Profile, and only on a cap's rim (target:
+// section.Outer.Right; on: Top): the four edges along the extrusion cannot be finished, and a
+// Profile body takes one EdgeFinish in all (ProfileBoundaryEdgeFinishSequenceUnsupported). Nor can
+// the chamfers be cut as the half-spaces beyond their planes: a Compose only adds and removes
+// prisms along its Base's one axis, and two thirds of the chamfer planes lie along the other two.
