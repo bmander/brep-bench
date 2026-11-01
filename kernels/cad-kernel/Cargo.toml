@@ -1,13 +1,14 @@
 [package]
 name = "brep-bench-cad-kernel"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "The brep-bench runner for cad-kernel: one cad-kernel program per case."
 publish = false
 
 [dependencies]
-cad-kernel = { git = "https://github.com/bmander/cad-kernel" }
+# a release, exactly: the scoreboard says which, and moving to another is a change made here
+cad-kernel = "=0.1.0"
 
 [profile.release]
 debug = 0
