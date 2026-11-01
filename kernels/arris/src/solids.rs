@@ -1,5 +1,6 @@
 //! A solid arris has no primitive for, made the arris way and shaped like an arris operation.
 use crate::Refusal;
+use arris::check::classify::{classify_point, Classification};
 use arris::geom::{
     pcurve_on, Curve, Curve2, GeomError, NurbsCurve, NurbsCurve2, NurbsSurface, Profile,
     ProfileLoop, ProfileSegment, Surface,
@@ -13,7 +14,7 @@ use arris::topo::builder::{
 };
 use arris::topo::entity::EdgeGeometry;
 use arris::topo::provenance::Provenance;
-use arris::topo::{Body, Model, Orientation};
+use arris::topo::{Body, Edge, Face, Model, Orientation};
 use std::collections::BTreeMap;
 use std::f64::consts::TAU;
 
@@ -199,4 +200,22 @@ pub fn rectangle_on_guides(m: &mut Model, control: [[f64; 3]; 4]) -> Result<Body
 /// Every slot keyed by its place in the assembly.
 fn keyed<S: Copy + Ord>(slots: &[S]) -> BTreeMap<S, u64> {
     slots.iter().enumerate().map(|(i, &s)| (s, i as u64)).collect()
+}
+
+/// The face of `body` that `point` lies on, as arris's point classifier names it.
+pub fn face_through(m: &Model, body: Body, point: Point3) -> Result<Face, Refusal> {
+    match classify_point(m, body, point).map_err(|e| Refusal::from(e.to_string()))? {
+        Classification::On(shape) => Face::try_from(shape)
+            .map_err(|_| Refusal::from(format!("{point:?} lies on an edge or a vertex, not a face"))),
+        _ => Err(Refusal::from(format!("{point:?} lies on no face"))),
+    }
+}
+
+/// The edge of `body` that `point` lies on, as arris's point classifier names it.
+pub fn edge_through(m: &Model, body: Body, point: Point3) -> Result<Edge, Refusal> {
+    match classify_point(m, body, point).map_err(|e| Refusal::from(e.to_string()))? {
+        Classification::On(shape) => Edge::try_from(shape)
+            .map_err(|_| Refusal::from(format!("{point:?} lies on a face or a vertex, not an edge"))),
+        _ => Err(Refusal::from(format!("{point:?} lies on no edge"))),
+    }
 }

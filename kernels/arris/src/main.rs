@@ -34,6 +34,12 @@ impl From<OpError> for Refusal {
     }
 }
 
+impl From<arris::math::FrameError> for Refusal {
+    fn from(e: arris::math::FrameError) -> Self {
+        Refusal::from(OpError::from(e))
+    }
+}
+
 impl From<&str> for Refusal {
     fn from(why: &str) -> Self {
         Refusal(why.to_owned())

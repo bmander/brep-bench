@@ -55,6 +55,17 @@ rims rounded, through concave edges kept sharp or rounded and the oblique corner
 and a cone's apex, to offsets that cross themselves: a groove grown shut, a flange shrunk away,
 and a torus grown past its hole into an apple.
 
+Then **shells**: solids hollowed to a wall of constant thickness, open at some of their faces or
+closed round a void. They run from a box open at its top, at two faces opposite or sharing an
+edge, or at every face but one, through walls grown outward rounded or sharp and an L's inside
+corner rounded or kept sharp, to the thickness at its limits: walls that meet at half the width
+and hollow nothing, a slot 0.02 wide, a wall 0.001 thick, rounds shrunk to an edge or consumed,
+a neck whose walls cross and fill it, and a bore's tube running into a wall. Curved walls bring a
+cup, a bowl through its pole, a cone's apex moved in, a capsule open at a dome tangent to its
+side, a torus hollowed and one halved into a pipe, a bore opened into a hollow block, a cylinder
+open at its side that falls into two discs, and a ball cut by a plane whose cavity reaches it
+aslant, through a pinhole, or not at all.
+
 Then come real parts, whose scenarios are taken from the example documents of
 [geomsolver](https://github.com/bmander/geomsolver) and written out in plain words: a flange, a
 pulley, a tray, a star handle, a turned shaft, ducts swept along a bend. Most have closed forms;
