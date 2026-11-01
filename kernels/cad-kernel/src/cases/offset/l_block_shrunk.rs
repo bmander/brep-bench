@@ -1,13 +1,11 @@
-//! The L-shaped plate through (0, 0), (20, 0), (20, 5), (5, 5), (5, 15) and (0, 15), extruded 8
-//! along +z, shrunk by 1: its concave edge rounded, its convex edges kept sharp.
-//!
-//! Refused. cad-kernel has no offset of a solid: neither growing nor shrinking one is in its API
-//! (its README lists "shelling and offsets" among what comes next).
-//!
-//! Solvent's `std.rounds.Grown` with a distance below nothing reads a body shrunk point by point,
-//! and an exact export refuses it.
+//! The L-shaped plate through (0, 0), (20, 0), (20, 5), (5, 5), (5, 15), (0, 15), 8 thick, shrunk
+//! by 1: every point of it at least 1 inside it.
+use crate::sketch::polygon;
+use cad_kernel::build::prism;
+use cad_kernel::offset::{shrunk, Join};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("no offset of a solid: cad-kernel cannot shrink a body, and Solvent's std.rounds.Grown reads a body shrunk only point by point".into())
+    let l = polygon(&[[0., 0., 0.], [20., 0., 0.], [20., 5., 0.], [5., 5., 0.], [5., 15., 0.], [0., 15., 0.]]);
+    shrunk(&prism(&l, 0., 8.)?, 1., Join::Round)
 }

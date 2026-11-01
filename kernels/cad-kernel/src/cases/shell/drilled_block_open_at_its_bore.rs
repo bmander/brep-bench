@@ -1,11 +1,14 @@
-//! The block from the origin to (20, 20, 10) bored through along x = 10, y = 10 with a hole of
-//! radius 3, shelled inward 1 thick, open at the bore's cylindrical face.
-//!
-//! Refused. cad-kernel has no shell: hollowing a solid to a wall, open or closed, is not in its
-//! API (its README lists "shelling and offsets" among what comes next), and it has no offset of a
-//! face or a solid to make the wall's inside from.
+//! The block from the origin to (20, 20, 10) bored through along x = 10, y = 10 with radius 3,
+//! shelled inward to a wall 1 thick, open at the bore.
+#[allow(unused_imports)]
+use crate::sketch::{block, polygon, faces_through, ball_below, rounded_plate, capsule, drilled};
+#[allow(unused_imports)]
+use cad_kernel::build::{cone, disc, kept, prism, sphere, torus};
+use cad_kernel::offset::{shelled, Join, Side};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("no shell: cad-kernel cannot hollow a body to a wall, and has no offset of a face or a solid to make its inside from".into())
+    let body = drilled(10.)?;
+    let open = faces_through(&body, &[[13., 10., 5.]])?;
+    shelled(&body, &open, 1., Side::In, Join::Round)
 }

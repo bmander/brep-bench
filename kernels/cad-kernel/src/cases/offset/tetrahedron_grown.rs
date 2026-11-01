@@ -1,15 +1,19 @@
-//! The regular tetrahedron with corners (3, 3, 3), (3, −3, −3), (−3, 3, −3) and (−3, −3, 3),
-//! grown by 1.
-//!
-//! Refused. cad-kernel has no offset of a solid: neither growing nor shrinking one is in its API
-//! (its README lists "shelling and offsets" among what comes next).
-//!
-//! Solvent's `std.rounds.Grown` does not build this one exactly either. It builds a body grown
-//! only where its faces are planes and cylinders meeting at a prism's corners, at concave planar
-//! edges or at a boss's foot. Anywhere else it reads the body point by point, and an exact export
-//! refuses it.
+//! The regular tetrahedron on (3, 3, 3), (3, −3, −3), (−3, 3, −3), (−3, −3, 3), grown by 1.
+use crate::sketch::block;
+use cad_kernel::build::kept;
+use cad_kernel::offset::{grown, Join};
 use cad_kernel::topo::Brep;
+use cad_kernel::util::space::{cross, dot, sub, unit};
 
 pub fn build() -> Result<Brep, String> {
-    Err("no offset of a solid: cad-kernel cannot grow a body, and Solvent's std.rounds.Grown builds one exactly only where its faces are planes and cylinders meeting at a prism's corners, at concave planar edges or at a boss's foot".into())
+    let corners = [[3., 3., 3.], [3., -3., -3.], [-3., 3., -3.], [-3., -3., 3.]];
+    // a block round it cut by the plane of each face, kept on the side of the fourth corner
+    let mut t = block([-4., -4., -4.], [4., 4., 4.])?;
+    for k in 0..4 {
+        let [a, b, c] = [corners[(k + 1) % 4], corners[(k + 2) % 4], corners[(k + 3) % 4]];
+        let mut n = unit(cross(sub(b, a), sub(c, a)));
+        if dot(n, sub(corners[k], a)) < 0. { n = n.map(|x| -x); }
+        t = kept(&t, a, n, 0.)?;
+    }
+    grown(&t, 1., Join::Round)
 }

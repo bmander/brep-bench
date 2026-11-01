@@ -1,11 +1,14 @@
-//! A solid cone on the z axis, its base the disc of radius 6 at z = 0 and its apex at (0, 0, 8),
-//! shelled inward 1 thick, open at its base.
-//!
-//! Refused. cad-kernel has no shell: hollowing a solid to a wall, open or closed, is not in its
-//! API (its README lists "shelling and offsets" among what comes next), and it has no offset of a
-//! face or a solid to make the wall's inside from.
+//! A cone of base radius 6 at z = 0 and apex (0, 0, 8) shelled inward to a wall 1 thick, open at
+//! its base.
+#[allow(unused_imports)]
+use crate::sketch::{block, polygon, faces_through, ball_below, rounded_plate, capsule, drilled};
+#[allow(unused_imports)]
+use cad_kernel::build::{cone, disc, kept, prism, sphere, torus};
+use cad_kernel::offset::{shelled, Join, Side};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("no shell: cad-kernel cannot hollow a body to a wall, and has no offset of a face or a solid to make its inside from".into())
+    let body = cone([0., 0., 0.], [0., 0., 1.], 6., 0., 8.)?;
+    let open = faces_through(&body, &[[1., 1., 0.]])?;
+    shelled(&body, &open, 1., Side::In, Join::Round)
 }

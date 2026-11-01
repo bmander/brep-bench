@@ -1,13 +1,12 @@
-//! A drum of radius 8 from z = 0 to z = 6, with a flange 1.6 thick out to radius 11 round its
-//! side from z = 2.2 to z = 3.8, shrunk by 1, so that the flange is gone.
-//!
-//! Refused. cad-kernel has no offset of a solid: neither growing nor shrinking one is in its API
-//! (its README lists "shelling and offsets" among what comes next).
-//!
-//! Solvent's `std.rounds.Grown` with a distance below nothing reads a body shrunk point by point,
-//! and an exact export refuses it.
+//! The cylinder of radius 8 on the z axis from z = 0 to z = 6, with a flange round its side from
+//! radius 8 to 11 between z = 2.2 and z = 3.8, shrunk by 1.
+use cad_kernel::boolean::{combined, Op};
+use cad_kernel::build::{disc, prism};
+use cad_kernel::offset::{shrunk, Join};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("no offset of a solid: cad-kernel cannot shrink a body, and Solvent's std.rounds.Grown reads a body shrunk only point by point".into())
+    let drum = prism(&disc([0., 0., 0.], [0., 0., 1.], 8.), 0., 6.)?;
+    let flange = prism(&disc([0., 0., 2.2], [0., 0., 1.], 11.), 0., 1.6)?;
+    shrunk(&combined(&drum, &flange, Op::Union, 0.)?, 1., Join::Round)
 }

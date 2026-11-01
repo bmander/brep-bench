@@ -1,14 +1,20 @@
-//! A sheet: the square in the xy plane from (−10, −10, 0) to (10, 10, 0), with two round holes of
-//! radius 3 through it, centred on (−5, 0, 0) and (5, 0, 0). It is one flat face, bounded by the
-//! square and the two circles. Thicken it by 1 to each side, so that it is 2 thick in all with the
-//! sheet in its middle.
-//!
-//! Refused. cad-kernel has no thickening of a sheet: it makes sheets (`build::sheet`,
-//! `build::sheets`) and cuts solids with them, but it has no offset of a face or a shell, and so no
-//! solid between a sheet and its offset (its README lists "shelling and offsets" among what comes
-//! next).
+//! The square from (−10, −10, 0) to (10, 10, 0) with holes of radius 3 about (±5, 0, 0), a sheet,
+//! thickened by 1 to each side.
+#[allow(unused_imports)]
+use crate::sketch::{block, polygon, faces_through, ball_below};
+#[allow(unused_imports)]
+use cad_kernel::boolean::{combined, Op};
+#[allow(unused_imports)]
+use cad_kernel::build::{cone, disc, kept, kept_by_solid, prism, sphere, torus, Profile, ProfileEdge};
+#[allow(unused_imports)]
+use cad_kernel::geom::{Frame, Surface};
+use cad_kernel::offset::{sheet_of, thickened, Join};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("no thickening of a sheet: cad-kernel has no offset of a face or a shell".into())
+    let plate = block([-10., -10., -1.], [10., 10., 0.])?;
+    let mut solid = plate;
+    for x in [-5., 5.] { solid = combined(&solid, &prism(&disc([x, 0., -2.], [0., 0., 1.], 3.), 0., 4.)?, Op::Cut, 0.)?; }
+    let faces = faces_through(&solid, &[[0., 5., 0.]])?;
+    thickened(&sheet_of(&solid, &faces)?, [-1., 1.], Join::Round)
 }

@@ -1,15 +1,19 @@
-//! A sheet: the torus about the z axis, centred on the origin, whose tube has radius 2 about a
-//! middle circle of radius 6, and of its surface only the inner half: the points of it no farther
-//! than 6 from the z axis. It is one face, saddle-shaped everywhere, bounded by the circles of
-//! radius 6 at z = 2 and z = −2, the top and bottom of the tube. Thicken it by 1 away from the
-//! middle circle, toward the z axis.
-//!
-//! Refused. cad-kernel has no thickening of a sheet: it makes sheets (`build::sheet`,
-//! `build::sheets`) and cuts solids with them, but it has no offset of a face or a shell, and so no
-//! solid between a sheet and its offset (its README lists "shelling and offsets" among what comes
-//! next).
+//! The inner half of the torus about z of tube radius 2 about a middle circle of radius 6, a sheet,
+//! thickened by 1 away from the middle circle, toward the axis.
+#[allow(unused_imports)]
+use crate::sketch::{block, polygon, faces_through, ball_below};
+#[allow(unused_imports)]
+use cad_kernel::boolean::{combined, Op};
+#[allow(unused_imports)]
+use cad_kernel::build::{cone, disc, kept, kept_by_solid, prism, sphere, torus, Profile, ProfileEdge};
+#[allow(unused_imports)]
+use cad_kernel::geom::{Frame, Surface};
+use cad_kernel::offset::{sheet_of, thickened, Join};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("no thickening of a sheet: cad-kernel has no offset of a face or a shell".into())
+    // the torus kept within the cylinder of radius 6 about z
+    let solid = kept_by_solid(&torus([0., 0., 0.], [0., 0., 1.], 6., 2.)?, &Surface::Cylinder(Frame::WORLD, 6.), true, 0.)?;
+    let faces = faces_through(&solid, &[[4., 0., 0.]])?;
+    thickened(&sheet_of(&solid, &faces)?, [0., 1.], Join::Round)
 }
