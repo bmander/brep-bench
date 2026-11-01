@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
-"""Render the results as a static site: the scoreboard (site/index.html) and a page for each case
-(site/cases/<case>.html) with its description, its drawing, a 3D viewer of every kernel's result,
-the results' STL files to download, and every kernel's implementation of it. Run harness/draw.py
-first for the drawings. Standard library only."""
+"""Render the results as a static site (site/):
+
+- board.json: every case and every kernel's outcome of it, in one file (its form is `board`'s);
+- the board's pages, harness/web/ copied as they are: the overview (index.html), the explorer of
+  every case (explore.html) and a kernel's page (kernel.html?k=NAME), which read board.json;
+- a page for each case (cases/<case>.html), written here: its description, its drawing, a 3D
+  viewer of every kernel's result, the results' STL files to download, and every kernel's
+  implementation of it.
+
+Kernels are listed in kernels.json's order, everywhere: the board ranks nothing. Run
+harness/draw.py first for the drawings. Standard library only."""
 import html
 import json
 import os
@@ -10,81 +17,19 @@ import re
 import shutil
 import sys
 import tomllib
+import urllib.parse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from suite import ROOT, cases as read_cases, kernels as read_kernels, source  # noqa: E402
 SITE = os.path.join(ROOT, "site")
 REPO = "https://github.com/bmander/brep-bench"
+WEB = os.path.join(ROOT, "harness", "web")
 OUTCOMES = ["pass", "built", "refused", "wrong", "crashed", "timeout", "missing"]
+# an outcome's letter in board.json
+CODES = {"pass": "p", "built": "b", "refused": "r", "wrong": "w", "crashed": "c", "timeout": "t",
+         "missing": "."}
 THREE = "https://cdn.jsdelivr.net/npm/three@0.160.0"
 KATEX = "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist"
-
-STYLE = """
-:root { --bg: #fff; --fg: #1d1d1f; --muted: #6b6b70; --line: #e3e3e6; --card: #f6f6f4;
-        --built: #dbe7f6;
-        --pass: #d8f0dd; --refused: #f3ecd0; --wrong: #f6d5d2; --crashed: #e9d6f2;
-        --timeout: #e9d6f2; --accent: #2f5fb3; }
-@media (prefers-color-scheme: dark) {
-  :root { --bg: #151517; --fg: #ececf0; --muted: #9a9aa2; --line: #2c2c31; --card: #1e1e21;
-          --built: #1f3550;
-          --pass: #1f4429; --refused: #4a4120; --wrong: #5a2420; --crashed: #44264f;
-          --timeout: #44264f; --accent: #8fb0ff; }
-}
-body { background: var(--bg); color: var(--fg); margin: 0 auto; max-width: 1100px;
-       padding: 24px 16px; font: 15px/1.5 system-ui, sans-serif; }
-h1 { font-size: 1.6em; margin: 0 0 4px; }
-h2 { margin-top: 32px; }
-p.lede { color: var(--muted); margin: 0 0 24px; }
-.scroll { overflow-x: auto; }
-table { border-collapse: collapse; margin: 0 0 24px; font-variant-numeric: tabular-nums; }
-th, td { border-bottom: 1px solid var(--line); padding: 6px 10px; text-align: left;
-         white-space: nowrap; vertical-align: middle; }
-th { font-weight: 600; }
-td.cell { text-align: center; font-size: 0.85em; }
-td.cell a { text-decoration: none; display: block; }
-td.pass { background: var(--pass); } td.refused { background: var(--refused); }
-td.wrong { background: var(--wrong); } td.crashed, td.timeout { background: var(--crashed); }
-td.missing { color: var(--muted); }
-td.built { background: var(--built); }
-td.kernel small { display: block; white-space: normal; max-width: 30ch; }
-td.rate { text-align: right; }
-td.wrap { white-space: normal; min-width: 12ch; max-width: 22ch; }
-.bar { display: flex; width: 160px; height: 14px; border-radius: 3px; overflow: hidden; }
-.bar span, .key span { display: inline-block; }
-.key { white-space: nowrap; margin-right: 10px; }
-.key span { width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
-.bar .pass, .key .pass { background: var(--pass); }
-.bar .built, .key .built { background: var(--built); }
-.bar .refused, .key .refused { background: var(--refused); }
-.bar .wrong, .key .wrong { background: var(--wrong); }
-.bar .crashed, .bar .timeout, .key .crashed, .key .timeout { background: var(--crashed); }
-.bar .missing, .key .missing { background: var(--line); }
-.wa { color: var(--muted); }
-td.case small { display: block; color: var(--muted); }
-details { margin: 0 0 12px; } summary { cursor: pointer; font-weight: 600; }
-.description { max-width: 70ch; font-size: 1.05em; }
-td.why { white-space: normal; min-width: 240px; font-size: 0.9em; }
-.muted { color: var(--muted); }
-a { color: inherit; }
-img.thumb { width: 64px; height: 64px; object-fit: contain; border-radius: 4px;
-            border: 1px solid var(--line); display: block; }
-.paper { border: 1px solid var(--line); border-radius: 4px; display: block; }
-.sheet { display: grid; grid-template-columns: auto auto; gap: 6px 10px; width: max-content; }
-.sheet figure { margin: 0; }
-.sheet figcaption { font-size: 0.8em; color: var(--muted); }
-.sheet .up { align-self: end; }
-#viewer { width: 100%; height: min(70vh, 560px); border: 1px solid var(--line);
-          border-radius: 6px; background: var(--card); touch-action: none; }
-.pick { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
-.pick button { font: inherit; padding: 4px 12px; border-radius: 999px; cursor: pointer;
-               border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
-.pick button[aria-pressed=true] { border-color: var(--accent); color: var(--accent); }
-td.closed .katex-display { margin: 0; }
-td.closed .katex-display > .katex { text-align: left; }
-pre { background: var(--card); padding: 12px; border-radius: 6px; overflow-x: auto;
-      font-size: 0.85em; margin: 6px 0 0; }
-"""
-
 
 def head(title, description, depth):
     up = "../" * depth
@@ -94,6 +39,8 @@ def head(title, description, depth):
         f"<title>{html.escape(title)}</title>",
         f"<meta name=description content='{html.escape(description)}'>",
         f"<link rel=stylesheet href='{up}style.css'></head><body>",
+        f"<nav class=top><a href='{up}index.html'>brep-bench</a>"
+        f"<a href='{up}explore.html'>Cases</a><a href='{REPO}'>Source</a></nav>",
     ]
 
 
@@ -106,8 +53,13 @@ def load():
             with open(os.path.join(rdir, name)) as f:
                 r = json.load(f)
             r.setdefault("kernel", r.get("adapter"))
+            # each case's row by id, and what the kernel's implementations work around, read once
+            r["rows"] = {c["case"]: c for c in r["cases"]}
+            r["workarounds"] = workarounds(registry.get(r["kernel"], {"name": r["kernel"]}))
             results.append(r)
-    results.sort(key=lambda r: (-r["tally"].get("pass", 0), r["kernel"]))
+    # kernels.json's order, those with results and no entry after: the board ranks nothing
+    order = {name: i for i, name in enumerate(registry)}
+    results.sort(key=lambda r: (order.get(r["kernel"], len(order)), r["kernel"]))
     cases = {c["id"]: c for c in read_cases()}
     drawings = {}
     index = os.path.join(SITE, "drawings", "index.json")
@@ -136,112 +88,72 @@ def paragraphs(text):
     return "\n".join(out)
 
 
-def kernels_table(registry, results, cases):
-    """One row per kernel in kernels.json: its languages and licence, and what its last run made
-    of the cases, as a pass rate and a bar of every outcome. Kernels with results come first, in
-    the board's order; those awaiting an implementation after."""
-    e = html.escape
-    total = len(cases)
+def board(registry, results, cases, drawings):
+    """Everything the board's pages show, as one JSON object:
+
+    - `kernels`: every kernel, in kernels.json's order (those with results and no entry after),
+      with what kernels.json says of it and, where it has results, its `version` and `run`;
+    - `cases`: every case in id order, each `[id, title, [tag], settled, drawn]`, a tag by its
+      index in `tags`, `settled` and `drawn` 1 or 0;
+    - `results`: by kernel, its outcome of each case in `cases`' order, as a string of one letter
+      a case (`codes`), with lists in the same order of its `seconds` (null where it has no row),
+      its `why` and its `workaround` (indices in `reasons` and `workarounds`, -1 for none).
+    """
+    ids = sorted(cases)
+    tags = sorted({t for c in cases.values() for t in c["tags"]})
+    tag_ix = {t: i for i, t in enumerate(tags)}
+    strings = {"reasons": {}, "workarounds": {}}
+
+    def intern(table, text):
+        if not text:
+            return -1
+        return strings[table].setdefault(text, len(strings[table]))
+
+    kernels = []
+    out = {}
     ran = {r["kernel"]: r for r in results}
-    order = [r["kernel"] for r in results] + [n for n in registry if n not in ran]
-    out = ["<h2>Kernels</h2><div class=scroll><table><tr><th>kernel</th>"
-           "<th title='the language the kernel is written in'>back end</th>"
-           "<th title='the language its implementations of the cases are written in'>front end</th>"
-           "<th>licence</th><th>pass rate</th><th>outcomes</th>"
-           "<th title='passed or built by working around a feature the kernel lacks'>†</th></tr>"]
-    for n in order:
-        a = registry.get(n, {"name": n})
-        r = ran.get(n)
-        name = e(n)
-        if a.get("kernel"):
-            name = f"<a href='{e(a['kernel'])}'>{name}</a>"
-        if r and r.get("measured") == "mesh":
-            name += (" <span class=muted title='no exact measures: graded on its triangles, "
-                     "to 1e-3'>(mesh)</span>")
+    for name in list(registry) + [r["kernel"] for r in results if r["kernel"] not in registry]:
+        a = registry.get(name, {})
+        k = {"name": name}
+        for field, key in (("kernel", "home"), ("license", "license"), ("backend", "backend"),
+                           ("frontend", "frontend"), ("note", "note"),
+                           ("reference", "reference")):
+            if a.get(field):
+                k[key] = a[field]
+        r = ran.get(name)
         if r:
-            name += (f"<small class=muted>{e(r.get('version') or '')} · "
-                     f"run {e(r['run'][:10])}</small>")
-        if a.get("note"):
-            name += f"<small class=muted>{e(a['note'])}</small>"
-        out.append(f"<tr><td class=kernel>{name}</td><td>{e(a.get('backend', ''))}</td>"
-                   f"<td class=wrap>{e(a.get('frontend', ''))}</td>"
-                   f"<td class=wrap>{e(a.get('license', ''))}</td>")
-        if not r:
-            out.append("<td class=muted colspan=3>awaiting an implementation</td></tr>")
-            continue
-        tally = {o: 0 for o in OUTCOMES}
-        for c in r["cases"]:
-            if c["case"] in cases:
-                tally[c["outcome"]] += 1
-        tally["missing"] += total - sum(tally.values())
-        flagged = workarounds(a)
-        worked = sum(1 for c in r["cases"]
-                     if c["outcome"] in ("pass", "built") and c["case"] in flagged)
-        breakdown = ", ".join(f"{tally[o]} {o}" for o in OUTCOMES if tally[o])
-        bar = "".join(f"<span class={o} style='flex-grow:{tally[o]}' title='{tally[o]} {o}'></span>"
-                      for o in OUTCOMES if tally[o])
-        out.append(f"<td class=rate title='{tally['pass']} of {total} cases pass'>"
-                   f"{100 * tally['pass'] / total:.0f}% <span class=muted>{tally['pass']}/{total}"
-                   f"</span></td><td><div class=bar role=img aria-label='{e(breakdown)}'>{bar}"
-                   f"</div></td><td class=muted>{worked or ''}</td></tr>")
-    out.append("</table></div>")
-    out.append("<p class=muted>Outcomes: " + " ".join(
-        f"<span class=key><span class={o}></span>{o}</span>" for o in OUTCOMES) +
-        "<br>Missing means no implementation yet, and says "
-        "nothing about the kernel. Implementations for the kernels awaiting one are welcome from "
-        "anyone, the kernel's authors first.</p>")
-    return out
-
-
-def scoreboard(registry, results, cases, drawings):
-    e = html.escape
-    out = head("brep-bench", "A neutral conformance suite and scoreboard for B-rep and CAD "
-               "kernels: the same cases against every kernel.", 0)
-    out += ["<h1>brep-bench</h1>",
-            "<p class=lede>Rosetta Code for B-rep kernels. Each case describes a solid in words "
-            "and gives its volume and area as closed forms. Each kernel builds it in its own "
-            "idioms, and every result is graded the same way; a refusal ranks above a wrong "
-            "answer. Open a case for its drawing, every kernel's result in 3D, and every kernel's "
-            f"code. <a href='{REPO}'>Cases, harness and implementations</a>.</p>"]
-    out += kernels_table(registry, results, cases)
-    out.append("<h2>Cases</h2><div class=scroll><table><tr><th></th><th>case</th>")
-    out += [f"<th>{e(r['kernel'])}</th>" for r in results]
-    out.append("</tr>")
-    by = [(workarounds(registry.get(r["kernel"], {})), {c["case"]: c for c in r["cases"]})
-          for r in results]
-    for cid in sorted(cases):
-        page = f"cases/{e(cid)}.html"
-        thumb = (f"<a href='{page}'><img class=thumb src='drawings/{e(cid)}/iso.png' alt='' "
-                 "loading=lazy></a>" if cid in drawings else "")
-        out.append(f"<tr><td>{thumb}</td><td class=case><a href='{page}'>"
-                   f"{e(cases[cid]['title'])}</a><small>{e(cid)}</small></td>")
-        for flagged, rows in by:
-            c = rows.get(cid)
-            if c is None:
-                out.append("<td class=cell></td>")
-                continue
-            tip = c["why"] or f"{c['seconds']} s"
-            wa = flagged.get(cid)
-            mark = ""
-            if wa:
-                tip = f"workaround: {wa} · {tip}"
-                mark = " <span class=wa>†</span>"
-            out.append(f"<td class='cell {c['outcome']}' title='{e(tip)}'>"
-                       f"<a href='{page}#{e(rows_anchor(c))}'>{c['outcome']}{mark}</a></td>")
-        out.append("</tr>")
-    out.append("</table></div>")
-    out.append("<p class=muted>Times include starting the runner's process. Hover a cell for "
-               "why it failed or how long it took, or open the case. † marks an implementation that "
-               "works around a feature its kernel lacks, building the solid from other operations; "
-               "hover for which. A kernel marked (mesh) has no exact volume or area of its own: it "
-               "is graded on its triangles, to 1e-3.</p>"
-               "</body></html>")
-    with open(os.path.join(SITE, "index.html"), "w") as f:
-        f.write("\n".join(out))
-
-
-def rows_anchor(c):
-    return "results"
+            k["version"] = r.get("version") or ""
+            k["run"] = r.get("run") or ""
+            k["measured"] = r.get("measured") or a.get("measured") or "exact"
+            codes, seconds, why, worked = [], [], [], []
+            for cid in ids:
+                row = r["rows"].get(cid)
+                if row is None:
+                    codes.append(CODES["missing"])
+                    seconds.append(None)
+                    why.append(-1)
+                    worked.append(-1)
+                    continue
+                codes.append(CODES[row["outcome"]])
+                seconds.append(row.get("seconds"))
+                why.append(intern("reasons", row.get("why")))
+                worked.append(intern("workarounds", r["workarounds"].get(cid)))
+            out[name] = {"codes": "".join(codes), "seconds": seconds, "why": why,
+                         "workaround": worked}
+        elif not a.get("command"):
+            k["awaiting"] = True
+        kernels.append(k)
+    return {
+        "repo": REPO,
+        "outcomes": {o: CODES[o] for o in OUTCOMES},
+        "kernels": kernels,
+        "tags": tags,
+        "cases": [[cid, cases[cid]["title"], [tag_ix[t] for t in cases[cid]["tags"]],
+                   int(cases[cid]["expect"] is not None), int(cid in drawings)] for cid in ids],
+        "results": out,
+        "reasons": list(strings["reasons"]),
+        "workarounds": list(strings["workarounds"]),
+    }
 
 
 def relative(got, want):
@@ -250,16 +162,26 @@ def relative(got, want):
     return f"{abs(got - want) / max(abs(want), 1e-12):.1e}"
 
 
-def case_page(c, registry, results, drawing):
+def case_page(c, registry, results, drawing, prev=None, after=None):
+    """`prev` and `after`: the cases before and after this one in its category, or None."""
     e = html.escape
+    q = urllib.parse.quote
     cid = c["id"]
+    category = cid.rpartition("/")[0]
     depth = cid.count("/") + 1
     up = "../" * depth
     out = head(f"{c['title']} · brep-bench", f"The brep-bench case {cid}: its description, its "
                "drawing, every kernel's result in 3D and every kernel's code.", depth)
-    out.append(f"<p><a href='{up}index.html'>← brep-bench</a></p>")
-    out.append(f"<h1>{e(c['title'])}</h1><p class=muted>{e(cid)} · "
-               f"{e(', '.join(c['tags']))}</p>")
+    steps = [f"<a href='{up}explore.html?cat={q(category)}'>{e(category)}</a>"]
+    if prev:
+        steps.append(f"<a href='{up}cases/{e(prev)}.html' rel=prev>← "
+                     f"{e(prev.rpartition('/')[2])}</a>")
+    if after:
+        steps.append(f"<a href='{up}cases/{e(after)}.html' rel=next>"
+                     f"{e(after.rpartition('/')[2])} →</a>")
+    out.append(f"<p class=muted>{' · '.join(steps)}</p>")
+    tags = ", ".join(f"<a href='{up}explore.html?tag={q(t)}'>{e(t)}</a>" for t in c["tags"])
+    out.append(f"<h1>{e(c['title'])}</h1><p class=muted>{e(cid)} · {tags}</p>")
     out.append(f"<div class=description>{paragraphs(c['description'])}</div>")
     exp = c["expect"]
     if exp is None:
@@ -301,7 +223,7 @@ def case_page(c, registry, results, drawing):
     meshes = []
     rows = []
     for r in results:
-        row = next((x for x in r["cases"] if x["case"] == cid), None)
+        row = r["rows"].get(cid)
         if row is None:
             continue
         stl = os.path.join(ROOT, "results", "meshes", r["kernel"], cid + ".stl")
@@ -349,7 +271,7 @@ def case_page(c, registry, results, drawing):
                "<th>mesh</th><th>workaround</th><th>why</th></tr>")
     for r, row, link in rows:
         name = r["kernel"]
-        wa = workarounds(registry.get(name, {})).get(cid)
+        wa = r["workarounds"].get(cid)
         measured_mesh = row.get("measured") == "mesh"
         vol, area, _ = measured.get(name, (None, None, False))
         if exp:
@@ -370,7 +292,7 @@ def case_page(c, registry, results, drawing):
     out.append("<h2 id=code>How each kernel builds it</h2>")
     for r in results:
         k = registry.get(r["kernel"], {})
-        row = next((x for x in r["cases"] if x["case"] == cid), None)
+        row = r["rows"].get(cid)
         src = source(k, cid)
         if not src or not os.path.exists(src):
             out.append(f"<p class=muted>{e(r['kernel'])}: no implementation yet.</p>")
@@ -379,7 +301,7 @@ def case_page(c, registry, results, drawing):
             code = f.read()
         rel = os.path.relpath(src, ROOT)
         outcome = row["outcome"] if row else ""
-        wa = workarounds(k).get(cid)
+        wa = r["workarounds"].get(cid)
         if wa:
             outcome += f" · workaround: {wa}"
         out.append(f"<details open><summary>{e(r['kernel'])} <span class=muted>"
@@ -538,12 +460,19 @@ def main():
         for cid in sorted(set(workarounds(k)) - set(cases)):
             print(f"kernels/{k['name']}/workarounds.toml: no case {cid}", file=sys.stderr)
     os.makedirs(SITE, exist_ok=True)
-    with open(os.path.join(SITE, "style.css"), "w") as f:
-        f.write(STYLE)
-    scoreboard(registry, results, cases, drawings)
-    for cid, c in sorted(cases.items()):
-        case_page(c, registry, results, drawings.get(cid))
-    print(f"site/index.html and {len(cases)} case pages written")
+    for name in sorted(os.listdir(WEB)):
+        shutil.copyfile(os.path.join(WEB, name), os.path.join(SITE, name))
+    with open(os.path.join(SITE, "board.json"), "w") as f:
+        json.dump(board(registry, results, cases, drawings), f, separators=(",", ":"),
+                  ensure_ascii=False)
+    ids = sorted(cases)
+    for i, cid in enumerate(ids):
+        category = cid.rpartition("/")[0]
+        prev = ids[i - 1] if i and ids[i - 1].rpartition("/")[0] == category else None
+        after = (ids[i + 1] if i + 1 < len(ids) and ids[i + 1].rpartition("/")[0] == category
+                 else None)
+        case_page(cases[cid], registry, results, drawings.get(cid), prev, after)
+    print(f"site/: the board, board.json and {len(cases)} case pages written")
 
 
 if __name__ == "__main__":
