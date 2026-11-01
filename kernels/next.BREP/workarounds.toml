@@ -1,6 +1,11 @@
 # The cases next.BREP builds by working around a feature it lacks, and what that is
 # (SPEC.md, "A workaround is flagged").
 
+"shell/box-hollowed" = "no shell without an opening"
+"shell/box-open-top-outward" = "no shell joined by arcs"
+"shell/l-block-open-top" = "no shell joined by arcs"
+"shell/sphere-hollowed" = "no shell without an opening"
+"shell/torus-hollowed" = "no shell without an opening"
 "thicken/angle-bracket-inward" = "no thicken of a sheet of several faces"
 "thicken/angle-bracket-rounded" = "no thicken of a sheet of several faces, no rounded thicken"
 "thicken/angle-bracket-sharp" = "no thicken of a sheet of several faces"
