@@ -9,8 +9,14 @@ scale, and an isometric view), as PNGs under site/drawings/<case>/.
 The solid drawn is a result that passed: the reference kernel's (kernels.json, `"reference":
 true`) where it passed, else the first kernel's that did. Its triangles are rasterised with a
 depth buffer, lightly shaded, and outlined where the depth jumps (silhouettes) or the surface turns
-sharply (creases), as a technical drawing is. Standard library only.
+sharply (creases), as a technical drawing is.
+
+A case is drawn again only when what its drawing is made from changed: the kernel it is drawn
+from, that kernel's mesh, or this code. Each drawing's stamp (a hash of the mesh and of the code)
+is kept in site/drawings/index.json, so a run that adds or changes a kernel redraws only the cases
+whose drawing that changes, not every case it ran. Standard library only.
 """
+import hashlib
 import json
 import math
 import os
@@ -240,6 +246,22 @@ def drawn_from(case_id, results, order):
     return None, None
 
 
+def stamp(mesh):
+    """What a drawing of `mesh` is made from: a hash of the mesh and of the code that draws it."""
+    h = hashlib.sha256()
+    for path in (os.path.abspath(__file__), stl.__file__, mesh):
+        with open(path, "rb") as f:
+            h.update(hashlib.sha256(f.read()).digest())
+    return h.hexdigest()
+
+
+def current(drawn, name, made_from, out_dir):
+    """Whether the last drawing `drawn` of a case is still the one to show."""
+    return (drawn is not None and drawn.get("from") == name and drawn.get("stamp") == made_from
+            and all(os.path.exists(os.path.join(out_dir, view + ".png"))
+                    for view in (*VIEWS, "iso")))
+
+
 def main():
     prefixes = tuple(sys.argv[1:]) or ("",)
     with open(os.path.join(ROOT, "kernels.json")) as f:
@@ -253,8 +275,14 @@ def main():
     order = ([a["name"] for a in adapters if a.get("reference")] +
              sorted((n for n in results), key=lambda n: -sum(
                  c["outcome"] == "pass" for c in results[n].values())))
+    path = os.path.join(ROOT, "site", "drawings", "index.json")
+    last = {}
+    if os.path.exists(path):
+        with open(path) as f:
+            last = json.load(f)
     index = {}
     undrawn = set()
+    kept = 0
     case_ids = sorted({cid for r in results.values() for cid in r})
     for cid in case_ids:
         if not cid.startswith(prefixes):
@@ -264,15 +292,21 @@ def main():
             print(f"{cid}: no passing result to draw")
             undrawn.add(cid)
             continue
-        sizes = sheet(stl.read(mesh), os.path.join(ROOT, "site", "drawings", cid))
-        index[cid] = {"from": name, "sizes": sizes}
+        out_dir = os.path.join(ROOT, "site", "drawings", cid)
+        made_from = stamp(mesh)
+        if current(last.get(cid), name, made_from, out_dir):
+            index[cid] = last[cid]
+            kept += 1
+            continue
+        sizes = sheet(stl.read(mesh), out_dir)
+        index[cid] = {"from": name, "sizes": sizes, "stamp": made_from}
         print(f"{cid}: drawn from {name}", flush=True)
-    path = os.path.join(ROOT, "site", "drawings", "index.json")
-    if prefixes != ("",) and os.path.exists(path):
-        with open(path) as f:
-            # the others' drawings are kept, but not of a case with nothing to draw any more
-            index = {cid: d for cid, d in {**json.load(f), **index}.items()
-                     if cid in case_ids and cid not in undrawn}
+    if kept:
+        print(f"{kept} drawings unchanged, kept")
+    if prefixes != ("",):
+        # the others' drawings are kept, but not of a case with nothing to draw any more
+        index = {cid: d for cid, d in {**last, **index}.items()
+                 if cid in case_ids and cid not in undrawn}
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         json.dump(index, f, indent=1)
