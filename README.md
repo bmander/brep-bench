@@ -5,6 +5,17 @@ describes a solid in plain words and gives its volume and area as closed forms. 
 every case in its own language and idioms, and every result is graded the same way. The results
 are published side by side: **https://bmander.github.io/brep-bench/**
 
+The board ranks no kernel above another, and lists them in the order of `kernels.json`. It has:
+
+- an overview: each kernel's outcomes, each category's outcomes by kernel, and a strip of every
+  case's outcome for every kernel;
+- an explorer of every case, searched by words and filtered by category, tag, whether it is
+  settled and each kernel's outcome, with views of the cases no kernel passes, the cases one kernel
+  alone passes, and the cases two or more kernels differ on; what it shows is in its address;
+- a page for each kernel: its outcomes by category, its refusals grouped by reason, its wrong
+  answers, its workarounds by what it lacks, and its times;
+- `board.json`, every outcome of every case in one file, which these pages read.
+
 Each case has its own page with:
 
 - the description;
@@ -115,6 +126,7 @@ kernels.json                       the kernels: how to build and run each, where
 kernels/<kernel>/                  a kernel's runner and its implementation of each case
 kernels/<kernel>/workarounds.toml  the cases it builds by working around a feature it lacks
 harness/                           build, run and grade, draw, and render the site
+harness/web/                       the board's pages, which read the site's board.json
 results/<kernel>.json              the last whole run
 ```
 
@@ -124,7 +136,8 @@ results/<kernel>.json              the last whole run
 python3 harness/build.py           # every kernel's runner (cargo, pip, dotnet)
 python3 harness/run.py             # every kernel, every case: results/*.json
 python3 harness/draw.py            # each case's drawing: site/drawings/
-python3 harness/site.py            # the scoreboard and a page per case: site/
+python3 harness/site.py            # board.json, the board's pages and a page per case: site/
+python3 -m http.server -d site     # the board reads board.json, so serve it to open it
 ```
 
 `harness/run.py --kernel NAME --case boolean/` runs part of the suite. The harness uses only

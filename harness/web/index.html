@@ -1,0 +1,18 @@
+<!doctype html><html lang=en><head><meta charset=utf-8>
+<meta name=viewport content='width=device-width, initial-scale=1'>
+<title>brep-bench</title>
+<meta name=description content='A neutral conformance suite for B-rep and CAD kernels: the same cases against every kernel, side by side.'>
+<link rel=stylesheet href='style.css'>
+<link rel=preload href='board.json' as=fetch crossorigin>
+</head><body>
+<nav class=top><a href='index.html' aria-current=page>brep-bench</a><a href='explore.html'>Cases</a><a href='https://github.com/bmander/brep-bench'>Source</a></nav>
+<h1>brep-bench</h1>
+<p class=lede>Rosetta Code for B-rep kernels. Each case describes a solid in words and gives its
+volume and area as closed forms. Each kernel builds it in its own idioms, and every result is
+graded the same way; a refusal ranks above a wrong answer, and no kernel ranks above another.
+Open a category or a kernel for its cases, or a case for its drawing, every kernel's result in
+3D, and every kernel's code.</p>
+<main id=board><p class=muted>Reading the board…</p></main>
+<noscript><p>The board is drawn by JavaScript from <a href='board.json'>board.json</a>.</p></noscript>
+<script type=module src='overview.js'></script>
+</body></html>
