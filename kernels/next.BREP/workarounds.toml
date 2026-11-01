@@ -1,6 +1,16 @@
 # The cases next.BREP builds by working around a feature it lacks, and what that is
 # (SPEC.md, "A workaround is flagged").
 
+"geometry/ellipsoid" = "no ellipsoid"
+"geometry/ellipsoid-half" = "no ellipsoid"
+"geometry/elliptic-cylinder" = "no ellipse"
+"geometry/elliptic-hole" = "no ellipse"
+"geometry/high-degree-bezier-dome" = "no face from a surface"
+"geometry/nurbs-cone" = "no face from a surface"
+"geometry/nurbs-sphere" = "no face from a surface"
+"geometry/oblate-spheroid" = "no ellipse"
+"geometry/periodic-bspline-prism" = "no periodic B-spline"
+"geometry/periodic-bspline-ring" = "no periodic B-spline"
 "shell/box-hollowed" = "no shell without an opening"
 "shell/box-open-top-outward" = "no shell joined by arcs"
 "shell/l-block-open-top" = "no shell joined by arcs"
