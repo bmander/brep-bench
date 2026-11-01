@@ -110,3 +110,11 @@ pub fn drilled(x: f64) -> Result<Brep, String> {
     let drill = prism(&disc([x, 10., -1.], [0., 0., 1.], 3.), 0., 12.)?;
     Ok(combined(&block([0., 0., 0.], [20., 20., 10.])?, &drill, Op::Cut, 0.)?)
 }
+
+/// Every face of `b` given a name of its own (`face 3`): a chamfer reads faces of one name as
+/// pieces of one face, and a block's sides and caps, or a polyhedron's cuts (which keep the
+/// cutting block's `far` and `near`), are each their own.
+pub fn named(mut b: Brep) -> Brep {
+    for (i, f) in b.faces.iter_mut().enumerate() { f.name = format!("face {i}"); }
+    b
+}

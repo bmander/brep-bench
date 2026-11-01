@@ -7,9 +7,8 @@ description = "The brep-bench runner for cad-kernel: one cad-kernel program per 
 publish = false
 
 [dependencies]
-# a commit of geomsolver, exactly, until the release after 0.1.0 carries its offsets: the scoreboard
-# says which, and moving to another is a change made here
-cad-kernel = { git = "https://github.com/bmander/geomsolver", rev = "2239cf926c4f2bf0e7e842c3937e2315236b85a5" }
+# a release, exactly: the scoreboard says which, and moving to another is a change made here
+cad-kernel = "=0.2.0"
 
 [profile.release]
 debug = 0
