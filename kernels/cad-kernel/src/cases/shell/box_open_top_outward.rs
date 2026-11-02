@@ -1,11 +1,11 @@
-//! The box from the origin to (10, 8, 6) shelled outward 1 thick, open at its top, its outside
-//! rounded: the box grown by 1 and cut off at z = 6, less the box.
-//!
-//! Refused. cad-kernel has no shell: hollowing a solid to a wall, open or closed, is not in its
-//! API (its README lists "shelling and offsets" among what comes next), and it has no offset of a
-//! face or a solid to make the wall's inside from.
+//! The box from the origin to (10, 8, 6) shelled outward to a wall 1 thick, open at its top: every
+//! point outside it within 1 of its other faces, up to the plane of the top.
+use crate::sketch::{block, faces_through};
+use cad_kernel::offset::{shelled, Join, Side};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("no shell: cad-kernel cannot hollow a body to a wall, and has no offset of a face or a solid to make its inside from".into())
+    let body = block([0., 0., 0.], [10., 8., 6.])?;
+    let open = faces_through(&body, &[[5., 4., 6.]])?;
+    shelled(&body, &open, 1., Side::Out, Join::Round)
 }

@@ -5,12 +5,20 @@
 //! running evenly in u. It is one face, bounded by two parabolic arcs, at y = 0 and y = 10, and two
 //! straight lines, at x = −4 and x = 4.
 //!
-//! Refused. cad-kernel has no thickening of a sheet: it makes sheets (`build::sheet`,
-//! `build::sheets`) and cuts solids with them, but it has no offset of a face or a shell, and so no
-//! solid between a sheet and its offset (its README lists "shelling and offsets" among what comes
-//! next).
+//! Refused, by the kernel: a B-spline surface has no offset in closed form, so `thickened` has no
+//! exact face to move the sheet to (its offset is no B-spline of any degree), and says so.
+use cad_kernel::build::sheet;
+use cad_kernel::nurbs::Net;
+use cad_kernel::offset::{thickened, Join};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("no thickening of a sheet: cad-kernel has no offset of a face or a shell".into())
+    let row = |y: f64| vec![[-4., y, 2.], [0., y, -2.], [4., y, 2.]];
+    let (a, b) = (row(0.), row(10.));
+    let net = Net { du: 2, dv: 1, uknots: vec![0., 0., 0., 1., 1., 1.], vknots: vec![0., 0., 1., 1.],
+                    poles: (0..3).map(|i| vec![a[i], b[i]]).collect(), weights: None };
+    let trough = sheet(net)?;
+    // its concave side, toward the focus: the side its normal points to, or the other
+    let up = trough.faces[0].surface.normal([0.5, 0.5]).map_or(false, |n| n[2] > 0.) != trough.faces[0].reversed;
+    thickened(&trough, if up { [0., 1.] } else { [-1., 0.] }, Join::Round)
 }

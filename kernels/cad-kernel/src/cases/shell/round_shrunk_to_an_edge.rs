@@ -1,11 +1,11 @@
-//! The box from the origin to (20, 14, 10) with its vertical edges rounded to radius 2, shelled
-//! inward 2 thick, as thick as its rounds, which shrink to edges inside, its top open.
-//!
-//! Refused. cad-kernel has no shell: hollowing a solid to a wall, open or closed, is not in its
-//! API (its README lists "shelling and offsets" among what comes next), and it has no offset of a
-//! face or a solid to make the wall's inside from.
+//! The plate 20 × 14, 10 high, its vertical edges rounded to 2, shelled inward to a wall 2 thick,
+//! open at its top: the rounds shrunk to edges.
+use crate::sketch::{faces_through, rounded_plate};
+use cad_kernel::offset::{shelled, Join, Side};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("no shell: cad-kernel cannot hollow a body to a wall, and has no offset of a face or a solid to make its inside from".into())
+    let body = rounded_plate([0., 0.], [20., 14.], 2., 10.)?;
+    let open = faces_through(&body, &[[10., 7., 10.]])?;
+    shelled(&body, &open, 2., Side::In, Join::Round)
 }

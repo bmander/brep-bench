@@ -1,15 +1,19 @@
-//! A drum of radius 10 from z = 0 to z = 10, with a groove 1.6 wide and 3 deep round its side
-//! from z = 4.2 to z = 5.8, grown by 1, so that the groove closes.
-//!
-//! Refused. cad-kernel has no offset of a solid: neither growing nor shrinking one is in its API
-//! (its README lists "shelling and offsets" among what comes next).
-//!
-//! Solvent's `std.rounds.Grown` does not build this one exactly either. It builds a body grown
-//! only where its faces are planes and cylinders meeting at a prism's corners, at concave planar
-//! edges or at a boss's foot. Anywhere else it reads the body point by point, and an exact export
-//! refuses it.
+//! The cylinder of radius 10 on the z axis from z = 0 to z = 10, a groove round its side from
+//! z = 4.2 to z = 5.8 cut to radius 7, grown by 1.
+use cad_kernel::boolean::{combined, Op};
+use cad_kernel::build::{disc, prism, Profile, ProfileEdge};
+use cad_kernel::geom::Frame;
+use cad_kernel::offset::{grown, Join};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("no offset of a solid: cad-kernel cannot grow a body, and Solvent's std.rounds.Grown builds one exactly only where its faces are planes and cylinders meeting at a prism's corners, at concave planar edges or at a boss's foot".into())
+    let drum = prism(&disc([0., 0., 0.], [0., 0., 1.], 10.), 0., 10.)?;
+    // the groove: the ring from radius 7 out past the side
+    let o = [0., 0., 4.2];
+    let ring = Profile { origin: o, normal: [0., 0., 1.], names: Vec::new(), loops: vec![
+        vec![ProfileEdge::Arc { frame: Frame::about(o, [0., 0., 1.]), r: 12., span: None }],
+        vec![ProfileEdge::Arc { frame: Frame::about(o, [0., 0., 1.]), r: 7., span: None }],
+    ] };
+    let groove = prism(&ring, 0., 1.6)?;
+    grown(&combined(&drum, &groove, Op::Cut, 0.)?, 1., Join::Round)
 }

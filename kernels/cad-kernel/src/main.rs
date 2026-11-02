@@ -35,9 +35,13 @@ fn kind(s: &Surface) -> &'static str {
     }
 }
 
-/// The solid meshed to a sag of a ten-thousandth of its size, written as binary STL.
-fn stl(b: &Brep, path: &str) -> Result<(), String> {
-    let m = mesh(b, 1e-4 * b.size(), 0.1)?;
+/// The solid meshed to a sag of a ten-thousandth of its size, or of 1/200 of its thickness
+/// (its volume over its area) where that is less — the reference runner's rule
+/// (`kernels/occt/run.py`) — written as binary STL. A sag as deep as a thin solid is thick (a lens
+/// a millionth thick) lets its two sides be meshed as one flat disc.
+fn stl(b: &Brep, path: &str, volume: f64, area: f64) -> Result<(), String> {
+    let thickness = if area > 0. && volume > 0. { volume / area } else { b.size() };
+    let m = mesh(b, (1e-4 * b.size()).min(5e-3 * thickness), 0.1)?;
     let mut out = Vec::with_capacity(84 + 50 * m.tris.len());
     out.extend_from_slice(&[0u8; 80]);
     out.extend_from_slice(&(m.tris.len() as u32).to_le_bytes());
@@ -67,10 +71,10 @@ fn measured(b: &Brep, out: &str) -> String {
     let faces = faces.iter().map(|(k, n)| format!("\"{k}\":{n}")).collect::<Vec<_>>().join(",");
     let a: f64 = b.faces.iter().map(|f| area(b, f)).sum();
     let valid = b.check(tolerance(b.size())).is_ok();
-    match stl(b, out) {
+    let v = volume(b);
+    match stl(b, out, v, a) {
         Ok(()) => format!(
-            "{{\"status\":\"ok\",\"volume\":{:e},\"area\":{a:e},\"faces\":{{{faces}}},\"valid\":{valid}}}",
-            volume(b)
+            "{{\"status\":\"ok\",\"volume\":{v:e},\"area\":{a:e},\"faces\":{{{faces}}},\"valid\":{valid}}}"
         ),
         Err(e) => refused(format!("not meshed: {e}")),
     }

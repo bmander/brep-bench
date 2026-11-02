@@ -1,11 +1,11 @@
-//! A cylinder of radius 5 from z = 0 to 10 capped by a hemisphere, shelled inward 1 thick, open at
-//! its base.
-//!
-//! Refused. cad-kernel has no shell: hollowing a solid to a wall, open or closed, is not in its
-//! API (its README lists "shelling and offsets" among what comes next), and it has no offset of a
-//! face or a solid to make the wall's inside from.
+//! A capsule's end, the cylinder of radius 5 from z = 0 to 10 capped by a half ball, shelled inward
+//! to a wall 1 thick, open at its base.
+use crate::sketch::{faces_through, capsule};
+use cad_kernel::offset::{shelled, Join, Side};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("no shell: cad-kernel cannot hollow a body to a wall, and has no offset of a face or a solid to make its inside from".into())
+    let body = capsule(5., 10.)?;
+    let open = faces_through(&body, &[[1., 1., 0.]])?;
+    shelled(&body, &open, 1., Side::In, Join::Round)
 }

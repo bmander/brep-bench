@@ -1,13 +1,12 @@
-//! A sheet of two flat faces meeting at a right angle along a crease: the rectangle in the xy plane
-//! from (0, 0, 0) to (10, 8, 0), the floor, and the rectangle in the yz plane from (0, 0, 0) to (0,
-//! 8, 10), the wall. They share the edge from (0, 0, 0) to (0, 8, 0).
-//!
-//! Refused. cad-kernel has no thickening of a sheet: it makes sheets (`build::sheet`,
-//! `build::sheets`) and cuts solids with them, but it has no offset of a face or a shell, and so no
-//! solid between a sheet and its offset (its README lists "shelling and offsets" among what comes
-//! next).
+//! A floor (z = 0, 10 by 8) and a wall (x = 0, 8 by 10) meeting at a right angle along y, a sheet,
+//! thickened by 1 to the outside of the crease (−z and −x), its corner kept sharp.
+use crate::sketch::{block, faces_through};
+use cad_kernel::offset::{sheet_of, thickened, Join};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("no thickening of a sheet: cad-kernel has no offset of a face or a shell".into())
+    // the sheet's faces lifted off the solid they bound, their normals its outward ones
+    let solid = block([0., 0., 0.], [10., 8., 10.])?;
+    let faces = faces_through(&solid, &[[5., 4., 0.], [0., 4., 5.]])?;
+    thickened(&sheet_of(&solid, &faces)?, [0., 1.], Join::Sharp)
 }
