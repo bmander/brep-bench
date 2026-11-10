@@ -192,7 +192,11 @@ pub fn tumbling_torus(
 /// rolled from −100° to 100° at 0.7 about the upright axis, the second axis leaning 45° and
 /// tilted 20° at 0.7071, turned against the roll (A) and with it (B).
 pub fn crossed_tori(k: &mut DefaultKernel) -> Result<(BodyId, BodyId), Refusal> {
-    let a = tumbling_torus(k, p3(3.0, 0.0, 2.0), 0.22, (45.0, 20.0, 0.7071), 0.7, -1.0, (-100.0, 100.0))?;
-    let b = tumbling_torus(k, p3(3.0, 0.0, 2.0), 0.22, (45.0, 20.0, 0.7071), 0.7, 1.0, (-100.0, 100.0))?;
-    Ok((a, b))
+    Ok((crossed_torus(k, -1.0)?, crossed_torus(k, 1.0)?))
+}
+
+/// One operand of `swept/tumbling-torus-crossed-*`: its second axis turned against the roll
+/// (`sign` −1: A, the forward tumble) or with it (+1: B, the reverse).
+pub fn crossed_torus(k: &mut DefaultKernel, sign: f64) -> Result<BodyId, Refusal> {
+    tumbling_torus(k, p3(3.0, 0.0, 2.0), 0.22, (45.0, 20.0, 0.7071), 0.7, sign, (-100.0, 100.0))
 }
