@@ -143,18 +143,34 @@ fn write_stl(path: &str, mesh: &cadrs_kernel::TriMesh) -> std::io::Result<()> {
         }
         return std::fs::write(path, out);
     }
-    use std::fmt::Write as _;
-    let mut out = String::with_capacity(16 + 160 * mesh.indices.len());
-    out.push_str("solid cadrs\n");
-    for t in &mesh.indices {
-        let [a, b, c] = t.map(|i| mesh.positions[i as usize]);
-        let n = (b - a).cross(&(c - a));
-        let n = if n.norm() > 0.0 { n.normalize() } else { n };
-        let _ = writeln!(out, "facet normal {:e} {:e} {:e}\nouter loop", n.x, n.y, n.z);
-        for p in [a, b, c] {
-            let _ = writeln!(out, "vertex {:e} {:e} {:e}", p.x, p.y, p.z);
+    // (The triangles' text in runs, a thread each, put together in order: a mesh of a quarter
+    // of a million triangles is fifty megabytes of numbers to print.)
+    let facets = |triangles: &[[u32; 3]]| -> String {
+        use std::fmt::Write as _;
+        let mut out = String::with_capacity(160 * triangles.len());
+        for t in triangles {
+            let [a, b, c] = t.map(|i| mesh.positions[i as usize]);
+            let n = (b - a).cross(&(c - a));
+            let n = if n.norm() > 0.0 { n.normalize() } else { n };
+            let _ = writeln!(out, "facet normal {:e} {:e} {:e}\nouter loop", n.x, n.y, n.z);
+            for p in [a, b, c] {
+                let _ = writeln!(out, "vertex {:e} {:e} {:e}", p.x, p.y, p.z);
+            }
+            out.push_str("endloop\nendfacet\n");
         }
-        out.push_str("endloop\nendfacet\n");
+        out
+    };
+    let threads = std::thread::available_parallelism().map_or(1, |n| n.get()).min(16);
+    let run = mesh.indices.len().div_ceil(threads).max(4096);
+    let parts: Vec<String> = std::thread::scope(|s| {
+        let handles: Vec<_> =
+            mesh.indices.chunks(run).map(|chunk| s.spawn(|| facets(chunk))).collect();
+        handles.into_iter().map(|h| h.join().expect("a facet writer panicked")).collect()
+    });
+    let mut out = String::with_capacity(32 + parts.iter().map(String::len).sum::<usize>());
+    out.push_str("solid cadrs\n");
+    for part in &parts {
+        out.push_str(part);
     }
     out.push_str("endsolid cadrs\n");
     std::fs::write(path, out)
