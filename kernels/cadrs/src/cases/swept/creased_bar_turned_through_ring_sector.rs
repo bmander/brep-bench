@@ -8,20 +8,20 @@
 //! the bar is the two united. What it passes through is cut from the block by cadrs's cut of a
 //! swept solid (one turn: the block less the bar where it starts and less each of its leading
 //! faces' sweeps).
-use crate::bench::{p3, plane, rectangle, sketch, union, v3};
+use crate::bench::{p3, union, v3};
 use crate::shared::loft::loft;
 use crate::shared::swept::{cut_swept, ring_sector, swing, z_axis};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let block = ring_sector(k, (8.0, 12.0), (-1.0, 1.0), (0.0, 60.0))?;
     let t = 20f64.to_radians();
     let (u, n) = (v3(1.0, 0.0, 0.0), v3(0.0, t.sin(), t.cos()));
     // (The sketch's y axis, n × u, is v.)
-    let at = |h: f64| plane(p3(0.0, 0.0, 0.0) + n * h, u, n);
+    let at = |h: f64| Plane::new(p3(0.0, 0.0, 0.0) + n * h, u, n);
     let d = 4.0 * 2f64.to_radians().tan();
-    let section = |h: f64, d: f64| sketch(at(h), vec![rectangle(10.0 + d, -2.0 + d, 13.0 - d, 2.0 - d)]);
+    let section = |h: f64, d: f64| Profile::of(at(h), vec![Loop::rectangle(10.0 + d, -2.0 + d, 13.0 - d, 2.0 - d)]);
     let up = loft(k, vec![section(0.0, 0.0), section(4.0, d)])?;
     let down = loft(k, vec![section(-4.0, d), section(0.0, 0.0)])?;
     let bar = union(k, up, down)?;

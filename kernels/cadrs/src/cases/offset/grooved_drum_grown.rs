@@ -6,14 +6,14 @@
 //!
 //! The drum a circle extruded; the groove an annulus from radius 7 to beyond the drum sketched
 //! at z = 4.2 and extruded 1.6, cut from it; then cadrs's offset with rounded edges.
-use crate::bench::{cut, cylinder, extrude, p3, round, sketch_with_holes, v3, xy};
+use crate::bench::{cut, cylinder, extrude, p3, v3};
 use crate::shared::offset::grown;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let drum = cylinder(k, p3(0.0, 0.0, 0.0), v3(0.0, 0.0, 1.0), 10.0, 10.0)?;
-    let ring = sketch_with_holes(xy(4.2), round((0.0, 0.0), 12.0), vec![round((0.0, 0.0), 7.0)]);
+    let ring = Profile::with_holes(Plane::xy(4.2), Loop::circle([0.0, 0.0], 12.0), vec![Loop::circle([0.0, 0.0], 7.0)]);
     let groove = extrude(k, &ring, 1.6)?;
     let part = cut(k, drum, groove)?;
     grown(k, part, 1.0)

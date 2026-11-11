@@ -3,15 +3,14 @@
 //! D′ (12, 40, 0) at y = 40, each corner running straight to its namesake: cadrs's Loft (Solid)
 //! between the two quadrilaterals, each drawn on a plane square to the y axis (sketch (x, z)),
 //! corner for corner from A (two sections give ruled faces).
-use crate::bench::{polygon, sketch, xz};
 use crate::shared::loft::loft;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let square =
-        sketch(xz(0.0), vec![polygon(&[(10.0, -10.0), (-10.0, -10.0), (-10.0, 10.0), (10.0, 10.0)])]);
+        Profile::of(Plane::xz(0.0), vec![Loop::polygon(&[[10.0, -10.0], [-10.0, -10.0], [-10.0, 10.0], [10.0, 10.0]])]);
     let diamond =
-        sketch(xz(40.0), vec![polygon(&[(0.0, -12.0), (-12.0, 0.0), (0.0, 12.0), (12.0, 0.0)])]);
+        Profile::of(Plane::xz(40.0), vec![Loop::polygon(&[[0.0, -12.0], [-12.0, 0.0], [0.0, 12.0], [12.0, 0.0]])]);
     loft(k, vec![square, diamond])
 }

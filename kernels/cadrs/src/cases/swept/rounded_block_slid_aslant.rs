@@ -3,15 +3,15 @@
 //!
 //! The block's twelve edges are filleted together (its corners balls); what it passes through is
 //! cadrs's sweep of a solid (one slide).
-use crate::bench::{all_edges, block, p3, v3};
+use crate::bench::{block, p3, v3};
 use crate::shared::fillet::fillet;
 use crate::shared::swept::slid;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let b = block(k, p3(0.0, 0.0, 0.0), p3(10.0, 6.0, 4.0))?;
-    let edges = all_edges(k, b)?;
+    let edges = k.edges_but_seams(b)?;
     let rounded = fillet(k, b, &edges, 1.0)?;
     slid(k, rounded, v3(8.0, 5.0, 3.0))
 }

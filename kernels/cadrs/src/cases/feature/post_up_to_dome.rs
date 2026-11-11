@@ -8,10 +8,10 @@
 //! less its ball of radius 18, less a block below z = 0. The post is the disk sketched on
 //! the floor's plane z = 0 and extruded up "up to face", the dome's inner sphere, so its top
 //! takes the sphere's shape; the two are united.
-use crate::bench::{ball, block, cut, cylinder, face_at, p3, round, sketch, union, v3, xy};
+use crate::bench::{ball, block, cut, cylinder, p3, union, v3};
 use crate::shared::feature::extrude_to;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel, ExtrudeEnd};
+use cadrs_kernel::{BodyId, DefaultKernel, ExtrudeEnd, Loop, Pick, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let z = v3(0.0, 0.0, 1.0);
@@ -23,8 +23,8 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let below = block(k, p3(-21.0, -21.0, -21.0), p3(21.0, 21.0, 0.0))?;
     let shell = cut(k, skin, below)?;
     let dome = union(k, plate, shell)?;
-    let inside = face_at(k, dome, p3(0.0, 0.0, 18.0))?;
-    let disk = sketch(xy(0.0), vec![round((0.0, 0.0), 3.0)]);
+    let inside = k.face_at(dome, p3(0.0, 0.0, 18.0))?;
+    let disk = Profile::of(Plane::xy(0.0), vec![Loop::circle([0.0, 0.0], 3.0)]);
     let end = ExtrudeEnd::UpToFace { body: dome, face: inside, offset: 0.0 };
     let post = extrude_to(k, &disk, z, end, &[])?;
     union(k, dome, post)

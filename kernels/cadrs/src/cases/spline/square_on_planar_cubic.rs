@@ -3,17 +3,17 @@
 //! centered on it, two sides horizontal, the ends flat: the square drawn on the plane through
 //! the origin square to the curve there, along (4, 3, 0), its sketch x axis horizontal, swept
 //! along the Bézier curve drawn on the Top plane.
-use crate::bench::{p2, p3, plane, rectangle, sketch, v3, xy};
-use crate::shared::sweep::{on, sweep};
+use crate::bench::{p2, p3, v3};
+use crate::shared::sweep::sweep;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, Curve2, DefaultKernel};
+use cadrs_kernel::{BodyId, Curve2, DefaultKernel, Loop, PathCurve, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let curve = Curve2::Bezier {
         poles: [p2(0.0, 0.0), p2(16.0, 12.0), p2(18.0, 26.0), p2(12.0, 34.0)],
         source: None,
     };
-    let across = plane(p3(0.0, 0.0, 0.0), v3(-3.0, 4.0, 0.0), v3(4.0, 3.0, 0.0));
-    let square = sketch(across, vec![rectangle(-10.0, -10.0, 10.0, 10.0)]);
-    sweep(k, &square, vec![on(xy(0.0), curve)])
+    let across = Plane::new(p3(0.0, 0.0, 0.0), v3(-3.0, 4.0, 0.0), v3(4.0, 3.0, 0.0));
+    let square = Profile::of(across, vec![Loop::rectangle(-10.0, -10.0, 10.0, 10.0)]);
+    sweep(k, &square, vec![PathCurve::sketch(Plane::xy(0.0), curve)])
 }

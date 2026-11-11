@@ -5,16 +5,16 @@
 //!
 //! The block is a rectangle extruded and the hole a circle extruded through it and cut away;
 //! then Move face translates the top by 6 along +z.
-use crate::bench::{block, cut, cylinder, face_at, p3, v3};
+use crate::bench::{block, cut, cylinder, p3, v3};
 use crate::shared::edit::move_faces;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let b = block(k, p3(0.0, 0.0, 0.0), p3(40.0, 30.0, 10.0))?;
     // the hole's cylinder runs past both faces
     let drill = cylinder(k, p3(20.0, 15.0, -1.0), v3(0.0, 0.0, 1.0), 5.0, 12.0)?;
     let drilled = cut(k, b, drill)?;
-    let top = face_at(k, drilled, p3(5.0, 5.0, 10.0))?;
+    let top = k.face_at(drilled, p3(5.0, 5.0, 10.0))?;
     move_faces(k, drilled, &[top], v3(0.0, 0.0, 6.0))
 }

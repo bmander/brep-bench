@@ -4,16 +4,16 @@
 //!
 //! The wheel is its triangle turned about its axis; what it passes through is cadrs's sweep of a
 //! solid (one slide), cut from the block.
-use crate::bench::{block, cut, p3, v3, yz};
+use crate::bench::{block, cut, p3, v3};
 use crate::shared::geometry::Section;
 use crate::shared::swept::slid;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let b = block(k, p3(0.0, -5.0, 0.0), p3(20.0, 5.0, 10.0))?;
     let t = 3.0 * 30f64.to_radians().tan();
-    let section = Section::on(yz(-8.0))
+    let section = Section::on(Plane::yz(-8.0))
         .line((0.0, 8.0), (t, 11.0))
         .line((t, 11.0), (-t, 11.0))
         .line((-t, 11.0), (0.0, 8.0));

@@ -6,7 +6,6 @@
 //! affine transform of a box, cut away); its sweep is cadrs's sweep of a solid (a turn and a slide
 //! along its axis at once: a screw).
 use crate::bench::{block, cut, p3};
-use crate::shared::sweep::first;
 use crate::shared::swept::{screwed, z_axis};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel, Kernel};
@@ -27,7 +26,7 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
         // The block from (−10, −10, 0) to (10, 10, 10) in that frame: wholly beyond the plane.
         let unit = block(k, p3(-10.0, -10.0, 0.0), p3(10.0, 10.0, 10.0))?;
         let m = nalgebra::Matrix3::from_columns(&[x, y, n]);
-        let beyond = first(k.transform_affine(unit, m, t[0].coords)?)?;
+        let beyond = k.transform_affine(unit, m, t[0].coords)?.first()?;
         solid = cut(k, solid, beyond)?;
     }
     screwed(k, solid, z_axis(), 5.0, 0.0, 540.0)

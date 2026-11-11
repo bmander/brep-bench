@@ -6,7 +6,6 @@
 //! slide), cut from the plate.
 use crate::bench::{ball, block, cut, moved, p3, v3};
 use crate::shared::swept::slid;
-use crate::shared::sweep::first;
 use cadrs_kernel::Kernel;
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};
@@ -14,7 +13,7 @@ use cadrs_kernel::{BodyId, DefaultKernel};
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let plate = block(k, p3(-15.0, -15.0, 0.0), p3(15.0, 15.0, 4.0))?;
     let unit = ball(k, p3(0.0, 0.0, 0.0), 1.0)?;
-    let stretched = first(k.scale_axes(unit, p3(0.0, 0.0, 0.0), v3(3.0, 2.0, 1.5))?)?;
+    let stretched = k.scale_axes(unit, p3(0.0, 0.0, 0.0), v3(3.0, 2.0, 1.5))?.first()?;
     let e = moved(k, stretched, v3(-2.0, -1.5, -4.0))?;
     let swept = slid(k, e, v3(4.0, 3.0, 12.0))?;
     cut(k, plate, swept)

@@ -9,22 +9,22 @@
 //! the frame is swept in two halves, each along the open path from the section's place around
 //! two corners to the middle of the opposite side, (0, −20) to (±30, −20) to (±30, 20) to
 //! (0, 20), drawn on the Top plane, and the two halves united where they meet.
-use crate::bench::{line, p2, polygon, sketch, union, xy, yz};
-use crate::shared::sweep::{on, sweep};
+use crate::bench::{p2, union};
+use crate::shared::sweep::sweep;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, Curve2, DefaultKernel, Loop, PathCurve, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let molding: Vec<(f64, f64)> =
+    let molding: Vec<[f64; 2]> =
         [(0.0, 2.0), (3.0, 2.0), (3.0, 0.0), (8.0, 0.0), (8.0, 6.0), (0.0, 6.0)]
             .iter()
-            .map(|&(s, z)| (-20.0 - s, z))
+            .map(|&(s, z)| [-20.0 - s, z])
             .collect();
-    let section = sketch(yz(0.0), vec![polygon(&molding)]);
+    let section = Profile::of(Plane::yz(0.0), vec![Loop::polygon(&molding)]);
     let mut halves = Vec::new();
     for side in [1.0, -1.0] {
         let c = [p2(0.0, -20.0), p2(30.0 * side, -20.0), p2(30.0 * side, 20.0), p2(0.0, 20.0)];
-        let path = (0..3).map(|i| on(xy(0.0), line(c[i], c[i + 1]))).collect();
+        let path = (0..3).map(|i| PathCurve::sketch(Plane::xy(0.0), Curve2::line(c[i], c[i + 1]))).collect();
         halves.push(sweep(k, &section, path)?);
     }
     union(k, halves[0], halves[1])

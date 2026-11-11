@@ -5,19 +5,17 @@
 //! trimmed to the drafted sides.
 //!
 //! The rectangle extruded, its vertical edges filleted, then cadrs's Draft of every side.
-use crate::bench::{block, edges_at, faces_where, p3, v3};
+use crate::bench::{block, p3, v3};
 use crate::shared::draft::{drafted, is_side};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel, Kernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Kernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let b = block(k, p3(0.0, 0.0, 0.0), p3(30.0, 20.0, 10.0))?;
-    let verticals = edges_at(
-        k,
-        b,
+    let verticals = k.edges_at(b,
         &[p3(0.0, 0.0, 5.0), p3(30.0, 0.0, 5.0), p3(30.0, 20.0, 5.0), p3(0.0, 20.0, 5.0)],
     )?;
     let rounded = k.fillet(b, &verticals, 4.0)?.bodies[0];
-    let sides = faces_where(k, rounded, is_side)?;
+    let sides = k.faces_where(rounded, &is_side)?;
     drafted(k, rounded, sides, 5.0, v3(0.0, 0.0, 1.0), p3(0.0, 0.0, 0.0))
 }

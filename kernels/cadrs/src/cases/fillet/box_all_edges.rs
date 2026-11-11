@@ -3,13 +3,13 @@
 //!
 //! The cube, from the origin to (10, 10, 10), is a square extruded; its twelve edges are rounded
 //! in one Fillet feature, radius 1, which closes each corner with a patch of a ball.
-use crate::bench::{all_edges, block, p3};
+use crate::bench::{block, p3};
 use crate::shared::fillet::fillet;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let cube = block(k, p3(0.0, 0.0, 0.0), p3(10.0, 10.0, 10.0))?;
-    let edges = all_edges(k, cube)?;
+    let edges = k.edges_but_seams(cube)?;
     fillet(k, cube, &edges, 1.0)
 }

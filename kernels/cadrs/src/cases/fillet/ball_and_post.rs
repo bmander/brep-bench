@@ -5,15 +5,15 @@
 //!
 //! The ball is cadrs's sphere primitive, the post a circle extruded, the two united; the circle
 //! where they meet is picked by a point on it and filleted, radius 2.
-use crate::bench::{ball, cylinder, edge_at, p3, union, v3};
+use crate::bench::{ball, cylinder, p3, union, v3};
 use crate::shared::fillet::fillet;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let b = ball(k, p3(0.0, 0.0, 0.0), 10.0)?;
     let post = cylinder(k, p3(0.0, 0.0, 0.0), v3(0.0, 0.0, 1.0), 4.0, 15.0)?;
     let body = union(k, b, post)?;
-    let root = edge_at(k, body, p3(4.0, 0.0, 84f64.sqrt()))?;
+    let root = k.edge_at(body, p3(4.0, 0.0, 84f64.sqrt()))?;
     fillet(k, body, &[root], 2.0)
 }

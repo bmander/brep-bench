@@ -5,13 +5,11 @@
 //!
 //! Each slab is a block whose flat face is given its patch with Replace face (the patch's
 //! parameters 0 to 1 each way); the two united.
-use crate::bench::{block, face_at, p3, union};
-use crate::shared::geometry::bezier_knots;
+use crate::bench::{block, p3, union};
 use crate::shared::nurbs::spline_surface;
-use crate::shared::sweep::first;
 use crate::Refusal;
 use cadrs_kernel::native::Surface;
-use cadrs_kernel::{BodyId, DefaultKernel, FaceReplacement, Kernel};
+use cadrs_kernel::{BodyId, DefaultKernel, FaceReplacement, Kernel, Pick, bezier_knots};
 
 /// The flat Bézier patch in the plane z = 4 whose control points stand over the grid `xs` × `ys`.
 fn flat_patch(xs: &[f64], ys: &[f64]) -> Result<Surface, Refusal> {
@@ -22,24 +20,24 @@ fn flat_patch(xs: &[f64], ys: &[f64]) -> Result<Surface, Refusal> {
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let lower = block(k, p3(0.0, 0.0, 0.0), p3(10.0, 10.0, 4.0))?;
-    let top = face_at(k, lower, p3(5.0, 5.0, 4.0))?;
-    let lower = first(k.replace_faces(
+    let top = k.face_at(lower, p3(5.0, 5.0, 4.0))?;
+    let lower = k.replace_faces(
         lower,
         &[FaceReplacement {
             face: top,
             surface: flat_patch(&[0.0, 2.0, 7.0, 10.0], &[0.0, 4.0, 5.0, 10.0])?,
             domain: Some(((0.0, 1.0), (0.0, 1.0))),
         }],
-    )?)?;
+    )?.first()?;
     let upper = block(k, p3(5.0, 3.0, 4.0), p3(15.0, 13.0, 7.0))?;
-    let bottom = face_at(k, upper, p3(10.0, 8.0, 4.0))?;
-    let upper = first(k.replace_faces(
+    let bottom = k.face_at(upper, p3(10.0, 8.0, 4.0))?;
+    let upper = k.replace_faces(
         upper,
         &[FaceReplacement {
             face: bottom,
             surface: flat_patch(&[5.0, 12.0, 15.0], &[3.0, 4.0, 13.0])?,
             domain: Some(((0.0, 1.0), (0.0, 1.0))),
         }],
-    )?)?;
+    )?.first()?;
     union(k, lower, upper)
 }

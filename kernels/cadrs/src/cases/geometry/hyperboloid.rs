@@ -7,14 +7,13 @@
 //! `Curve2::Spline`), the top edge back to the axis and the axis down. The arc x = 4 cosh t,
 //! z = 6 sinh t for |t| ≤ T, sinh T = 1, has its end tangents meeting at (2√2, 0), weighted
 //! cosh T = √2 there. The section is revolved a whole turn about z.
-use crate::bench::xz;
 use crate::shared::geometry::{turned_about_z, Section};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let r = 4.0 * 2f64.sqrt();
-    let section = Section::on(xz(0.0))
+    let section = Section::on(Plane::xz(0.0))
         .line((0.0, -6.0), (r, -6.0))
         .conic((r, -6.0), (r / 2.0, 0.0), 2f64.sqrt(), (r, 6.0))
         .line((r, 6.0), (0.0, 6.0))

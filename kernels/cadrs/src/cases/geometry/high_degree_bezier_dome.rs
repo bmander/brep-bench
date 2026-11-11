@@ -8,10 +8,10 @@
 //! face then replaced by the patch, made from its control net (cadrs's `NurbsSurface`): the sides
 //! are trimmed where the patch meets them, along its edges.
 use crate::bench::{block, p3};
-use crate::shared::geometry::{bezier_knots, pole, replace_face};
+use crate::shared::geometry::{pole, replace_face};
 use crate::Refusal;
 use cadrs_kernel::native::{NurbsSurface, Surface};
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, bezier_knots};
 use std::sync::Arc;
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {

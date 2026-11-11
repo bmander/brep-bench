@@ -1,29 +1,18 @@
 //! What the cadrs implementations of the thicken cases share: sheets made as cadrs's Part Studio
 //! makes them (a surface extrude or a surface revolve of sketch curves, a sketch region, faces
 //! picked on a part) and cadrs's Thicken of them, to the side the case names.
-use crate::bench::{arc, line, p2, p3, unit, v3, xz, P3, V3};
+use crate::bench::{arc, p2, p3, unit, v3, P3, V3};
 use crate::Refusal;
-use cadrs_kernel::{
-    Axis, BodyId, BodyKind, Chain, Curve2, DefaultKernel, ExtrudeSpec, FaceId, FaceInput, Kernel,
-    Plane, Profile, RevolveSpec, ThickenSpec,
-};
-
-/// The first body of an operation's result.
-fn first(r: cadrs_kernel::OpResult) -> Result<BodyId, Refusal> {
-    r.bodies.first().copied().ok_or_else(|| Refusal::from("the operation made no body"))
-}
+use cadrs_kernel::{Axis, BodyId, Curve2, DefaultKernel, ExtrudeSpec, FaceId, Kernel, Pick, Plane, Profile, RevolveSpec, ThickenSpec};
 
 /// A sketch on `plane` of the open chain of `curves` (no region).
 pub fn open_chain(plane: Plane, curves: Vec<Curve2>) -> Profile {
-    Profile { plane, regions: vec![], chains: vec![Chain { curves, source: None }] }
+    Profile::open(plane, curves)
 }
 
 /// The open polyline through `points` (in the plane's coordinates).
 pub fn polyline(points: &[(f64, f64)]) -> Vec<Curve2> {
-    points
-        .windows(2)
-        .map(|w| line(p2(w[0].0, w[0].1), p2(w[1].0, w[1].1)))
-        .collect()
+    Curve2::polyline(&points.iter().map(|&(x, y)| [x, y]).collect::<Vec<_>>())
 }
 
 /// The sheet `profile`'s curves sweep as they are extruded `depth` along `dir` (a surface
@@ -34,8 +23,7 @@ pub fn surface_extrude(
     dir: V3,
     depth: f64,
 ) -> Result<BodyId, Refusal> {
-    let spec = ExtrudeSpec { body: BodyKind::Surface, ..ExtrudeSpec::blind(unit(dir), depth) };
-    first(k.extrude_with(profile, &spec)?)
+    Ok(k.extrude_with(profile, &ExtrudeSpec::surface(unit(dir), depth))?.first()?)
 }
 
 /// The sheet `profile`'s curves sweep as they are revolved about `axis` by `angle` degrees, or
@@ -46,11 +34,7 @@ pub fn surface_revolve(
     axis: Axis,
     angle: Option<f64>,
 ) -> Result<BodyId, Refusal> {
-    let spec = RevolveSpec {
-        body: BodyKind::Surface,
-        ..RevolveSpec::solid(axis, angle.map(f64::to_radians))
-    };
-    first(k.revolve_with(profile, &spec)?)
+    Ok(k.revolve_with(profile, &RevolveSpec::surface(axis, angle.map(f64::to_radians)))?.first()?)
 }
 
 /// The angle sheet of the angle-bracket cases: the floor (the rectangle in the xy plane from the
@@ -58,7 +42,7 @@ pub fn surface_revolve(
 /// (0, 8, 10)), the open polyline (10, 0), (0, 0), (0, 10) on the Front plane (its (x, z))
 /// surface-extruded 8 along +y.
 pub fn angle_sheet(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let s = open_chain(xz(0.0), polyline(&[(10.0, 0.0), (0.0, 0.0), (0.0, 10.0)]));
+    let s = open_chain(Plane::xz(0.0), polyline(&[(10.0, 0.0), (0.0, 0.0), (0.0, 10.0)]));
     surface_extrude(k, &s, v3(0.0, 1.0, 0.0), 8.0)
 }
 
@@ -67,11 +51,11 @@ pub fn angle_sheet(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
 /// (2, 12), surface-extruded 8 along +y.
 pub fn flange_sheet(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let profile = vec![
-        line(p2(-10.0, 0.0), p2(0.0, 0.0)),
+        Curve2::line(p2(-10.0, 0.0), p2(0.0, 0.0)),
         arc(p2(0.0, 2.0), 2.0, -90.0, 90.0),
-        line(p2(2.0, 2.0), p2(2.0, 12.0)),
+        Curve2::line(p2(2.0, 2.0), p2(2.0, 12.0)),
     ];
-    surface_extrude(k, &open_chain(xz(0.0), profile), v3(0.0, 1.0, 0.0), 8.0)
+    surface_extrude(k, &open_chain(Plane::xz(0.0), profile), v3(0.0, 1.0, 0.0), 8.0)
 }
 
 /// The tray of the open-box cases: the cube from the origin to (10, 10, 10), a square sketched
@@ -79,8 +63,7 @@ pub fn flange_sheet(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
 /// normals pointing out of the cube.
 pub fn tray(k: &mut DefaultKernel) -> Result<(BodyId, Vec<FaceId>), Refusal> {
     let cube = crate::bench::block(k, p3(0.0, 0.0, 0.0), p3(10.0, 10.0, 10.0))?;
-    let faces = crate::bench::faces_at(
-        k,
+    let faces = k.faces_at(
         cube,
         &[
             p3(5.0, 5.0, 0.0),
@@ -113,9 +96,8 @@ pub fn thicken_with(
     against: f64,
     sharp: bool,
 ) -> Result<BodyId, Refusal> {
-    let spec =
-        ThickenSpec { bodies: vec![sheet], faces: vec![], profiles: vec![], along, against, sharp, source: 1 };
-    first(k.thicken_surfaces(&spec)?)
+    let spec = ThickenSpec::of_bodies(vec![sheet], along, against);
+    Ok(k.thicken_surfaces(&if sharp { spec.mitred() } else { spec })?.first()?)
 }
 
 /// Thickens the faces `faces` of the part `body`: `along` along their normals and `against`
@@ -140,9 +122,8 @@ pub fn thicken_faces_with(
     against: f64,
     sharp: bool,
 ) -> Result<BodyId, Refusal> {
-    let faces = faces.iter().map(|&face| FaceInput { body, face, source: 0 }).collect();
-    let spec = ThickenSpec { bodies: vec![], faces, profiles: vec![], along, against, sharp, source: 1 };
-    first(k.thicken_surfaces(&spec)?)
+    let spec = ThickenSpec::of_faces(body, faces, along, against);
+    Ok(k.thicken_surfaces(&if sharp { spec.mitred() } else { spec })?.first()?)
 }
 
 /// Thickens the regions of the sketch `profile` (their faces' normals along the plane's):
@@ -153,16 +134,7 @@ pub fn thicken_sketch(
     along: f64,
     against: f64,
 ) -> Result<BodyId, Refusal> {
-    let spec = ThickenSpec {
-        bodies: vec![],
-        faces: vec![],
-        profiles: vec![profile],
-        along,
-        against,
-        sharp: false,
-        source: 1,
-    };
-    first(k.thicken_surfaces(&spec)?)
+    Ok(k.thicken_surfaces(&ThickenSpec::of_profiles(vec![profile], along, against))?.first()?)
 }
 
 /// Thickens the sheet `sheet` by `t` to the side `toward` points to at `at`, a point on it, as a
@@ -188,9 +160,7 @@ pub fn thicken_toward_with(
     t: f64,
     sharp: bool,
 ) -> Result<BodyId, Refusal> {
-    let face = crate::bench::face_at(k, sheet, at)?;
-    let n = k.face_normals_at(sheet, face, &[at])?;
-    let n = n.first().ok_or_else(|| Refusal::from("the sheet has no normal there"))?;
+    let (_, n) = k.normal_at(sheet, at)?;
     if n.dot(&toward) > 0.0 {
         thicken_with(k, sheet, t, 0.0, sharp)
     } else {

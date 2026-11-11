@@ -5,14 +5,14 @@
 //!
 //! The plate is the outline on the Top plane extruded 8; cadrs's Shell feature (inward, rounded
 //! joins: the cavity rounded at the concave edges), the top picked as the face to remove.
-use crate::bench::{extrude, p3, polygon, sketch, xy};
+use crate::bench::{extrude, p3};
 use crate::shared::shell::{shell_inward, Joins};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let outline =
-        polygon(&[(0.0, 0.0), (20.0, 0.0), (20.0, 5.0), (5.0, 5.0), (5.0, 15.0), (0.0, 15.0)]);
-    let plate = extrude(k, &sketch(xy(0.0), vec![outline]), 8.0)?;
+        Loop::polygon(&[[0.0, 0.0], [20.0, 0.0], [20.0, 5.0], [5.0, 5.0], [5.0, 15.0], [0.0, 15.0]]);
+    let plate = extrude(k, &Profile::of(Plane::xy(0.0), vec![outline]), 8.0)?;
     shell_inward(k, plate, &[p3(2.0, 2.0, 8.0)], 1.0, Joins::Rounded)
 }

@@ -5,10 +5,10 @@
 //!
 //! The cube is a square extruded; then twelve Chamfer features, one per edge, each edge picked
 //! again on the body the chamfers before it left, by the point at its middle.
-use crate::bench::{block, edge_at, p3};
+use crate::bench::{block, p3};
 use crate::shared::chamfer::chamfer;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, ChamferSpec, DefaultKernel};
+use cadrs_kernel::{BodyId, ChamferSpec, DefaultKernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let mut body = block(k, p3(0.0, 0.0, 0.0), p3(10.0, 10.0, 10.0))?;
@@ -20,7 +20,7 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
         middles.push(p3(a, b, 5.0));
     }
     for m in middles {
-        let edge = edge_at(k, body, m)?;
+        let edge = k.edge_at(body, m)?;
         body = chamfer(k, body, &[edge], ChamferSpec::EqualDistance(2.0))?;
     }
     Ok(body)

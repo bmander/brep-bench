@@ -5,18 +5,18 @@
 //!
 //! The plate is the square less the circle, sketched on the Top plane and extruded 2; both rims
 //! of the hole are picked by a point on each and rounded in one Fillet feature, radius 1.
-use crate::bench::{edges_at, extrude, p3, rectangle, round, sketch_with_holes, xy};
+use crate::bench::{extrude, p3};
 use crate::shared::fillet::fillet;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Pick, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let s = sketch_with_holes(
-        xy(0.0),
-        rectangle(-10.0, -10.0, 10.0, 10.0),
-        vec![round((0.0, 0.0), 3.0)],
+    let s = Profile::with_holes(
+        Plane::xy(0.0),
+        Loop::rectangle(-10.0, -10.0, 10.0, 10.0),
+        vec![Loop::circle([0.0, 0.0], 3.0)],
     );
     let plate = extrude(k, &s, 2.0)?;
-    let rims = edges_at(k, plate, &[p3(3.0, 0.0, 2.0), p3(3.0, 0.0, 0.0)])?;
+    let rims = k.edges_at(plate, &[p3(3.0, 0.0, 2.0), p3(3.0, 0.0, 0.0)])?;
     fillet(k, plate, &rims, 1.0)
 }

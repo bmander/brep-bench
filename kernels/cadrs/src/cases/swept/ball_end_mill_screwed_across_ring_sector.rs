@@ -6,16 +6,16 @@
 //! The mill is its half section (a quarter circle and three lines) turned about its axis (cadrs's
 //! Revolve); what it passes through is cadrs's sweep of a solid (a turn and a slide along its axis
 //! at once: a screw), cut from the block (cadrs's cylindrical box).
-use crate::bench::{cut, p3, v3, xz};
+use crate::bench::{cut, p3, v3};
 use crate::shared::geometry::Section;
 use crate::shared::swept::{ring_sector, screwed, z_axis};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let block = ring_sector(k, (8.0, 12.0), (-2.0, 2.0), (-30.0, 30.0))?;
     let w = 2f64.sqrt() / 2.0;
-    let section = Section::on(xz(0.0))
+    let section = Section::on(Plane::xz(0.0))
         .line((10.0, -1.0), (10.0, 3.0))
         .line((10.0, 3.0), (11.0, 3.0))
         .line((11.0, 3.0), (11.0, 0.0))

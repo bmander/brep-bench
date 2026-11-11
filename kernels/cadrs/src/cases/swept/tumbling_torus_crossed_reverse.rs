@@ -2,10 +2,10 @@
 //! but turned by +t about the second line, t from −100° to 100°.
 //!
 //! Cadrs's sweep of a solid with the rigid motion of the two turns.
-use crate::shared::swept::crossed_tori;
+use crate::shared::swept::crossed_torus;
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    Ok(crossed_tori(k)?.1)
+    crossed_torus(k, 1.0)
 }

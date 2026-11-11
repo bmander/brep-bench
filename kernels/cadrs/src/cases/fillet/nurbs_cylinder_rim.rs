@@ -6,15 +6,14 @@
 //! a circle extruded, healed with `HealOp::ToBSpline` (every curved surface its exact B-spline:
 //! the side the standard nine-point circle's net, its knots in radians, its seam on the half
 //! plane y = 0, x ≥ 0). Its top rim is picked by a point on it and filleted.
-use crate::bench::{cylinder, edge_at, p3, v3};
+use crate::bench::{cylinder, p3, v3};
 use crate::shared::fillet::fillet;
-use crate::shared::sweep::first;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel, HealOp, Kernel};
+use cadrs_kernel::{BodyId, DefaultKernel, HealOp, Kernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let c = cylinder(k, p3(0.0, 0.0, 0.0), v3(0.0, 0.0, 1.0), 5.0, 10.0)?;
-    let spline = first(Kernel::heal(k, c, &[HealOp::ToBSpline])?)?;
-    let rim = edge_at(k, spline, p3(0.0, 5.0, 10.0))?;
+    let spline = Kernel::heal(k, c, &[HealOp::ToBSpline])?.first()?;
+    let rim = k.edge_at(spline, p3(0.0, 5.0, 10.0))?;
     fillet(k, spline, &[rim], 1.0)
 }

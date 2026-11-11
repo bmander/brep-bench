@@ -6,7 +6,6 @@
 //! each instant): a turn of −3t about the bar's centre, then the carrier's turn of t about the z
 //! axis; a prism along the motion's normal fills the region its section sweeps, extruded.
 use crate::bench::{block, p3, v3};
-use crate::shared::sweep::first;
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel, Kernel, PlanarStep, SolidMotion};
 use std::f64::consts::TAU;
@@ -18,5 +17,5 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
         PlanarStep::Turn { about: p3(0.0, 0.0, 0.0), from: 0.0, to: TAU },
     ];
     let motion = SolidMotion::Planar { normal: crate::bench::unit(v3(0.0, 0.0, 1.0)), steps };
-    first(k.sweep_solid(bar, &motion)?)
+    Ok(k.sweep_solid(bar, &motion)?.first()?)
 }

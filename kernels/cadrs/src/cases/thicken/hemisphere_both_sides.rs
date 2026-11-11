@@ -4,13 +4,13 @@
 //! The quarter circle of radius 5 about the origin from (5, 0) to (0, 5) sketched on the Front
 //! plane (its (x, z)) and surface-revolved a whole turn about z; cadrs's Thicken thickens it 1
 //! along its normal and 1 against it.
-use crate::bench::{arc, axis, p2, p3, v3, xz};
+use crate::bench::{arc, p2, p3, v3};
 use crate::shared::thicken::{open_chain, surface_revolve, thicken};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{Axis, BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let s = open_chain(xz(0.0), vec![arc(p2(0.0, 0.0), 5.0, 0.0, 90.0)]);
-    let sheet = surface_revolve(k, &s, axis(p3(0.0, 0.0, 0.0), v3(0.0, 0.0, 1.0)), None)?;
+    let s = open_chain(Plane::xz(0.0), vec![arc(p2(0.0, 0.0), 5.0, 0.0, 90.0)]);
+    let sheet = surface_revolve(k, &s, Axis::new(p3(0.0, 0.0, 0.0), v3(0.0, 0.0, 1.0)), None)?;
     thicken(k, sheet, 1.0, 1.0)
 }

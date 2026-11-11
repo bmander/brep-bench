@@ -7,7 +7,6 @@
 //! The face is cadrs's face on a B-spline surface given by its net (`Kernel::bspline_face`), which
 //! bounds it by its seam and its poles; the closed sheet is sewn into a solid
 //! (`Kernel::sew_solid`).
-use crate::shared::sweep::first;
 use crate::Refusal;
 use cadrs_kernel::{BodyId, BsplineSurface, DefaultKernel, Kernel};
 use nalgebra::Point3;
@@ -38,6 +37,6 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
         poles: c.iter().map(|&(x, y)| m.iter().map(|&(r, z)| Point3::new(r * x, r * y, z)).collect()).collect(),
         weights: w.iter().map(|&wi| v.iter().map(|&vj| wi * vj).collect()).collect(),
     };
-    let sheet = first(k.bspline_face(&surface, None)?)?;
-    first(k.sew_solid(&[sheet], 1e-7)?)
+    let sheet = k.bspline_face(&surface, None)?.first()?;
+    Ok(k.sew_solid(&[sheet], 1e-7)?.first()?)
 }

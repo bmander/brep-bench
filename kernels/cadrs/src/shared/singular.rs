@@ -1,8 +1,8 @@
 //! What the cadrs implementations of the singular cases share: cutting away everything on one
 //! side of a plane.
-use crate::bench::{cut, extrude, rectangle, sketch, square_to, P3, V3};
+use crate::bench::{cut, extrude, P3, V3};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Kernel, Loop, Plane, Primitive, Profile};
 
 /// `body` less everything on the side `normal` points to of the plane through `point`: cut
 /// with a block sketched as a square of side 60 on that plane, centred on `point`, and extruded
@@ -13,7 +13,7 @@ pub fn cut_beyond(
     point: P3,
     normal: V3,
 ) -> Result<BodyId, Refusal> {
-    let s = sketch(square_to(point, normal), vec![rectangle(-30.0, -30.0, 30.0, 30.0)]);
+    let s = Profile::of(Plane::square_to(point, normal), vec![Loop::rectangle(-30.0, -30.0, 30.0, 30.0)]);
     let tool = extrude(k, &s, 30.0)?;
     cut(k, body, tool)
 }
@@ -27,6 +27,5 @@ pub fn ball_about(
     dir: V3,
     radius: f64,
 ) -> Result<BodyId, Refusal> {
-    let seam = crate::bench::through_axis(center, dir).x_dir.into_inner();
-    crate::bench::ball_oriented(k, center, radius, dir, seam)
+    Ok(k.primitive(&Primitive::ball_about(center, dir, radius))?.first()?)
 }

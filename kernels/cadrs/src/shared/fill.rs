@@ -4,35 +4,22 @@
 //! cadrs's Fill fills a planar loop with its plane and four curves with their bilinearly blended
 //! Coons patch (sampled and interpolated by a bicubic B-spline, exact for boundaries of degree two
 //! or less, whose patch is of degree two or less each way).
-use crate::bench::{line, p2};
-use crate::shared::geometry::bezier_knots;
-use crate::shared::sweep::first;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, Curve2, DefaultKernel, FillCurve, FillSpec, Kernel, Plane};
-use nalgebra::Point2;
+use cadrs_kernel::{BodyId, Curve2, DefaultKernel, FillSpec, Kernel, Plane};
 
 /// The sheet Fill makes of the closed chain `curves` (each a curve sketched on its plane).
 pub fn fill(k: &mut DefaultKernel, curves: &[(Plane, Curve2)]) -> Result<BodyId, Refusal> {
-    let curves =
-        curves.iter().map(|(plane, curve)| FillCurve::Sketch { plane: *plane, curve: curve.clone() }).collect();
-    first(k.fill(&FillSpec { curves, source: 1 })?)
+    Ok(k.fill(&FillSpec::sketched(curves))?.first()?)
 }
 
 /// The sketch segment from `a` to `b`.
 pub fn seg(a: (f64, f64), b: (f64, f64)) -> Curve2 {
-    line(p2(a.0, a.1), p2(b.0, b.1))
+    Curve2::line([a.0, a.1], [b.0, b.1])
 }
 
 /// The polynomial Bézier curve with these control points: a sketch spline of one span.
 pub fn bezier(poles: &[(f64, f64)]) -> Curve2 {
-    let degree = poles.len() - 1;
-    Curve2::Spline {
-        degree,
-        knots: bezier_knots(degree),
-        poles: poles.iter().map(|&(x, y)| Point2::new(x, y)).collect(),
-        weights: vec![],
-        source: None,
-    }
+    Curve2::bezier(&poles.iter().map(|&(x, y)| [x, y]).collect::<Vec<_>>())
 }
 
 /// The flat wall on `plane` under its curve `top` (from `a` to `b`, each a sketch point (s, h)
