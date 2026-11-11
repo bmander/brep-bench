@@ -10,8 +10,7 @@
 //! solids of cylinders, cones and spheres, and the first round is a fitted canal. Nor could the
 //! corner be closed by the kernel once the runs were rolled: `fillet::corner_among`, the ball's
 //! patch where rounds meet, stands between three faces, and four meet here.
-use crate::sketch::block;
-use cad_kernel::build::kept;
+use cad_kernel::build::hull;
 use cad_kernel::offset::{grown, shrunk, Join};
 use cad_kernel::topo::Brep;
 
@@ -19,16 +18,10 @@ const REACH: f64 = 10.;
 const ROUND: f64 = 2.;
 
 pub fn build() -> Result<Brep, String> {
-    // the octahedron: a block round it kept within the plane of each face
-    let mut solid = block([-REACH; 3], [REACH; 3])?;
-    let k = 1. / 3f64.sqrt();
-    for sx in [-1., 1.] {
-        for sy in [-1., 1.] {
-            for sz in [-1., 1.] {
-                solid = kept(&solid, [sx * REACH, 0., 0.], [-sx * k, -sy * k, -sz * k], 0.)?;
-            }
-        }
-    }
+    // the octahedron: the convex hull of its six corners, REACH out along each axis either way
+    let (r, o) = (REACH, 0.);
+    let corners = [[r, o, o], [-r, o, o], [o, r, o], [o, -r, o], [o, o, r], [o, o, -r]];
+    let solid = hull(&corners)?;
     // the union of every ball of radius ROUND inside it: shrunk by ROUND, then grown by it
     grown(&shrunk(&solid, ROUND, Join::Round)?, ROUND, Join::Round)
 }
