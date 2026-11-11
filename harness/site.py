@@ -495,7 +495,7 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
                        "<p class=legend id=kinds hidden></p>"
                        # a B-spline surface's control net, drawn over its faces at a click
                        "<p class=legend id=nets hidden><button type=button class=chip "
-                       "aria-pressed=false title='Draw the control points of each B-spline "
+                       "title='Draw the control points of each B-spline "
                        "surface, joined in rows along u and along v, faint where the solid "
                        "hides them'>Control nets</button> <span></span></p>"
                        "<p class=muted id=faces-note hidden>Drag to turn, scroll or pinch to zoom, "
@@ -935,7 +935,7 @@ const KIND_OF = Object.fromEntries(KINDS.flatMap(([k, , names]) => names.map((n)
 // (`LENGTH_MEASURE(1.)`) a part in its place. Enough for a control net and the unit of length.
 function parts(body) {
   const tokens = body.match(/'(?:[^']|'')*'|[A-Z_][A-Z0-9_]*\\s*\\(|[(),]|[^\\s(),']+/g) || [];
-  let i = 0;
+  let i = tokens[0] === '(' ? 1 : 0;  // a complex entity's parts are in one more '('
   const list = () => {  // the items after a '(', to its ')'
     const out = [];
     while (i < tokens.length) {
@@ -947,14 +947,14 @@ function parts(body) {
     }
     return out;
   };
-  if (tokens[0] === '(') { i = 1; return list().filter((x) => x.name); }
   return list().filter((x) => x.name);
 }
 
-// The millimetres in the file's unit of length (Open CASCADE gives the faces in millimetres)
+// The millimetres in the file's unit of length (Open CASCADE gives the faces in millimetres),
+// as harness/mass.py's Model._unit reads it; null where it does not know it
 const PREFIX = { '$': 1, '.MILLI.': 1e-3, '.CENTI.': 1e-2, '.DECI.': 1e-1, '.KILO.': 1e3,
                  '.MICRO.': 1e-6, '.NANO.': 1e-9 };
-function millimetres(entities) {
+function millimetres(entities, at) {
   const scale = (e, depth = 0) => {
     if (!e || depth > 4) return null;
     const ps = parts(e.body);
@@ -964,23 +964,24 @@ function millimetres(entities) {
       return prefix === undefined ? null : prefix * 1000;
     }
     const by = ps.find((p) => p.name === 'CONVERSION_BASED_UNIT');
-    const measure = by && entities.get(+String(by.args[1]).slice(1));
+    const measure = by && at(by.args[1]);
     const m = measure && parts(measure.body).find((p) => p.name.endsWith('MEASURE_WITH_UNIT'));
     if (!m) return null;
     const v = typeof m.args[0] === 'object' ? m.args[0].args[0] : m.args[0];
-    const of = scale(entities.get(+String(m.args[1]).slice(1)), depth + 1);
+    const of = scale(at(m.args[1]), depth + 1);
     return of === null ? null : parseFloat(v) * of;
   };
   for (const e of entities.values()) {
-    if (e.names.includes('LENGTH_UNIT')) return scale(e) || 1;
+    if (e.names.includes('LENGTH_UNIT')) return scale(e);
   }
   return 1;
 }
 
 // The knot spans of a B-spline's parameter, its patches along it: the distinct knots in its
-// domain, less one. A Bézier's is one; a uniform one's, its control points less its degree.
-function spans(name, poles, degree, mults, knots) {
-  if (name === 'BEZIER_SURFACE') return 1;
+// domain, less one. A Bézier's is one (as harness/mass.py's implicit_knots has it); a uniform
+// one's, its control points less its degree.
+function spans(bezier, poles, degree, mults, knots) {
+  if (bezier) return 1;
   if (!mults) return Math.max(1, poles - degree);
   const all = [];
   mults.forEach((m, k) => { for (let j = 0; j < +m; j++) all.push(parseFloat(knots[k])); });
@@ -989,13 +990,14 @@ function spans(name, poles, degree, mults, knots) {
 }
 
 // A B-spline surface's control net, from its entity: its control points (in millimetres) as rows
-// along u, its degrees, its knot spans and whether its weights differ. Null where it is not one.
-function controlNet(e, entities, mm) {
+// along u, its degrees, its knot spans and whether it is rational (as harness/step.py's kind
+// has it: the entity says so). Null where it is not one.
+function controlNet(e, at, mm) {
   const ps = parts(e.body);
-  let pu, pv, grid, name, knots = null, weights = null;
+  const bezier = ps.some((p) => p.name === 'BEZIER_SURFACE');
+  let pu, pv, grid, knots = [];
   if (ps.length === 1) {
-    const [{ args }] = ps;
-    name = ps[0].name;
+    const [{ name, args }] = ps;
     [pu, pv, grid] = [+args[1], +args[2], args[3]];
     if (name === 'B_SPLINE_SURFACE_WITH_KNOTS') knots = args.slice(8, 12);
   } else {
@@ -1003,16 +1005,11 @@ function controlNet(e, entities, mm) {
     if (!base) return null;
     [pu, pv, grid] = [+base.args[0], +base.args[1], base.args[2]];
     const k = ps.find((p) => p.name === 'B_SPLINE_SURFACE_WITH_KNOTS');
-    const kind = ps.find((p) => ['BEZIER_SURFACE', 'UNIFORM_SURFACE',
-                                 'QUASI_UNIFORM_SURFACE'].includes(p.name));
-    name = k ? k.name : kind ? kind.name : 'B_SPLINE_SURFACE';
     if (k) knots = k.args.slice(0, 4);
-    const r = ps.find((p) => p.name === 'RATIONAL_B_SPLINE_SURFACE');
-    if (r) weights = r.args[0].flat().map(parseFloat);
   }
   if (!Array.isArray(grid) || !Array.isArray(grid[0])) return null;
   const point = (ref) => {
-    const p = entities.get(+String(ref).slice(1));
+    const p = at(ref);
     const c = p && parts(p.body).find((x) => x.name === 'CARTESIAN_POINT');
     const xyz = c && c.args.find(Array.isArray);
     return xyz ? [0, 1, 2].map((j) => parseFloat(xyz[j] || 0) * mm) : null;
@@ -1021,9 +1018,9 @@ function controlNet(e, entities, mm) {
   if (points.some((row) => row.some((q) => !q))) return null;
   return {
     points, degree: [pu, pv],
-    spans: [spans(name, grid.length, pu, knots && knots[0], knots && knots[2]),
-            spans(name, grid[0].length, pv, knots && knots[1], knots && knots[3])],
-    rational: !!weights && weights.some((w) => Math.abs(w - weights[0]) > 1e-12 * Math.abs(w)),
+    spans: [spans(bezier, grid.length, pu, knots[0], knots[2]),
+            spans(bezier, grid[0].length, pv, knots[1], knots[3])],
+    rational: e.names.includes('RATIONAL_B_SPLINE_SURFACE'),
   };
 }
 
@@ -1035,11 +1032,14 @@ function readStep(text) {
   const record = /#(\\d+)\\s*=\\s*((?:'(?:[^']|'')*'|[^;'])*);/g;
   let m;
   while ((m = record.exec(text))) {
-    const body = m[2].replace(/'(?:[^']|'')*'/g, "''");
-    const names = body.trim().startsWith('(')
-      ? [...body.matchAll(/([A-Z_][A-Z0-9_]*)\\s*\\(/g)].map((x) => x[1])
-      : [(body.match(/^\\s*([A-Z_][A-Z0-9_]*)/) || [])[1] || '?'];
-    entities.set(+m[1], { names, body, refs: [...body.matchAll(/#(\\d+)/g)].map((x) => +x[1]) });
+    // its strings emptied to name it; its own text, which `parts` reads, kept as it is (a part
+    // of the file's, not a copy)
+    const bare = m[2].replace(/'(?:[^']|'')*'/g, "''");
+    const names = bare.trim().startsWith('(')
+      ? [...bare.matchAll(/([A-Z_][A-Z0-9_]*)\\s*\\(/g)].map((x) => x[1])
+      : [(bare.match(/^\\s*([A-Z_][A-Z0-9_]*)/) || [])[1] || '?'];
+    entities.set(+m[1], { names, body: m[2],
+                          refs: [...bare.matchAll(/#(\\d+)/g)].map((x) => +x[1]) });
   }
   const surfaceOf = (face) => face.refs[face.refs.length - 1];
   const kindOf = (face) => {
@@ -1064,14 +1064,17 @@ function readStep(text) {
       }
     }
   }
-  const mm = splines.size ? millimetres(entities) : 1;
-  const nets = [...splines].map((s) => controlNet(entities.get(s), entities, mm)).filter(Boolean);
+  const at = (ref) => entities.get(+String(ref).slice(1));  // `#12`'s entity
+  const mm = splines.size ? millimetres(entities, at) : null;
+  const nets = mm === null ? []
+    : [...splines].map((s) => controlNet(entities.get(s), at, mm)).filter(Boolean);
   return { kinds, nets };
 }
 
 // The control nets as lines and dots: each row of control points joined along u and along v,
 // and a dot at each point (smaller where there are thousands); what the solid hides drawn
 // again, faint, through it.
+const NETS = 1;  // the layer the nets are drawn on, which the camera sees while they are asked for
 function drawNets(nets) {
   const lines = [], dots = [];
   for (const { points } of nets) {
@@ -1095,6 +1098,8 @@ function drawNets(nets) {
     const d = new THREE.Points(dotGeometry, new THREE.PointsMaterial({
       color, size: dots.length > 9000 ? 3 : 5, sizeAttenuation: false, ...look }));
     l.renderOrder = d.renderOrder = seen ? 1 : 2;
+    l.layers.set(NETS);
+    d.layers.set(NETS);
     group.add(l, d);
   }
   return group;
@@ -1206,10 +1211,8 @@ function buildFaces(src) {
       group.userData.tally = tally;
       group.userData.known = known;
       if (nets.length) {
-        group.userData.nets = drawNets(nets);
-        group.userData.nets.visible = showNets;
+        group.add(drawNets(nets));
         group.userData.size = sizeOf(nets);
-        group.add(group.userData.nets);
       }
       return group;
     }));
@@ -1230,15 +1233,13 @@ const facesNoteText = facesNote.textContent;
 const netsBar = document.getElementById('nets');
 const netsButton = netsBar.querySelector('button');
 const netsSize = netsBar.querySelector('span');
-let showNets = false;
-try { showNets = localStorage.getItem('brep-bench.nets') === '1'; } catch (_) {}
-netsButton.setAttribute('aria-pressed', String(showNets));
-netsButton.addEventListener('click', () => {
-  showNets = !showNets;
-  netsButton.setAttribute('aria-pressed', String(showNets));
-  try { localStorage.setItem('brep-bench.nets', showNets ? '1' : '0'); } catch (_) {}
-  if (shown && shown.userData.nets) shown.userData.nets.visible = showNets;
-});
+function showNets(on) {
+  camera.layers[on ? 'enable' : 'disable'](NETS);
+  netsButton.setAttribute('aria-pressed', String(on));
+  try { localStorage.setItem('brep-bench.nets', on ? '1' : '0'); } catch (_) {}
+}
+try { showNets(localStorage.getItem('brep-bench.nets') === '1'); } catch (_) { showNets(false); }
+netsButton.addEventListener('click', () => showNets(!camera.layers.isEnabled(NETS)));
 
 function marks(showing) {
   meshNote.hidden = showing !== 'mesh';
@@ -1254,12 +1255,8 @@ function describe(group) {
       c.toString(16).padStart(6, '0')}'></span>${k} ${t[k]}</span>`).join('')
     : `${Object.values(t).reduce((a, b) => a + b, 0)} faces; their surfaces could not be matched to them`;
   legend.hidden = false;
-  const nets = group.userData.nets;
-  netsBar.hidden = !nets;
-  if (nets) {
-    nets.visible = showNets;
-    netsSize.textContent = group.userData.size;
-  }
+  netsBar.hidden = !group.userData.size;
+  netsSize.textContent = group.userData.size || '';
 }
 
 let wanted = null;
