@@ -116,7 +116,9 @@ def face_count(row):
     made = row.get("step") or {}
     if made.get("faces"):
         return made["faces"]
-    return sum(row["faces"].values()) if row.get("faces") else None
+    faces = row.get("faces")
+    # (by kind from a runner's reply; a count alone where the harness measured the STEP)
+    return (sum(faces.values()) if isinstance(faces, dict) else faces) or None
 
 
 def faceting(results):
@@ -599,7 +601,7 @@ def step_facts(row, writes, faces):
     if made.get("schema"):
         form += f" <span class=muted>{e(made['schema'])}</span>"
     rows = [("STEP", form)]
-    said = sum(faces.values()) if faces else None
+    said = (sum(faces.values()) if isinstance(faces, dict) else faces) or None
     surfaces = f"{made['faces']}: {e(counted(made['surfaces']))}" if made["faces"] else "none"
     if made.get("triangles"):
         surfaces += f"; {made['triangles']} flat triangles"
@@ -713,7 +715,9 @@ def entry(en, exp):
     elif row:
         out.append("<p class=muted>No measures: it built no solid to measure.</p>")
     faces = (row or {}).get("faces")
-    if faces:
+    if isinstance(faces, dict) and faces:
+        # (a row the harness measured from its STEP has the count alone: the STEP's own facts
+        # say its faces by surface)
         facts.append(("faces", e(", ".join(f"{n} {k}" for k, n in faces.items()))))
     m = (row or {}).get("mesh")
     if m:
