@@ -3,21 +3,41 @@
 //! 8 — whose pitch line x = 20 rolls without slipping on the pitch circle of radius 20, from 60°
 //! on one side of (20, 0, 0) to 60° on the other.
 //!
-//! Refused. cad-kernel sweeps a solid (`swept::closed`) under a slide, a turn or a screw, and under
-//! any other motion only a convex solid of revolution, and this motion rolls a prism. The tooth is
-//! a prism square to the plane of the roll and runs through the blank, so the cut is the region the
-//! trapezoid sweeps in that plane, extruded — and `build::prism` would extrude it. But that region
-//! is bounded by the envelopes of the tooth's flanks (involutes of the base circle of radius 20·cos
-//! 20°) and the traces of its tip corners (trochoids), curves cad-kernel has no form of: a profile
-//! is lines, arcs and B-splines, and an involute or a trochoid written as a B-spline from its
-//! formula is the envelope computed outside the kernel.
+//! The kernel's one sweep operation builds the tooth's swept solid alone, over the case's whole
+//! roll, and the ordinary Boolean cuts it from the blank. Seen from the blank the rack rolls in the
+//! plane y = 0 and the tooth is a prism square to it, so `swept::closed::closed` builds the region
+//! the trapezoid sweeps in that plane — its flanks' envelopes (involutes of the base circle), its tip
+//! corners' trochoids and the trapezoid at each end pose, each stretch kept where it stands outside
+//! the trapezoid at every pose — fitted and carried through the tooth's length (#880 Q2), and judges
+//! it by the sweep's definition before returning it.
+//!
+//! cad-kernel 0.6.3 has no such method yet and refuses the sweep on its road for any other rigid
+//! motion (`Unbuilt::Curved`, the tool no convex solid of revolution); geomsolver's commit carrying
+//! #880 Q2 builds it, and a release after 0.6.3 will.
+use crate::sketch::polygon;
+use cad_kernel::boolean::{combined, Op};
+use cad_kernel::build::{disc, prism};
+use cad_kernel::geom::tolerance;
+use cad_kernel::swept::closed::closed;
 use cad_kernel::topo::Brep;
+use cad_kernel::trajectory::{Screw, Trajectory};
+use std::f64::consts::{PI, TAU};
+
+/// How closely the tooth is meshed for the sweep's membership reads (its faces are flat).
+const BAR: f64 = 0.01;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel sweeps a solid (`swept::closed`) under a slide, a turn or a screw, and under \
-         any other motion only a convex solid of revolution, and the rack tooth rolls; the tooth \
-         space is the trapezoid's planar sweep extruded, but its flanks are the envelope of the \
-         rack's flanks (involutes of the base circle) and its root the trace of the tip corners \
-         (trochoids), curves cad-kernel cannot build except by fitting them outside it"
-        .into())
+    let blank = prism(&disc([0., 0., 0.], [0., 1., 0.], 22.), 0., 6.)?;
+    // the trapezoid in the plane y = −2, walked so that it faces +y, carried 10 along y
+    let (tip, root) = (0.842856, 3.026666);
+    let section = polygon(&[[18., -2., -tip], [18., -2., tip], [24., -2., root], [24., -2., -root]]);
+    let tooth = prism(&section, 0., 10.)?;
+    // the blank turns about y while the rack slides along the pitch line, 2π·20 a turn the way the
+    // blank's rim moves at the pitch point: the tooth seen from the blank
+    let rack = Trajectory::Twist(Screw { origin: [0.; 3], axis: [0., 0., 1.], ratio: 0., advance: -TAU * 20. });
+    let blank_turn = Trajectory::Twist(Screw { origin: [0.; 3], axis: [0., 1., 0.], ratio: 1., advance: 0. });
+    let path = Trajectory::Relative { source: Box::new(rack), observer: Box::new(blank_turn) };
+    let swept = closed(&tooth, &path, [-PI / 3., PI / 3.], BAR, tolerance(tooth.size()))
+        .map_err(|why| format!("the tooth's sweep not built: {why:?}"))?;
+    Ok(combined(&blank, &swept, Op::Cut, 0.)?)
 }
