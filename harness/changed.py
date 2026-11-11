@@ -22,7 +22,7 @@ changed decides it:
 - how a run is made, measured or graded (harness/run.py, measure.py, mass.py, occt.py, stl.py,
   step.py, suite.py, build.py): the whole suite runs again;
 - anything else (the site, the drawings' code, the docs): nothing runs, the site is only made
-  again. A change to harness/draw.py draws every case again.
+  again. A change to harness/draw/ draws every case again.
 
 With no base, or a base that is not an ancestor of HEAD (history rewritten), the whole suite runs.
 Under GitHub Actions it also writes the step outputs `build` (the kernels to build, space
@@ -43,7 +43,8 @@ from suite import ROOT, cases, implements, kernels  # noqa: E402
 
 WHOLE_SUITE = {"harness/run.py", "harness/measure.py", "harness/mass.py", "harness/occt.py",
                "harness/stl.py", "harness/step.py", "harness/suite.py", "harness/build.py"}
-REDRAW = {"harness/draw.py", "harness/stl.py"}
+# the code that draws the cases: a change under it draws every case again
+REDRAW = "harness/draw/"
 # a kernel's flags of its implementations (its workarounds, its elegant ones), which the site reads
 # and no run depends on
 FLAGS = {"workarounds.toml", "elegance.toml"}
@@ -134,7 +135,7 @@ def plan(paths, results_dir, old_kernels=None, described=()):
         if reference(kernels()) != reference(old_kernels.values()):
             redraw_all = True
     for path in paths:
-        if path in REDRAW:
+        if path.startswith(REDRAW):
             redraw_all = True
         if path.startswith("cases/") and path.endswith(".md"):
             cid = path[len("cases/"):-len(".md")]

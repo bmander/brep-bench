@@ -5,7 +5,7 @@
 ```bash
 python3 harness/build.py           # every kernel's runner (cargo, pip, dotnet)
 python3 harness/run.py             # every kernel, every case: results/*.json
-python3 harness/draw.py            # each case's drawing: site/drawings/
+cargo run --release --manifest-path harness/draw/Cargo.toml   # each case's drawing: site/drawings/
 python3 harness/site.py            # board.json, the board's pages and a page per case: site/
 python3 -m http.server -d site     # the board reads board.json, so serve it to open it
 ```
@@ -54,7 +54,9 @@ CI does not run on pull requests, so run a change locally before proposing it.
 
 The harness uses only Python's standard library (3.11 or later); Open CASCADE (`python3 -m pip
 install cadquery-ocp`) is wanted only for the triangles of the STEP files that the drawings and
-the viewer show. The runners need their
+the viewer show. The cases are drawn by a Rust program, `harness/draw` (given case ids, or what
+they start with, `-- boolean/`, it draws only those; `cargo test --manifest-path
+harness/draw/Cargo.toml` runs its tests). The runners need their
 own toolchains: Rust, Python's pip and, for Aetheris, the .NET 10 SDK.
 
 ## On GitHub
@@ -71,7 +73,7 @@ A push to `main` reruns only the cases its changes affect, on top of the last ru
 - a deleted case: its rows are dropped from the results;
 - how a run is made, measured or graded (`harness/run.py`, `measure.py`, `mass.py`, `occt.py`,
   `stl.py`, `step.py`, `suite.py`, `build.py`): the whole suite runs;
-- `harness/draw.py`: every case is drawn again;
+- `harness/draw/`: every case is drawn again;
 - anything else (the site, the docs, a kernel's display-only fields, such as its license):
   nothing runs, and the site is only rebuilt.
 
@@ -103,6 +105,7 @@ kernels/<kernel>/                  a kernel's runner and its implementation of e
 kernels/<kernel>/workarounds.toml  the cases it builds by working around a feature it lacks
 kernels/<kernel>/elegance.toml     its implementations that stand out as elegant, and why
 harness/                           build, run and grade, draw, and render the site
+harness/draw/                      the program that draws the cases (Rust)
 harness/web/                       the board's pages, which read the site's board.json, and its icons
 results/<kernel>.json              the last results
 docs/                              these notes

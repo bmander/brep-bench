@@ -284,12 +284,14 @@ jobs:
           jq --argjson ks "$KERNELS" '.run |= with_entries(select(.key as $n | $ks | index($n) | not))' \
             plan.json > rest.json
           python harness/run.py --plan rest.json
+      # harness/draw is Rust, built here by the runner's own toolchain
       - name: Draw the cases
         if: steps.plan.outputs.draw != ''
         env:
           DRAW: ${{ steps.plan.outputs.draw }}
         run: |
-          if [ "$DRAW" = all ]; then python harness/draw.py; else python harness/draw.py $DRAW; fi
+          if [ "$DRAW" = all ]; then DRAW=; fi
+          cargo run --release --manifest-path harness/draw/Cargo.toml -- $DRAW
       # only when every kernel's run succeeded: else the next run starts again from the last results
       - name: Keep the results for the next run
         uses: actions/cache/save@v4
