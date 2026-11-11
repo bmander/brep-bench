@@ -7,8 +7,10 @@ description = "The brep-bench runner for cad-kernel: one cad-kernel program per 
 publish = false
 
 [dependencies]
-# a release, exactly: the scoreboard says which, and moving to another is a change made here
-cad-kernel = "=0.6.3"
+# a commit of geomsolver, exactly, until the release after 0.6.3 carries its planar sweep
+# (`swept::planar_solid`, #880 Q2): the scoreboard says which, and moving to another is a change
+# made here
+cad-kernel = { git = "https://github.com/bmander/geomsolver", rev = "ed4953c0cf869ab94c03ee31bd5f4fe487b48154" }
 
 [profile.release]
 debug = 0
