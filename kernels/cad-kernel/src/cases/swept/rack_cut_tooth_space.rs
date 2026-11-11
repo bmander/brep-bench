@@ -10,10 +10,6 @@
 //! corners' trochoids and the trapezoid at each end pose, each stretch kept where it stands outside
 //! the trapezoid at every pose — fitted and carried through the tooth's length (#880 Q2), and judges
 //! it by the sweep's definition before returning it.
-//!
-//! cad-kernel 0.6.3 has no such method yet and refuses the sweep on its road for any other rigid
-//! motion (`Unbuilt::Curved`, the tool no convex solid of revolution); geomsolver's commit carrying
-//! #880 Q2 builds it, and a release after 0.6.3 will.
 use crate::sketch::polygon;
 use cad_kernel::boolean::{combined, Op};
 use cad_kernel::build::{disc, prism};
