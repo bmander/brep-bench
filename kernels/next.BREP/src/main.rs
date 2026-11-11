@@ -9,9 +9,9 @@
 //! the solid to `OUT.step` with the kernel's own STEP writer, `export_step`, AP242) and prints one
 //! line of JSON: the kernel's own measures of the solid (`solid_mass_properties`, integrated from
 //! the B-rep), its faces by surface kind and whether it passes the kernel's validation, or a
-//! refusal. Given `-` for `OUT.stl` (the harness's timed run), it builds the solid and writes its
-//! STEP, and measures and meshes nothing. A kernel error is a refusal: the kernel declined, saying
-//! why. A case may also refuse in its own words, where the kernel has no operation for what it
+//! refusal. Given OUT.step, the STEP is the whole answer: it is written, and nothing is measured or
+//! meshed unless the writer declines. A kernel error is a refusal: the kernel declined, saying why.
+//! A case may also refuse in its own words, where the kernel has no operation for what it
 //! describes.
 use brep_kernel::{
     export_step, solid_mass_properties, tessellate_brep_watertight, write_binary_stl, AnalyticSurface,
@@ -193,14 +193,17 @@ fn step(solid: &BrepSolid, out_step: Option<&str>, case: &str, reply: &mut Value
 }
 
 /// The measures, face kinds and validity of `solid`, its triangles written to `out`; with
-/// `out_step`, the solid written there as STEP (`step`). Given `-` for `out`, the harness's timed
-/// run, its STEP alone: nothing measured or meshed.
+/// `out_step`, the solid written there as STEP (`step`). A STEP written is the whole answer:
+/// nothing is then measured or meshed.
 fn report(solid: &BrepSolid, out: &str, out_step: Option<&str>, case: &str) -> Result<Value, Refusal> {
-    if out == "-" {
-        let mut reply = json!({"status": "ok"});
-        step(solid, out_step, case, &mut reply);
-        return Ok(reply);
+    // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
+    // measured or meshed; only where the writer declines does the runner go on to its triangles
+    let mut written = json!({"status": "ok"});
+    step(solid, out_step, case, &mut written);
+    if out_step.is_some() && written.get("step_error").is_none() {
+        return Ok(written);
     }
+    let declined = written.get("step_error").cloned();
     let props = solid_mass_properties(solid).map_err(|e| format!("not measured: {e}"))?;
     let mut faces: BTreeMap<&str, usize> = BTreeMap::new();
     for face in solid.shells.iter().flat_map(|s| &s.faces) {
@@ -213,7 +216,9 @@ fn report(solid: &BrepSolid, out: &str, out_step: Option<&str>, case: &str) -> R
         "status": "ok", "volume": props.volume, "area": props.surface_area, "faces": faces,
         "valid": valid,
     });
-    step(solid, out_step, case, &mut reply);
+    if let Some(why) = declined {
+        reply["step_error"] = why;
+    }
     Ok(reply)
 }
 

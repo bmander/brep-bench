@@ -11,9 +11,8 @@
 //!
 //! Given `OUT.step`, it also writes the solid there as STEP (AP242) with the kernel's own writer,
 //! `solidcraft_kernel::step_export`, the one SolidCraft's app exports a body with. Where the
-//! writer declines the solid, no file is written and the reply says why in `step_error`. Given `-`
-//! for `OUT.stl` (the harness's timed run), it builds the solid and writes its STEP, and meshes
-//! nothing.
+//! writer declines the solid, no file is written and the reply says why in `step_error`. A STEP
+//! written is the whole answer: the solid is then not meshed, and `OUT.stl` not written.
 //!
 //! SolidCraft measures a solid from its tessellations (`solidcraft_kernel::measure`: fine and
 //! medium meshes, face by face), so the runner answers `"measured": "mesh"` and the harness takes
@@ -100,12 +99,8 @@ fn stl(mesh: &solidcraft_geom::Mesh) -> Vec<u8> {
     out
 }
 
-/// The faces and validity of `body`, its triangles written to `out`. Given `-` for `out`, the
-/// harness's timed run, nothing: the solid is built, and not meshed.
+/// The faces and validity of `body`, its triangles written to `out`.
 fn report(body: &Body, out: &str) -> Result<Value, KernelError> {
-    if out == "-" {
-        return Ok(json!({"status": "ok"}));
-    }
     let mut faces: BTreeMap<&str, usize> = BTreeMap::new();
     for f in 0..body.face_count() {
         *faces.entry(kind(face_surface(body, f))).or_default() += 1;
@@ -169,10 +164,17 @@ fn main() -> ExitCode {
         return ExitCode::from(2);
     };
     let reply = match build().and_then(|body| {
+        // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"):
+        // nothing meshed; only where the writer declines does the runner go on to its triangles
+        let declined = match out_step {
+            Some(path) => match step(&[&body], path) {
+                None => return Ok(json!({"status": "ok"})),
+                why => why,
+            },
+            None => None,
+        };
         let mut reply = report(&body, out)?;
-        if let Some(path) = out_step
-            && let Some(why) = step(&[&body], path)
-        {
+        if let Some(why) = declined {
             reply["step_error"] = json!(why);
         }
         Ok(reply)
@@ -180,10 +182,7 @@ fn main() -> ExitCode {
         Ok(reply) => reply,
         // the kernel said the solid is empty: no triangles, and the measures of nothing
         Err(Refusal(why)) if why.contains(solids::EMPTY) => {
-            if out != "-" {
-                std::fs::write(out, stl(&solidcraft_geom::Mesh::default()))
-                    .expect("the STL file writes");
-            }
+            std::fs::write(out, stl(&solidcraft_geom::Mesh::default())).expect("the STL file writes");
             let mut reply = json!({"status": "ok", "measured": "mesh", "faces": {}, "valid": false,
                                    "problems": [why]});
             // and no solid to write as STEP: the writer is given none, and says so

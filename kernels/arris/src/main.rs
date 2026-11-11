@@ -7,8 +7,8 @@
 //! `src/cases/boolean/napkin_ring.rs`, writes the solid's triangles to `OUT.stl` (and, if asked,
 //! the solid to `OUT.step` with arris's own STEP writer, `arris::io::step::write`, which writes
 //! AP214) and prints one line of JSON: arris's own measures of the solid, its faces by surface kind
-//! and whether it passes arris's checker, or a refusal. Given `-` for `OUT.stl` (the harness's
-//! timed run), it builds the solid and writes its STEP, and measures and meshes nothing. An arris
+//! and whether it passes arris's checker, or a refusal. Given OUT.step, the STEP is the whole
+//! answer: it is written, and nothing is measured or meshed unless the writer declines. An arris
 //! error is a refusal: the kernel declined, saying why. A case may also refuse in its own words,
 //! where arris has no operation for what it describes.
 use arris::check::{check, Level};
@@ -91,14 +91,17 @@ fn step(m: &Model, body: Body, out_step: Option<&str>, reply: &mut Value) {
 }
 
 /// The measures, face kinds and validity of `body`, its triangles written to `out`; with
-/// `out_step`, the body written there as STEP (`step`). Given `-` for `out`, the harness's timed
-/// run, its STEP alone: nothing measured or meshed.
+/// `out_step`, the body written there as STEP (`step`). A STEP written is the whole answer: nothing
+/// is then measured or meshed.
 fn report(m: &Model, body: Body, out: &str, out_step: Option<&str>) -> Result<Value, OpError> {
-    if out == "-" {
-        let mut reply = json!({"status": "ok"});
-        step(m, body, out_step, &mut reply);
-        return Ok(reply);
+    // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
+    // measured or meshed; only where the writer declines does the runner go on to its triangles
+    let mut written = json!({"status": "ok"});
+    step(m, body, out_step, &mut written);
+    if out_step.is_some() && written.get("step_error").is_none() {
+        return Ok(written);
     }
+    let declined = written.get("step_error").cloned();
     let props = mass_properties(m, body, &Control::NONE)?;
     let mut faces: BTreeMap<&str, usize> = BTreeMap::new();
     for f in m.faces(body)? {
@@ -124,7 +127,9 @@ fn report(m: &Model, body: Body, out: &str, out_step: Option<&str>) -> Result<Va
     let mut reply = json!({
         "status": "ok", "volume": props.volume, "area": props.area, "faces": faces, "valid": valid,
     });
-    step(m, body, out_step, &mut reply);
+    if let Some(why) = declined {
+        reply["step_error"] = why;
+    }
     Ok(reply)
 }
 

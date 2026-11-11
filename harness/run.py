@@ -11,23 +11,23 @@ of is missing. Writes results/<kernel>.json after a run of the whole suite (not 
 `--case`), or folds a plan's runs into the last one (`--plan`), and keeps each result's triangles
 as results/meshes/<kernel>/<case>.stl for the drawings and the viewer.
 
-What is measured is a kernel's shortest path to a boundary representation, and no more: each
-case is run twice. The **timed run** gives the runner `-` in place of OUT.stl, so that it builds
-the solid and, for a kernel whose runner writes STEP (`"step": true` in kernels.json), writes it
-as STEP, and meshes and measures nothing; the **graded run**, untimed, gives it OUT.stl, and its
-reply and triangles are graded. The timed run's wall-clock time, the CPU time it spent (user and
-system, over every thread) and its peak memory (the largest resident set) are kept, from the
-operating system's account of the runner's process (wait4), which harness/measure.py starts and
-waits for; nothing measured is graded. A timed run that runs out of time or refuses is the
-case's outcome, and the graded run is not made. So is what starting the runner costs, alone: it
-is given a case id no case has, `harness/start`, so that it starts and builds nothing, a few times
-over (`startup`). With `--one-core` a case the kernel built is given the timed run a second time
-on one core only, for what its other cores bought it; that run is timed and nothing else. What
-the STEP file of the timed run says the solid is made of is kept beside its result
-(harness/step.py), or that its kernel's writer refused, or that the run failed; like the runner's
-own `faces`, it is not graded. Times are kept to the microsecond: a kernel's own time, a run's
-less its runner's start-up, can be under a millisecond. Standard library only (where there is no
-wait4, only the time is kept; pinning to one core needs Linux).
+What is timed is a kernel's shortest path to a boundary representation, and no more. Each case is
+run once: a kernel whose runner writes STEP (`"step": true` in kernels.json) is given OUT.step as
+well as OUT.stl, and a STEP written is its whole answer: the runner neither measures nor meshes
+the solid. The file is then graded untimed: harness/step.py reads what it is made of, and Open
+CASCADE (harness/occt.py) measures its volume and area, to 1e-6, and meshes it for the drawings
+and the viewer. Only where there is no STEP (a kernel with no writer, or a writer that declined
+the solid) are the runner's own measures and triangles graded, as they always were. The run's
+wall-clock time, the CPU time it spent (user and system, over every thread) and its peak memory
+(the largest resident set) are kept, from the operating system's account of the runner's process
+(wait4), which harness/measure.py starts and waits for; nothing measured is graded. So is what
+starting the runner costs, alone: it is given a case id no case has, `harness/start`, so that it
+starts and builds nothing, a few times over (`startup`). With `--one-core` a case the kernel built
+is run a second time on one core only, for what its other cores bought it; that run is timed and
+nothing else. Times are kept to the microsecond: a kernel's own time, a run's less its runner's
+start-up, can be under a millisecond. Standard library only, but for Open CASCADE
+(`cadquery-ocp`), which harness/occt.py loads (where there is no wait4, only the time is kept;
+pinning to one core needs Linux).
 """
 import argparse
 import functools
@@ -36,6 +36,7 @@ import json
 import os
 import platform
 import re
+import select
 import shutil
 import subprocess
 import sys
@@ -172,10 +173,7 @@ def execute(argv, timeout, core=None):
             return Ran(code, o.read(), e.read(), seconds, cpu, peak)
 
 
-# what the timed run gives the runner for OUT.stl: no triangles to write, nothing to measure
-# (SPEC.md, "A runner")
-NO_MESH = "-"
-# the outcomes of a run that built a solid: its STEP is read, and it is run again on one core
+# the outcomes of a run that built a solid: it is run again on one core
 BUILT = ("pass", "built", "wrong")
 
 
@@ -188,35 +186,70 @@ def said(ran):
     return reply if isinstance(reply, dict) else None
 
 
-def timed_argv(command, cid, out_step):
-    """The timed run's command line: the case, `-` for OUT.stl, and OUT.step where the kernel's
-    runner writes STEP (`out_step`, else None)."""
-    return command + [cid, NO_MESH] + ([out_step] if out_step else [])
+def argv(command, cid, out_stl, out_step):
+    """A run's command line: the case, OUT.stl, and OUT.step where the kernel's runner writes STEP
+    (`out_step`, else None)."""
+    return command + [cid, out_stl] + ([out_step] if out_step else [])
 
 
-def graded(command, case, timeout, keep):
-    """The graded run of one case, untimed: the runner given OUT.stl, its reply and triangles
-    graded (outcome, why, reply, mesh). The triangles are kept as `keep`."""
-    with tempfile.TemporaryDirectory() as tmp:
-        out_stl = os.path.join(tmp, "result.stl")
-        ran = execute(command + [case["id"], out_stl], timeout)
-        if ran.code is None:
-            return "timeout", f"over {timeout} s (meshing it)", None, None
-        if ran.code != 0:
-            return "crashed", why_crashed(ran.stderr, ran.code), None, None
-        reply = said(ran)
-        if reply is None:
-            return "crashed", "no JSON reply", None, None
-        mesh = None
-        if reply.get("status") == "ok" and os.path.exists(out_stl):
-            try:
-                mesh = stl.check(stl.read(out_stl))
-            except (ValueError, OSError) as e:
-                return "wrong", f"unreadable STL: {e}", reply, None
-            # kept for the drawings and the viewer (results/meshes, not committed)
-            os.makedirs(os.path.dirname(keep), exist_ok=True)
-            shutil.copyfile(out_stl, keep)
-        return (*grade(case, reply, mesh), reply, mesh)
+# where harness/occt.py is, and the one process of it a run keeps, started when first wanted
+OCCT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "occt.py")
+reader = None
+
+
+def occt(out_step, out_stl, timeout):
+    """What Open CASCADE makes of the STEP file at `out_step` (harness/occt.py): {"volume",
+    "area", "solids"}, its triangles written to `out_stl`, or {"error": why}. Untimed. A reader
+    that runs past `timeout` is stopped, and the next file is read by a new one."""
+    global reader
+    if reader is None or reader.poll() is not None:
+        log = tempfile.TemporaryFile()
+        reader = subprocess.Popen([sys.executable, OCCT], stdin=subprocess.PIPE,
+                                  stdout=subprocess.PIPE, stderr=log, text=True, cwd=ROOT)
+        reader.log = log
+    reader.stdin.write(json.dumps({"step": out_step, "stl": out_stl}) + "\n")
+    reader.stdin.flush()
+    ready, _, _ = select.select([reader.stdout], [], [], timeout)
+    line = reader.stdout.readline() if ready else ""
+    if line:
+        return json.loads(line)
+    if ready:
+        # it stopped: Open CASCADE crashed on the file, or could not be loaded at all
+        reader.wait()
+        reader.log.seek(0)
+        said = reader.log.read().decode(errors="replace").strip().splitlines()
+        if any("No module named 'OCP'" in s for s in said):
+            sys.exit("harness/occt.py needs Open CASCADE: python3 -m pip install cadquery-ocp")
+        return {"error": "Open CASCADE stopped reading the file"
+                + (f": {said[-1][:200]}" if said else "")}
+    reader.kill()
+    reader.wait()
+    return {"error": f"Open CASCADE did not read the file in {timeout} s"}
+
+
+# how harness/step.py's verdict of a STEP file that is no closed B-rep reads, as a wrong answer
+NOT_A_SOLID = {"open": "its STEP's faces do not close into a solid",
+               "triangles": "its STEP holds triangles, and no B-rep",
+               "empty": "its STEP holds no solid and no faces"}
+
+
+def grade_step(case, made, read):
+    """The outcome of a run whose solid was written as STEP, graded on the file (SPEC.md,
+    "Grading"): its make-up as harness/step.py reads it (`made`) and its measures as Open CASCADE
+    takes them (`read`, harness/occt.py's answer). Pass (built for an unsettled case) or wrong."""
+    if "error" in made:
+        return "wrong", f"its STEP cannot be read: {made['error']}"
+    verdict = step.verdict(made)
+    if verdict in NOT_A_SOLID:
+        return "wrong", NOT_A_SOLID[verdict]
+    if "error" in read:
+        return "wrong", read["error"]
+    exp = case["expect"]
+    if exp is None:
+        return "built", ""
+    why = [f"{key} {read[key]} against {exp[key]['value']:.12g} (its STEP's)"
+           for key in ("volume", "area") if not near(read[key], exp[key]["value"], EXACT)]
+    return ("pass", "") if not why else ("wrong", "; ".join(why))
 
 
 # the largest STEP file kept for the viewer, in bytes: a faceted solid's runs to tens of
@@ -225,45 +258,63 @@ def graded(command, case, timeout, keep):
 STEP_KEPT = 5_000_000
 
 
-def made_of(ran, reply, out_step, keep):
-    """The make-up of the solid in STEP, as the timed run wrote it to `out_step` (SPEC.md, "STEP").
-    The file is kept as `keep`, for the viewer, if it is no larger than STEP_KEPT. Where there is
-    no file to read: {"refused": why} where the runner said why its kernel's writer declined
-    (`step_error`), else {"error": why}, a failure: the runner crashed, wrote nothing and said
-    nothing, or wrote what could not be read."""
-    if ran.code != 0:
-        return {"error": why_crashed(ran.stderr, ran.code)}
-    if not os.path.exists(out_step):
-        if reply and reply.get("step_error"):
-            return {"refused": str(reply["step_error"])}
-        return {"error": "no STEP written, and no step_error saying why"}
-    try:
-        makeup = step.read(out_step)
-    except (ValueError, OSError) as e:
-        return {"error": f"unreadable STEP: {e}"}
-    if os.path.getsize(out_step) <= STEP_KEPT:
-        os.makedirs(os.path.dirname(keep), exist_ok=True)
-        shutil.copyfile(out_step, keep)
-    return makeup
+def keep_file(path, keep):
+    os.makedirs(os.path.dirname(keep), exist_ok=True)
+    shutil.copyfile(path, keep)
 
 
 def run_one(command, case, timeout, keep, keep_step, writes_step):
-    """Run and grade one case (SPEC.md, "A runner"): first the timed run, the runner given `-` for
-    OUT.stl, building the solid and, where `writes_step`, writing it as STEP; then, unless that
-    ran out of time or refused, the graded run, untimed, with OUT.stl. (outcome, why, reply, mesh,
-    how the timed run ran, its STEP's make-up or None)."""
+    """Run and grade one case (SPEC.md, "A runner"), in one run, the one timed. Where the runner
+    wrote its solid as STEP, the file is graded (`grade_step`), and Open CASCADE's triangles of it
+    kept; else its own triangles and measures are, as a kernel with no STEP writer's always are.
+    (outcome, why, its measures and how they were taken: a reply, mesh, how it ran, its STEP's
+    make-up or None)."""
     with tempfile.TemporaryDirectory() as tmp:
+        out_stl = os.path.join(tmp, "result.stl")
         out_step = os.path.join(tmp, "result.step") if writes_step else None
-        ran = execute(timed_argv(command, case["id"], out_step), timeout)
+        ran = execute(argv(command, case["id"], out_stl, out_step), timeout)
         if ran.code is None:
             return "timeout", f"over {timeout} s", None, None, ran, None
-        reply = said(ran) if ran.code == 0 else None
-        if reply and reply.get("status") == "refused":
-            return "refused", reply.get("reason", ""), reply, None, ran, None
-        outcome, why, graded_reply, mesh = graded(command, case, timeout, keep)
-        made = (made_of(ran, reply, out_step, keep_step)
-                if writes_step and outcome in BUILT else None)
-        return outcome, why, graded_reply, mesh, ran, made
+        if ran.code != 0:
+            return "crashed", why_crashed(ran.stderr, ran.code), None, None, ran, None
+        reply = said(ran)
+        if reply is None:
+            return "crashed", "no JSON reply", None, None, ran, None
+        if reply.get("status") != "ok":
+            return (*grade(case, reply, None), reply, None, ran, None)
+        made = None
+        if out_step and os.path.exists(out_step):
+            # the STEP is the answer: Open CASCADE measures it and meshes it, untimed
+            try:
+                made = step.read(out_step)
+            except (ValueError, OSError) as e:
+                made = {"error": f"unreadable STEP: {e}"}
+            read = occt(out_step, out_stl, timeout) if "error" not in made else {}
+            outcome, why = grade_step(case, made, read)
+            if "error" not in made and os.path.getsize(out_step) <= STEP_KEPT:
+                keep_file(out_step, keep_step)
+            measures = {"status": "ok", "measured": "step", "volume": read.get("volume"),
+                        "area": read.get("area")}
+        else:
+            # no STEP: the kernel has no writer, or its writer declined the solid (`step_error`),
+            # and the runner wrote its own triangles in its place
+            if out_step:
+                made = ({"refused": str(reply["step_error"])} if reply.get("step_error") else
+                        {"error": "no STEP written, and no step_error saying why"})
+            measures = reply
+        mesh = None
+        if os.path.exists(out_stl) and os.path.getsize(out_stl):
+            try:
+                mesh = stl.check(stl.read(out_stl))
+            except (ValueError, OSError) as e:
+                if measures is reply:
+                    return "wrong", f"unreadable STL: {e}", reply, None, ran, made
+            else:
+                # kept for the drawings and the viewer (results/meshes, not committed)
+                keep_file(out_stl, keep)
+        if measures is reply:
+            outcome, why = grade(case, reply, mesh)
+        return outcome, why, measures, mesh, ran, made
 
 
 # the decimal places a time in seconds is kept to: microseconds
@@ -271,11 +322,12 @@ TIME_PLACES = 6
 
 
 def one_core_seconds(command, case, timeout, core, writes_step):
-    """The wall-clock time of the case's timed run made again on `core` alone, or None if it ran
-    out of time or failed. Nothing of the run but its time is kept."""
+    """The wall-clock time of the case run again on `core` alone, or None if it ran out of time or
+    failed. Nothing of the run but its time is kept."""
     with tempfile.TemporaryDirectory() as tmp:
         out_step = os.path.join(tmp, "result.step") if writes_step else None
-        ran = execute(timed_argv(command, case["id"], out_step), timeout, core)
+        ran = execute(argv(command, case["id"], os.path.join(tmp, "result.stl"), out_step),
+                      timeout, core)
     return round(ran.seconds, TIME_PLACES) if ran.code == 0 else None
 
 
@@ -291,7 +343,7 @@ STARTS = 5
 
 def startup(k, timeout, one_core=None):
     """What starting kernel `k`'s runner costs, building nothing: the median of STARTS runs given
-    NO_CASE as the timed run is given a case, of their time, CPU time and peak memory, and with
+    NO_CASE as a run is given a case, of their time, CPU time and peak memory, and with
     `one_core` of their time on that core alone, after one start not counted (the first after a
     build reads its files from disk). None if the runner does not exit of itself in time."""
     def median(xs):
@@ -299,18 +351,18 @@ def startup(k, timeout, one_core=None):
         return xs[len(xs) // 2] if xs else None
 
     with tempfile.TemporaryDirectory() as tmp:
-        argv = timed_argv(k["command"], NO_CASE,
-                          os.path.join(tmp, "none.step") if k.get("step") is True else None)
-        if execute(argv, min(timeout, 60)).code is None:
+        started = argv(k["command"], NO_CASE, os.path.join(tmp, "none.stl"),
+                       os.path.join(tmp, "none.step") if k.get("step") is True else None)
+        if execute(started, min(timeout, 60)).code is None:
             return None
-        runs = [execute(argv, min(timeout, 60)) for _ in range(STARTS)]
+        runs = [execute(started, min(timeout, 60)) for _ in range(STARTS)]
         if any(r.code is None for r in runs):
             return None
         out = {"seconds": round(median(r.seconds for r in runs), TIME_PLACES),
                "cpu_seconds": rounded(median(r.cpu for r in runs), TIME_PLACES),
                "peak_mb": rounded(median(r.peak_mb for r in runs), 1)}
         if one_core is not None:
-            pinned = [execute(argv, min(timeout, 60), one_core) for _ in range(STARTS)]
+            pinned = [execute(started, min(timeout, 60), one_core) for _ in range(STARTS)]
             out["one_core_seconds"] = round(median(r.seconds for r in pinned), TIME_PLACES)
     return out
 
@@ -377,10 +429,9 @@ def step_said(row):
 
 
 def run_kernel(k, chosen, timeout, one_core=None):
-    """Run `chosen` cases with kernel `k`: its rows, one per case, in case order. A row's time, CPU
-    time and peak memory are its timed run's (`run_one`). With `one_core`, a core's number, each
-    case it builds (passes, builds or answers wrong) has its timed run made again on that core
-    alone for `one_core_seconds`."""
+    """Run `chosen` cases with kernel `k`: its rows, one per case, in case order. With `one_core`,
+    a core's number, each case it builds (passes, builds or answers wrong) is run again on that
+    core alone for `one_core_seconds`."""
     writes_step = k.get("step") is True
     rows = []
     for c in chosen:

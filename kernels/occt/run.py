@@ -8,9 +8,9 @@ Loads the case's implementation, `cases/<category>/<name_snake>.py` beside this 
 `build()`, and measures the solid it returns with OCCT's own tools: its volume and area
 (BRepGProp), its faces by surface kind, its validity (BRepCheck_Analyzer). It meshes the solid
 and writes the triangles to OUT.stl, and if asked the solid to OUT.step (STEPControl_Writer, AP214),
-then prints one line of JSON (SPEC.md, "A runner"). Given `-` for OUT.stl (the harness's timed
-run), it builds the solid and writes its STEP, and measures and meshes nothing. The runner never
-reads the case's description: the implementation is the whole of the case here.
+then prints one line of JSON (SPEC.md, "A runner"). A STEP written is the whole answer: the solid
+is then not measured or meshed, and OUT.stl not written. The runner never reads the case's
+description: the implementation is the whole of the case here.
 Needs `cadquery-ocp`.
 """
 import importlib.util
@@ -105,7 +105,7 @@ def measure(shape, out_stl):
 
 def step(shape, out_step):
     """Writes the solid to `out_step` as STEP (AP214) with OCCT's own writer; why not, or None.
-    Its modules are loaded here, only when a STEP is asked for, so a timed run does not load them."""
+    Its modules are loaded here, only when a STEP is asked for."""
     from OCP.IFSelect import IFSelect_ReturnStatus
     from OCP.Interface import Interface_Static
     from OCP.Message import Message
@@ -132,9 +132,13 @@ def main():
     out_step = sys.argv[3] if len(sys.argv) == 4 else None
     try:
         shape = implementation(case_id).build()
-        reply = {"status": "ok"} if out_stl == "-" else measure(shape, out_stl)
-        if out_step:
-            why = step(shape, out_step)
+        # a STEP written is the whole answer (SPEC.md, "A runner"): nothing measured or meshed;
+        # only where the writer declines does the runner go on to its measures and triangles
+        why = step(shape, out_step) if out_step else None
+        if out_step and not why:
+            reply = {"status": "ok"}
+        else:
+            reply = measure(shape, out_stl)
             if why:
                 reply["step_error"] = why
     except Refused as why:

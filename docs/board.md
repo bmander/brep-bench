@@ -23,7 +23,7 @@ descending, then back to the order drawn, with blank cells last. It has:
   implementations and what makes each so, its faceted solids, its STEP verdicts tallied with the
   cases whose STEP is not a closed B-rep and why, and its times and memory.
 - **A performance page:** every run's time, CPU time or peak memory as a log-scale dot plot, each
-  of the timed run alone, which builds the solid and writes it as STEP and does not mesh it; a
+  the solid built and written as STEP, not meshed or measured, where its kernel writes STEP; a
   summary per kernel; kernels compared pairwise, as geometric-mean ratios over the cases both
   pass; medians by category and the slowest cases; multicore use (cores kept busy, speedup over
   one core, efficiency); and each kernel's binary size. Each runner's start-up time is left out
@@ -39,8 +39,8 @@ descending, then back to the order drawn, with blank cells last. It has:
   the edges between them drawn; only where it has no STEP file to show (its kernel writes none,
   or the file is larger than 5 MB) or the file cannot be read, its runner's triangles instead,
   with any open edges of the mesh marked in red;
-  its time (its timed run's: the solid built and written as STEP, not meshed; see
-  [SPEC.md](../SPEC.md#the-timed-run)); its notes (why it failed, what it works around, what makes it elegant); its data (its measures against the
+  its time (the solid built and written as STEP, not meshed; see
+  [SPEC.md](../SPEC.md#step-is-the-answer)); its notes (why it failed, what it works around, what makes it elegant); its data (its measures against the
   expected ones, which other kernels it agrees with, its faces, its mesh and its STL to download,
   and its STEP: its verdict (below) and what its STEP file says the solid is made of: whether it
   is a B-rep of faces on surfaces, a faceted B-rep or triangles, its faces by surface, its edges

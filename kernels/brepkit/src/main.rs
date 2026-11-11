@@ -11,8 +11,8 @@
 //! (`measure::solid_volume` and `measure::solid_surface_area`), its faces by surface kind and
 //! whether it passes `validate::validate_solid`, or a refusal. A kernel error is a refusal: the
 //! kernel declined, saying why. A case may also refuse in its own words, where the kernel has no
-//! operation for what it describes. Given `-` for `OUT.stl` (the harness's timed run), it builds
-//! the solid and writes its STEP, and measures and meshes nothing.
+//! operation for what it describes. Given OUT.step, the STEP is the whole answer: it is written,
+//! and nothing is measured or meshed unless the writer declines.
 //!
 //! brepkit measures exactly where it can (planar solids, analytic primitives, solids of planes and
 //! quadrics) and otherwise integrates a tessellation of its exact faces; the runner asks it for a
@@ -169,8 +169,8 @@ fn step(topo: &Topology, solids: &[SolidId], out_step: Option<&str>, reply: &mut
 }
 
 /// The measures, face kinds and validity of `solids`, their triangles written to `out` and, if
-/// asked, the solids to `out_step` as STEP (`step`). Given `-` for `out`, the harness's timed run,
-/// their STEP alone: nothing measured or meshed.
+/// asked, the solids to `out_step` as STEP (`step`). A STEP written is the whole answer: nothing is
+/// then measured or meshed.
 fn report(
     topo: &Topology,
     solids: &[SolidId],
@@ -180,11 +180,14 @@ fn report(
     if solids.is_empty() {
         return Err("the operation left no solid".into());
     }
-    if out == "-" {
-        let mut reply = json!({"status": "ok"});
-        step(topo, solids, out_step, &mut reply);
-        return Ok(reply);
+    // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
+    // measured or meshed; only where the writer declines does the runner go on to its triangles
+    let mut written = json!({"status": "ok"});
+    step(topo, solids, out_step, &mut written);
+    if out_step.is_some() && written.get("step_error").is_none() {
+        return Ok(written);
     }
+    let declined = written.get("step_error").cloned();
     let diag = extent(topo, solids)?;
     // brepkit's measures tessellate what they cannot integrate exactly; ask for a fine one (they
     // clamp it to a small fraction of the solid's extent besides)
@@ -208,7 +211,9 @@ fn report(
     let mut reply = json!({
         "status": "ok", "volume": volume, "area": area, "faces": faces, "valid": valid,
     });
-    step(topo, solids, out_step, &mut reply);
+    if let Some(why) = declined {
+        reply["step_error"] = why;
+    }
     Ok(reply)
 }
 

@@ -8,9 +8,8 @@ Loads the case's implementation, `cases/<category>/<name_snake>.py` beside this 
 `build()`, and measures the solid it returns with SMLib's own tools: its volume and area
 (SmApiBrepComputeVolume, SmApiBrepComputeArea), its faces, and whether it is a closed manifold
 solid. It meshes the solid with SMLib's tessellator, writes the triangles to OUT.stl, and prints
-one line of JSON (SPEC.md, "A runner"). Given `-` for OUT.stl (the harness's timed run), it builds
-the solid, and measures and meshes nothing: SMLib has no STEP writer here. The runner never reads
-the case's description: the implementation is the whole of the case here. Needs `usd-brep`.
+one line of JSON (SPEC.md, "A runner"). The runner never reads the case's description: the
+implementation is the whole of the case here. Needs `usd-brep`.
 """
 import importlib.util
 import json
@@ -116,7 +115,7 @@ def main():
     build = implementation(case_id).build
     try:
         solid = build()
-        reply = {"status": "ok"} if out_stl == "-" else measure(solid, out_stl)
+        reply = measure(solid, out_stl)
     except Refused as why:
         reply = {"status": "refused", "reason": str(why)}
     print(json.dumps(reply))

@@ -687,14 +687,18 @@ def entry(en, exp):
                    f"kernels' solids have {en['facets']:g} (the median): a mesh stored as B-rep "
                    "faces.</p>")
     if row and row.get("measured") == "mesh":
-        out.append("<p class=muted>It has no exact measures: its volume and area are its "
-                   f"triangles', graded to {FROM_MESH:g}.</p>")
+        out.append("<p class=muted>It wrote no STEP, and has no exact measures: its volume and "
+                   f"area are its triangles', graded to {FROM_MESH:g}.</p>")
+    elif row and row.get("measured") == "step":
+        out.append("<p class=muted>Its volume and area are its STEP file's, as Open CASCADE "
+                   "measures them, and its triangles Open CASCADE's mesh of the file.</p>")
 
     out.append("<h3>Data</h3>")
     facts = []
     if en["measures"]:
         *got, from_mesh = en["measures"]
-        whose = "its triangles'" if from_mesh else "measured"
+        whose = ("its triangles'" if from_mesh else
+                 "its STEP's" if row.get("measured") == "step" else "measured")
         table = [f"<tr><th></th><th>{whose}</th>"
                  + ("<th>expected</th><th>rel. error</th>" if exp else "") + "</tr>"]
         for key, x in zip(KEYS, got):

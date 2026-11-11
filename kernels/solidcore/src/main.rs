@@ -10,10 +10,10 @@
 //! surface kind as its record names them, and the kernel's validity check (`Body::check`). It
 //! meshes the body with solidcore-tess, solidcore's one mesher, into OUT.stl, writes it as STEP
 //! into OUT.step if asked (solidcore's own writer, step-export, through step-brep: see
-//! [`write_step`]) and prints one line of JSON. Given `-` for OUT.stl (the harness's timed run), it
-//! builds the body and writes its STEP, and measures and meshes nothing. An operation's error is a
-//! refusal: the kernel declined, saying why. A case may also refuse in its own words, where solidcore has no
-//! operation for what it describes. The runner never reads the case's description.
+//! [`write_step`]) and prints one line of JSON. Given OUT.step, the STEP is the whole answer: it is
+//! written, and nothing is measured or meshed unless the writer declines. An operation's error is a
+//! refusal: the kernel declined, saying why. A case may also refuse in its own words, where
+//! solidcore has no operation for what it describes. The runner never reads the case's description.
 use solidcore::geom::attribute::AttributeStore;
 use solidcore::kernel::{Kernel, UpstreamFixes};
 use solidcore::topology::api_files::read_brep_from_file;
@@ -174,11 +174,11 @@ fn write_step(body: &Body, path: &str) -> Result<(), String> {
     Ok(())
 }
 
-/// The reply for a body built: its measures, once its triangles are written (and its STEP, if
-/// asked for: where the writer declines, the reply says why in `step_error`). The mesh keeps
-/// within a ten-thousandth of the body's size, or 1/200 of its thickness (its volume over its
-/// area) where that is less: the reference runner's rule (`kernels/occt/run.py`). Given `-` for
-/// `out`, the harness's timed run, its STEP alone: nothing measured or meshed.
+/// The reply for a body built: its measures, once its triangles are written (and its STEP, if asked
+/// for: where the writer declines, the reply says why in `step_error`). The mesh keeps within a
+/// ten-thousandth of the body's size, or 1/200 of its thickness (its volume over its area) where
+/// that is less: the reference runner's rule (`kernels/occt/run.py`). A STEP written is the whole
+/// answer: nothing is then measured or meshed.
 fn measured(body: &Body, out: &str, out_step: Option<&str>) -> Result<String, Refusal> {
     let step_error = || {
         out_step
@@ -186,8 +186,11 @@ fn measured(body: &Body, out: &str, out_step: Option<&str>) -> Result<String, Re
             .map(|e| format!(",\"step_error\":{}", quoted(&e)))
             .unwrap_or_default()
     };
-    if out == "-" {
-        return Ok(format!("{{\"status\":\"ok\"{}}}", step_error()));
+    // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
+    // measured or meshed; only where the writer declines does the runner go on to its triangles
+    let step_error = step_error();
+    if out_step.is_some() && step_error.is_empty() {
+        return Ok("{\"status\":\"ok\"}".into());
     }
     let volume = finest(|a| body.volume(a)).map_err(|e| format!("volume not measured: {e}"))?;
     let area = finest(|a| body.area(a)).map_err(|e| format!("area not measured: {e}"))?;
@@ -213,7 +216,6 @@ fn measured(body: &Body, out: &str, out_step: Option<&str>) -> Result<String, Re
         return Err(format!("not meshed: face {}: {}", f.face, f.reason).into());
     }
     write_stl(out, &mesh).map_err(|e| format!("{out} not written: {e}"))?;
-    let step_error = step_error();
     Ok(format!(
         "{{\"status\":\"ok\",\"volume\":{volume:e},\"area\":{area:e},\"faces\":{{{faces}}},\"valid\":{valid}{step_error}}}"
     ))

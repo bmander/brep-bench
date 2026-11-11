@@ -11,8 +11,8 @@
 //! popkern's gate tessellation (the mesh `assert_watertight` checks), welded by popkern's own weld.
 //! Asked for `OUT.step`, the runner also writes the part there with popkern's own STEP writer,
 //! `Part::step_bytes` (what `Part::export_step` writes: `popkern_io::export_step`, AP214), or says
-//! in `step_error` why the writer declined it. Given `-` for `OUT.stl` (the harness's timed run),
-//! it builds the part and writes its STEP, and measures and meshes nothing.
+//! in `step_error` why the writer declined it. Given OUT.step, the STEP is the whole answer: it is
+//! written, and nothing is measured or meshed unless the writer declines.
 //!
 //! popkern sorts its own errors: a feature the kernel declines (`FeatureFailed`, `BooleanFailed`,
 //! …) is a refusal, in popkern's words. So is a script's own `throw "…"`: a case that refuses,
@@ -92,8 +92,8 @@ fn step(part: &Part, out_step: Option<&Path>, reply: &mut Value) -> Result<(), F
 }
 
 /// Run the case's script and report the part it built, its triangles written to `out`; with
-/// `out_step`, the part written there as STEP (`step`). Given `-` for `out`, the harness's timed
-/// run, its STEP alone: nothing measured or meshed.
+/// `out_step`, the part written there as STEP (`step`). A STEP written is the whole answer: nothing
+/// is then measured or meshed.
 fn build(script: &Path, out: &str, out_step: Option<&Path>) -> Result<Value, Failure> {
     let source = std::fs::read_to_string(script)
         .map_err(|e| Failure::Fault(format!("{}: {e}", script.display())))?;
@@ -114,11 +114,14 @@ fn build(script: &Path, out: &str, out_step: Option<&Path>) -> Result<Value, Fai
         return Err(Failure::Fault("the script built an assembly, not a part".into()));
     };
     let part = model.to_part().map_err(|e| Failure::Refused(e.to_string()))?;
-    if out == "-" {
-        let mut reply = json!({"status": "ok"});
-        step(&part, out_step, &mut reply)?;
-        return Ok(reply);
+    // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
+    // measured or meshed; only where the writer declines does the runner go on to its triangles
+    let mut written = json!({"status": "ok"});
+    step(&part, out_step, &mut written)?;
+    if out_step.is_some() && written.get("step_error").is_none() {
+        return Ok(written);
     }
+    let declined = written.get("step_error").cloned();
     let brep = part.brep();
     let tolerance = part.tolerance();
     let volume = popkern_measure::body_volume(brep, &tolerance)
@@ -141,7 +144,9 @@ fn build(script: &Path, out: &str, out_step: Option<&Path>) -> Result<Value, Fai
     write_stl(&welded, Path::new(out)).map_err(|e| Failure::Fault(format!("no STL written: {e}")))?;
     let mut reply =
         json!({"status": "ok", "volume": volume, "area": area, "faces": faces, "valid": valid});
-    step(&part, out_step, &mut reply)?;
+    if let Some(why) = declined {
+        reply["step_error"] = why;
+    }
     Ok(reply)
 }
 
