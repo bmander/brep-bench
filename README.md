@@ -53,7 +53,7 @@ changes locally. See [running the bench](docs/running.md) for more.
 ## Kernels
 
 Open CASCADE (through Python), arris, cad-kernel, vcad, popkern, SolidCraft, Aetheris, next.BREP,
-kentron, brepkit, solidcore, geop and cadrs; monstertruck is listed but has no runner yet. See [the
+kentron, brepkit, solidcore, geop, cadrs and SMLib; monstertruck is listed but has no runner yet. See [the
 kernels](docs/kernels.md) for links and details.
 
 ## Contributing
