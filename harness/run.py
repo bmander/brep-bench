@@ -39,8 +39,8 @@ import glob
 import json
 import os
 import platform
+import collections
 import re
-import select
 import shutil
 import subprocess
 import sys
@@ -181,13 +181,18 @@ def execute(argv, timeout, core=None):
 BUILT = ("pass", "built", "wrong")
 
 
-def said(ran):
-    """A runner's reply, the last line of its standard output as JSON, or None."""
+def last_json(text):
+    """The last line of a program's output as a JSON object, or None."""
     try:
-        reply = json.loads(ran.stdout.strip().splitlines()[-1])
+        reply = json.loads(text.strip().splitlines()[-1])
     except (ValueError, IndexError):
         return None
     return reply if isinstance(reply, dict) else None
+
+
+def said(ran):
+    """A runner's reply, the last line of its standard output as JSON, or None."""
+    return last_json(ran.stdout)
 
 
 def argv(command, cid, out_stl, out_step):
@@ -201,35 +206,38 @@ def argv(command, cid, out_stl, out_step):
 MASS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mass.py")
 
 
-def mass_of(out_step, timeout, by_surface=False):
+def mass_of(out_step, timeout):
     """The mass properties of the solid in the STEP file at `out_step` (harness/mass.py):
-    {"volume", "area", "centroid", "inertia", ...}, or {"invalid": why} where the file holds no
-    solid, or {"error": why} where it cannot measure the file. With `by_surface`, its faces' loops
-    taken by their surfaces' normals, not the faces' (a diagnosis). Untimed."""
+    {"volume", "area", "centroid", "inertia", ...} (and `by_surface`, the solid with its loops
+    taken by their surfaces' normals, where that differs), or {"invalid": why} where the file
+    holds no solid, or {"error": why} where it cannot measure the file. Untimed."""
     try:
-        p = subprocess.run([sys.executable, MASS, *(["--loops-by-surface"] if by_surface else []),
-                            out_step], capture_output=True, text=True, timeout=timeout, cwd=ROOT)
+        p = subprocess.run([sys.executable, MASS, out_step], capture_output=True, text=True,
+                           timeout=timeout, cwd=ROOT)
     except subprocess.TimeoutExpired:
         return {"error": f"not measured in {timeout:g} s"}
-    try:
-        return json.loads(p.stdout.strip().splitlines()[-1])
-    except (ValueError, IndexError):
-        said = (p.stderr.strip().splitlines() or ["no answer"])[-1]
-        return {"error": f"harness/mass.py failed: {said[:200]}"}
+    answer = last_json(p.stdout)
+    if answer is None:
+        said_ = (p.stderr.strip().splitlines() or ["no answer"])[-1]
+        return {"error": f"harness/mass.py failed: {said_[:200]}"}
+    return answer
 
 
 # how long the harness gives itself to measure a STEP file before it falls back to the runner's own
 # measures (`--mass-timeout`), apart from the time a runner is given: a file is rarely slow to
 # measure, and one that is should not hold up the run for the case's whole limit
 MASS_TIMEOUT = 30.0
+
+
+def cores():
+    """How many cores the run may use."""
+    return len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else \
+        (os.cpu_count() or 1)
+
+
 # how many files are measured at once, once every case has run (`--jobs`): measuring is untimed,
 # so it may use every core, but only after the timed runs, which it would disturb
-JOBS = len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else (os.cpu_count() or 1)
-
-
-def set_measuring(limit, jobs):
-    global MASS_TIMEOUT, JOBS
-    MASS_TIMEOUT, JOBS = limit, jobs
+JOBS = cores()
 
 
 class MassCache:
@@ -239,10 +247,11 @@ class MassCache:
     measurer, with this time limit, made of the files: a change to harness/mass.py or
     harness/step.py, or to the limit, starts it afresh."""
 
-    def __init__(self, kernel):
+    def __init__(self, kernel, limit=MASS_TIMEOUT, jobs=JOBS):
+        self.limit, self.jobs = limit, jobs
         self.path = os.path.join(ROOT, "results", "mass", kernel + ".json")
-        digest = hashlib.sha256(f"limit {MASS_TIMEOUT:g}\0".encode())
-        for name in ("mass.py", "step.py"):
+        digest = hashlib.sha256(f"limit {limit:g}\0".encode())
+        for name in ("mass.py", "step.py", "stl.py"):
             with open(os.path.join(os.path.dirname(MASS), name), "rb") as f:
                 digest.update(f.read())
         self.version = digest.hexdigest()
@@ -257,28 +266,24 @@ class MassCache:
         self.hits = 0
         self.used = set()
 
-    @staticmethod
-    def key(path, by_surface):
-        with open(path, "rb") as f:
-            return hashlib.sha256(f.read()).hexdigest() + (":by-surface" if by_surface else "")
-
-    def measure(self, paths, by_surface=False):
-        """`mass_of` each of `paths`, from the cache where it has it, the rest JOBS at once:
-        {path: measures}."""
-        out, todo = {}, []
-        for p in paths:
-            k = self.key(p, by_surface)
+    def measure(self, paths):
+        """Each of `paths` measured (`mass_of`), from the cache where it has it, the rest `jobs` at
+        once, and Open CASCADE's triangles of each measured written beside it, its name's .step
+        made .stl, for the pictures (`triangles`): {path: measures}."""
+        def one(p):
+            with open(p, "rb") as f:
+                k = hashlib.sha256(f.read()).hexdigest()
             self.used.add(k)
-            if k in self.files:
-                out[p] = self.files[k]
-                self.hits += 1
+            got = self.files.get(k)
+            if got is None:
+                got = self.files[k] = mass_of(p, self.limit)
             else:
-                todo.append((p, k))
-        with concurrent.futures.ThreadPoolExecutor(max(1, JOBS)) as pool:
-            done = pool.map(lambda pk: mass_of(pk[0], MASS_TIMEOUT, by_surface), todo)
-            for (p, k), r in zip(todo, done):
-                out[p] = self.files[k] = r
-        return out
+                self.hits += 1
+            if "volume" in got and got.get("area"):
+                triangles(p, p[:-len(".step")] + ".stl", abs(got["volume"]) / got["area"])
+            return got
+        with concurrent.futures.ThreadPoolExecutor(max(1, self.jobs)) as pool:
+            return dict(zip(paths, pool.map(one, paths)))
 
     def save(self, prune=False):
         """Write it; with `prune`, after a run of every case, holding only the files that run
@@ -297,17 +302,17 @@ PICTURE_TIMEOUT = 15.0
 no_occt = False
 
 
-def triangles(out_step, out_stl):
+def triangles(out_step, out_stl, thickness):
     """Open CASCADE's triangles of the solid in the STEP file at `out_step`, written to `out_stl`
-    (harness/occt.py), for the drawings and the viewer: whether it wrote them. Untimed, not
-    graded, in a process of its own; where Open CASCADE is not installed, there are none."""
+    (harness/occt.py), as finely as its `thickness` (volume over area) asks, for the drawings and
+    the viewer: whether it wrote them. Untimed, not graded, in a process of its own; where Open
+    CASCADE is not installed, there are none."""
     global no_occt
     if no_occt:
         return False
     try:
-        p = subprocess.run([sys.executable, OCCT], input=json.dumps(
-            {"step": out_step, "stl": out_stl}) + "\n", capture_output=True, text=True,
-            timeout=PICTURE_TIMEOUT, cwd=ROOT)
+        p = subprocess.run([sys.executable, OCCT, out_step, out_stl, repr(thickness)],
+                           capture_output=True, text=True, timeout=PICTURE_TIMEOUT, cwd=ROOT)
     except subprocess.TimeoutExpired:
         return False
     if "No module named 'OCP'" in p.stderr:
@@ -315,10 +320,8 @@ def triangles(out_step, out_stl):
         print("harness/occt.py: Open CASCADE (cadquery-ocp) is not installed, so STEP files "
               "are not meshed for the drawings and the viewer", file=sys.stderr)
         return False
-    try:
-        return "error" not in json.loads(p.stdout.strip().splitlines()[-1])
-    except (ValueError, IndexError):
-        return False
+    answer = last_json(p.stdout)
+    return answer is not None and "error" not in answer
 
 
 # how harness/step.py's verdict of a STEP file that is no closed B-rep reads, as a wrong answer
@@ -359,11 +362,11 @@ def keep_file(path, keep):
     shutil.copyfile(path, keep)
 
 
-def graded(case, ran, out_stl, keep):
+def graded(case, ran, out_stl, keep, timeout):
     """A run graded on the runner's own reply and triangles, as a kernel with no STEP is:
     (outcome, why, reply, mesh)."""
     if ran.code is None:
-        return "timeout", "over the time limit", None, None
+        return "timeout", f"over {timeout} s", None, None
     if ran.code != 0:
         return "crashed", why_crashed(ran.stderr, ran.code), None, None
     reply = said(ran)
@@ -380,12 +383,17 @@ def graded(case, ran, out_stl, keep):
     return (*grade(case, reply, mesh), reply, mesh)
 
 
+# what a case's timed run gave: its outcome (None while its STEP waits to be measured), why, the
+# measures and how they were taken, its triangles' check, how it ran, its STEP's make-up, and the
+# copy of its STEP waiting to be measured (or None)
+First = collections.namedtuple("First", "outcome why reply mesh ran made pending")
+
+
 def first_run(command, case, timeout, keep, keep_step, writes_step, work):
-    """The timed run of one case (SPEC.md, "A runner"), and what can be graded of it at once.
-    Where the runner wrote its solid as STEP and the file holds a closed solid, the file is kept
-    in `work` to be measured once every case has run (`settle`): {"pending": path}. Else the
-    case is graded now, on the runner's own reply and triangles where it wrote no STEP. Either
-    way: (outcome or None, why, reply, mesh, how it ran, its STEP's make-up or None, pending)."""
+    """The timed run of one case (SPEC.md, "A runner"), and what can be graded of it at once
+    (`First`). Where the runner wrote its solid as STEP and the file holds a closed solid, the
+    file is kept in `work` to be measured once every case has run (`settle`); else the case is
+    graded now, on the runner's own reply and triangles where it wrote no STEP."""
     with tempfile.TemporaryDirectory() as tmp:
         out_stl = os.path.join(tmp, "result.stl")
         out_step = os.path.join(tmp, "result.step") if writes_step else None
@@ -395,46 +403,47 @@ def first_run(command, case, timeout, keep, keep_step, writes_step, work):
                 and reply.get("status") == "ok"):
             # no STEP: the kernel has no writer, or its writer declined the solid (`step_error`),
             # and the runner wrote its own triangles in its place; or the run failed
-            outcome, why, reply, mesh = graded(case, ran, out_stl, keep)
-            if outcome == "timeout":
-                why = f"over {timeout} s"
+            outcome, why, reply, mesh = graded(case, ran, out_stl, keep, timeout)
             made = None
             if out_step and reply and reply.get("status") == "ok":
                 made = ({"refused": str(reply["step_error"])} if reply.get("step_error") else
                         {"error": "no STEP written, and no step_error saying why"})
-            return outcome, why, reply, mesh, ran, made, None
+            return First(outcome, why, reply, mesh, ran, made, None)
         # the STEP is the answer: read for what it is made of now, measured later, untimed
         try:
             made = step.read(out_step)
         except (ValueError, OSError) as e:
-            return ("wrong", f"its STEP cannot be read: {e}", None, None, ran,
-                    {"error": f"unreadable STEP: {e}"}, None)
+            return First("wrong", f"its STEP cannot be read: {e}", None, None, ran,
+                         {"error": f"unreadable STEP: {e}"}, None)
         if os.path.getsize(out_step) <= STEP_KEPT:
             keep_file(out_step, keep_step)
         verdict = step.verdict(made)
         if verdict in NOT_A_SOLID:
-            return "wrong", NOT_A_SOLID[verdict], None, None, ran, made, None
+            return First("wrong", NOT_A_SOLID[verdict], None, None, ran, made, None)
         pending = os.path.join(work, case["id"].replace("/", "--") + ".step")
         shutil.copyfile(out_step, pending)
-        return None, "", None, None, ran, made, pending
+        return First(None, "", None, None, ran, made, pending)
 
 
-def settle(command, case, timeout, keep, made, pending, measured, other):
-    """The grade of a case whose STEP was measured (`measured`, and `other` its loops taken by
-    their surfaces' normals, or None where that was not wanted): (outcome, why, measures, mesh).
+def settle(command, case, timeout, keep, made, pending, measured):
+    """The grade of a case whose STEP was measured (`measured`, with `by_surface` its loops taken
+    by their surfaces' normals, where that differs): (outcome, why, measures, mesh).
     Where the harness cannot measure the file, the runner's own measures and triangles are graded
     instead, from a second run without OUT.step, untimed; else Open CASCADE's triangles of the file
     are kept for the pictures."""
     if "invalid" in measured:
         return "wrong", f"its STEP is no solid: {measured['invalid']}", None, None
-    if other is not None and "volume" in other and grade_step(case, other)[0] != "wrong":
+    other = measured.get("by_surface") or {}
+    if ("error" in measured or grade_step(case, measured)[0] == "wrong") and "volume" in other \
+            and grade_step(case, other)[0] != "wrong":
+        # read as its writer means it, the file holds the solid: that is why it fails
         return "wrong", BY_SURFACE, {"status": "ok", "measured": "step", **other}, None
     with tempfile.TemporaryDirectory() as tmp:
         out_stl = os.path.join(tmp, "result.stl")
         if "error" in measured:
             made["unmeasured"] = measured["error"]
             again = execute(command + [case["id"], out_stl], timeout)
-            return graded(case, again, out_stl, keep)
+            return graded(case, again, out_stl, keep, timeout)
         outcome, why = grade_step(case, measured)
         mesh = None
         pictured = pending[:-len(".step")] + ".stl"  # Open CASCADE's, made beside the measures
@@ -444,7 +453,8 @@ def settle(command, case, timeout, keep, made, pending, measured, other):
                 keep_file(pictured, keep)
             except (ValueError, OSError):
                 mesh = None
-        return outcome, why, {"status": "ok", "measured": "step", **measured}, mesh
+        measures = {k: v for k, v in measured.items() if k != "by_surface"}
+        return outcome, why, {"status": "ok", "measured": "step", **measures}, mesh
 
 
 # the decimal places a time in seconds is kept to: microseconds
@@ -558,14 +568,15 @@ def step_said(row):
     return f"  STEP {step.verdict(made)}" + (f": {why[:70]}" if why else "")
 
 
-def run_kernel(k, chosen, timeout, one_core=None):
+def run_kernel(k, chosen, timeout, one_core=None, mass_timeout=MASS_TIMEOUT, jobs=JOBS):
     """Run `chosen` cases with kernel `k`: its rows, one per case, in case order. Every case's timed
     run comes first, one after another, so that nothing else runs beside them; then the STEP
-    files they wrote are measured, JOBS at once (`MassCache`), and graded. With `one_core`, a
-    core's number, each case it builds (passes, builds or answers wrong, or writes a STEP to be
-    measured) is run again on that core alone for `one_core_seconds`."""
+    files they wrote are measured, `jobs` at once, each in `mass_timeout` seconds (`MassCache`),
+    and graded. With `one_core`, a core's number, each case it builds (passes, builds or answers
+    wrong, or writes a STEP to be measured) is run again on that core alone for
+    `one_core_seconds`."""
     writes_step = k.get("step") is True
-    cache = MassCache(k["name"]) if writes_step else None
+    cache = MassCache(k["name"], mass_timeout, jobs) if writes_step else None
     work = tempfile.mkdtemp(prefix="brep-bench-")
     first = []
     try:
@@ -576,39 +587,29 @@ def run_kernel(k, chosen, timeout, one_core=None):
                 if os.path.exists(kept):
                     os.remove(kept)
             if not implemented(k, c):
-                got = ("missing", "no implementation", None, None, None, None, None)
+                got = First("missing", "no implementation", None, None, None, None, None)
             else:
                 got = first_run(k["command"], c, timeout, keep, keep_step, writes_step, work)
-            one = None  # (its time on one core,) where it was run so
-            if one_core is not None and (got[0] in BUILT or got[6]):
-                one = (one_core_seconds(k["command"], c, timeout, one_core, writes_step),)
+            one = UNPINNED
+            if one_core is not None and (got.outcome in BUILT or got.pending):
+                one = one_core_seconds(k["command"], c, timeout, one_core, writes_step)
             first.append((c, keep, got, one))
-            ran = got[4]
-            if got[6]:
-                print(f"{k['name']:<14} {'ran':<8} {c['id']:<44} {cost_of(ran)} its STEP to be "
+            if got.pending:
+                print(f"{k['name']:<14} {'ran':<8} {c['id']:<44} {cost_of(got.ran)} its STEP to be "
                       "measured", flush=True)
-        # the STEP files measured, untimed, every core at work; and those that fail measured again
-        # with their loops taken by their surfaces' normals, to say whether that is why
-        pending = [got[6] for _, _, got, _ in first if got[6]]
+        # the STEP files measured, untimed, every core at work, and meshed for the pictures
+        pending = [got.pending for _, _, got, _ in first if got.pending]
         if pending:
-            print(f"{k['name']:<14} measuring {len(pending)} STEP files, {JOBS} at once", flush=True)
+            print(f"{k['name']:<14} measuring {len(pending)} STEP files, {jobs} at once", flush=True)
         measured = cache.measure(pending) if pending else {}
-        doubt = [p for c, _, got, _ in first if got[6]
-                 for p in [got[6]] if "error" in measured[p] or
-                 ("volume" in measured[p] and grade_step(c, measured[p])[0] == "wrong")]
-        others = cache.measure(doubt, by_surface=True) if doubt else {}
-        # and Open CASCADE's triangles of those measured, for the pictures, as many at once
-        good = [p for p in pending if "volume" in measured[p]]
-        with concurrent.futures.ThreadPoolExecutor(max(1, JOBS)) as pool:
-            list(pool.map(lambda p: triangles(p, p[:-len(".step")] + ".stl"), good))
         rows = []
         for c, keep, got, one in first:
-            outcome, why, reply, mesh, ran, made, pend = got
-            if pend:
-                outcome, why, reply, mesh = settle(k["command"], c, timeout, keep, made, pend,
-                                                   measured[pend], others.get(pend))
-            rows.append(row_of(c, outcome, why, reply, mesh, ran, made, one))
-            print(f"{k['name']:<14} {outcome:<8} {c['id']:<44} {cost_of(ran)} {why[:70]}"
+            outcome, why, reply, mesh = got.outcome, got.why, got.reply, got.mesh
+            if got.pending:
+                outcome, why, reply, mesh = settle(k["command"], c, timeout, keep, got.made,
+                                                   got.pending, measured[got.pending])
+            rows.append(row_of(c, outcome, why, reply, mesh, got.ran, got.made, one))
+            print(f"{k['name']:<14} {outcome:<8} {c['id']:<44} {cost_of(got.ran)} {why[:70]}"
                   f"{step_said(rows[-1])}", flush=True)
         if cache:
             if cache.hits:
@@ -618,6 +619,10 @@ def run_kernel(k, chosen, timeout, one_core=None):
         return rows
     finally:
         shutil.rmtree(work, ignore_errors=True)
+
+
+# a case not run again on one core (`one_core_seconds`'s None is a run that failed)
+UNPINNED = object()
 
 
 def cost_of(ran):
@@ -643,8 +648,8 @@ def row_of(c, outcome, why, reply, mesh, ran, made, one):
     }
     if made is not None:
         row["step"] = made
-    if one is not None:
-        row["one_core_seconds"] = one[0]
+    if one is not UNPINNED:
+        row["one_core_seconds"] = one
     return row
 
 
@@ -691,9 +696,7 @@ def host():
                     break
     except OSError:
         pass
-    cores = (len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity")
-             else os.cpu_count())
-    out = {"cpu": cpu, "cores": cores, "system": platform.platform(terse=True)}
+    out = {"cpu": cpu, "cores": cores(), "system": platform.platform(terse=True)}
     if MEASURED:
         # the peak of a process that holds next to nothing: the measurer's own, below which no run
         # can read (harness/measure.py)
@@ -715,7 +718,7 @@ def record(k, rows, start, size, last=None):
         f.write("\n")
 
 
-def run_plan(plan, timeout, one_core=None):
+def run_plan(plan, timeout, one_core=None, mass_timeout=MASS_TIMEOUT, jobs=JOBS):
     """Run what a plan from changed.py names, and fold it into each kernel's last results: their
     other rows are kept, and rows of cases that no longer exist are dropped (with their meshes)."""
     current = {c["id"]: c for c in cases()}
@@ -745,7 +748,8 @@ def run_plan(plan, timeout, one_core=None):
             start, size = overhead(k, timeout, one_core)
         else:
             start, size = last.get("startup"), last.get("binary")
-        rows.update({row["case"]: row for row in run_kernel(k, wanted, timeout, one_core)})
+        rows.update({row["case"]: row for row in run_kernel(k, wanted, timeout, one_core,
+                                                            mass_timeout, jobs)})
         # with nothing run (cases dropped, or only ones it has no implementation of), the runner
         # was not built: keep the last run's version
         record(k, [rows[cid] for cid in current if cid in rows], start, size,
@@ -770,7 +774,6 @@ def main():
                     help="run each case a kernel builds again on one core alone, for its speedup "
                     "on all of them (Linux)")
     args = ap.parse_args()
-    set_measuring(args.mass_timeout, args.jobs)
     one_core = None
     if args.one_core:
         if not hasattr(os, "sched_setaffinity"):
@@ -781,7 +784,7 @@ def main():
         with open(args.plan) as f:
             plan = json.load(f)
         if not plan["full"]:
-            run_plan(plan, args.timeout, one_core)
+            run_plan(plan, args.timeout, one_core, args.mass_timeout, args.jobs)
             return
     chosen = cases(args.case)
     for k in kernels():
@@ -791,7 +794,7 @@ def main():
         # only it measures the runner's start-up and binary
         if not args.case:
             start, size = overhead(k, args.timeout, one_core)
-        rows = run_kernel(k, chosen, args.timeout, one_core)
+        rows = run_kernel(k, chosen, args.timeout, one_core, args.mass_timeout, args.jobs)
         if not args.case:
             record(k, rows, start, size)
         print(f"{k['name']}: {tally(rows)}; {spent(rows)}")

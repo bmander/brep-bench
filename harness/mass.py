@@ -26,28 +26,29 @@ a face round a sphere holds the pole) is settled by the face's area in (u, v), w
 positive and no more than the whole surface's.
 
 A face's loops are taken as ISO 10303-42 directs them: anticlockwise seen from where the face's
-normal points, the face's normal its surface's turned by `same_sense`. `--loops-by-surface` takes
-them by the surface's normal instead, whatever `same_sense` says, as some writers do; the harness
-measures a file so only to say why it fails.
+normal points, the face's normal its surface's turned by `same_sense`. Where a face's normal is
+against its surface's, the answer also has `by_surface`: the solid as it would be with the loops
+directed by the surfaces' normals, as some writers direct them; the harness reads it only to say why
+a file fails.
 
 Supported: planes, cylinders, cones, spheres, tori (degenerate too), B-spline surfaces (rational
 too), surfaces of revolution and of linear extrusion; lines, circles, ellipses, B-spline curves
 (rational too), polylines and trimmed curves; MANIFOLD_SOLID_BREP, BREP_WITH_VOIDS and
 FACETED_BREP; lengths in any unit, given in millimetres. Anything else is said, as an error.
 """
+import bisect
+import heapq
 import json
 import math
+import os
 import re
 import sys
 
-sys.path.insert(0, __import__("os").path.dirname(__import__("os").path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import step as stepfile  # noqa: E402
+import stl  # noqa: E402
 
 TAU = 2 * math.pi
-# ISO 10303-42 directs a face's loops by the face's normal (anticlockwise seen from where it
-# points), the surface's normal turned by same_sense; some writers direct them by the surface's
-# normal whatever same_sense says. True measures a file as they mean it: for a diagnosis only.
-LOOPS_BY_SURFACE = False
 
 
 class Unsupported(ValueError):
@@ -211,7 +212,6 @@ def legendre(n):
     return xs, ws
 
 
-GL = legendre(16)
 LEGENDRE = {}
 
 
@@ -220,10 +220,6 @@ def gauss(n):
     if n not in LEGENDRE:
         LEGENDRE[n] = legendre(n)
     return LEGENDRE[n]
-
-
-def gauss_nodes(n):
-    return gauss(n)
 
 
 def exact(p):
@@ -367,6 +363,7 @@ def implicit_knots(name, n, p):
 # curves: point(t), deriv(t), invert(p), `period` (or None), `range` (t0, t1), `breaks`
 
 class Line:
+    degree, angular = 1, False
     period = None
     range = (-math.inf, math.inf)
     breaks = ()
@@ -387,6 +384,7 @@ class Line:
 
 class Conic:
     """A circle or an ellipse: O + a cos t X + b sin t Y."""
+    degree, angular = None, True
     period = TAU
     range = (0.0, TAU)
     breaks = ()
@@ -423,6 +421,7 @@ class Conic:
 
 class Open:
     """A parabola, O + f (t² X + 2t Y), or a hyperbola, O + a cosh t X + b sinh t Y."""
+    degree, angular = None, False
     period = None
     range = (-math.inf, math.inf)
     breaks = ()
@@ -498,8 +497,11 @@ class Newton1:
 
 
 class BSplineCurve(Newton1):
+    angular = False
+
     def __init__(self, p, points, weights, U):
         self.p, self.P, self.W, self.U = p, points, weights, U
+        self.degree = p if weights is None else None  # a polynomial's, else none
         self.n = len(points) - 1
         if len(U) != self.n + p + 2:
             raise Unsupported("a B-spline curve whose knots do not match its control points")
@@ -564,6 +566,7 @@ class BSplineCurve(Newton1):
 
 
 class Polyline(Newton1):
+    degree, angular = 1, False
     period = None
 
     def __init__(self, points):
@@ -604,6 +607,7 @@ class Reversed:
 
     def __init__(self, c):
         self.c = c
+        self.degree, self.angular = c.degree, c.angular
         self.period = c.period
         self.range = (-c.range[1], -c.range[0])
         self.breaks = tuple(-b for b in c.breaks)
@@ -863,11 +867,7 @@ class BSplineSurface(Surface):
                     sing.append((ps[0], axis, end))
         self.singular = tuple(sing)
         # samples for a first guess at inversion
-        su = [a + (b - a) * k / 4 for a, b in zip(ku, ku[1:]) for k in range(4)] + [ku[-1]]
-        sv = [a + (b - a) * k / 4 for a, b in zip(kv, kv[1:]) for k in range(4)] + [kv[-1]]
-        while len(su) * len(sv) > 40000:
-            su, sv = (su[::2] if len(su) > len(sv) else su), (sv[::2] if len(sv) >= len(su) else sv)
-        self.samples = [((u, v), self._ev(u, v)[0]) for u in su for v in sv]
+        self._samples = None
         # the basis at the points the quadrature visits again and again (whole knot spans)
         self._basis = ({}, {})
         # a polynomial along a parameter where the weights do not vary along it
@@ -1008,6 +1008,23 @@ class BSplineSurface(Surface):
     def row(self, v, us):
         return self._line(1, v, us)
 
+    @property
+    def samples(self):
+        """Points of the surface for a first guess at inversion, [((u, v), point)]: four a knot
+        span each way, a column at a time, made when first wanted."""
+        if self._samples is None:
+            ku, kv = self.knots
+            su = [a + (b - a) * k / 4 for a, b in zip(ku, ku[1:]) for k in range(4)] + [ku[-1]]
+            sv = [a + (b - a) * k / 4 for a, b in zip(kv, kv[1:]) for k in range(4)] + [kv[-1]]
+            while len(su) * len(sv) > 40000:
+                if len(su) > len(sv):
+                    su = su[::2]
+                else:
+                    sv = sv[::2]
+            self._samples = [((u, v), (x, y, z)) for u in su
+                             for v, (x, y, z, _, _, _) in zip(sv, self._line(0, u, sv))]
+        return self._samples
+
     def nearest_sample(self, q):
         return min(self.samples, key=lambda s: dot(sub(s[1], q), sub(s[1], q)))[0]
 
@@ -1015,7 +1032,7 @@ class BSplineSurface(Surface):
         if guess is None:
             # from each of the nearest few samples, until one finds the point on the surface (on a
             # surface that winds near itself, the nearest may lead Newton to another turn of it)
-            near = sorted(self.samples, key=lambda s: dot(sub(s[1], q), sub(s[1], q)))[:6]
+            near = heapq.nsmallest(6, self.samples, key=lambda s: dot(sub(s[1], q), sub(s[1], q)))
             best = None
             for (u, v), _ in near:
                 uv = newton2(self, q, u, v)
@@ -1091,8 +1108,8 @@ class Swept(Surface):
         self.c = curve
         self.revolve, self.extrude = revolve, extrude
         t0, t1 = curve.range
-        along = curved(curve.p) if isinstance(curve, BSplineCurve) and curve.W is None else \
-            exact(1) if isinstance(curve, (Line, Polyline)) else 16
+        d = curve.degree
+        along = exact(1) if d == 1 else curved(d) if d else 16
         if revolve:
             self.A0, self.A = revolve
             if isinstance(curve, Line) and abs(dot(cross(curve.d, self.A), sub(curve.p, self.A0))) \
@@ -1102,7 +1119,7 @@ class Swept(Surface):
             self.domain = ((-math.inf, math.inf), (t0, t1))
             self.breaks = ((), tuple(curve.breaks))
             # a conic's parameter is an angle: its panels no more than a quarter turn
-            self.angles = (True, isinstance(curve, Conic))
+            self.angles = (True, curve.angular)
             self.nodes = (16, along)
             self.singular = tuple(self._on_axis())
             # a frame about the axis, for inversion
@@ -1115,7 +1132,7 @@ class Swept(Surface):
             self.periods = (curve.period, None)
             self.domain = ((t0, t1), (-math.inf, math.inf))
             self.breaks = (tuple(curve.breaks), ())
-            self.angles = (isinstance(curve, Conic), False)
+            self.angles = (curve.angular, False)
             self.nodes = (along, exact(1))
         self.samples = None
 
@@ -1810,6 +1827,7 @@ class Face:
             self.top = below[-1]
         else:
             self.top = next((x for x in sing if x > self.vref + eps), None)
+        self.layout()
         total = [0.0] * NM
         for ps in paths:
             for p in ps:
@@ -1823,9 +1841,17 @@ class Face:
             raise Unsupported("a face bounded by points alone, on a surface whose closed profile "
                               "meets its axis twice: which part of it is the face is not said")
         sigma = (1 if self.ss else -1) * (-1 if transposed else 1)
-        # the loops' sense: by the face's normal (the standard), or by the surface's
-        rho = (-1 if transposed else 1) if LOOPS_BY_SURFACE else sigma
-        total = [rho * x for x in total]
+        tau = -1 if transposed else 1
+        # the face as the standard reads its loops (by its own normal, sigma), and, where that
+        # differs, as a writer who directs them by the surface's normal would mean it (tau)
+        return self.settle(total, sigma, sigma), (self.settle(total, tau, sigma)
+                                                  if tau != sigma else None)
+
+    def settle(self, raw, rho, sigma):
+        """The face's measures from its loops' integrals (`raw`), the loops taken in the sense
+        `rho`, the face's normal `sigma`: [measures], or the Unsupported why not."""
+        s = self.s
+        total = [rho * x for x in raw]
         # what the loops leave open on a periodic surface: whole turns of the inner integral
         pu = s.periods[0]
         if pu:
@@ -1845,37 +1871,67 @@ class Face:
                 a = abs(full)
                 k = -math.floor(total[0] / a - 1e-12) * (1 if full > 0 else -1)
                 if k:
-                    C = self.column(top)
-                    total = [x + k * cx for x, cx in zip(total, C)]
-        if abs(total[0]) <= 1e-12 * max(1.0, self.L * self.L) and abs(total[1]) <= 1e-12 * self.L ** 2:
+                    if self._column is None:
+                        self._column = self.column(top)
+                    total = [x + k * cx for x, cx in zip(total, self._column)]
+        L = self.L
+        if abs(total[0]) <= 1e-12 * max(1.0, L * L) and abs(total[1]) <= 1e-12 * L ** 2:
             return [0.0] * NM  # a face of no area (a loop out along an edge and back): nothing
         if total[0] <= 0:
-            raise Unsupported("a face whose loops bound no region of its surface")
+            return Unsupported("a face whose loops bound no region of its surface")
         # the linear measures by the face's outward normal; its areas are positive
         out = [x * sigma for x in total]
         out[0], out[1] = total[0], total[1]
         return out
 
-    def H(self, u, v):
-        """∫ F(u, s) ds from v_ref to v."""
-        s, vref = self.s, self.vref
+    def layout(self):
+        """The inner integral's breaks, once a face: the surface's knots and its poles (where the
+        normal's length has a kink), sorted."""
+        per = self.s.periods[1]
+        poles = {v for _, axis, v in self.s.singular if axis == 1}
+        if per:
+            poles = {v + k * per for v in poles for k in range(-3, 4)}
+        self._cuts = sorted(set(self.s.breaks[1]) | poles)
+        self._panels = {}
+        self._column = None
+
+    def panel(self, x, y):
+        """Gauss's nodes and weights over [x, y] of the inner parameter (in quarter turns, along
+        an angle), kept for the whole panels every column shares."""
+        got = self._panels.get((x, y))
+        if got is None:
+            s = self.s
+            xs, ws = gauss(s.nodes[1])
+            n = max(1, math.ceil((y - x) / (math.pi / 2))) if s.angles[1] else 1
+            nodes, weights = [], []
+            for k in range(n):
+                a, b = x + (y - x) * k / n, x + (y - x) * (k + 1) / n
+                h, m = (b - a) / 2, (b + a) / 2
+                nodes += [m + h * xi for xi in xs]
+                weights += [h * wi for wi in ws]
+            got = (nodes, weights)
+            if len(self._panels) < 20000:
+                self._panels[(x, y)] = got
+        return got
+
+    def H(self, u, v, f=1.0):
+        """f ∫ F(u, s) ds from v_ref to v."""
+        vref = self.vref
         if abs(v - vref) <= 1e-14 * (1 + abs(vref)):
             return [0.0] * NM
         a, b = (vref, v) if v > vref else (v, vref)
-        # breaks: the surface's knots, and its poles (where the normal's length has a kink)
-        cuts = [a] + sorted({k for k in s.breaks[1] if a < k < b} | self.poles(a, b)) + [b]
-        if s.angles[1]:
-            more = [cuts[0]]
-            for x, y in zip(cuts, cuts[1:]):
-                n = max(1, math.ceil((y - x) / (math.pi / 2)))
-                more += [x + (y - x) * k / n for k in range(1, n + 1)]
-            cuts = more
-        xs, ws = gauss(s.nodes[1])
+        if v < vref:
+            f = -f
+        cuts = self._cuts
+        inner = cuts[bisect.bisect_right(cuts, a):bisect.bisect_left(cuts, b)]
         nodes, weights = [], []
-        for x, y in zip(cuts, cuts[1:]):
-            h, m = (y - x) / 2, (y + x) / 2
-            nodes += [m + h * xi for xi in xs]
-            weights += [h * wi for wi in ws]
+        for x, y in zip([a] + inner, inner + [b]):
+            ns, ws = self.panel(x, y)
+            nodes += ns
+            weights += ws
+        if f != 1.0:
+            weights = [f * w for w in weights]
+        s = self.s
         cx, cy, cz = self.c
         a0 = a1 = a2 = a3 = a4 = a5 = a6 = a7 = a8 = a9 = a10 = a11 = 0.0
         for (px, py, pz, nx, ny, nz), w in zip(s.col(u, nodes), weights):
@@ -1894,21 +1950,8 @@ class Face:
             a9 += xx * y * wx
             a10 += yy * z * wy
             a11 += zz * x * wz
-        out = [a0, a1, a2 / 3, a3 / 2, a4 / 2, a5 / 2, a6 / 3, a7 / 3, a8 / 3, a9 / 2, a10 / 2,
-               a11 / 2]
-        if v < vref:
-            out = [-x for x in out]
-        return out
-
-    def poles(self, a, b):
-        """The surface's poles strictly between a and b of the inner parameter."""
-        if not hasattr(self, "_poles"):
-            per = self.s.periods[1]
-            vals = {v for _, axis, v in self.s.singular if axis == 1}
-            if per:
-                vals = {v + k * per for v in vals for k in range(-3, 4)}
-            self._poles = sorted(vals)
-        return {v for v in self._poles if a + 1e-12 < v < b - 1e-12}
+        return [a0, a1, a2 / 3, a3 / 2, a4 / 2, a5 / 2, a6 / 3, a7 / 3, a8 / 3, a9 / 2, a10 / 2,
+                a11 / 2]
 
     def column(self, top):
         """∫ H(u, top) du over a whole turn of u: the whole surface, between v_ref and top."""
@@ -1944,8 +1987,7 @@ class Face:
                 raise Unsupported("the integral round a loop does not converge (a surface that "
                                   "folds or cusps there?)")
             u, v, du, dv = path.uv(t)
-            h = self.H(u, v)
-            return [-x * du for x in h]
+            return self.H(u, v, -du)
 
         def panel(a, b, depth):
             hw, mid = (b - a) / 2, (b + a) / 2
@@ -1969,16 +2011,15 @@ class Face:
         # (a kink between pieces is no smoothness an estimate of the error can rely on: every
         # break is a cut; along a straight piece, four points are plenty)
         small = abs(t1 - t0) / 128 if len(cuts) > 129 else 0.0
-        straight = path.c is not None and getattr(path.c, "p", None) == 1 or \
-            isinstance(path.c, Polyline)
-        gauss = list(zip(*gauss_nodes(4))) if straight else [(x, wg) for x, _, wg in KRONROD if wg]
+        straight = path.c is not None and path.c.degree == 1
+        rule = list(zip(*gauss(4))) if straight else [(x, wg) for x, _, wg in KRONROD if wg]
         for a, b in zip(cuts, cuts[1:]):
             if a == b:
                 continue
             if abs(b - a) < small:
                 hw, mid = (b - a) / 2, (b + a) / 2
                 part = [0.0] * NM
-                for x, wg in gauss:
+                for x, wg in rule:
                     y = f(mid + hw * x)
                     for i in range(NM):
                         part[i] += hw * wg * y[i]
@@ -1996,13 +2037,12 @@ def faces_of(m):
     """Each face of the file's solids: (face entity, its shell's orientation)."""
     out = []
     solids = [r for r, e in m.entities.items()
-              if set(e.names) & {"MANIFOLD_SOLID_BREP", "BREP_WITH_VOIDS", "FACETED_BREP"}]
+              if set(e.names) & set(stepfile.SOLIDS)]
     if not solids:
         raise Unsupported("no solid in the file")
     for r in solids:
         a = m.args(r)
-        name = next(n for n in a if n in ("MANIFOLD_SOLID_BREP", "BREP_WITH_VOIDS",
-                                          "FACETED_BREP"))
+        name = next(n for n in a if n in stepfile.SOLIDS)
         shells = [(a[name][1], True)]
         if name == "BREP_WITH_VOIDS":
             shells += [(v, True) for v in a[name][2]]
@@ -2019,7 +2059,6 @@ def faces_of(m):
 
 
 def bounding(m):
-    pts = []
     # every point in space: vertices, centres, control points (not the (u, v) points of curves
     # on surfaces, which have two coordinates)
     pts = [m.point(r) for r, e in m.entities.items() if e.name == "CARTESIAN_POINT"
@@ -2189,7 +2228,8 @@ def gap(s, out, a, b, scale):
 
 def measure(text):
     """The mass properties of the solid in a STEP file's text: {volume, area, centroid, inertia
-    (about the centroid), solids, faces}, lengths in millimetres."""
+    (about the centroid), solids, faces}, lengths in millimetres, or {"error": why}; and, where
+    it differs, `by_surface` (`read`)."""
     m = Model(text)
     faces, nsolids = faces_of(m)
     centre, scale = bounding(m)
@@ -2197,7 +2237,7 @@ def measure(text):
     found = []
     for f, sense in faces:
         fn, fa = m.one(f)
-        if fn in ("ADVANCED_FACE", "FACE_SURFACE"):
+        if fn in stepfile.FACES:
             s = m.surface(fa[2])
             same = fa[3] != "F"
         elif fn == "FACE":
@@ -2226,34 +2266,51 @@ def measure(text):
         hi = tuple(max(q[i] for q in edge) for i in range(3))
         if norm(sub(hi, lo)) > 0:
             centre, scale = mul(add(lo, hi), 0.5), norm(sub(hi, lo))
-    total = [0.0] * NM
+    # the solid as the standard reads it, and as a writer who directs a face's loops by its
+    # surface's normal would mean it (where any face's normal is against its surface's)
+    totals = {"standard": [0.0] * NM, "by_surface": [0.0] * NM}
+    failed = {}
     for f, s, loops, same, sense in found:
         try:
-            part = Face(s, loops, same, centre, scale).measure()
+            standard, other = Face(s, loops, same, centre, scale).measure()
         except Unsupported as e:
             raise type(e)(f"face #{f}: {e}") from None
         sign = 1 if sense else -1
-        total[1] += part[1]
-        for i in range(2, NM):
-            total[i] += sign * part[i]
+        for key, part in (("standard", standard), ("by_surface", standard if other is None else other)):
+            if isinstance(part, Exception):
+                failed.setdefault(key, f"face #{f}: {part}")
+                continue
+            total = totals[key]
+            total[1] += part[1]
+            for i in range(2, NM):
+                total[i] += sign * part[i]
+    against = any(not same for _, _, _, same, _ in found)
+    out = props(totals["standard"], failed.get("standard"), centre, nsolids, len(faces))
+    if against:
+        out["by_surface"] = props(totals["by_surface"], failed.get("by_surface"), centre,
+                                  nsolids, len(faces))
+    return out
+
+
+def props(total, failed, centre, nsolids, nfaces):
+    """The mass properties from a solid's summed integrals, or {"error": why}."""
+    if failed:
+        return {"error": f"cannot measure: {failed}"}
     V = total[2]
     if not V:
-        raise Unsupported("the solid has no volume")
-    g = (total[3] / V, total[4] / V, total[5] / V)
-    sxx = total[6] - V * g[0] * g[0]
-    syy = total[7] - V * g[1] * g[1]
-    szz = total[8] - V * g[2] * g[2]
-    sxy = total[9] - V * g[0] * g[1]
-    syz = total[10] - V * g[1] * g[2]
-    szx = total[11] - V * g[2] * g[0]
-    inertia = [[syy + szz, -sxy, -szx], [-sxy, sxx + szz, -syz], [-szx, -syz, sxx + syy]]
-    return {"volume": V, "area": total[1], "centroid": list(add(centre, g)),
-            "inertia": inertia, "solids": nsolids, "faces": len(faces)}
+        return {"error": "cannot measure: the solid has no volume"}
+    m2 = [[total[6], total[9], total[11]], [total[9], total[7], total[10]],
+          [total[11], total[10], total[8]]]
+    g, inertia = stl.about_centroid(V, total[3:6], m2, centre)
+    return {"volume": V, "area": total[1], "centroid": g, "inertia": inertia, "solids": nsolids,
+            "faces": nfaces}
 
 
 def read(path):
     """`measure` of the STEP file at `path`, or {"invalid": why} where the file holds no solid
-    (whoever reads it), or {"error": why} where the measurer cannot measure it."""
+    (whoever reads it), or {"error": why} where the measurer cannot measure it. Where any face's
+    normal is against its surface's, `by_surface` is the solid as it would be with the faces'
+    loops directed by their surfaces' normals, as some writers direct them (a diagnosis)."""
     try:
         with open(path, encoding="latin-1") as f:
             return measure(f.read())
@@ -2265,9 +2322,5 @@ def read(path):
 
 
 if __name__ == "__main__":
-    args = sys.argv[1:]
-    if args and args[0] == "--loops-by-surface":
-        LOOPS_BY_SURFACE = True
-        args = args[1:]
-    for p in args:
+    for p in sys.argv[1:]:
         print(json.dumps(read(p)))

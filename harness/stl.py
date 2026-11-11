@@ -28,6 +28,17 @@ def read(path):
     return [tuple(verts[i:i + 3]) for i in range(0, len(verts), 3)]
 
 
+def about_centroid(volume, m1, m2, origin):
+    """The centre of gravity and the inertia tensor about it, of unit density, from a solid's
+    volume and its first moments (∫x, ∫y, ∫z) and second (∫x_i x_j, 3×3) about `origin`:
+    (centroid, inertia), as lists."""
+    g = [m1[i] / volume for i in range(3)]
+    s2 = [[m2[i][j] - volume * g[i] * g[j] for j in range(3)] for i in range(3)]
+    tr = s2[0][0] + s2[1][1] + s2[2][2]
+    inertia = [[(tr - s2[i][i]) if i == j else -s2[i][j] for j in range(3)] for i in range(3)]
+    return [origin[i] + g[i] for i in range(3)], inertia
+
+
 def check(tris):
     """What the triangles say of the solid they bound.
 
@@ -48,7 +59,7 @@ def check(tris):
     # the tetrahedra's apex: the first vertex, so that the sums do not cancel far from the origin
     o = tris[0][0] if tris else (0.0, 0.0, 0.0)
     m1 = [0.0, 0.0, 0.0]
-    m2 = [[0.0] * 3 for _ in range(3)]
+    xx = yy = zz = xy = yz = zx = 0.0
     for a, b, c in tris:
         ia, ib, ic = vid(a), vid(b), vid(c)
         if ia == ib or ib == ic or ic == ia:
@@ -60,28 +71,30 @@ def check(tris):
         v = (c[0] - a[0], c[1] - a[1], c[2] - a[2])
         n = (u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0])
         area += 0.5 * (n[0] ** 2 + n[1] ** 2 + n[2] ** 2) ** 0.5
-        volume += (a[0] * (b[1] * c[2] - b[2] * c[1])
-                   - a[1] * (b[0] * c[2] - b[2] * c[0])
-                   + a[2] * (b[0] * c[1] - b[1] * c[0])) / 6.0
-        p, q, r = ([x[k] - o[k] for k in range(3)] for x in (a, b, c))
-        t = (p[0] * (q[1] * r[2] - q[2] * r[1]) - p[1] * (q[0] * r[2] - q[2] * r[0])
-             + p[2] * (q[0] * r[1] - q[1] * r[0])) / 6.0
-        sm = [p[k] + q[k] + r[k] for k in range(3)]
-        for i in range(3):
-            m1[i] += t * sm[i] / 4
-            for j in range(3):
-                m2[i][j] += t / 20 * (p[i] * p[j] + q[i] * q[j] + r[i] * r[j] + sm[i] * sm[j])
+        # the tetrahedron with the apex o: its volume, and its moments about o
+        px, py, pz = a[0] - o[0], a[1] - o[1], a[2] - o[2]
+        qx, qy, qz = b[0] - o[0], b[1] - o[1], b[2] - o[2]
+        rx, ry, rz = c[0] - o[0], c[1] - o[1], c[2] - o[2]
+        t = (px * (qy * rz - qz * ry) - py * (qx * rz - qz * rx) + pz * (qx * ry - qy * rx)) / 6
+        volume += t
+        sx, sy, sz = px + qx + rx, py + qy + ry, pz + qz + rz
+        m1[0] += t * sx / 4
+        m1[1] += t * sy / 4
+        m1[2] += t * sz / 4
+        w = t / 20
+        xx += w * (px * px + qx * qx + rx * rx + sx * sx)
+        yy += w * (py * py + qy * qy + ry * ry + sy * sy)
+        zz += w * (pz * pz + qz * qz + rz * rz + sz * sz)
+        xy += w * (px * py + qx * qy + rx * ry + sx * sy)
+        yz += w * (py * pz + qy * qz + ry * rz + sy * sz)
+        zx += w * (pz * px + qz * qx + rz * rx + sz * sx)
     bad = 0
     for (i, j), n in uses.items():
         if n != 1 or uses.get((j, i), 0) != 1:
             bad += 1
     centroid = inertia = None
     if volume:
-        g = [m1[i] / volume for i in range(3)]
-        s2 = [[m2[i][j] - volume * g[i] * g[j] for j in range(3)] for i in range(3)]
-        tr = s2[0][0] + s2[1][1] + s2[2][2]
-        inertia = [[(tr - s2[i][i]) if i == j else -s2[i][j] for j in range(3)] for i in range(3)]
-        centroid = [o[i] + g[i] for i in range(3)]
+        centroid, inertia = about_centroid(volume, m1, [[xx, xy, zx], [xy, yy, yz], [zx, yz, zz]], o)
     return {
         "triangles": len(tris),
         "centroid": centroid,

@@ -29,7 +29,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import step  # noqa: E402
 from highlight import highlight, loc  # noqa: E402
 import markdown  # noqa: E402
-from run import FROM_MESH  # noqa: E402
+from run import FROM_MESH, keep_file  # noqa: E402
 from suite import ROOT, cases as read_cases, kernels as read_kernels, source  # noqa: E402
 SITE = os.path.join(ROOT, "site")
 REPO = "https://github.com/bmander/brep-bench"
@@ -392,18 +392,14 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
         stl = os.path.join(ROOT, "results", "meshes", name, cid + ".stl")
         href = mb = None
         if row and os.path.exists(stl):
-            dest = os.path.join(SITE, "meshes", name, cid + ".stl")
-            os.makedirs(os.path.dirname(dest), exist_ok=True)
-            shutil.copyfile(stl, dest)
+            keep_file(stl, os.path.join(SITE, "meshes", name, cid + ".stl"))
             href = f"{up}meshes/{e(name)}/{e(cid)}.stl"
             mb = os.path.getsize(stl) / 1e6
         # its STEP file, what the viewer shows where the run kept it (run.py's STEP_KEPT); its
         # triangles are shown only where there is none, or it cannot be read
         step_file, step_href = stl[:-len(".stl")] + ".step", None
         if row and (row.get("step") or {}).get("faces") and os.path.exists(step_file):
-            dest = os.path.join(SITE, "meshes", name, cid + ".step")
-            os.makedirs(os.path.dirname(dest), exist_ok=True)
-            shutil.copyfile(step_file, dest)
+            keep_file(step_file, os.path.join(SITE, "meshes", name, cid + ".step"))
             step_href = f"{up}meshes/{e(name)}/{e(cid)}.step"
         src = source(registry.get(name, {}), cid)
         code = None
@@ -428,7 +424,9 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
         en["friends"] = [o["name"] for o in entries if o is not en
                          and agree(en["measures"], o["measures"])]
     # whether any entry has a solid to show: its STEP file, or else its triangles
-    has_view = any(en["stl"] or en["step"] for en in entries)
+    def solid(en):
+        return bool(en["step"] or en["stl"])
+    has_view = any(solid(en) for en in entries)
 
     out.append("<h2 id=results>Results</h2>")
     if not entries:
@@ -436,8 +434,6 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
     else:
         # the entry shown first: a pass with a solid to show, else any result with one, else
         # any result at all (the first such, in kernels.json's order); #k=NAME picks another
-        def solid(en):
-            return bool(en["step"] or en["stl"])
         shown = max(entries, key=lambda en: (en["outcome"] == "pass" and solid(en), solid(en),
                                              bool(en["row"])))
 
