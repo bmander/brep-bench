@@ -14,7 +14,9 @@ The subset a description needs, after CommonMark:
 a digit (pandoc's rule), so "$5 to $6" stays prose. Math is left as its TeX, in an element of
 class `math` with the TeX in `data-tex` (and `display` where it stands alone), for KaTeX to typeset
 in the page; until then, or without script, the reader sees the TeX itself. Raw HTML is escaped,
-not passed through, and a link goes only to http(s), mailto, a fragment or a relative path.
+not passed through, and a link goes only to http(s), mailto, a fragment or a relative path. A
+relative link to a `.md`, another case's description where GitHub shows this one, goes to that
+case's page here, its `.html` (the pages stand as the descriptions do, cases/<case>.md).
 Standard library only."""
 import html
 import re
@@ -30,6 +32,8 @@ HEADING = re.compile(r"^ {0,3}(#{1,6})(?: +(.*?))?(?: +#+)? *$")
 RULE = re.compile(r"^ {0,3}([-*_])( *\1){2,} *$")
 DELIMITER = re.compile(r"^ *\|? *:?-+:? *(\| *:?-+:? *)*\|? *$")
 SAFE_URL = re.compile(r"^(https?:|mailto:|#|/|\.{0,2}/|[\w\-.~/]+(#.*)?$)", re.I)
+# a relative path to a Markdown file, up to its fragment or query: no scheme, and not from the root
+MD_PATH = re.compile(r"^(?![a-z][a-z0-9+.\-]*:|/)([^#?]+)\.md(?=[#?]|$)", re.I)
 
 
 def render(text):
@@ -244,6 +248,8 @@ def inline(text):
 def link(url, label, title=None):
     if not SAFE_URL.match(url):
         return label
+    # written for GitHub, where a case links to another's .md; here that case's page is its .html
+    url = MD_PATH.sub(r"\1.html", url)
     t = f" title='{html.escape(title)}'" if title else ""
     return f"<a href='{html.escape(url)}'{t}>{label}</a>"
 
