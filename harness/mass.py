@@ -1886,12 +1886,19 @@ class Face:
 
     def layout(self):
         """The inner integral's breaks, once a face: the surface's knots and its poles (where the
-        normal's length has a kink), sorted."""
+        normal's length has a kink), sorted. Round a periodic parameter they come again every
+        turn: a loop is followed from where its first edge lands, which on a closed B-spline
+        surface may be a turn off its knots' own range."""
         per = self.s.periods[1]
         poles = {v for _, axis, v in self.s.singular if axis == 1}
+        knots = set(self.s.breaks[1])
         if per:
             poles = {v + k * per for v in poles for k in range(-3, 4)}
-        self._cuts = sorted(set(self.s.breaks[1]) | poles)
+            lo = self.s.domain[1][0]
+            if math.isfinite(lo):
+                knots.add(lo)  # where one turn joins the next
+            knots = {v + k * per for v in knots for k in range(-3, 4)}
+        self._cuts = sorted(knots | poles)
         self._panels = {}
         self._column = None
 
