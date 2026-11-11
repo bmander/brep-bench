@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Draw every case: a third-angle sheet of its expected solid (front, top and right views at one
-scale, and an isometric view), as PNGs under site/drawings/<case>/.
+scale, and an isometric view), and the explorer's thumbnail of it, as PNGs under
+site/drawings/<case>/.
 
     python3 harness/draw.py              # every case
     python3 harness/draw.py boolean/     # the cases whose id starts with this
@@ -9,7 +10,9 @@ scale, and an isometric view), as PNGs under site/drawings/<case>/.
 The solid drawn is a result that passed: the reference kernel's (kernels.json, `"reference":
 true`) where it passed, else the first kernel's that did. Its triangles are rasterised with a
 depth buffer, lightly shaded, and outlined where the depth jumps (silhouettes) or the surface turns
-sharply (creases), as a technical drawing is.
+sharply (creases), as a technical drawing is. The thumbnail is the isometric view again, small, lit
+hard on a dark ground (GRAPHITE), so a solid stands out from its ground and its turned faces from
+each other at the explorer's forty pixels.
 
 A case is drawn again only when what its drawing is made from changed: the kernel it is drawn
 from, that kernel's mesh, or this code. Each drawing's stamp (a hash of the mesh and of the code)
@@ -31,8 +34,11 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Pixels per unit of length are chosen so the sheet's views fit in this many pixels across.
 SHEET = 560
-# The isometric view's size, which is also the scoreboard's thumbnail (shown at half).
+# The isometric view's size.
 ISO = 320
+# The thumbnail's: the explorer shows it at 40 pixels, other pages at 64, on screens of up to twice
+# that density.
+THUMB = 160
 # Rendered at this many times the size and averaged down, so lines are smooth.
 SUPER = 2
 # A crease is drawn where neighbouring facets turn by more than this.
@@ -40,10 +46,19 @@ CREASE = math.radians(28)
 # Facets turned further from the eye than this (the cosine) draw no crease.
 GRAZING = 0.2
 
-PAPER = (252, 252, 250)
-INK = (34, 36, 40)
-LIGHT_TONE = (255, 255, 255)
-DARK_TONE = (196, 203, 214)
+# How a view is lit and coloured. A facet's tone runs from `dark` to `light` by
+# ambient + diffuse·(n·key), key a light towards the viewer, to its left and up (its coordinates
+# along the view's right, up and towards-the-viewer directions); `shine` (a weight and an exponent)
+# whitens a facet near the key's mirror direction. `ground` is behind the solid, `ink` its lines.
+# PAPER, the sheet's: a technical drawing, lines on white with the faces only told apart.
+PAPER = {"ground": (252, 252, 250), "ink": (34, 36, 40), "light": (255, 255, 255),
+         "dark": (196, 203, 214), "key": (-0.45, 0.6, 1), "ambient": 0.25, "diffuse": 0.75,
+         "shine": None}
+# GRAPHITE, the thumbnail's: a near-black ground, no ambient light and a high key, so a face turned
+# from the light goes dark and the solid's form reads at a glance.
+GRAPHITE = {"ground": (36, 36, 38), "ink": (12, 12, 14), "light": (236, 240, 246),
+            "dark": (52, 60, 74), "key": (-0.7, 0.9, 0.6), "ambient": 0.0, "diffuse": 1.0,
+            "shine": (0.25, 60)}
 
 # Each view: the directions to the right, up, and towards the viewer.
 VIEWS = {
@@ -81,9 +96,9 @@ def bounds(tris, basis):
     return min(xs), max(xs), min(ys), max(ys)
 
 
-def render(tris, basis, scale, box, margin):
+def render(tris, basis, scale, box, margin, look=PAPER):
     """The triangles seen along `basis` at `scale` pixels a unit, `box` (the view's extent) framed
-    by `margin` pixels: an RGB image, as rows of bytes."""
+    by `margin` pixels, lit and coloured as `look` says: an RGB image, as rows of bytes."""
     r, u, w = basis
     x0, x1, y0, y1 = box
     k = scale * SUPER
@@ -93,8 +108,8 @@ def render(tris, basis, scale, box, margin):
     depth = [-math.inf] * (width * height)
     face = [-1] * (width * height)
     normals, slopes, facing = [], [], []
-    light = unit((-0.45 * r[0] + 0.6 * u[0] + w[0], -0.45 * r[1] + 0.6 * u[1] + w[1],
-                  -0.45 * r[2] + 0.6 * u[2] + w[2]))
+    kr, ku, kw = look["key"]
+    light = unit(tuple(kr * r[j] + ku * u[j] + kw * w[j] for j in range(3)))
     for a, b, c in tris:
         n = cross((b[0] - a[0], b[1] - a[1], b[2] - a[2]), (c[0] - a[0], c[1] - a[1], c[2] - a[2]))
         if dot(n, w) <= 0:
@@ -135,10 +150,18 @@ def render(tris, basis, scale, box, margin):
     # the depth a jump must exceed to be a silhouette: a few pixels' worth of length
     jump = 3.0 / k
     cos_crease = math.cos(CREASE)
+    lit, dark = look["light"], look["dark"]
+    shine = look["shine"]
+    half = unit(tuple(light[j] + w[j] for j in range(3)))
     tone = [None] * len(normals)
     for fi, n in enumerate(normals):
-        s = max(0.0, dot(n, light)) * 0.75 + 0.25
-        tone[fi] = tuple(int(DARK_TONE[j] + (LIGHT_TONE[j] - DARK_TONE[j]) * s) for j in range(3))
+        s = min(1.0, look["ambient"] + look["diffuse"] * max(0.0, dot(n, light)))
+        t = [dark[j] + (lit[j] - dark[j]) * s for j in range(3)]
+        if shine:
+            h = min(1.0, shine[0] * max(0.0, dot(n, half)) ** shine[1])
+            t = [c + (255 - c) * h for c in t]
+        tone[fi] = tuple(int(c) for c in t)
+    ink, ground = look["ink"], look["ground"]
     big = []
     for py in range(height):
         row = py * width
@@ -146,7 +169,7 @@ def render(tris, basis, scale, box, margin):
         for px in range(width):
             i = row + px
             f = face[i]
-            ink = False
+            edge = False
             for j in (i - 1, i + 1, i - width, i + width):
                 if j < 0 or j >= width * height or (j == i - 1 and px == 0) or (
                         j == i + 1 and px == width - 1):
@@ -155,21 +178,21 @@ def render(tris, basis, scale, box, margin):
                 if f < 0:
                     continue
                 if g < 0:
-                    ink = True
+                    edge = True
                     break
                 if g != f:
                     # a silhouette over a farther surface: a jump more than this facet's own
                     # slope makes from one pixel to the next
                     if depth[i] - depth[j] > jump + slopes[f]:
-                        ink = True
+                        edge = True
                         break
                     # a crease, between facets both turned towards the eye (near a silhouette
                     # a smooth surface's facets crowd into one pixel at steep turns)
                     if (facing[f] > GRAZING and facing[g] > GRAZING
                             and dot(normals[f], normals[g]) < cos_crease):
-                        ink = True
+                        edge = True
                         break
-            line.append(INK if ink else (tone[f] if f >= 0 else PAPER))
+            line.append(ink if edge else (tone[f] if f >= 0 else ground))
         big.append(line)
     return downsample(big, width, height)
 
@@ -209,7 +232,8 @@ def png(rows):
 
 
 def sheet(tris, out_dir):
-    """The three views at one scale, and the isometric view, written into `out_dir`."""
+    """The three views at one scale, the isometric view and the thumbnail, written into
+    `out_dir`."""
     boxes = {name: bounds(tris, basis) for name, basis in VIEWS.items()}
     fx0, fx1, fy0, fy1 = boxes["front"]
     tx0, tx1, ty0, ty1 = boxes["top"]
@@ -233,6 +257,16 @@ def sheet(tris, out_dir):
     with open(os.path.join(out_dir, "iso.png"), "wb") as f:
         f.write(png(rows))
     sizes["iso"] = (len(rows[0]) // 3, len(rows))
+    # square, the solid centred, so its ground fills the tile it is shown in
+    thumb_margin = 8
+    side = max(box[1] - box[0], box[3] - box[2], 1e-9)
+    cx, cy = (box[0] + box[1]) / 2, (box[2] + box[3]) / 2
+    square = (cx - side / 2, cx + side / 2, cy - side / 2, cy + side / 2)
+    thumb_scale = (THUMB - 2 * thumb_margin) / side
+    rows = render(tris, iso, thumb_scale, square, thumb_margin, GRAPHITE)
+    with open(os.path.join(out_dir, "thumb.png"), "wb") as f:
+        f.write(png(rows))
+    sizes["thumb"] = (len(rows[0]) // 3, len(rows))
     return sizes
 
 
@@ -259,7 +293,7 @@ def current(drawn, name, made_from, out_dir):
     """Whether the last drawing `drawn` of a case is still the one to show."""
     return (drawn is not None and drawn.get("from") == name and drawn.get("stamp") == made_from
             and all(os.path.exists(os.path.join(out_dir, view + ".png"))
-                    for view in (*VIEWS, "iso")))
+                    for view in (*VIEWS, "iso", "thumb")))
 
 
 def main():

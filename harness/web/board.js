@@ -23,7 +23,7 @@ export const esc = (s) => String(s).replace(/[&<>"']/g, (c) => (
 // a case's page, showing `kernel`'s entry if one is named
 export const casePage = (id, kernel) => `cases/${id}.html${
   kernel ? `#k=${encodeURIComponent(kernel)}` : ''}`;
-export const thumbOf = (id) => `drawings/${id}/iso.png`;
+export const thumbOf = (id) => `drawings/${id}/thumb.png`;
 export const kernelPage = (name) => `kernel.html?k=${encodeURIComponent(name)}`;
 export const categoryOf = (id) => id.slice(0, id.lastIndexOf('/'));
 // whether an outcome is a sound solid: passed, or built where no answer is settled
