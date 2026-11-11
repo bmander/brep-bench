@@ -16,10 +16,19 @@ graded the same way; a refusal ranks above a wrong answer, and no kernel ranks a
 Open a category or a kernel for its cases, or a case for its drawing, every kernel's result in
 3D, and every kernel's code.</p>
 <h2>What is a B-rep kernel?</h2>
-<p class=definition>A B-rep kernel builds solids by operations on other geometry (e.g., points,
-curves, surfaces, solids). It represents each solid by its boundary, in a form expressible as a
-STEP (<a href='https://www.iso.org/standard/91386.html'>ISO 10303-42</a>) B-rep, and can
-approximate that boundary with a mesh.</p>
+<p class=definition>A B-rep (boundary representation) kernel builds solids by operations (e.g.
+extrude, revolve, sweep, loft, Booleans, blends, offsets, shells) on geometry and numbers. It
+represents each solid it builds by its boundary: a set of faces that meet along shared edges and
+close around a volume.</p>
+<p class=definition>For many operations, the hard part is working out where the resulting solid's
+surface lies. A B-rep generally stores that result in evaluated form: each face is a function
+<var>S</var>(<var>u</var>, <var>v</var>) that returns a point on the surface, as
+(<var>r</var> cos <var>u</var>, <var>r</var> sin <var>u</var>, <var>v</var>) does for a cylinder.
+One evaluation gives one point. The alternative is a function
+<var>f</var>(<var>x</var>, <var>y</var>, <var>z</var>) that is zero on the surface: it says whether
+a point is on the surface, not where the surface is. Finding it is a search, which takes longer the
+finer the answer has to be. Machining, optics and rendering all need the surface, and they read it
+from the B-rep instead of searching for it.</p>
 <main id=board><p class=muted>Reading the board…</p></main>
 <noscript><p>The board is drawn by JavaScript from <a href='board.json'>board.json</a>.</p></noscript>
 <script type=module src='overview.js'></script>
