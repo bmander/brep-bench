@@ -36,7 +36,10 @@ descending, then back to the order drawn, with blank cells last. It has:
   comments left out), its columns sorted by a click on a row's head; and the entry picked, by a click on that table or
   on the buttons under it: its solid in a 3D viewer, as its STEP file has it (meshed in the
   browser by Open CASCADE, occt-import-js), each face colored by the kind of its surface, with
-  the edges between them drawn; only where it has no STEP file to show (its kernel writes none,
+  the edges between them drawn, and, at a click on *Control nets*, each B-spline surface's
+  control points, joined in rows along u and along v and faint where the solid hides them, with
+  how many surfaces, control points and patches (knot spans) there are, the largest, and whether
+  any is rational; only where it has no STEP file to show (its kernel writes none,
   or the file is larger than 5 MB) or the file cannot be read, its runner's triangles instead,
   with any open edges of the mesh marked in red;
   its time (the solid built and written as STEP, not meshed; see
