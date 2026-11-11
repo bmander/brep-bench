@@ -136,6 +136,15 @@ jobs:
           needs.plan.outputs.full == 'true' ||
           contains(format(' {0} ', steps.plan.outputs.build), format(' {0} ', matrix.kernel))
         run: python harness/build.py "$KERNEL"
+      # what harness/mass.py made of each STEP file this kernel wrote, by the file's hash: restored
+      # on every run, a full one too, so that a file written again byte for byte is not measured
+      # again (it holds only what this measurer made of them: run.py starts it afresh otherwise)
+      - name: Restore the measures of the kernel's STEP files
+        uses: actions/cache/restore@v4
+        with:
+          path: results/mass/${{ matrix.kernel }}.json
+          key: bench-mass-${{ matrix.kernel }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: bench-mass-${{ matrix.kernel }}-
       # each case a kernel builds is run again pinned to one core, for what its other cores buy it
       - name: Run the cases
         run: |
@@ -144,6 +153,12 @@ jobs:
           else
             python harness/run.py --plan plan.json --timeout 120 --one-core
           fi
+      - name: Keep the measures of the kernel's STEP files
+        if: always() && hashFiles(format('results/mass/{0}.json', matrix.kernel)) != ''
+        uses: actions/cache/save@v4
+        with:
+          path: results/mass/${{ matrix.kernel }}.json
+          key: bench-mass-${{ matrix.kernel }}-${{ github.run_id }}-${{ github.run_attempt }}
       # this kernel's results and its triangles, for `merge`
       - name: Hand on the results
         uses: actions/upload-artifact@v4

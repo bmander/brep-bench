@@ -32,7 +32,9 @@ can be under a millisecond. Standard library only (but for the pictures' Open CA
 is no wait4, only the time is kept; pinning to one core needs Linux).
 """
 import argparse
+import concurrent.futures
 import functools
+import hashlib
 import glob
 import json
 import os
@@ -202,8 +204,8 @@ MASS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mass.py")
 def mass_of(out_step, timeout, by_surface=False):
     """The mass properties of the solid in the STEP file at `out_step` (harness/mass.py):
     {"volume", "area", "centroid", "inertia", ...}, or {"invalid": why} where the file holds no
-    solid, or {"error": why} where it cannot measure the file. With `by_surface`, its faces' loops taken by their surfaces' normals, not the faces'
-    (a diagnosis). Untimed."""
+    solid, or {"error": why} where it cannot measure the file. With `by_surface`, its faces' loops
+    taken by their surfaces' normals, not the faces' (a diagnosis). Untimed."""
     try:
         p = subprocess.run([sys.executable, MASS, *(["--loops-by-surface"] if by_surface else []),
                             out_step], capture_output=True, text=True, timeout=timeout, cwd=ROOT)
@@ -216,44 +218,107 @@ def mass_of(out_step, timeout, by_surface=False):
         return {"error": f"harness/mass.py failed: {said[:200]}"}
 
 
-# where harness/occt.py is, and the one process of it a run keeps, started when first wanted
+# how long the harness gives itself to measure a STEP file before it falls back to the runner's own
+# measures (`--mass-timeout`), apart from the time a runner is given: a file is rarely slow to
+# measure, and one that is should not hold up the run for the case's whole limit
+MASS_TIMEOUT = 30.0
+# how many files are measured at once, once every case has run (`--jobs`): measuring is untimed,
+# so it may use every core, but only after the timed runs, which it would disturb
+JOBS = len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else (os.cpu_count() or 1)
+
+
+def set_measuring(limit, jobs):
+    global MASS_TIMEOUT, JOBS
+    MASS_TIMEOUT, JOBS = limit, jobs
+
+
+class MassCache:
+    """What harness/mass.py made of each STEP file a kernel wrote, by the file's SHA-256:
+    results/mass/<kernel>.json, kept from run to run (CI keeps it in a cache of its own), so that
+    a file a kernel writes again byte for byte is not measured again. It holds only what this
+    measurer, with this time limit, made of the files: a change to harness/mass.py or
+    harness/step.py, or to the limit, starts it afresh."""
+
+    def __init__(self, kernel):
+        self.path = os.path.join(ROOT, "results", "mass", kernel + ".json")
+        digest = hashlib.sha256(f"limit {MASS_TIMEOUT:g}\0".encode())
+        for name in ("mass.py", "step.py"):
+            with open(os.path.join(os.path.dirname(MASS), name), "rb") as f:
+                digest.update(f.read())
+        self.version = digest.hexdigest()
+        self.files = {}
+        try:
+            with open(self.path) as f:
+                kept = json.load(f)
+            if kept.get("version") == self.version:
+                self.files = kept.get("files", {})
+        except (OSError, ValueError):
+            pass
+        self.hits = 0
+        self.used = set()
+
+    @staticmethod
+    def key(path, by_surface):
+        with open(path, "rb") as f:
+            return hashlib.sha256(f.read()).hexdigest() + (":by-surface" if by_surface else "")
+
+    def measure(self, paths, by_surface=False):
+        """`mass_of` each of `paths`, from the cache where it has it, the rest JOBS at once:
+        {path: measures}."""
+        out, todo = {}, []
+        for p in paths:
+            k = self.key(p, by_surface)
+            self.used.add(k)
+            if k in self.files:
+                out[p] = self.files[k]
+                self.hits += 1
+            else:
+                todo.append((p, k))
+        with concurrent.futures.ThreadPoolExecutor(max(1, JOBS)) as pool:
+            done = pool.map(lambda pk: mass_of(pk[0], MASS_TIMEOUT, by_surface), todo)
+            for (p, k), r in zip(todo, done):
+                out[p] = self.files[k] = r
+        return out
+
+    def save(self, prune=False):
+        """Write it; with `prune`, after a run of every case, holding only the files that run
+        wrote, so that it does not grow without end."""
+        files = {k: v for k, v in self.files.items() if k in self.used} if prune else self.files
+        os.makedirs(os.path.dirname(self.path), exist_ok=True)
+        with open(self.path, "w") as f:
+            json.dump({"version": self.version, "files": files}, f, separators=(",", ":"))
+
+
+# harness/occt.py, which meshes a STEP file for the pictures, and how long it may take over one:
+# its triangles are not graded, and a file it is slow over goes without them
 OCCT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "occt.py")
-reader = None
+PICTURE_TIMEOUT = 15.0
 # Open CASCADE could not be loaded: no triangles of STEP files this run
 no_occt = False
 
 
-def triangles(out_step, out_stl, timeout):
+def triangles(out_step, out_stl):
     """Open CASCADE's triangles of the solid in the STEP file at `out_step`, written to `out_stl`
-    (harness/occt.py), for the drawings and the viewer: whether it wrote them. Untimed, and not
-    graded. A reader that runs past `timeout` is stopped, and the next file is read by a new one;
-    where Open CASCADE is not installed, there are none."""
-    global reader, no_occt
+    (harness/occt.py), for the drawings and the viewer: whether it wrote them. Untimed, not
+    graded, in a process of its own; where Open CASCADE is not installed, there are none."""
+    global no_occt
     if no_occt:
         return False
-    if reader is None or reader.poll() is not None:
-        log = tempfile.TemporaryFile()
-        reader = subprocess.Popen([sys.executable, OCCT], stdin=subprocess.PIPE,
-                                  stdout=subprocess.PIPE, stderr=log, text=True, cwd=ROOT)
-        reader.log = log
-    reader.stdin.write(json.dumps({"step": out_step, "stl": out_stl}) + "\n")
-    reader.stdin.flush()
-    ready, _, _ = select.select([reader.stdout], [], [], timeout)
-    line = reader.stdout.readline() if ready else ""
-    if line:
-        return "error" not in json.loads(line)
-    if ready:
-        # it stopped: Open CASCADE crashed on the file, or could not be loaded at all
-        reader.wait()
-        reader.log.seek(0)
-        if "No module named 'OCP'" in reader.log.read().decode(errors="replace"):
-            no_occt = True
-            print("harness/occt.py: Open CASCADE (cadquery-ocp) is not installed, so STEP files "
-                  "are not meshed for the drawings and the viewer", file=sys.stderr)
+    try:
+        p = subprocess.run([sys.executable, OCCT], input=json.dumps(
+            {"step": out_step, "stl": out_stl}) + "\n", capture_output=True, text=True,
+            timeout=PICTURE_TIMEOUT, cwd=ROOT)
+    except subprocess.TimeoutExpired:
         return False
-    reader.kill()
-    reader.wait()
-    return False
+    if "No module named 'OCP'" in p.stderr:
+        no_occt = True
+        print("harness/occt.py: Open CASCADE (cadquery-ocp) is not installed, so STEP files "
+              "are not meshed for the drawings and the viewer", file=sys.stderr)
+        return False
+    try:
+        return "error" not in json.loads(p.stdout.strip().splitlines()[-1])
+    except (ValueError, IndexError):
+        return False
 
 
 # how harness/step.py's verdict of a STEP file that is no closed B-rep reads, as a wrong answer
@@ -315,14 +380,12 @@ def graded(case, ran, out_stl, keep):
     return (*grade(case, reply, mesh), reply, mesh)
 
 
-def run_one(command, case, timeout, keep, keep_step, writes_step):
-    """Run and grade one case (SPEC.md, "A runner"), in one run, the one timed. Where the runner
-    wrote its solid as STEP, the harness measures the file (harness/mass.py) and grades that,
-    and keeps Open CASCADE's triangles of it for the pictures; else, or where the harness cannot
-    measure the file, the runner's own measures and triangles are graded, as a kernel's with no
-    STEP writer always are (from a second run, untimed, without OUT.step, where it wrote STEP).
-    (outcome, why, its measures and how they were taken, mesh, how the timed run ran, its STEP's
-    make-up or None)."""
+def first_run(command, case, timeout, keep, keep_step, writes_step, work):
+    """The timed run of one case (SPEC.md, "A runner"), and what can be graded of it at once.
+    Where the runner wrote its solid as STEP and the file holds a closed solid, the file is kept
+    in `work` to be measured once every case has run (`settle`): {"pending": path}. Else the
+    case is graded now, on the runner's own reply and triangles where it wrote no STEP. Either
+    way: (outcome or None, why, reply, mesh, how it ran, its STEP's make-up or None, pending)."""
     with tempfile.TemporaryDirectory() as tmp:
         out_stl = os.path.join(tmp, "result.stl")
         out_step = os.path.join(tmp, "result.step") if writes_step else None
@@ -339,44 +402,49 @@ def run_one(command, case, timeout, keep, keep_step, writes_step):
             if out_step and reply and reply.get("status") == "ok":
                 made = ({"refused": str(reply["step_error"])} if reply.get("step_error") else
                         {"error": "no STEP written, and no step_error saying why"})
-            return outcome, why, reply, mesh, ran, made
-        # the STEP is the answer: read for what it is made of, measured, and meshed for the
-        # pictures, all untimed
+            return outcome, why, reply, mesh, ran, made, None
+        # the STEP is the answer: read for what it is made of now, measured later, untimed
         try:
             made = step.read(out_step)
         except (ValueError, OSError) as e:
-            return "wrong", f"its STEP cannot be read: {e}", None, None, ran, \
-                {"error": f"unreadable STEP: {e}"}
+            return ("wrong", f"its STEP cannot be read: {e}", None, None, ran,
+                    {"error": f"unreadable STEP: {e}"}, None)
         if os.path.getsize(out_step) <= STEP_KEPT:
             keep_file(out_step, keep_step)
         verdict = step.verdict(made)
         if verdict in NOT_A_SOLID:
-            return "wrong", NOT_A_SOLID[verdict], None, None, ran, made
-        measured = mass_of(out_step, timeout)
-        if "invalid" in measured:
-            return "wrong", f"its STEP is no solid: {measured['invalid']}", None, None, ran, made
-        if "error" in measured or grade_step(case, measured)[0] == "wrong":
-            # its loops perhaps directed by its surfaces' normals, against the standard: so measured,
-            # does the file hold the solid? If so, that is why it fails
-            other = mass_of(out_step, timeout, by_surface=True)
-            if "volume" in other and grade_step(case, other)[0] != "wrong":
-                return "wrong", BY_SURFACE, {"status": "ok", "measured": "step", **other}, None, \
-                    ran, made
+            return "wrong", NOT_A_SOLID[verdict], None, None, ran, made, None
+        pending = os.path.join(work, case["id"].replace("/", "--") + ".step")
+        shutil.copyfile(out_step, pending)
+        return None, "", None, None, ran, made, pending
+
+
+def settle(command, case, timeout, keep, made, pending, measured, other):
+    """The grade of a case whose STEP was measured (`measured`, and `other` its loops taken by
+    their surfaces' normals, or None where that was not wanted): (outcome, why, measures, mesh).
+    Where the harness cannot measure the file, the runner's own measures and triangles are graded
+    instead, from a second run without OUT.step, untimed; else Open CASCADE's triangles of the file
+    are kept for the pictures."""
+    if "invalid" in measured:
+        return "wrong", f"its STEP is no solid: {measured['invalid']}", None, None
+    if other is not None and "volume" in other and grade_step(case, other)[0] != "wrong":
+        return "wrong", BY_SURFACE, {"status": "ok", "measured": "step", **other}, None
+    with tempfile.TemporaryDirectory() as tmp:
+        out_stl = os.path.join(tmp, "result.stl")
         if "error" in measured:
-            # the harness cannot measure it: the runner's own measures and triangles instead
             made["unmeasured"] = measured["error"]
             again = execute(command + [case["id"], out_stl], timeout)
-            outcome, why, reply, mesh = graded(case, again, out_stl, keep)
-            return outcome, why, reply, mesh, ran, made
+            return graded(case, again, out_stl, keep)
         outcome, why = grade_step(case, measured)
         mesh = None
-        if triangles(out_step, out_stl, timeout) and os.path.exists(out_stl):
+        pictured = pending[:-len(".step")] + ".stl"  # Open CASCADE's, made beside the measures
+        if os.path.exists(pictured):
             try:
-                mesh = stl.check(stl.read(out_stl))
-                keep_file(out_stl, keep)
+                mesh = stl.check(stl.read(pictured))
+                keep_file(pictured, keep)
             except (ValueError, OSError):
                 mesh = None
-        return outcome, why, {"status": "ok", "measured": "step", **measured}, mesh, ran, made
+        return outcome, why, {"status": "ok", "measured": "step", **measured}, mesh
 
 
 # the decimal places a time in seconds is kept to: microseconds
@@ -491,48 +559,93 @@ def step_said(row):
 
 
 def run_kernel(k, chosen, timeout, one_core=None):
-    """Run `chosen` cases with kernel `k`: its rows, one per case, in case order. With `one_core`,
-    a core's number, each case it builds (passes, builds or answers wrong) is run again on that
-    core alone for `one_core_seconds`."""
+    """Run `chosen` cases with kernel `k`: its rows, one per case, in case order. Every case's timed
+    run comes first, one after another, so that nothing else runs beside them; then the STEP
+    files they wrote are measured, JOBS at once (`MassCache`), and graded. With `one_core`, a
+    core's number, each case it builds (passes, builds or answers wrong, or writes a STEP to be
+    measured) is run again on that core alone for `one_core_seconds`."""
     writes_step = k.get("step") is True
-    rows = []
-    for c in chosen:
-        keep = os.path.join(ROOT, "results", "meshes", k["name"], c["id"] + ".stl")
-        keep_step = keep[:-len(".stl")] + ".step"
-        for kept in (keep, keep_step):
-            if os.path.exists(kept):
-                os.remove(kept)
-        if not implemented(k, c):
-            outcome, why, reply, mesh, ran, made = ("missing", "no implementation", None, None,
-                                                    None, None)
-        else:
-            outcome, why, reply, mesh, ran, made = run_one(k["command"], c, timeout, keep,
-                                                           keep_step, writes_step)
-        row = {
-            "case": c["id"], "outcome": outcome, "why": why,
-            "seconds": rounded(ran and ran.seconds, TIME_PLACES),
-            "cpu_seconds": rounded(ran and ran.cpu, TIME_PLACES),
-            "time_places": TIME_PLACES,  # rows from before microseconds have none: 3, milliseconds
-            "peak_mb": rounded(ran and ran.peak_mb, 1),
-            "measured": (reply or {}).get("measured", "exact"),
-            "volume": (reply or {}).get("volume"), "area": (reply or {}).get("area"),
-            "faces": (reply or {}).get("faces"), "mesh": mesh,
-            # the centre of gravity and the inertia about it (unit density): of the STEP's solid
-            # where the harness measured it, else of the triangles
-            "centroid": (reply or {}).get("centroid") or (mesh or {}).get("centroid"),
-            "inertia": (reply or {}).get("inertia") or (mesh or {}).get("inertia"),
-        }
-        if made is not None:
-            row["step"] = made
-        if one_core is not None and outcome in BUILT:
-            row["one_core_seconds"] = one_core_seconds(k["command"], c, timeout, one_core,
-                                                       writes_step)
-        rows.append(row)
-        cost = (f"{ran.seconds:8.3f} s {ran.cpu if ran.cpu is not None else 0:8.3f} cpu "
-                f"{ran.peak_mb or 0:7.1f} MB" if ran else " " * 33)
-        print(f"{k['name']:<14} {outcome:<8} {c['id']:<44} {cost} {why[:70]}{step_said(row)}",
-              flush=True)
-    return rows
+    cache = MassCache(k["name"]) if writes_step else None
+    work = tempfile.mkdtemp(prefix="brep-bench-")
+    first = []
+    try:
+        for c in chosen:
+            keep = os.path.join(ROOT, "results", "meshes", k["name"], c["id"] + ".stl")
+            keep_step = keep[:-len(".stl")] + ".step"
+            for kept in (keep, keep_step):
+                if os.path.exists(kept):
+                    os.remove(kept)
+            if not implemented(k, c):
+                got = ("missing", "no implementation", None, None, None, None, None)
+            else:
+                got = first_run(k["command"], c, timeout, keep, keep_step, writes_step, work)
+            one = None  # (its time on one core,) where it was run so
+            if one_core is not None and (got[0] in BUILT or got[6]):
+                one = (one_core_seconds(k["command"], c, timeout, one_core, writes_step),)
+            first.append((c, keep, got, one))
+            ran = got[4]
+            if got[6]:
+                print(f"{k['name']:<14} {'ran':<8} {c['id']:<44} {cost_of(ran)} its STEP to be "
+                      "measured", flush=True)
+        # the STEP files measured, untimed, every core at work; and those that fail measured again
+        # with their loops taken by their surfaces' normals, to say whether that is why
+        pending = [got[6] for _, _, got, _ in first if got[6]]
+        if pending:
+            print(f"{k['name']:<14} measuring {len(pending)} STEP files, {JOBS} at once", flush=True)
+        measured = cache.measure(pending) if pending else {}
+        doubt = [p for c, _, got, _ in first if got[6]
+                 for p in [got[6]] if "error" in measured[p] or
+                 ("volume" in measured[p] and grade_step(c, measured[p])[0] == "wrong")]
+        others = cache.measure(doubt, by_surface=True) if doubt else {}
+        # and Open CASCADE's triangles of those measured, for the pictures, as many at once
+        good = [p for p in pending if "volume" in measured[p]]
+        with concurrent.futures.ThreadPoolExecutor(max(1, JOBS)) as pool:
+            list(pool.map(lambda p: triangles(p, p[:-len(".step")] + ".stl"), good))
+        rows = []
+        for c, keep, got, one in first:
+            outcome, why, reply, mesh, ran, made, pend = got
+            if pend:
+                outcome, why, reply, mesh = settle(k["command"], c, timeout, keep, made, pend,
+                                                   measured[pend], others.get(pend))
+            rows.append(row_of(c, outcome, why, reply, mesh, ran, made, one))
+            print(f"{k['name']:<14} {outcome:<8} {c['id']:<44} {cost_of(ran)} {why[:70]}"
+                  f"{step_said(rows[-1])}", flush=True)
+        if cache:
+            if cache.hits:
+                print(f"{k['name']:<14} {cache.hits} STEP files measured before, and not again",
+                      flush=True)
+            cache.save(prune=len(chosen) == len(cases()))
+        return rows
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+
+
+def cost_of(ran):
+    return (f"{ran.seconds:8.3f} s {ran.cpu if ran.cpu is not None else 0:8.3f} cpu "
+            f"{ran.peak_mb or 0:7.1f} MB" if ran else " " * 33)
+
+
+def row_of(c, outcome, why, reply, mesh, ran, made, one):
+    """A result's row, as results/<kernel>.json keeps it."""
+    row = {
+        "case": c["id"], "outcome": outcome, "why": why,
+        "seconds": rounded(ran and ran.seconds, TIME_PLACES),
+        "cpu_seconds": rounded(ran and ran.cpu, TIME_PLACES),
+        "time_places": TIME_PLACES,  # rows from before microseconds have none: 3, milliseconds
+        "peak_mb": rounded(ran and ran.peak_mb, 1),
+        "measured": (reply or {}).get("measured", "exact"),
+        "volume": (reply or {}).get("volume"), "area": (reply or {}).get("area"),
+        "faces": (reply or {}).get("faces"), "mesh": mesh,
+        # the centre of gravity and the inertia about it (unit density): of the STEP's solid
+        # where the harness measured it, else of the triangles
+        "centroid": (reply or {}).get("centroid") or (mesh or {}).get("centroid"),
+        "inertia": (reply or {}).get("inertia") or (mesh or {}).get("inertia"),
+    }
+    if made is not None:
+        row["step"] = made
+    if one is not None:
+        row["one_core_seconds"] = one[0]
+    return row
 
 
 def version(k):
@@ -647,10 +760,17 @@ def main():
     ap.add_argument("--plan", help="run what this plan from changed.py names, and fold it into "
                     "the last results")
     ap.add_argument("--timeout", type=float, default=60)
+    ap.add_argument("--mass-timeout", type=float, default=MASS_TIMEOUT,
+                    help="how long harness/mass.py may take over one STEP file before the "
+                    "runner's own measures are graded instead (default %(default)g s)")
+    ap.add_argument("--jobs", type=int, default=JOBS,
+                    help="how many STEP files to measure at once, after the timed runs "
+                    "(default: the cores the run may use, %(default)d)")
     ap.add_argument("--one-core", action="store_true",
                     help="run each case a kernel builds again on one core alone, for its speedup "
                     "on all of them (Linux)")
     args = ap.parse_args()
+    set_measuring(args.mass_timeout, args.jobs)
     one_core = None
     if args.one_core:
         if not hasattr(os, "sched_setaffinity"):
