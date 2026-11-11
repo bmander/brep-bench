@@ -917,8 +917,25 @@ class BSplineSurface(Surface):
         i = span(n, p, t, K)
         N, D = basis(i, t, p, K)
         W, P = self.W, self.P
-        Q, R = [], []
-        for j in range(m + 1):
+        b0 = self.domain[1 - axis][0]
+        per2 = self.periods[1 - axis]
+        cache = self._basis[1 - axis]
+        if len(cache) > 100000:
+            cache.clear()
+        # the basis at each point first, so that only the control points they touch are collapsed
+        hits = []
+        for s in ss:
+            if per2:
+                s = b0 + (s - b0) % per2
+            hit = cache.get(s)
+            if hit is None:
+                j = span(m, q, s, L)
+                hit = cache[s] = (j,) + basis(j, s, q, L)
+            hits.append(hit)
+        lo = min(h[0] for h in hits) - q if hits else 0
+        hi = max(h[0] for h in hits) if hits else -1
+        Q, R = {}, {}
+        for j in range(lo, hi + 1):
             qx = qy = qz = qw = rx = ry = rz = rw = 0.0
             for a in range(p + 1):
                 ii = i - p + a
@@ -933,22 +950,10 @@ class BSplineSurface(Surface):
                 ry += dw * pt[1]
                 rz += dw * pt[2]
                 rw += dw
-            Q.append((qx, qy, qz, qw))
-            R.append((rx, ry, rz, rw))
+            Q[j] = (qx, qy, qz, qw)
+            R[j] = (rx, ry, rz, rw)
         out = []
-        b0 = self.domain[1 - axis][0]
-        per2 = self.periods[1 - axis]
-        cache = self._basis[1 - axis]
-        if len(cache) > 100000:
-            cache.clear()
-        for s in ss:
-            if per2:
-                s = b0 + (s - b0) % per2
-            hit = cache.get(s)
-            if hit is None:
-                j = span(m, q, s, L)
-                hit = cache[s] = (j,) + basis(j, s, q, L)
-            j, Nb, Db = hit
+        for j, Nb, Db in hits:
             sx = sy = sz = sw = tx = ty = tz = tw = ux = uy = uz = uw = 0.0
             for b in range(q + 1):
                 qq, rr = Q[j - q + b], R[j - q + b]
@@ -980,12 +985,19 @@ class BSplineSurface(Surface):
     def row(self, v, us):
         return self._line(1, v, us)
 
+    def nearest_sample(self, q):
+        return min(self.samples, key=lambda s: dot(sub(s[1], q), sub(s[1], q)))[0]
+
     def invert(self, q, guess=None):
-        if guess is None:
-            u, v = min(self.samples, key=lambda s: dot(sub(s[1], q), sub(s[1], q)))[0]
-        else:
-            u, v = self._wrap(*guess)
-        return newton2(self, q, u, v)
+        u, v = self.nearest_sample(q) if guess is None else self._wrap(*guess)
+        uv = newton2(self, q, u, v)
+        if guess is not None and norm(sub(self._ev(*self._wrap(*uv))[0], q)) > 1e-4 * self.size:
+            # Newton from the guess found another fold of the surface: from the nearest sample
+            other = newton2(self, q, *self.nearest_sample(q))
+            if norm(sub(self._ev(*self._wrap(*other))[0], q)) < \
+                    norm(sub(self._ev(*self._wrap(*uv))[0], q)):
+                return other
+        return uv
 
 
 def newton2(s, q, u, v):
@@ -1549,7 +1561,7 @@ class Path:
             self.ref = [(t, (p[0] + du, p[1] + dv)) for t, p in self.ref]
 
 
-def follow(s, curve, t0, t1, scale):
+def follow(s, curve, t0, t1, scale, seed=None):
     """The edge's curve from t0 to t1 on the surface `s`: its sampled path in (u, v), followed
     continuously, refined where it turns fast; split where it passes through a singular point of
     the surface. [Path], each with its reference path."""
@@ -1577,7 +1589,8 @@ def follow(s, curve, t0, t1, scale):
     pieces = []
     bounds = [t0] + cuts + [t1]
     for a, b in zip(bounds, bounds[1:]):
-        pieces.append(piece(s, curve, a, b, scale))
+        pieces.append(piece(s, curve, a, b, scale, seed))
+        seed = pieces[-1].end
     return pieces
 
 
@@ -1588,7 +1601,7 @@ def at_singular(s, q, scale):
     return None
 
 
-def piece(s, curve, t0, t1, scale):
+def piece(s, curve, t0, t1, scale, seed=None):
     """One piece of an edge, through no singular point but perhaps at its ends."""
     path = Path(s, curve, t0, t1)
     n = 16 + 4 * sum(1 for b in curve.breaks if min(t0, t1) < b < max(t0, t1))
@@ -1603,9 +1616,10 @@ def piece(s, curve, t0, t1, scale):
         return all(norm(sub(q, p)) > 1e-6 * scale for p in near)
     ts = [t for k, t in enumerate(ts) if k in (0, len(ts) - 1) or clear(t)]
     pts = []
-    prev = None
-    # followed from a point off any singular end (a singular point's angles are rounding's), the
-    # ends set below
+    # followed from where the loop's last edge ended (on a surface that comes near itself, the
+    # nearest of its samples may be on the wrong fold), and from a point off any singular end (a
+    # singular point's angles are rounding's), the ends set below
+    prev = seed if ends[0] is None else None
     order = ts[1:] + ts[:1] if ends[0] is not None else ts
     for t in order:
         uv = s.invert(curve.point(t), prev)
@@ -1686,7 +1700,10 @@ class Face:
         # the inner integral runs along the parameter no loop winds round; where none winds, along
         # the one whose ends are poles (a sphere's or a revolution's meridian), else v
         poles = {axis for _, axis, _ in self.s0.singular}
-        prefer_u = poles == {0}
+        # free to choose: along the parameter of the surface's poles, else the one of fewer knot
+        # spans (each a panel of the inner integral at every point of the outer)
+        spans = [len(k) for k in getattr(self.s0, "knots", ((), ()))]
+        prefer_u = poles == {0} or (not poles and spans[0] < spans[1])
         if all(w[1] == 0 for w in wind) and not (prefer_u and all(w[0] == 0 for w in wind)):
             s, transposed = self.s0, False
             paths = [p for p, _ in loops]
@@ -1990,7 +2007,7 @@ def face_loops(m, f, s, scale):
                 ts, te = edge_range(m, curve, sv, ev, same)
                 if eo != orient:
                     ts, te = te, ts
-                pieces = follow(s, curve, ts, te, scale)
+                pieces = follow(s, curve, ts, te, scale, paths[-1].end if paths else None)
                 paths += pieces
             if last is not None and norm(sub(m.point(last), m.point(first_vertex))) > 1e-6 * scale:
                 raise Invalid("a loop whose edges do not close")
