@@ -37,6 +37,11 @@ and concave rounds turned around a square boss's rounded corners at its root. Th
 stated as the union of every ball inside the solid, the last two as their rounds made one after
 another, since rounds of opposite convexity can close a corner more than one way.
 
+Chamfers with two distances on the edges of a ball: a hemisphere's rim, the rim of a ball bored
+through, the concave edge where a ball sits on a post, and the rim of the lens two balls share.
+Each distance is a chord, a straight line from the edge in the plane square to it, so on a ball it
+is not the arc along the face, and the bevel is the cone between the two circles the chords reach.
+
 ## Solid sweeps (`swept/`)
 
 Everything a tool passes through as it moves, from a ball swung through a block (a closed form) to

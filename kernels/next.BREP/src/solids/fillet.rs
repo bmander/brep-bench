@@ -5,8 +5,9 @@
 #![allow(unused_imports)]
 use super::*;
 use brep_kernel::{
-    boolean_operation, make_pyramid_brep, mirror_brep, transform_brep, AffineTransform,
-    AnalyticSurface, BooleanOperation, BooleanOptions, BrepSolid, FaceRecord, KernelRefusal,
+    boolean_operation, make_pyramid_brep, mirror_brep, project_point_to_curve, transform_brep,
+    AffineTransform, AnalyticSurface, BooleanOperation, BooleanOptions, BrepSolid, FaceRecord,
+    KernelRefusal,
 };
 use std::f64::consts::FRAC_1_SQRT_2;
 
@@ -91,5 +92,47 @@ pub fn lies_in_plane_z(face: &FaceRecord, height: f64) -> bool {
                 && normal.x.abs() + normal.y.abs() <= 1e-9 * normal.length()
         }
         _ => false,
+    }
+}
+
+/// The faces bounding the edge of `solid` that passes through `point`, of any curve (a circle
+/// included), in the order of the solid's shells: the order in which the kernel's two-distance
+/// chamfer takes them as its face 1 and face 2.
+pub fn faces_of_edge_at(solid: &BrepSolid, point: Vec3) -> Vec<&FaceRecord> {
+    let Some(edge) = solid.edges.iter().find(|e| {
+        !e.degenerate && project_point_to_curve(&e.curve, point).is_ok_and(|hit| hit.distance <= 1e-7)
+    }) else {
+        return Vec::new();
+    };
+    let mut faces: Vec<&FaceRecord> = Vec::new();
+    for face in solid.shells.iter().flat_map(|shell| &shell.faces) {
+        let holds = face.loops.iter().flat_map(|l| &l.coedges).any(|c| c.edge_id == edge.id);
+        if holds && !faces.iter().any(|known| known.id == face.id) {
+            faces.push(face);
+        }
+    }
+    faces
+}
+
+/// Whether `face` lies on a ball centred at `centre`.
+pub fn is_ball_about(face: &FaceRecord, centre: Vec3) -> bool {
+    matches!(face.surface.analytic(),
+        Some(AnalyticSurface::Sphere { frame, .. }) if frame.origin.sub(centre).length() <= 1e-9)
+}
+
+/// The two distances of a two-distance chamfer in the order the kernel takes them, for the edge
+/// of `solid` through `point`: `on_ball` on its face that lies on the ball about `centre`, and
+/// `on_other` on its other face.
+pub fn distances_ball_first(
+    solid: &BrepSolid,
+    point: Vec3,
+    centre: Vec3,
+    on_ball: f64,
+    on_other: f64,
+) -> Result<(f64, f64), crate::Refusal> {
+    match faces_of_edge_at(solid, point).first() {
+        Some(face) if is_ball_about(face, centre) => Ok((on_ball, on_other)),
+        Some(_) => Ok((on_other, on_ball)),
+        None => Err(crate::Refusal::from(format!("no edge through {point:?}"))),
     }
 }
