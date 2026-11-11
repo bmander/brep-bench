@@ -1012,7 +1012,20 @@ class BSplineSurface(Surface):
         return min(self.samples, key=lambda s: dot(sub(s[1], q), sub(s[1], q)))[0]
 
     def invert(self, q, guess=None):
-        u, v = self.nearest_sample(q) if guess is None else self._wrap(*guess)
+        if guess is None:
+            # from each of the nearest few samples, until one finds the point on the surface (on a
+            # surface that winds near itself, the nearest may lead Newton to another turn of it)
+            near = sorted(self.samples, key=lambda s: dot(sub(s[1], q), sub(s[1], q)))[:6]
+            best = None
+            for (u, v), _ in near:
+                uv = newton2(self, q, u, v)
+                off = norm(sub(self._ev(*self._wrap(*uv))[0], q))
+                if best is None or off < best[0]:
+                    best = (off, uv)
+                if off < 1e-9 * self.size:
+                    break
+            return best[1]
+        u, v = self._wrap(*guess)
         uv = newton2(self, q, u, v)
         if guess is not None and norm(sub(self._ev(*self._wrap(*uv))[0], q)) > 1e-4 * self.size:
             # Newton from the guess found another fold of the surface: from the nearest sample
