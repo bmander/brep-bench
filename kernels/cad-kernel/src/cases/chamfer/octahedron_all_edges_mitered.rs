@@ -5,9 +5,9 @@
 //! `flat_along` measures each leg from the other face's plane, not across its own face: the line
 //! √6 across the face x + y + z = 10 from its edge (z = 2) stands 4/√3 off the neighbouring face
 //! x + y − z = 10, so each leg is 4/√3.
-use crate::sketch::{block, named};
+use crate::sketch::named;
 use cad_kernel::boolean::{combined, Op};
-use cad_kernel::build::kept;
+use cad_kernel::build::hull;
 use cad_kernel::fillet::flat_along;
 use cad_kernel::geom::tolerance;
 use cad_kernel::topo::Brep;
@@ -15,16 +15,16 @@ use cad_kernel::topo::Brep;
 const REACH: f64 = 10.;
 
 pub fn build() -> Result<Brep, String> {
-    // the octahedron: a block round it kept within the plane of each face
-    let mut solid = block([-REACH; 3], [REACH; 3])?;
-    let k = 1. / 3f64.sqrt();
-    for sx in [-1., 1.] {
-        for sy in [-1., 1.] {
-            for sz in [-1., 1.] {
-                solid = kept(&solid, [sx * REACH, 0., 0.], [-sx * k, -sy * k, -sz * k], 0.)?;
-            }
+    // the octahedron: the convex hull of its six corners, REACH out along each axis
+    let mut corners = Vec::new();
+    for axis in 0..3 {
+        for s in [-1., 1.] {
+            let mut at = [0.; 3];
+            at[axis] = s * REACH;
+            corners.push(at);
         }
     }
+    let mut solid = hull(&corners)?;
     // each edge picked by its middle, halfway between two corners on the axes; each leg the
     // distance of the line z = 2 on one face from the other face's plane
     let leg = 4. / 3f64.sqrt();
