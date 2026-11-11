@@ -18,7 +18,9 @@ each other at the explorer's forty pixels.
 A case is drawn again only when what its drawing is made from changed: the kernel it is drawn
 from, that kernel's mesh, or this code. Each drawing's stamp (a hash of the mesh and of the code)
 is kept in site/drawings/index.json, so a run that adds or changes a kernel redraws only the cases
-whose drawing that changes, not every case it ran. Standard library only.
+whose drawing that changes, not every case it ran. A case whose drawing fails is said so (a
+warning, under GitHub Actions) and left undrawn, the others drawn: no drawing holds up the run's
+results. Standard library only.
 """
 import hashlib
 import json
@@ -26,6 +28,7 @@ import math
 import os
 import struct
 import sys
+import traceback
 import zlib
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -113,9 +116,14 @@ def render(tris, basis, scale, box, margin, look=PAPER):
     light = unit(tuple(kr * r[j] + ku * u[j] + kw * w[j] for j in range(3)))
     for a, b, c in tris:
         n = cross((b[0] - a[0], b[1] - a[1], b[2] - a[2]), (c[0] - a[0], c[1] - a[1], c[2] - a[2]))
+        size = math.sqrt(dot(n, n))
+        if size == 0:
+            continue  # no area (or too little to square): nothing to see
+        n = (n[0] / size, n[1] / size, n[2] / size)
+        # facing away (a closed solid's back) or edge-on: judged on the unit normal, whose facing
+        # the slope below divides by, so a facet edge-on by a rounding error is skipped too
         if dot(n, w) <= 0:
-            continue  # facing away: a closed solid's back
-        n = unit(n)
+            continue
         sx = [(dot(p, r) - x0) * k + m for p in (a, b, c)]
         sy = [(y1 - dot(p, u)) * k + m for p in (a, b, c)]
         sz = [dot(p, w) for p in (a, b, c)]
@@ -333,6 +341,7 @@ def main():
             last = json.load(f)
     index = {}
     undrawn = set()
+    failed = []
     kept = 0
     case_ids = sorted({cid for r in results.values() for cid in r})
     for cid in case_ids:
@@ -349,9 +358,22 @@ def main():
             index[cid] = last[cid]
             kept += 1
             continue
-        sizes = sheet(stl.read(mesh), out_dir)
+        # a drawing that fails is said so and left undrawn: the run's results, kept after the
+        # drawings, must not wait on them
+        try:
+            sizes = sheet(stl.read(mesh), out_dir)
+        except Exception:
+            print(f"{cid}: could not be drawn from {name}", flush=True)
+            traceback.print_exc()
+            failed.append(f"{cid} ({name})")
+            undrawn.add(cid)
+            continue
         index[cid] = {"from": name, "sizes": sizes, "stamp": made_from}
         print(f"{cid}: drawn from {name}", flush=True)
+    if failed:
+        # under GitHub Actions, a warning on the run's summary
+        prefix = "::warning::" if os.environ.get("GITHUB_ACTIONS") else ""
+        print(f"{prefix}{len(failed)} cases could not be drawn: {', '.join(failed)}", flush=True)
     if kept:
         print(f"{kept} drawings unchanged, kept")
     if prefixes != ("",):
