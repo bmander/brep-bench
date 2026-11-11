@@ -10,8 +10,9 @@
 //! surface kind as its record names them, and the kernel's validity check (`Body::check`). It
 //! meshes the body with solidcore-tess, solidcore's one mesher, into OUT.stl, writes it as STEP
 //! into OUT.step if asked (solidcore's own writer, step-export, through step-brep: see
-//! [`write_step`]) and prints one line of JSON. An operation's error is a refusal: the kernel
-//! declined, saying why. A case may also refuse in its own words, where solidcore has no
+//! [`write_step`]) and prints one line of JSON. Given `-` for OUT.stl (the harness's timed run), it
+//! builds the body and writes its STEP, and measures and meshes nothing. An operation's error is a
+//! refusal: the kernel declined, saying why. A case may also refuse in its own words, where solidcore has no
 //! operation for what it describes. The runner never reads the case's description.
 use solidcore::geom::attribute::AttributeStore;
 use solidcore::kernel::{Kernel, UpstreamFixes};
@@ -176,8 +177,18 @@ fn write_step(body: &Body, path: &str) -> Result<(), String> {
 /// The reply for a body built: its measures, once its triangles are written (and its STEP, if
 /// asked for: where the writer declines, the reply says why in `step_error`). The mesh keeps
 /// within a ten-thousandth of the body's size, or 1/200 of its thickness (its volume over its
-/// area) where that is less: the reference runner's rule (`kernels/occt/run.py`).
+/// area) where that is less: the reference runner's rule (`kernels/occt/run.py`). Given `-` for
+/// `out`, the harness's timed run, its STEP alone: nothing measured or meshed.
 fn measured(body: &Body, out: &str, out_step: Option<&str>) -> Result<String, Refusal> {
+    let step_error = || {
+        out_step
+            .and_then(|path| write_step(body, path).err())
+            .map(|e| format!(",\"step_error\":{}", quoted(&e)))
+            .unwrap_or_default()
+    };
+    if out == "-" {
+        return Ok(format!("{{\"status\":\"ok\"{}}}", step_error()));
+    }
     let volume = finest(|a| body.volume(a)).map_err(|e| format!("volume not measured: {e}"))?;
     let area = finest(|a| body.area(a)).map_err(|e| format!("area not measured: {e}"))?;
     let valid = body.check(CheckLevel::Geometry).is_ok_and(|r| r.is_valid());
@@ -202,10 +213,7 @@ fn measured(body: &Body, out: &str, out_step: Option<&str>) -> Result<String, Re
         return Err(format!("not meshed: face {}: {}", f.face, f.reason).into());
     }
     write_stl(out, &mesh).map_err(|e| format!("{out} not written: {e}"))?;
-    let step_error = out_step
-        .and_then(|path| write_step(body, path).err())
-        .map(|e| format!(",\"step_error\":{}", quoted(&e)))
-        .unwrap_or_default();
+    let step_error = step_error();
     Ok(format!(
         "{{\"status\":\"ok\",\"volume\":{volume:e},\"area\":{area:e},\"faces\":{{{faces}}},\"valid\":{valid}{step_error}}}"
     ))

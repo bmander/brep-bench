@@ -8,9 +8,11 @@
 //! kernel's own tools: its exact volume and area (`properties`, integrated over the B-rep), its
 //! faces by surface kind and its validity check (`validity::check`). It triangulates the solid
 //! into OUT.stl, writes it as STEP into OUT.step if asked (the kernel's own writer,
-//! `io::step::write`, AP214) and prints one line of JSON. A kernel error is a refusal: the kernel
-//! declined, saying why. A case may also refuse in its own words, where kentron has no operation
-//! for what it describes. The runner never reads the case's description.
+//! `io::step::write`, AP214) and prints one line of JSON. Given `-` for OUT.stl (the harness's
+//! timed run), it builds the solid and writes its STEP, and measures and meshes nothing. A kernel
+//! error is a refusal: the kernel declined, saying why. A case may also refuse in its own words,
+//! where kentron has no operation for what it describes. The runner never reads the case's
+//! description.
 use kentron::geometry::surface::Surface;
 use kentron::math::Point;
 use kentron::meshing::{triangulate, MeshOptions};
@@ -118,8 +120,13 @@ fn write_stl(path: &str, nodes: &[Point], triangles: &[[u32; 3]]) -> std::io::Re
 /// within a ten-thousandth of the solid's size, or 1/200 of its thickness (its volume over its
 /// area) where that is less: the reference runner's rule (`kernels/occt/run.py`). With `out_step`,
 /// the solid is also written there as STEP, named after the case; where the writer declines, no
-/// file is written and the reply says why in `step_error`.
+/// file is written and the reply says why in `step_error`. Given `-` for `out`, the harness's
+/// timed run, its STEP alone: nothing measured or meshed.
 fn measured(m: &mut Model, solid: Shape, out: &str, out_step: Option<&str>, case: &str) -> String {
+    if out == "-" {
+        let step_error = out_step.and_then(|path| write_step(m, solid, case, path));
+        return format!("{{\"status\":\"ok\"{}}}", step_error.unwrap_or_default());
+    }
     let mut faces = BTreeMap::new();
     for f in m.explore(solid, NodeKind::Face).collect::<Vec<_>>() {
         let k = m.surface(f).map_or("other", kind);

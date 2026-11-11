@@ -397,10 +397,12 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
             shutil.copyfile(stl, dest)
             href = f"{up}meshes/{e(name)}/{e(cid)}.stl"
             mb = os.path.getsize(stl) / 1e6
-        # its STEP file, for the viewer's faces, where the run kept it (run.py's STEP_KEPT)
+        # its STEP file, what the viewer shows where the run kept it (run.py's STEP_KEPT); its
+        # triangles are shown only where there is none, or it cannot be read
         step_file, step_href = stl[:-len(".stl")] + ".step", None
-        if href and (row.get("step") or {}).get("faces") and os.path.exists(step_file):
+        if row and (row.get("step") or {}).get("faces") and os.path.exists(step_file):
             dest = os.path.join(SITE, "meshes", name, cid + ".step")
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
             shutil.copyfile(step_file, dest)
             step_href = f"{up}meshes/{e(name)}/{e(cid)}.step"
         src = source(registry.get(name, {}), cid)
@@ -425,16 +427,19 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
     for en in entries:
         en["friends"] = [o["name"] for o in entries if o is not en
                          and agree(en["measures"], o["measures"])]
-    has_mesh = any(en["stl"] for en in entries)
+    # whether any entry has a solid to show: its STEP file, or else its triangles
+    has_view = any(en["stl"] or en["step"] for en in entries)
 
     out.append("<h2 id=results>Results</h2>")
     if not entries:
         out.append("<p class=muted>No kernel has run it yet.</p>")
     else:
-        # the entry shown first: a pass with triangles to show, else any result with them, else
+        # the entry shown first: a pass with a solid to show, else any result with one, else
         # any result at all (the first such, in kernels.json's order); #k=NAME picks another
-        shown = max(entries, key=lambda en: (en["outcome"] == "pass" and bool(en["stl"]),
-                                             bool(en["stl"]), bool(en["row"])))
+        def solid(en):
+            return bool(en["step"] or en["stl"])
+        shown = max(entries, key=lambda en: (en["outcome"] == "pass" and solid(en), solid(en),
+                                             bool(en["row"])))
 
         # every entry at a glance, a column each; a click on any of its cells picks it
         def value(en, i):
@@ -484,25 +489,20 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
         out.append("<div class=pick role=group aria-label='Whose entry'>" + "".join(
             f"<button type=button data-k='{e(en['name'])}'>{e(en['name'])} "
             f"<span class=muted>{e(en['label'])}</span></button>" for en in entries) + "</div>")
-        if has_mesh:
-            # what the viewer draws: the STL's triangles, or, where the entry's STEP file was
-            # kept, its B-rep faces, each colored by its surface, its edges drawn between them
-            modes = ("<div class=pick id=modes role=group aria-label='What the viewer shows'"
-                     + ("" if any(en["step"] for en in entries) else " hidden") + ">"
-                     "<button type=button data-mode=mesh aria-current=true>triangles "
-                     "<span class=muted>STL</span></button>"
-                     "<button type=button data-mode=faces>faces by surface "
-                     "<span class=muted>STEP</span></button></div>")
-            out.append("<div id=view hidden>" + modes + "<canvas id=viewer></canvas>"
+        if has_view:
+            # what the viewer draws: the entry's B-rep, its STEP file's faces, each colored by its
+            # surface, its edges drawn between them; only where it has no STEP file to show, or
+            # the file cannot be read, its runner's triangles instead
+            out.append("<div id=view hidden><canvas id=viewer></canvas>"
                        "<p class=legend id=kinds hidden></p>"
-                       "<p class=muted id=mesh-note>Drag to turn, scroll or pinch to zoom, "
-                       "right-drag to move. Black lines are where the surface turns sharply; red "
-                       "ones, seen through the solid, are open edges, where the mesh is not "
-                       "closed.</p><p class=muted id=faces-note hidden>Drag to turn, scroll or "
-                       "pinch to zoom, right-drag to move. The solid as its STEP file has it, "
-                       "meshed in the browser by Open CASCADE (occt-import-js): each face colored "
-                       "by the kind of its surface, and the edges that bound each face drawn "
-                       "between them.</p></div>")
+                       "<p class=muted id=faces-note hidden>Drag to turn, scroll or pinch to zoom, "
+                       "right-drag to move. The solid as its STEP file has it, meshed in the "
+                       "browser by Open CASCADE (occt-import-js): each face colored by the kind "
+                       "of its surface, and the edges that bound each face drawn between "
+                       "them.</p><p class=muted id=mesh-note hidden><span id=mesh-why></span> "
+                       "Drag to turn, scroll or pinch to zoom, right-drag to move. Black lines "
+                       "are where the surface turns sharply; red ones, seen through the solid, "
+                       "are open edges, where the mesh is not closed.</p></div>")
         out += [entry(en, exp) for en in entries]
         out.append(PICK)
         # the table of entries sorted by a click on a row's head (the board's sort.js)
@@ -511,7 +511,7 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
 
     out.append(f"<p class=muted><a href='{REPO}/blob/main/cases/{e(cid)}.md'>{e(cid)}.md</a>, "
                "the case as written.</p>")
-    if has_mesh:
+    if has_view:
         out.append(VIEWER.replace("{cdn}", THREE).replace("{occt}", OCCT_JS))
     if (exp and any(exp[k]["tex"] for k in exp)) or "class='math" in description:
         out.append(TEX.replace("{cdn}", KATEX))
@@ -660,14 +660,14 @@ MEANS = {
 
 def entry(en, exp):
     """One kernel's entry for a case, as HTML, hidden: the page's script shows the one picked.
-    Its triangles are drawn by the page's one viewer, above it."""
+    Its solid (its STEP file, else its triangles) is drawn by the page's one viewer, above it."""
     e = html.escape
     name, row, o = en["name"], en["row"], en["outcome"]
     out = [f"<section class=entry data-k='{e(name)}' data-src='{en['stl'] or ''}' "
            f"data-step='{en['step'] or ''}' hidden "
            f"aria-label='{e(name)}'>"]
-    if not en["stl"]:
-        out.append(f"<div class='muted nomesh'>{e(name)} left no triangles to show.</div>")
+    if not en["stl"] and not en["step"]:
+        out.append(f"<div class='muted nomesh'>{e(name)} left no solid to show.</div>")
 
     out.append("<h3>Time</h3>")
     out.append(f"<p>{spent(en, 'seconds', seconds_text)}; CPU time "
@@ -755,7 +755,7 @@ PICK = """<script>
     if (!entry) return false;
     for (const x of entries) x.hidden = x !== entry;
     for (const m of marks) m.setAttribute('aria-current', String(m.dataset.k === k));
-    if (view) view.hidden = !entry.dataset.src;
+    if (view) view.hidden = !entry.dataset.src && !entry.dataset.step;
     document.dispatchEvent(new CustomEvent('entry', {
       detail: { src: entry.dataset.src, step: entry.dataset.step } }));
     return true;
@@ -1033,20 +1033,16 @@ function buildFaces(src) {
   return built.get(key);
 }
 
-// what the viewer shows: the triangles (`mesh`) or, where the entry has a STEP file, its faces
-let mode = 'mesh';
+// what the viewer shows: the entry's STEP file, its faces by surface (`faces`), or only where it
+// has none, or Open CASCADE cannot read it, its runner's triangles (`mesh`)
 let entry = { src: '', step: '' };
-const modes = document.getElementById('modes');
 const legend = document.getElementById('kinds');
 const meshNote = document.getElementById('mesh-note');
+const meshWhy = document.getElementById('mesh-why');
 const facesNote = document.getElementById('faces-note');
 const facesNoteText = facesNote.textContent;
 
 function marks(showing) {
-  for (const b of modes.querySelectorAll('button')) {
-    b.setAttribute('aria-current', String(b.dataset.mode === showing));
-    if (b.dataset.mode === 'faces') b.disabled = !entry.step;
-  }
   meshNote.hidden = showing !== 'mesh';
   facesNote.hidden = showing !== 'faces';
   legend.hidden = true;
@@ -1062,30 +1058,53 @@ function describe(group) {
 }
 
 let wanted = null;
+function place(group, fit) {
+  if (shown) scene.remove(shown);
+  shown = group;
+  scene.add(shown);
+  if (fit) {
+    const { center, radius } = group.userData.sphere;
+    const away = new THREE.Vector3(1, -1, 0.9).normalize()
+      .multiplyScalar(radius / Math.sin(THREE.MathUtils.degToRad(15)) * 1.05);
+    camera.position.copy(center).add(away);
+    camera.near = radius / 100; camera.far = radius * 100;
+    camera.updateProjectionMatrix();
+    controls.target.copy(center);
+  }
+}
+
+// the entry's triangles, saying why they are shown and not its STEP file
+function showMesh(current, why, fit) {
+  marks('mesh');
+  meshWhy.textContent = why;
+  build(current.src).then((group) => {
+    if (current !== wanted) return;  // another entry was picked while this one loaded
+    place(group, fit);
+  });
+}
+
 function show(fit) {
-  const faces = mode === 'faces' && entry.step;
-  const key = faces ? 'step:' + entry.step : entry.src;
-  wanted = key;
-  marks(faces ? 'faces' : 'mesh');
-  if (faces) facesNote.textContent = 'Reading the STEP file…';
-  (faces ? buildFaces(entry.step) : build(entry.src)).then((group) => {
-    if (key !== wanted) return;  // another entry or mode was picked while this one loaded
-    if (shown) scene.remove(shown);
-    shown = group;
-    scene.add(shown);
-    if (faces) { facesNote.textContent = facesNoteText; describe(group); }
-    if (fit) {
-      const { center, radius } = group.userData.sphere;
-      const away = new THREE.Vector3(1, -1, 0.9).normalize()
-        .multiplyScalar(radius / Math.sin(THREE.MathUtils.degToRad(15)) * 1.05);
-      camera.position.copy(center).add(away);
-      camera.near = radius / 100; camera.far = radius * 100;
-      camera.updateProjectionMatrix();
-      controls.target.copy(center);
-    }
+  const current = entry;
+  wanted = current;
+  if (!current.step) {
+    showMesh(current, "It has no STEP file to show: its runner's triangles instead.", fit);
+    return;
+  }
+  marks('faces');
+  facesNote.textContent = 'Reading the STEP file…';
+  buildFaces(current.step).then((group) => {
+    if (current !== wanted) return;
+    place(group, fit);
+    facesNote.textContent = facesNoteText;
+    describe(group);
   }, (error) => {
-    if (key !== wanted || !faces) return;
-    facesNote.textContent = `The STEP file could not be shown: ${error.message}.`;
+    if (current !== wanted) return;
+    if (current.src) {
+      showMesh(current, `The STEP file could not be shown (${error.message}): its runner's `
+        + 'triangles instead.', fit);
+    } else {
+      facesNote.textContent = `The STEP file could not be shown: ${error.message}.`;
+    }
   });
 }
 
@@ -1101,17 +1120,12 @@ function frame() {
 let fitted = false;
 function picked(detail) {
   entry = detail || { src: '', step: '' };
-  renderer.setAnimationLoop(entry.src ? frame : null);
-  if (!entry.src) return;
+  const any = entry.src || entry.step;
+  renderer.setAnimationLoop(any ? frame : null);
+  if (!any) return;
   show(!fitted);
   fitted = true;
 }
-modes.addEventListener('click', (event) => {
-  const b = event.target.closest('button');
-  if (!b || b.disabled || b.dataset.mode === mode) return;
-  mode = b.dataset.mode;
-  if (entry.src) show(false);
-});
 document.addEventListener('entry', (event) => picked(event.detail));
 new ResizeObserver(resize).observe(canvas);
 resize();

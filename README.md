@@ -21,6 +21,8 @@ offsets, thickened sheets, shells, drafts, form features, singular points, direc
 surfaces, real parts and an integration test, the Utah teapot ([a tour](docs/cases.md)).
 
 A runner builds the case, writes its triangles as STL, and reports the solid's volume and area. It
+is timed on its shortest path to a B-rep alone, the solid built and written as STEP, in a run of
+its own: the triangles are how the harness checks a solid, not what a kernel is for. It
 **passes** when:
 
 - volume and area are within 1e-6 (relative) of the expected values, or 1e-3 for a kernel that can

@@ -15,6 +15,9 @@
 // and a body it cannot write is no body at all: the compiler refuses the case. So there is no
 // separate STEP refusal to report.
 //
+// Given `-` for OUT.stl (the harness's timed run), the runner compiles the part and writes its STEP,
+// and reads nothing back and meshes nothing.
+//
 // Aetheris has exact volumes for only a few families of body, and no exact area: its general mass
 // properties are integrated over a display tessellation, and it says so. So the runner answers
 // `"measured": "mesh"` and the harness measures the triangles.
@@ -105,6 +108,12 @@ static class Runner
             if ((errors.Length > 0 ? errors : built.Diagnostics).Any(d => AuthoringFault.IsMatch(d.Message.Split(':')[0])))
                 throw new Fault(words);
             throw new Refused(words);
+        }
+        // the harness's timed run: the part compiled and its STEP written, nothing meshed
+        if (output == "-")
+        {
+            if (step is not null) File.WriteAllText(step, built.Value.StepText, new UTF8Encoding(false));
+            return new { status = "ok" };
         }
         // the body Aetheris exports, read back by its own importer: what `aetheris measure` measures
         var imported = Step242Importer.ImportBody(built.Value.StepText);

@@ -6,7 +6,8 @@
 //! Builds the case `CASE` (`boolean/napkin-ring`) with its implementation,
 //! `src/cases/boolean/napkin_ring.rs`, writes the solid's triangles to `OUT.stl` (and, if asked,
 //! the solid to `OUT.step` with vcad's own STEP writer, `Solid::to_step_buffer`) and prints one
-//! line of JSON, or a refusal.
+//! line of JSON, or a refusal. Given `-` for `OUT.stl` (the harness's timed run), it builds the
+//! solid and writes its STEP, and meshes nothing.
 //!
 //! vcad measures only meshes: `Solid::volume` and `Solid::surface_area` are its tessellation's.
 //! So a built case answers `"measured": "mesh"` and the harness takes the volume and area from the
@@ -91,13 +92,30 @@ fn kind(k: SurfaceKind) -> &'static str {
     }
 }
 
+/// With `out_step`, `solid` written there as STEP, or why vcad would not (`step_error` in
+/// `reply`).
+fn step(solid: &Solid, out_step: Option<&str>, reply: &mut Value) {
+    if let Some(path) = out_step {
+        match solid.to_step_buffer() {
+            Ok(step) => std::fs::write(path, step).expect("the STEP file writes"),
+            Err(e) => reply["step_error"] = json!(e.to_string()),
+        }
+    }
+}
+
 /// The faces of `solid` by surface kind, its validity, and its triangles written to `out`; with
-/// `out_step`, the solid written there as STEP, or why vcad would not (`step_error`).
+/// `out_step`, the solid written there as STEP (`step`). Given `-` for `out`, the harness's timed
+/// run, its STEP alone: nothing meshed.
 fn report(solid: &Solid, out: &str, out_step: Option<&str>) -> Result<Value, Refusal> {
     // vcad's ledger of the solid's construction: an operation that could not be done and left the
     // wrong solid in its place (a skipped cut, two meshes concatenated) is the kernel declining
     if let Some(event) = solid.wrong_geometry_events().next() {
         return Err(Refusal(event.to_string()));
+    }
+    if out == "-" {
+        let mut reply = json!({"status": "ok"});
+        step(solid, out_step, &mut reply);
+        return Ok(reply);
     }
     let mut faces: BTreeMap<&str, usize> = BTreeMap::new();
     if let Some(brep) = solid.brep() {
@@ -124,12 +142,7 @@ fn report(solid: &Solid, out: &str, out_step: Option<&str>) -> Result<Value, Ref
         .map_err(|e| Refusal(format!("no STL written: {e:?}")))?;
     std::fs::write(out, bytes).expect("the STL file writes");
     let mut reply = json!({"status": "ok", "measured": "mesh", "faces": faces, "valid": valid});
-    if let Some(path) = out_step {
-        match solid.to_step_buffer() {
-            Ok(step) => std::fs::write(path, step).expect("the STEP file writes"),
-            Err(e) => reply["step_error"] = json!(e.to_string()),
-        }
-    }
+    step(solid, out_step, &mut reply);
     Ok(reply)
 }
 

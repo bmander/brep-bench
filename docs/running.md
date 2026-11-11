@@ -15,20 +15,24 @@ boolean/` runs part of the suite; `NAME` is the kernel's `name` in `kernels.json
 run narrowed by `--case` is only a check and is not recorded; a run of every case, even for one
 kernel, writes `results/<kernel>.json`.
 
-Each run's time, CPU time (user and system, over every thread) and peak memory are recorded
-beside its outcome; none of them is graded. Runners are started by `harness/measure.py`, a
-small process that holds almost no memory, because on Linux a child's peak resident set starts
-at its parent's. Before its cases, each runner is given the case id `harness/start`, which names
-no case, five times; the median is the kernel's start-up, which the board subtracts from its
-times. Times are recorded to the microsecond, since a fast kernel's run less its start-up can be
-under a millisecond. In its means and ratios the board takes any time under 0.1 ms, about the
+Each case is run twice ([SPEC.md](../SPEC.md#the-timed-run)): a **timed run**, the runner given
+`-` in place of its STL file, which builds the solid and writes it as STEP if its kernel can, and
+neither meshes nor measures it; then, unless that ran out of time or refused, a **graded run**,
+which writes the triangles the harness grades. A kernel is timed on its shortest path to a
+B-rep, so the time, CPU time (user and system, over every thread) and peak memory recorded
+beside each outcome are the timed run's; none of them is graded. Runners are started by
+`harness/measure.py`, a small process that holds almost no memory, because on Linux a child's
+peak resident set starts at its parent's. Before its cases, each runner is given the case id
+`harness/start`, which names no case, five times; the median is the kernel's start-up, which the
+board subtracts from its times. Times are recorded to the microsecond, since a fast kernel's run
+less its start-up can be under a millisecond. In its means and ratios the board takes any time under 0.1 ms, about the
 spread of a runner's start-up, as 0.1 ms; a time recorded only to the millisecond, or one whose
 kernel's start-up was never measured, it takes as no less than 1 ms. A CI run of only some of a
-kernel's cases keeps its last start-up and binary size. `--one-core` runs each case a kernel
-builds a second time, pinned to one core, for its speedup on all of them (Linux only). A kernel
-marked `"step": true` in `kernels.json` runs each case it builds once more, untimed, writing its
-solid as STEP; `harness/step.py` reads the file for what the solid is made of (its form, its
-topology, its faces by surface and edges by curve, its unpaired edges), and the result keeps that
+kernel's cases keeps its last start-up and binary size. `--one-core` makes the timed run of each
+case a kernel builds a second time, pinned to one core, for its speedup on all of them (Linux
+only). A kernel marked `"step": true` in `kernels.json` writes its solid as STEP in each timed
+run; for each case it builds, `harness/step.py` reads the file for what the solid is made of (its
+form, its topology, its faces by surface and edges by curve, its unpaired edges), and the result keeps that
 as `step`, or `{"refused": why}` where the kernel's writer declined it, or `{"error": why}` where
 the run failed. The run prints each one's verdict (`STEP brep`, `STEP refused: …`) at the end of
 its line. The file

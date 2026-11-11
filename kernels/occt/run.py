@@ -8,8 +8,9 @@ Loads the case's implementation, `cases/<category>/<name_snake>.py` beside this 
 `build()`, and measures the solid it returns with OCCT's own tools: its volume and area
 (BRepGProp), its faces by surface kind, its validity (BRepCheck_Analyzer). It meshes the solid
 and writes the triangles to OUT.stl, and if asked the solid to OUT.step (STEPControl_Writer, AP214),
-then prints one line of JSON (SPEC.md, "A runner"). The
-runner never reads the case's description: the implementation is the whole of the case here.
+then prints one line of JSON (SPEC.md, "A runner"). Given `-` for OUT.stl (the harness's timed
+run), it builds the solid and writes its STEP, and measures and meshes nothing. The runner never
+reads the case's description: the implementation is the whole of the case here.
 Needs `cadquery-ocp`.
 """
 import importlib.util
@@ -131,7 +132,7 @@ def main():
     out_step = sys.argv[3] if len(sys.argv) == 4 else None
     try:
         shape = implementation(case_id).build()
-        reply = measure(shape, out_stl)
+        reply = {"status": "ok"} if out_stl == "-" else measure(shape, out_stl)
         if out_step:
             why = step(shape, out_step)
             if why:

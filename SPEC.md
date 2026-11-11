@@ -1,4 +1,4 @@
-# brep-bench specification, version 1.15
+# brep-bench specification, version 1.16
 
 brep-bench works like Rosetta Code. Each **case** describes a solid in plain words and gives its
 volume and area as closed forms. Each **kernel** has its own **implementation** of each case,
@@ -221,7 +221,8 @@ An implementation builds the described solid the way a user of its kernel would:
 
 ## A runner
 
-The harness runs a kernel's `command` from `kernels.json` once per case:
+The harness runs a kernel's `command` from `kernels.json` for each case (twice: see
+[the timed run](#the-timed-run) below):
 
 ```
 <command> CASE OUT.stl
@@ -256,25 +257,38 @@ A runner must also answer `--version` with one line naming the kernel and its ve
 given a case id it has no implementation of, exit without building anything (with an error, or
 refusing): the harness times that, as what starting the runner costs.
 
+### The timed run
+
+A kernel is timed on its shortest path to a boundary representation: building the solid and,
+where it writes STEP, writing it as STEP. Triangles are how the harness checks a solid, not what a
+kernel is for, so meshing and measuring are left out of the time. Each case is run twice:
+
+```
+<command> CASE - [OUT.step]      the timed run
+<command> CASE OUT.stl           the graded run
+```
+
+Given `-` in place of `OUT.stl`, the runner builds the solid, writes it to `OUT.step` where it is
+given one (below), and writes no triangles and measures nothing; it answers
+`{"status": "ok"}` (with `step_error` where its writer declined), or refuses as it would have.
+Whatever the runner must do to call the solid built (a check the kernel itself makes before it
+hands a solid on) belongs in it; a measure, a mesh or a validity check made only for the reply
+does not. The harness makes the timed run first, and takes the case's time, CPU time and peak
+memory from it. If it runs out of time or refuses, that is the case's outcome. Otherwise the
+graded run follows, untimed, and its reply and triangles are graded.
+
 **STEP.** A runner whose kernel can write its solid as STEP (ISO 10303-21, AP203, AP214 or AP242)
 should, and says so in `kernels.json` (`"step": true`). A kernel with no STEP writer says that
 instead, and why (`"step": "the kernel has no STEP writer"`), so the board can tell a kernel that
-cannot write STEP from one whose runner has not been set up to (no `step` at all). For each case
-a kernel with `"step": true` builds (passes, builds or answers wrong), the harness runs it a second
-time with a third argument, the file to write:
-
-```
-<command> CASE OUT.stl OUT.step
-```
-
-The runner builds the case as before and also writes the solid to `OUT.step` with its kernel's own
-STEP writer, as the kernel's users would; it may not write or rewrite STEP itself. Where the writer
-declines the solid, the runner writes no file, answers as it would have, and says why in
-`step_error`, in the writer's own words where it has them: the kernel **refused** STEP for that
-case. A runner that crashes or runs out of time on the STEP run, writes no file and gives no
-`step_error`, or writes a file that cannot be read **failed** to write STEP. The STEP run is not
-timed, and its reply is not graded again; the runner should do nothing for STEP when it is not
-asked, so that the timed run is not slowed.
+cannot write STEP from one whose runner has not been set up to (no `step` at all). A kernel with
+`"step": true` is given `OUT.step` in its timed run, a third argument, and writes the solid there
+with its kernel's own STEP writer, as the kernel's users would; it may not write or rewrite STEP
+itself. Where the writer declines the solid, the runner writes no file, answers as it would have,
+and says why in `step_error`, in the writer's own words where it has them: the kernel **refused**
+STEP for that case. A timed run that crashes, writes no file and gives no `step_error`, or writes a
+file that cannot be read **failed** to write STEP. The file is judged for each case the kernel
+builds (passes, builds or answers wrong). The runner should do nothing for STEP when it is not
+asked.
 
 The harness reads the file for what the solid is made of (`harness/step.py`): how its boundary is
 represented (advanced faces on surfaces, a faceted B-rep, or triangles), its solids, shells, faces,
@@ -326,7 +340,9 @@ downstream of it, and checking them keeps a runner's word about its own solid fr
 evidence.
 
 **What a run costs** is measured by the harness as well, the same way for every kernel, from the
-operating system's account of the runner's process; none of it is graded:
+operating system's account of the runner's process, of the timed run alone (see
+[A runner](#a-runner)): the solid built and written as STEP, and not meshed or measured. None of it
+is graded:
 
 - its **time**, wall-clock, from starting the runner's process to its exit;
 - its **CPU time**, user and system, over every thread of the runner and of the children it
@@ -335,15 +351,16 @@ operating system's account of the runner's process; none of it is graded:
   runner from a process of its own that holds next to nothing, since a process's peak starts at
   that of the process that started it; no run reads under what that process holds;
 - with `run.py --one-core`, its **time on one core**: a case the kernel built (passed, built or
-  answered wrong) is run a second time pinned to a single core, and only that run's time is
-  kept. Its time on one core over its time on all of them is what the machine's other cores
+  answered wrong) has its timed run made a second time pinned to a single core, and only that
+  run's time is kept. Its time on one core over its time on all of them is what the machine's other cores
   bought it.
 
 - the size of the kernel's **binary**, on disk, as `binary` in `kernels.json` names its files
   (once a run, not a case);
 - what **starting the runner** costs, building nothing: the harness gives the runner a case id
-  that no case has, `harness/start`, five times, and keeps the median of their time, CPU time
-  and peak memory (and of their time on one core, with `--one-core`).
+  that no case has, `harness/start`, five times as the timed run is given a case, and keeps the
+  median of their time, CPU time and peak memory (and of their time on one core, with
+  `--one-core`).
 
 Every run includes starting the runner, which costs a Python or .NET runtime more time and memory
 than a Rust binary; the board's times and CPU times leave that start out, a run's less its
@@ -373,6 +390,11 @@ One entry per kernel:
 
 ## Versions
 
+- **1.16:** a kernel is timed on its shortest path to a B-rep. Each case is run twice: a timed
+  run, given `-` for `OUT.stl`, that builds the solid and writes its STEP and meshes and measures
+  nothing, and an untimed graded run that writes the triangles. The time, CPU time and peak memory
+  are the timed run's; a timed run that runs out of time or refuses is the outcome. STEP is
+  written in the timed run, not a run of its own. Grading is as in 1.9.
 - **1.15:** a description may end with its solid stated again as a set of points, under
   `**As a set:**`, in a notation this file defines. It is optional and not graded, and the words
   remain the definition. Grading is as in 1.9.

@@ -6,8 +6,10 @@
 //! Builds the case with its own file, `src/cases/<category>/<name_snake>.rs`, then measures the
 //! solid with the kernel (exact volume and area, faces by surface, its validity check), meshes it
 //! into OUT.stl, writes it as STEP into OUT.step if asked (the kernel's own writer, `step::write`)
-//! and prints one line of JSON. A case that refuses, or a kernel operation that
-//! declines, is a refusal saying why. The runner never reads the case's description.
+//! and prints one line of JSON. Given `-` for OUT.stl (the harness's timed run), it builds the
+//! solid and writes its STEP, and measures and meshes nothing. A case that refuses, or a kernel
+//! operation that declines, is a refusal saying why. The runner never reads the case's
+//! description.
 use cad_kernel::geom::{tolerance, Surface};
 use cad_kernel::mesh::mesh;
 use cad_kernel::props::{area, volume};
@@ -64,9 +66,25 @@ fn refused(why: String) -> String {
     format!("{{\"status\":\"refused\",\"reason\":{}}}", Json::Str(why).dump(None))
 }
 
+/// The solid written as STEP into `out_step`, if asked for: where the writer declines, the
+/// reply's `step_error` field saying why (else nothing).
+fn step(b: &Brep, out_step: Option<&str>, case: &str) -> String {
+    let step_error = out_step.and_then(|path| {
+        cad_kernel::step::write(b, case, tolerance(b.size()))
+            .and_then(|text| std::fs::write(path, text).map_err(|e| e.to_string()))
+            .err()
+    });
+    step_error
+        .map(|e| format!(",\"step_error\":{}", Json::Str(e).dump(None)))
+        .unwrap_or_default()
+}
+
 /// The reply for a solid built: its measures, once its triangles are written (and its STEP, if
-/// asked for: where the writer declines, the reply says why in `step_error`).
+/// asked for). Given `-` for `out`, the harness's timed run, its STEP alone.
 fn measured(b: &Brep, out: &str, out_step: Option<&str>, case: &str) -> String {
+    if out == "-" {
+        return format!("{{\"status\":\"ok\"{}}}", step(b, out_step, case));
+    }
     let mut faces = BTreeMap::new();
     for f in &b.faces {
         *faces.entry(kind(&f.surface)).or_insert(0) += 1;
@@ -75,14 +93,7 @@ fn measured(b: &Brep, out: &str, out_step: Option<&str>, case: &str) -> String {
     let a: f64 = b.faces.iter().map(|f| area(b, f)).sum();
     let valid = b.check(tolerance(b.size())).is_ok();
     let v = volume(b);
-    let step_error = out_step.and_then(|path| {
-        cad_kernel::step::write(b, case, tolerance(b.size()))
-            .and_then(|text| std::fs::write(path, text).map_err(|e| e.to_string()))
-            .err()
-    });
-    let step_error = step_error
-        .map(|e| format!(",\"step_error\":{}", Json::Str(e).dump(None)))
-        .unwrap_or_default();
+    let step_error = step(b, out_step, case);
     match stl(b, out, v, a) {
         Ok(()) => format!(
             "{{\"status\":\"ok\",\"volume\":{v:e},\"area\":{a:e},\"faces\":{{{faces}}},\"valid\":{valid}{step_error}}}"

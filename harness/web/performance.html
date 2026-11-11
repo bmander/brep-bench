@@ -11,9 +11,10 @@
 <nav class=top><a href='index.html'>brep-bench</a><a href='explore.html'>Cases</a><a href='performance.html' aria-current=page>Performance</a><a href='https://github.com/bmander/brep-bench'>Source</a></nav>
 <h1>Performance</h1>
 <p class=lede>Each kernel's run costs over the cases: their time, CPU time and memory, and
-how well they use many cores. A time here is the kernel's own, building the solid, measuring it
-and writing its triangles: the runner's start-up is left out, since it is far longer for a
-Python or .NET runner than a Rust one, and is shown on its own. None of it is graded, and all
+how well they use many cores. A time here is the kernel's own on its shortest path to a B-rep,
+building the solid and writing it as STEP where it can, and neither meshing nor measuring it (a
+run of its own, apart from the one the harness grades): the runner's start-up is left out, since
+it is far longer for a Python or .NET runner than a Rust one, and is shown on its own. None of it is graded, and all
 of it depends on the machine of the last run.</p>
 <main id=performance><p class=muted>Reading the board…</p></main>
 <noscript><p>This page is drawn by JavaScript from <a href='board.json'>board.json</a>.</p></noscript>

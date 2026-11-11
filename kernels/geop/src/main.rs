@@ -16,9 +16,10 @@
 //! one line of JSON is printed. Given `OUT.step`, the part's bodies are also written there by
 //! geop's own STEP writer (`geop_ops_step::write_step`, AP214, every surface and curve the NURBS
 //! geop holds), the product named after the case; where the writer fails, nothing is written and
-//! the reply says why in `step_error`. A step that fails is a refusal: the kernel declined,
-//! saying why. A case may also refuse in its own words, where geop has no operation for what it
-//! describes.
+//! the reply says why in `step_error`. Given `-` for OUT.stl (the harness's timed run), the part
+//! is built and its STEP written, and nothing is measured or meshed. A step that fails is a
+//! refusal: the kernel declined, saying why. A case may also refuse in its own words, where geop
+//! has no operation for what it describes.
 //! The runner never reads the case's description.
 use geop_core_math::primitives::TriangleFace;
 use geop_core_rasterize::rasterize;
@@ -126,7 +127,8 @@ fn measures(model: &Model, solid: SolidId) -> Result<(f64, f64, bool), Refusal> 
 /// The reply for the part built: the measures of its solids, once their triangles are written.
 /// Measuring, checking and meshing it are independent, and run side by side. With `out_step`,
 /// the part is then written there as STEP, the product called `name`, or the reply says why geop
-/// would not (`step_error`).
+/// would not (`step_error`). Given `-` for `out`, the harness's timed run, its STEP alone:
+/// nothing measured or meshed.
 fn measured(
     part: &NamedModel,
     out: &str,
@@ -137,6 +139,22 @@ fn measured(
     let solids: Vec<_> = model.solids.keys().copied().collect();
     if solids.is_empty() {
         return Err("the program built no solid".into());
+    }
+    let step_error = || {
+        let Some(path) = out_step else { return String::new() };
+        match write_step(part, name) {
+            Ok(text) => {
+                std::fs::write(path, text).expect("the STEP file writes");
+                String::new()
+            }
+            Err(e) => {
+                let why = Refusal::from(e).to_string();
+                format!(",\"step_error\":{}", quoted(&why))
+            }
+        }
+    };
+    if out == "-" {
+        return Ok(format!("{{\"status\":\"ok\"{}}}", step_error()));
     }
     let (measures, valid, raster) = std::thread::scope(|s| {
         let valid = s.spawn(|| validate(&ValidationParameters::default(), model).is_ok());
@@ -161,16 +179,7 @@ fn measured(
     }
     std::fs::write(out, stl(&triangles)).map_err(|e| format!("{out} not written: {e}"))?;
     let valid = valid && converged;
-    let mut step_error = String::new();
-    if let Some(path) = out_step {
-        match write_step(part, name) {
-            Ok(text) => std::fs::write(path, text).expect("the STEP file writes"),
-            Err(e) => {
-                let why = Refusal::from(e).to_string();
-                step_error = format!(",\"step_error\":{}", quoted(&why));
-            }
-        }
-    }
+    let step_error = step_error();
     Ok(format!(
         "{{\"status\":\"ok\",\"volume\":{volume:e},\"area\":{area:e},\"faces\":{{\"bspline\":{faces}}},\"valid\":{valid}{step_error}}}"
     ))

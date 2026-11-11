@@ -7,9 +7,10 @@
 //! `src/cases/boolean/napkin_ring.rs`, writes the solid's triangles to `OUT.stl` (and, if asked,
 //! the solid to `OUT.step` with arris's own STEP writer, `arris::io::step::write`, which writes
 //! AP214) and prints one line of JSON: arris's own measures of the solid, its faces by surface kind
-//! and whether it passes arris's checker, or a refusal. An arris error is a refusal: the kernel
-//! declined, saying why. A case may also refuse in its own words, where arris has no operation for
-//! what it describes.
+//! and whether it passes arris's checker, or a refusal. Given `-` for `OUT.stl` (the harness's
+//! timed run), it builds the solid and writes its STEP, and measures and meshes nothing. An arris
+//! error is a refusal: the kernel declined, saying why. A case may also refuse in its own words,
+//! where arris has no operation for what it describes.
 use arris::check::{check, Level};
 use arris::geom::SurfaceKind;
 use arris::math::Control;
@@ -78,9 +79,26 @@ fn kind(k: SurfaceKind) -> &'static str {
     }
 }
 
+/// With `out_step`, `body` written there as STEP, or why arris would not (`step_error` in
+/// `reply`).
+fn step(m: &Model, body: Body, out_step: Option<&str>, reply: &mut Value) {
+    if let Some(path) = out_step {
+        match arris::io::step::write(m, &[body]) {
+            Ok(text) => std::fs::write(path, text).expect("the STEP file writes"),
+            Err(e) => reply["step_error"] = json!(e.to_string()),
+        }
+    }
+}
+
 /// The measures, face kinds and validity of `body`, its triangles written to `out`; with
-/// `out_step`, the body written there as STEP, or why arris would not (`step_error`).
+/// `out_step`, the body written there as STEP (`step`). Given `-` for `out`, the harness's timed
+/// run, its STEP alone: nothing measured or meshed.
 fn report(m: &Model, body: Body, out: &str, out_step: Option<&str>) -> Result<Value, OpError> {
+    if out == "-" {
+        let mut reply = json!({"status": "ok"});
+        step(m, body, out_step, &mut reply);
+        return Ok(reply);
+    }
     let props = mass_properties(m, body, &Control::NONE)?;
     let mut faces: BTreeMap<&str, usize> = BTreeMap::new();
     for f in m.faces(body)? {
@@ -106,12 +124,7 @@ fn report(m: &Model, body: Body, out: &str, out_step: Option<&str>) -> Result<Va
     let mut reply = json!({
         "status": "ok", "volume": props.volume, "area": props.area, "faces": faces, "valid": valid,
     });
-    if let Some(path) = out_step {
-        match arris::io::step::write(m, &[body]) {
-            Ok(text) => std::fs::write(path, text).expect("the STEP file writes"),
-            Err(e) => reply["step_error"] = json!(e.to_string()),
-        }
-    }
+    step(m, body, out_step, &mut reply);
     Ok(reply)
 }
 

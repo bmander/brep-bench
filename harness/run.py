@@ -11,19 +11,23 @@ of is missing. Writes results/<kernel>.json after a run of the whole suite (not 
 `--case`), or folds a plan's runs into the last one (`--plan`), and keeps each result's triangles
 as results/meshes/<kernel>/<case>.stl for the drawings and the viewer.
 
-Each run is measured too, though nothing measured is graded: its wall-clock time, the CPU time
-it spent (user and system, over every thread), and its peak memory (the largest resident set),
-from the operating system's account of the runner's process (wait4), which harness/measure.py
-starts and waits for. So is what starting the runner costs, alone: it is given a case id no case
-has, `harness/start`, so that it starts and builds nothing, a few times over (`startup`). With
-`--one-core` a case the kernel built is run a second time on one core only, for what its other
-cores bought it; that run is timed and nothing else. A kernel whose runner writes STEP
-(`"step": true` in kernels.json) is asked for its solid as STEP in a run of its own, untimed, for
-each case it built, and what the file says the solid is made of is kept beside its result
+What is measured is a kernel's shortest path to a boundary representation, and no more: each
+case is run twice. The **timed run** gives the runner `-` in place of OUT.stl, so that it builds
+the solid and, for a kernel whose runner writes STEP (`"step": true` in kernels.json), writes it
+as STEP, and meshes and measures nothing; the **graded run**, untimed, gives it OUT.stl, and its
+reply and triangles are graded. The timed run's wall-clock time, the CPU time it spent (user and
+system, over every thread) and its peak memory (the largest resident set) are kept, from the
+operating system's account of the runner's process (wait4), which harness/measure.py starts and
+waits for; nothing measured is graded. A timed run that runs out of time or refuses is the
+case's outcome, and the graded run is not made. So is what starting the runner costs, alone: it
+is given a case id no case has, `harness/start`, so that it starts and builds nothing, a few times
+over (`startup`). With `--one-core` a case the kernel built is given the timed run a second time
+on one core only, for what its other cores bought it; that run is timed and nothing else. What
+the STEP file of the timed run says the solid is made of is kept beside its result
 (harness/step.py), or that its kernel's writer refused, or that the run failed; like the runner's
-own `faces`, it is not graded. Times are kept to the microsecond: a
-kernel's own time, a run's less its runner's start-up, can be under a millisecond. Standard
-library only (where there is no wait4, only the time is kept; pinning to one core needs Linux).
+own `faces`, it is not graded. Times are kept to the microsecond: a kernel's own time, a run's
+less its runner's start-up, can be under a millisecond. Standard library only (where there is no
+wait4, only the time is kept; pinning to one core needs Linux).
 """
 import argparse
 import functools
@@ -168,29 +172,51 @@ def execute(argv, timeout, core=None):
             return Ran(code, o.read(), e.read(), seconds, cpu, peak)
 
 
-def run_one(command, case, timeout, keep):
-    """Run and grade one case: (outcome, why, reply, mesh, how it ran)."""
+# what the timed run gives the runner for OUT.stl: no triangles to write, nothing to measure
+# (SPEC.md, "A runner")
+NO_MESH = "-"
+# the outcomes of a run that built a solid: its STEP is read, and it is run again on one core
+BUILT = ("pass", "built", "wrong")
+
+
+def said(ran):
+    """A runner's reply, the last line of its standard output as JSON, or None."""
+    try:
+        reply = json.loads(ran.stdout.strip().splitlines()[-1])
+    except (ValueError, IndexError):
+        return None
+    return reply if isinstance(reply, dict) else None
+
+
+def timed_argv(command, cid, out_step):
+    """The timed run's command line: the case, `-` for OUT.stl, and OUT.step where the kernel's
+    runner writes STEP (`out_step`, else None)."""
+    return command + [cid, NO_MESH] + ([out_step] if out_step else [])
+
+
+def graded(command, case, timeout, keep):
+    """The graded run of one case, untimed: the runner given OUT.stl, its reply and triangles
+    graded (outcome, why, reply, mesh). The triangles are kept as `keep`."""
     with tempfile.TemporaryDirectory() as tmp:
         out_stl = os.path.join(tmp, "result.stl")
         ran = execute(command + [case["id"], out_stl], timeout)
         if ran.code is None:
-            return "timeout", f"over {timeout} s", None, None, ran
+            return "timeout", f"over {timeout} s (meshing it)", None, None
         if ran.code != 0:
-            return "crashed", why_crashed(ran.stderr, ran.code), None, None, ran
-        try:
-            reply = json.loads(ran.stdout.strip().splitlines()[-1])
-        except (ValueError, IndexError):
-            return "crashed", "no JSON reply", None, None, ran
+            return "crashed", why_crashed(ran.stderr, ran.code), None, None
+        reply = said(ran)
+        if reply is None:
+            return "crashed", "no JSON reply", None, None
         mesh = None
         if reply.get("status") == "ok" and os.path.exists(out_stl):
             try:
                 mesh = stl.check(stl.read(out_stl))
             except (ValueError, OSError) as e:
-                return "wrong", f"unreadable STL: {e}", reply, None, ran
+                return "wrong", f"unreadable STL: {e}", reply, None
             # kept for the drawings and the viewer (results/meshes, not committed)
             os.makedirs(os.path.dirname(keep), exist_ok=True)
             shutil.copyfile(out_stl, keep)
-        return (*grade(case, reply, mesh), reply, mesh, ran)
+        return (*grade(case, reply, mesh), reply, mesh)
 
 
 # the largest STEP file kept for the viewer, in bytes: a faceted solid's runs to tens of
@@ -199,50 +225,57 @@ def run_one(command, case, timeout, keep):
 STEP_KEPT = 5_000_000
 
 
-def step_of(command, case, timeout, keep):
-    """The make-up of the solid in STEP, from a run of its own (SPEC.md, "STEP"): the runner given
-    a third argument, the file to write. The file is kept as `keep`, for the viewer, if it is no
-    larger than STEP_KEPT. Where there is no file to read: {"refused": why} where the runner said
-    why its kernel's writer declined (`step_error`), else {"error": why}, a failure: the runner
-    crashed or ran out of time, wrote nothing and said nothing, or wrote what could not be read."""
+def made_of(ran, reply, out_step, keep):
+    """The make-up of the solid in STEP, as the timed run wrote it to `out_step` (SPEC.md, "STEP").
+    The file is kept as `keep`, for the viewer, if it is no larger than STEP_KEPT. Where there is
+    no file to read: {"refused": why} where the runner said why its kernel's writer declined
+    (`step_error`), else {"error": why}, a failure: the runner crashed, wrote nothing and said
+    nothing, or wrote what could not be read."""
+    if ran.code != 0:
+        return {"error": why_crashed(ran.stderr, ran.code)}
+    if not os.path.exists(out_step):
+        if reply and reply.get("step_error"):
+            return {"refused": str(reply["step_error"])}
+        return {"error": "no STEP written, and no step_error saying why"}
+    try:
+        makeup = step.read(out_step)
+    except (ValueError, OSError) as e:
+        return {"error": f"unreadable STEP: {e}"}
+    if os.path.getsize(out_step) <= STEP_KEPT:
+        os.makedirs(os.path.dirname(keep), exist_ok=True)
+        shutil.copyfile(out_step, keep)
+    return makeup
+
+
+def run_one(command, case, timeout, keep, keep_step, writes_step):
+    """Run and grade one case (SPEC.md, "A runner"): first the timed run, the runner given `-` for
+    OUT.stl, building the solid and, where `writes_step`, writing it as STEP; then, unless that
+    ran out of time or refused, the graded run, untimed, with OUT.stl. (outcome, why, reply, mesh,
+    how the timed run ran, its STEP's make-up or None)."""
     with tempfile.TemporaryDirectory() as tmp:
-        out_step = os.path.join(tmp, "result.step")
-        ran = execute(command + [case["id"], os.path.join(tmp, "result.stl"), out_step], timeout)
+        out_step = os.path.join(tmp, "result.step") if writes_step else None
+        ran = execute(timed_argv(command, case["id"], out_step), timeout)
         if ran.code is None:
-            return {"error": f"over {timeout} s"}
-        if ran.code != 0:
-            return {"error": why_crashed(ran.stderr, ran.code)}
-        try:
-            reply = json.loads(ran.stdout.strip().splitlines()[-1])
-        except (ValueError, IndexError):
-            reply = None
-        if not os.path.exists(out_step):
-            said = reply.get("step_error") if isinstance(reply, dict) else None
-            if said:
-                return {"refused": str(said)}
-            if isinstance(reply, dict) and reply.get("status") == "refused":
-                return {"error": "the case was refused when asked for STEP: "
-                        f"{reply.get('reason') or 'no reason given'}"}
-            return {"error": "no STEP written, and no step_error saying why"}
-        try:
-            makeup = step.read(out_step)
-        except (ValueError, OSError) as e:
-            return {"error": f"unreadable STEP: {e}"}
-        if os.path.getsize(out_step) <= STEP_KEPT:
-            os.makedirs(os.path.dirname(keep), exist_ok=True)
-            shutil.copyfile(out_step, keep)
-        return makeup
+            return "timeout", f"over {timeout} s", None, None, ran, None
+        reply = said(ran) if ran.code == 0 else None
+        if reply and reply.get("status") == "refused":
+            return "refused", reply.get("reason", ""), reply, None, ran, None
+        outcome, why, graded_reply, mesh = graded(command, case, timeout, keep)
+        made = (made_of(ran, reply, out_step, keep_step)
+                if writes_step and outcome in BUILT else None)
+        return outcome, why, graded_reply, mesh, ran, made
 
 
 # the decimal places a time in seconds is kept to: microseconds
 TIME_PLACES = 6
 
 
-def one_core_seconds(command, case, timeout, core):
-    """The wall-clock time of the case run again on `core` alone, or None if it ran out of time or
-    failed. Nothing of the run but its time is kept."""
+def one_core_seconds(command, case, timeout, core, writes_step):
+    """The wall-clock time of the case's timed run made again on `core` alone, or None if it ran
+    out of time or failed. Nothing of the run but its time is kept."""
     with tempfile.TemporaryDirectory() as tmp:
-        ran = execute(command + [case["id"], os.path.join(tmp, "result.stl")], timeout, core)
+        out_step = os.path.join(tmp, "result.step") if writes_step else None
+        ran = execute(timed_argv(command, case["id"], out_step), timeout, core)
     return round(ran.seconds, TIME_PLACES) if ran.code == 0 else None
 
 
@@ -258,15 +291,16 @@ STARTS = 5
 
 def startup(k, timeout, one_core=None):
     """What starting kernel `k`'s runner costs, building nothing: the median of STARTS runs given
-    NO_CASE, of their time, CPU time and peak memory, and with `one_core` of their time on that
-    core alone, after one start not counted (the first after a build reads its files from disk).
-    None if the runner does not exit of itself in time."""
+    NO_CASE as the timed run is given a case, of their time, CPU time and peak memory, and with
+    `one_core` of their time on that core alone, after one start not counted (the first after a
+    build reads its files from disk). None if the runner does not exit of itself in time."""
     def median(xs):
         xs = sorted(x for x in xs if x is not None)
         return xs[len(xs) // 2] if xs else None
 
     with tempfile.TemporaryDirectory() as tmp:
-        argv = k["command"] + [NO_CASE, os.path.join(tmp, "none.stl")]
+        argv = timed_argv(k["command"], NO_CASE,
+                          os.path.join(tmp, "none.step") if k.get("step") is True else None)
         if execute(argv, min(timeout, 60)).code is None:
             return None
         runs = [execute(argv, min(timeout, 60)) for _ in range(STARTS)]
@@ -343,9 +377,11 @@ def step_said(row):
 
 
 def run_kernel(k, chosen, timeout, one_core=None):
-    """Run `chosen` cases with kernel `k`: its rows, one per case, in case order. With `one_core`, a
-    core's number, each case it builds (passes, builds or answers wrong) is run again on that core
+    """Run `chosen` cases with kernel `k`: its rows, one per case, in case order. A row's time, CPU
+    time and peak memory are its timed run's (`run_one`). With `one_core`, a core's number, each
+    case it builds (passes, builds or answers wrong) has its timed run made again on that core
     alone for `one_core_seconds`."""
+    writes_step = k.get("step") is True
     rows = []
     for c in chosen:
         keep = os.path.join(ROOT, "results", "meshes", k["name"], c["id"] + ".stl")
@@ -354,9 +390,11 @@ def run_kernel(k, chosen, timeout, one_core=None):
             if os.path.exists(kept):
                 os.remove(kept)
         if not implemented(k, c):
-            outcome, why, reply, mesh, ran = "missing", "no implementation", None, None, None
+            outcome, why, reply, mesh, ran, made = ("missing", "no implementation", None, None,
+                                                    None, None)
         else:
-            outcome, why, reply, mesh, ran = run_one(k["command"], c, timeout, keep)
+            outcome, why, reply, mesh, ran, made = run_one(k["command"], c, timeout, keep,
+                                                           keep_step, writes_step)
         row = {
             "case": c["id"], "outcome": outcome, "why": why,
             "seconds": rounded(ran and ran.seconds, TIME_PLACES),
@@ -367,10 +405,11 @@ def run_kernel(k, chosen, timeout, one_core=None):
             "volume": (reply or {}).get("volume"), "area": (reply or {}).get("area"),
             "faces": (reply or {}).get("faces"), "mesh": mesh,
         }
-        if k.get("step") is True and outcome in ("pass", "built", "wrong"):
-            row["step"] = step_of(k["command"], c, timeout, keep_step)
-        if one_core is not None and outcome in ("pass", "built", "wrong"):
-            row["one_core_seconds"] = one_core_seconds(k["command"], c, timeout, one_core)
+        if made is not None:
+            row["step"] = made
+        if one_core is not None and outcome in BUILT:
+            row["one_core_seconds"] = one_core_seconds(k["command"], c, timeout, one_core,
+                                                       writes_step)
         rows.append(row)
         cost = (f"{ran.seconds:8.3f} s {ran.cpu if ran.cpu is not None else 0:8.3f} cpu "
                 f"{ran.peak_mb or 0:7.1f} MB" if ran else " " * 33)
