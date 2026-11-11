@@ -4,13 +4,13 @@
 //!
 //! The plate is a rectangle extruded; both edges are picked by a point on each and rounded in
 //! one Fillet feature, radius 0.9999.
-use crate::bench::{block, edges_at, p3};
+use crate::bench::{block, p3};
 use crate::shared::fillet::fillet;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let plate = block(k, p3(0.0, 0.0, 0.0), p3(20.0, 10.0, 2.0))?;
-    let edges = edges_at(k, plate, &[p3(10.0, 10.0, 0.0), p3(10.0, 10.0, 2.0)])?;
+    let edges = k.edges_at(plate, &[p3(10.0, 10.0, 0.0), p3(10.0, 10.0, 2.0)])?;
     fillet(k, plate, &edges, 0.9999)
 }

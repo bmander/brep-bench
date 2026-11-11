@@ -6,12 +6,10 @@
 //! its rectangle whose flat top is then given the surface with Replace face
 //! (`Kernel::replace_faces`, Onshape's Replace face): the top takes the new surface over its
 //! whole parameter range, and the four sides are trimmed (or extended) to meet it.
-use crate::bench::{block, face_at, p3};
+use crate::bench::{block, p3};
 use crate::Refusal;
 use cadrs_kernel::native::{NurbsSurface, Surface};
-use cadrs_kernel::{BodyId, DefaultKernel, FaceReplacement, Kernel};
-use nalgebra::Vector4;
-use std::sync::Arc;
+use cadrs_kernel::{BodyId, DefaultKernel, FaceReplacement, Kernel, Pick};
 
 /// A clamped B-spline surface of degrees `du` × `dv` on the knots `ku` × `kv` through the
 /// control points `points[i][j]` (i along u) with weights `weights[i][j]` (1 throughout for a
@@ -24,20 +22,7 @@ pub fn spline_surface(
     points: &[Vec<[f64; 3]>],
     weights: Option<&[Vec<f64>]>,
 ) -> Result<Surface, Refusal> {
-    let cps = points
-        .iter()
-        .enumerate()
-        .map(|(i, row)| {
-            row.iter()
-                .enumerate()
-                .map(|(j, p)| {
-                    let w = weights.map_or(1.0, |w| w[i][j]);
-                    Vector4::new(p[0] * w, p[1] * w, p[2] * w, w)
-                })
-                .collect()
-        })
-        .collect();
-    Ok(Surface::Nurbs(Arc::new(NurbsSurface::new(du, dv, ku, kv, cps)?)))
+    Ok(NurbsSurface::from_points(du, dv, ku, kv, points, weights)?.into())
 }
 
 /// The bicubic Bézier patch of `nurbs/bezier-dome` (and the drilled and sliced domes): its
@@ -84,7 +69,7 @@ pub fn domed_block(
     top: Surface,
 ) -> Result<BodyId, Refusal> {
     let b = block(k, p3(x0, y0, 0.0), p3(x1, y1, height))?;
-    let face = face_at(k, b, p3((x0 + x1) / 2.0, (y0 + y1) / 2.0, height))?;
+    let face = k.face_at(b, p3((x0 + x1) / 2.0, (y0 + y1) / 2.0, height))?;
     let r = k.replace_faces(
         b,
         &[FaceReplacement { face, surface: top, domain: Some(((0.0, 1.0), (0.0, 1.0))) }],

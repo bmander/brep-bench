@@ -6,10 +6,10 @@
 //! to the fourth corner as a point (cadrs has no tetrahedron, nor any polyhedron, primitive; a
 //! loft to a point is how its Part Studio makes a pyramid). Then cadrs's offset with rounded
 //! edges.
-use crate::bench::{p2, p3, plane, polygon, sketch, P3};
+use crate::bench::{p2, p3, P3};
 use crate::shared::offset::grown;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, BodyKind, DefaultKernel, Kernel, LoftEnd, LoftSection, LoftSpec};
+use cadrs_kernel::{BodyId, BodyKind, DefaultKernel, Kernel, LoftEnd, LoftSection, LoftSpec, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let apex = p3(3.0, 3.0, 3.0);
@@ -17,14 +17,14 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     // The sketch plane through the base's corners, its normal toward the apex.
     let normal = (base[1] - base[0]).cross(&(base[2] - base[0]));
     let normal = if normal.dot(&(apex - base[0])) < 0.0 { -normal } else { normal };
-    let on = plane(base[0], base[1] - base[0], normal);
+    let on = Plane::new(base[0], base[1] - base[0], normal);
     let y_dir = on.normal.cross(&on.x_dir);
     let at = |p: P3| {
         let d = p - on.origin;
         p2(d.dot(&on.x_dir), d.dot(&y_dir))
     };
-    let corners: Vec<(f64, f64)> = base.iter().map(|&p| at(p)).map(|q| (q.x, q.y)).collect();
-    let triangle = sketch(on, vec![polygon(&corners)]);
+    let corners: Vec<[f64; 2]> = base.iter().map(|&p| at(p)).map(|q| [q.x, q.y]).collect();
+    let triangle = Profile::of(on, vec![Loop::polygon(&corners)]);
     let spec = LoftSpec {
         body: BodyKind::Solid,
         sections: vec![LoftSection::Profile(triangle), LoftSection::Point(apex)],

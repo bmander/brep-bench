@@ -7,9 +7,9 @@
 //! arc, a side, a fillet's inner arc (clockwise, facing the origin), a side, the next tip's arc.
 //! The tangent points are where a sketch's tangency constraints put them, worked out here as a
 //! sketch solver would.
-use crate::bench::{arc, chain, extrude, faces_where, line, p2, p3, sketch, unit, xz, V3};
+use crate::bench::{arc, extrude, p2, p3, unit, V3};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel, DraftSpec, Kernel};
+use cadrs_kernel::{BodyId, Curve2, DefaultKernel, DraftSpec, Kernel, Loop, Pick, Plane, Profile};
 use nalgebra::Vector2;
 use std::f64::consts::FRAC_1_SQRT_2;
 
@@ -58,14 +58,14 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     for q in 0..4 {
         let turn = 90.0 * q as f64;
         curves.push(arc(pt(quarter(tip, q)), TIP_RADIUS, turn - a, 2.0 * a));
-        curves.push(line(pt(quarter(on_tip, q)), pt(quarter(on_fillet, q))));
+        curves.push(Curve2::line(pt(quarter(on_tip, q)), pt(quarter(on_fillet, q))));
         curves.push(arc(pt(quarter(fillet, q)), FILLET_RADIUS, turn + f, fillet_sweep));
-        curves.push(line(pt(quarter(swap(on_fillet), q)), pt(quarter(swap(on_tip), q))));
+        curves.push(Curve2::line(pt(quarter(swap(on_fillet), q)), pt(quarter(swap(on_tip), q))));
     }
     // the Front plane's normal is −y: extrude against it, along +y
-    let star = extrude(k, &sketch(xz(0.0), vec![chain(curves)]), -12.0)?;
+    let star = extrude(k, &Profile::of(Plane::xz(0.0), vec![Loop::new(curves)]), -12.0)?;
     // the sides: every face but the two ends square to y
-    let sides = faces_where(k, star, |f| f.plane.is_none_or(|p| p.normal.y.abs() < 0.5))?;
+    let sides = k.faces_where(star, &|f| f.plane.is_none_or(|p| p.normal.y.abs() < 0.5))?;
     let spec = DraftSpec {
         faces: sides,
         angle: 2f64.to_radians(),

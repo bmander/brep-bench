@@ -12,8 +12,8 @@ pub fn offset(
     distance: f64,
     sharp: bool,
 ) -> Result<BodyId, Refusal> {
-    let r = k.offset(body, &OffsetSpec { distance, faces: vec![], sharp })?;
-    r.bodies.first().copied().ok_or_else(|| Refusal::from("the offset made no body"))
+    let spec = OffsetSpec::by(distance);
+    Ok(k.offset(body, &if sharp { spec.mitred() } else { spec })?.first()?)
 }
 
 /// `body` grown by `distance`: the solid of every point within `distance` of it.

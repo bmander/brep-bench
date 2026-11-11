@@ -5,14 +5,14 @@
 //! The cube is a square extruded; the edge is picked by the point at its middle and given a
 //! variable fillet, radius 1 at its end on the bottom and 2 at its end on the top (cadrs
 //! interpolates the radius linearly between the two).
-use crate::bench::{block, edge_at, p3};
+use crate::bench::{block, p3};
 use crate::shared::fillet::fillet_variable;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel, FilletLaw, Kernel};
+use cadrs_kernel::{BodyId, DefaultKernel, FilletLaw, Kernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let cube = block(k, p3(0.0, 0.0, 0.0), p3(10.0, 10.0, 10.0))?;
-    let edge = edge_at(k, cube, p3(10.0, 10.0, 5.0))?;
+    let edge = k.edge_at(cube, p3(10.0, 10.0, 5.0))?;
     let info = k.edges(cube)?.into_iter().find(|e| e.id == edge).ok_or("the edge is gone")?;
     // the law runs from the edge's start to its end
     let radii = if info.start.z < info.end.z {

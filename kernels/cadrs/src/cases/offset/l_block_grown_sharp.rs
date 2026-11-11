@@ -3,14 +3,14 @@
 //! 1 out along its normal and the moved faces extended until they meet.
 //!
 //! The outline extruded, then cadrs's offset with sharp edges.
-use crate::bench::{extrude, polygon, sketch, xy};
+use crate::bench::extrude;
 use crate::shared::offset::offset;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let outline =
-        polygon(&[(0.0, 0.0), (20.0, 0.0), (20.0, 5.0), (5.0, 5.0), (5.0, 15.0), (0.0, 15.0)]);
-    let plate = extrude(k, &sketch(xy(0.0), vec![outline]), 8.0)?;
+        Loop::polygon(&[[0.0, 0.0], [20.0, 0.0], [20.0, 5.0], [5.0, 5.0], [5.0, 15.0], [0.0, 15.0]]);
+    let plate = extrude(k, &Profile::of(Plane::xy(0.0), vec![outline]), 8.0)?;
     offset(k, plate, 1.0, true)
 }

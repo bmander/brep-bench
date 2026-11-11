@@ -4,14 +4,13 @@
 //! to a point, united; its twelve edges are chamfered in one Chamfer feature, equal distance √6,
 //! its corners flat (`ChamferCorners::Flat`: each cut by the plane through the four points where
 //! the chamfers' lines on its faces meet).
-use crate::bench::all_edges;
 use crate::shared::chamfer::{chamfer_with, octahedron};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, ChamferCorners, ChamferOpts, ChamferSpec, DefaultKernel};
+use cadrs_kernel::{BodyId, ChamferCorners, ChamferOpts, ChamferSpec, DefaultKernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let o = octahedron(k, 10.0)?;
-    let edges = all_edges(k, o)?;
+    let edges = k.edges_but_seams(o)?;
     let opts = ChamferOpts { corners: ChamferCorners::Flat, ..ChamferOpts::new(ChamferSpec::EqualDistance(6f64.sqrt())) };
     chamfer_with(k, o, &edges, &opts)
 }

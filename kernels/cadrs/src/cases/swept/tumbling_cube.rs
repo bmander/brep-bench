@@ -4,17 +4,16 @@
 //!
 //! cadrs's sweep of a solid (`SolidMotion::Rigid`, its two turns applied in order at each
 //! instant).
-use crate::bench::{axis, block, p3, v3};
-use crate::shared::sweep::first;
+use crate::bench::{block, p3, v3};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel, Kernel, RigidStep, SolidMotion};
+use cadrs_kernel::{Axis, BodyId, DefaultKernel, Kernel, RigidStep, SolidMotion};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let cube = block(k, p3(2.4, -0.6, 1.4), p3(3.6, 0.6, 2.6))?;
     let t = 75f64.to_radians();
     let steps = vec![
-        RigidStep::Turn { axis: axis(p3(2.0, 0.0, 0.0), v3(0.0, 0.0, 1.0)), from: -t / 4.0, to: t / 4.0 },
-        RigidStep::Turn { axis: axis(p3(0.0, 0.5, 0.5), v3(1.0, 0.0, 0.0)), from: t, to: -t },
+        RigidStep::Turn { axis: Axis::new(p3(2.0, 0.0, 0.0), v3(0.0, 0.0, 1.0)), from: -t / 4.0, to: t / 4.0 },
+        RigidStep::Turn { axis: Axis::new(p3(0.0, 0.5, 0.5), v3(1.0, 0.0, 0.0)), from: t, to: -t },
     ];
-    first(k.sweep_solid(cube, &SolidMotion::Rigid { steps })?)
+    Ok(k.sweep_solid(cube, &SolidMotion::Rigid { steps })?.first()?)
 }

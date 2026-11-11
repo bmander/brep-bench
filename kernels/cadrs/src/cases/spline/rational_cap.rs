@@ -5,15 +5,14 @@
 //!
 //! The boundary is sketched on the Front plane: the two segments and the weighted Bézier curve, a
 //! sketch spline (`Curve2::Spline`), revolved a whole turn about z.
-use crate::bench::xz;
 use crate::shared::geometry::{turned_about_z, Section};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let r = 5.0 * 3f64.sqrt();
     // the Front plane's sketch is the model's (x, z)
-    let section = Section::on(xz(0.0))
+    let section = Section::on(Plane::xz(0.0))
         .line((0.0, 10.0), (0.0, -5.0))
         .line((0.0, -5.0), (r, -5.0))
         .bezier(&[(r, -5.0), (2.0 * r, 10.0), (0.0, 10.0)], &[1.0, 0.5, 1.0]);

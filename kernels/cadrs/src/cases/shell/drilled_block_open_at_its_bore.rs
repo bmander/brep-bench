@@ -5,14 +5,14 @@
 //!
 //! The drilled block is the square with the hole's circle in it on the Top plane, extruded 10; cadrs's
 //! Shell feature (inward), the bore picked as the face to remove.
-use crate::bench::{extrude, p3, rectangle, round, sketch_with_holes, xy};
+use crate::bench::{extrude, p3};
 use crate::shared::shell::{shell_inward, Joins};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let square = rectangle(0.0, 0.0, 20.0, 20.0);
-    let s = sketch_with_holes(xy(0.0), square, vec![round((10.0, 10.0), 3.0)]);
+    let square = Loop::rectangle(0.0, 0.0, 20.0, 20.0);
+    let s = Profile::with_holes(Plane::xy(0.0), square, vec![Loop::circle([10.0, 10.0], 3.0)]);
     let b = extrude(k, &s, 10.0)?;
     shell_inward(k, b, &[p3(13.0, 10.0, 5.0)], 1.0, Joins::Rounded)
 }

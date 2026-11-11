@@ -7,14 +7,14 @@
 //! its arrow flipped to point toward the center. cadrs declines it: its slab of the face has no
 //! offset surface for a sphere moved all the way to its center (and its thin revolve of the arc
 //! refuses a wall as thick as the arc's radius).
-use crate::bench::{arc, axis, p2, p3, v3, xz};
+use crate::bench::{arc, p2, p3, v3};
 use crate::shared::thicken::{open_chain, surface_revolve, thicken_toward};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{Axis, BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let s = open_chain(xz(0.0), vec![arc(p2(0.0, 0.0), 5.0, 0.0, 90.0)]);
-    let sheet = surface_revolve(k, &s, axis(p3(0.0, 0.0, 0.0), v3(0.0, 0.0, 1.0)), None)?;
+    let s = open_chain(Plane::xz(0.0), vec![arc(p2(0.0, 0.0), 5.0, 0.0, 90.0)]);
+    let sheet = surface_revolve(k, &s, Axis::new(p3(0.0, 0.0, 0.0), v3(0.0, 0.0, 1.0)), None)?;
     // a point of the sheet on the +y side, 45° up; toward the center from it
     let at = p3(0.0, 1.0, 1.0) * (5.0 / 2f64.sqrt());
     thicken_toward(k, sheet, at, -at.coords, 5.0)

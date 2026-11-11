@@ -8,7 +8,6 @@
 //! a swept solid (exactly half a turn at a time where it can be, else meshed); of the wheel, its part within 5.5 of the axis (the screw maps the cylinder about
 //! its axis onto itself, so only that part reaches the rod).
 use crate::bench::{ball, p3, v3};
-use crate::shared::sweep::first;
 use crate::shared::swept::{cut_swept, near_axis, rod, screw, z_axis};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel, Kernel};
@@ -20,7 +19,7 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let short = v3(0.0, h.cos(), -h.sin());
     let third = short.cross(&v3(1.0, 0.0, 0.0));
     let m = nalgebra::Matrix3::from_columns(&[v3(6.0, 0.0, 0.0), third * 6.0, short * 1.5]);
-    let wheel = first(k.transform_affine(unit, m, v3(10.5, 0.0, 0.0))?)?;
+    let wheel = k.transform_affine(unit, m, v3(10.5, 0.0, 0.0))?.first()?;
     let wheel = near_axis(k, wheel, 5.5)?;
     let r = rod(k)?;
     cut_swept(k, r, wheel, &screw(z_axis(), 30.0, -90.0, 330.0))

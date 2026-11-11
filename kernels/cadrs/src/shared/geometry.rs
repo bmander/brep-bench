@@ -2,41 +2,25 @@
 //! sections with conics and B-splines in them (a sketch's spline, `Curve2::Spline`, rational or
 //! not: a parabola, a hyperbola or a quadratic Bézier exactly), extruded or revolved; B-spline
 //! surfaces from their control nets, put in place of a face; the saddle drum.
-use crate::bench::{p2, p3, P2, P3, V3};
+use crate::bench::{p3, P3, V3};
 use crate::Refusal;
 use cadrs_kernel::native::{NurbsSurface, Surface};
-use cadrs_kernel::{BodyId, Curve2, DefaultKernel, FaceReplacement, Kernel, Loop, Plane};
+use cadrs_kernel::{Axis, BodyId, Curve2, DefaultKernel, FaceReplacement, Kernel, Loop, Pick, Plane, Profile};
 use std::sync::Arc;
-
-/// The whole ellipse about `center` with semi-axes `a` along the sketch's x and `b` along its y.
-pub fn ellipse(center: (f64, f64), a: f64, b: f64) -> Loop {
-    Loop {
-        curves: vec![Curve2::Ellipse {
-            center: p2(center.0, center.1),
-            major_radius: a,
-            minor_radius: b,
-            rotation: 0.0,
-            source: None,
-        }],
-    }
-}
 
 /// The arc of the ellipse about `center` with semi-axes `a` along the sketch's x and `b` along
 /// its y, from parameter `start` degrees through `sweep` degrees.
 pub fn ellipse_arc(center: (f64, f64), a: f64, b: f64, start: f64, sweep: f64) -> Curve2 {
-    Curve2::EllipseArc {
-        center: p2(center.0, center.1),
-        major_radius: a,
-        minor_radius: b,
-        rotation: 0.0,
-        start: start.to_radians(),
-        sweep: sweep.to_radians(),
-        source: None,
-    }
+    Curve2::ellipse_arc([center.0, center.1], a, b, start.to_radians(), sweep.to_radians())
 }
 
 /// A closed section on a plane, its curves in the plane's coordinates, one after another: a
 /// sketch's region.
+/// Sketch points from the cases' coordinate pairs.
+fn points(pairs: &[(f64, f64)]) -> Vec<[f64; 2]> {
+    pairs.iter().map(|&(x, y)| [x, y]).collect()
+}
+
 pub struct Section {
     plane: Plane,
     curves: Vec<Curve2>,
@@ -49,21 +33,14 @@ impl Section {
 
     /// The segment from `a` to `b`: a sketch line.
     pub fn line(mut self, a: (f64, f64), b: (f64, f64)) -> Self {
-        self.curves.push(Curve2::Line { a: P2::new(a.0, a.1), b: P2::new(b.0, b.1), source: None });
+        self.curves.push(Curve2::line([a.0, a.1], [b.0, b.1]));
         self
     }
 
     /// The Bézier curve with these control points and weights (empty: a polynomial curve): a
     /// sketch spline of one span, its knots clamped.
     pub fn bezier(mut self, poles: &[(f64, f64)], weights: &[f64]) -> Self {
-        let degree = poles.len() - 1;
-        self.curves.push(Curve2::Spline {
-            degree,
-            knots: bezier_knots(degree),
-            poles: poles.iter().map(|&(x, y)| P2::new(x, y)).collect(),
-            weights: weights.to_vec(),
-            source: None,
-        });
+        self.curves.push(Curve2::rational_bezier(&points(poles), weights));
         self
     }
 
@@ -82,34 +59,25 @@ impl Section {
         poles: &[(f64, f64)],
         weights: &[f64],
     ) -> Self {
-        self.curves.push(Curve2::Spline {
-            degree,
-            knots: knots.to_vec(),
-            poles: poles.iter().map(|&(x, y)| P2::new(x, y)).collect(),
-            weights: weights.to_vec(),
-            source: None,
-        });
+        self.curves.push(Curve2::spline(degree, knots, &points(poles), weights));
         self
     }
 
     /// A whole closed curve: the periodic B-spline of this degree on these poles (taken in
     /// order, closing back on the first), its knots evenly spaced.
     pub fn periodic(mut self, degree: usize, poles: &[(f64, f64)]) -> Self {
-        let mut ps: Vec<P2> = poles.iter().map(|&(x, y)| P2::new(x, y)).collect();
-        ps.extend_from_within(..degree);
-        let knots = (0..ps.len() + degree + 1).map(|i| i as f64).collect();
-        self.curves.push(Curve2::Spline { degree, knots, poles: ps, weights: vec![], source: None });
+        self.curves.push(Curve2::periodic(degree, &points(poles)));
         self
     }
 
     pub fn sketch(&self) -> cadrs_kernel::Profile {
-        crate::bench::sketch(self.plane, vec![Loop { curves: self.curves.clone() }])
+        Profile::of(self.plane, vec![Loop::new(self.curves.clone())])
     }
 
     /// The solid the section's region sweeps turned a whole turn about the axis through `origin`
     /// along `dir` (cadrs's Revolve).
     pub fn turned(&self, k: &mut DefaultKernel, origin: P3, dir: V3) -> Result<BodyId, Refusal> {
-        crate::bench::revolve(k, &self.sketch(), crate::bench::axis(origin, dir), None)
+        crate::bench::revolve(k, &self.sketch(), Axis::new(origin, dir), None)
     }
 
     /// The solid the section's region sweeps slid along `v` (cadrs's Extrude).
@@ -121,10 +89,6 @@ impl Section {
 /// The section turned a whole turn about the z axis.
 pub fn turned_about_z(k: &mut DefaultKernel, section: &Section) -> Result<BodyId, Refusal> {
     section.turned(k, p3(0.0, 0.0, 0.0), V3::z())
-}
-
-fn first(r: cadrs_kernel::OpResult) -> Result<BodyId, Refusal> {
-    r.bodies.first().copied().ok_or_else(|| Refusal::from("the operation made no body"))
 }
 
 /// A control point `(x, y, z)` of weight `w`, homogeneous as cadrs's B-splines hold them.
@@ -165,8 +129,8 @@ pub fn replace_face(
     point: P3,
     surface: Surface,
 ) -> Result<BodyId, Refusal> {
-    let face = crate::bench::face_at(k, body, point)?;
-    first(k.replace_faces(body, &[FaceReplacement { face, surface, domain: None }])?)
+    let face = k.face_at(body, point)?;
+    Ok(k.replace_faces(body, &[FaceReplacement::new(face, surface)])?.first()?)
 }
 
 /// The drum of `geometry/saddle-drum`: a circle of radius 8 about the z axis on the Top plane,

@@ -4,13 +4,13 @@
 //!
 //! The block is a rectangle extruded; both edges are picked by a point on each and chamfered in
 //! one Chamfer feature, equal distance 2.
-use crate::bench::{block, edges_at, p3};
+use crate::bench::{block, p3};
 use crate::shared::chamfer::chamfer;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, ChamferSpec, DefaultKernel};
+use cadrs_kernel::{BodyId, ChamferSpec, DefaultKernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let b = block(k, p3(0.0, 0.0, 0.0), p3(10.0, 4.0, 6.0))?;
-    let edges = edges_at(k, b, &[p3(5.0, 0.0, 6.0), p3(5.0, 4.0, 6.0)])?;
+    let edges = k.edges_at(b, &[p3(5.0, 0.0, 6.0), p3(5.0, 4.0, 6.0)])?;
     chamfer(k, b, &edges, ChamferSpec::EqualDistance(2.0))
 }

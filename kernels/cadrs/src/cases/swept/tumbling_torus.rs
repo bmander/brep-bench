@@ -7,17 +7,17 @@
 //! The kernel builds it exactly: the sheets of the torus's envelope (its core circle's sweep, a
 //! tube radius either side), trimmed where the motion covers them and fitted as B-spline faces,
 //! closed by the torus where the motion starts and where it stops.
-use crate::bench::{axis, p3, torus, v3};
+use crate::bench::{p3, torus, v3};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel, Kernel, RigidStep, SolidMotion};
+use cadrs_kernel::{Axis, BodyId, DefaultKernel, Kernel, RigidStep, SolidMotion};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let t = torus(k, p3(3.0, 0.0, 2.0), v3(0.0, 0.0, 1.0), 1.0, 0.5)?;
     let (a0, a1) = ((-75f64).to_radians(), 75f64.to_radians());
     let motion = SolidMotion::Rigid {
         steps: vec![
-            RigidStep::Turn { axis: axis(p3(2.0, 0.0, 0.0), v3(0.0, 0.0, 1.0)), from: a0 / 4.0, to: a1 / 4.0 },
-            RigidStep::Turn { axis: axis(p3(0.0, 0.5, 0.5), v3(1.0, 0.0, 0.0)), from: -a0, to: -a1 },
+            RigidStep::Turn { axis: Axis::new(p3(2.0, 0.0, 0.0), v3(0.0, 0.0, 1.0)), from: a0 / 4.0, to: a1 / 4.0 },
+            RigidStep::Turn { axis: Axis::new(p3(0.0, 0.5, 0.5), v3(1.0, 0.0, 0.0)), from: -a0, to: -a1 },
         ],
     };
     let swept = k.sweep_solid(t, &motion)?;

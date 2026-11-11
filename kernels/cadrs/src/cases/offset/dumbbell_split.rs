@@ -6,26 +6,26 @@
 //! The plate is the polygon sketched on the Top plane and extruded; the shrink is cadrs's offset
 //! of a solid (`Kernel::offset`, rounded, inward), which gives each piece it leaves as a body of
 //! its own; their union is the one body of both.
-use crate::bench::{extrude, polygon, sketch, union, xy};
+use crate::bench::{extrude, union};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel, Kernel, OffsetSpec};
+use cadrs_kernel::{BodyId, DefaultKernel, Kernel, Loop, OffsetSpec, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let outline = polygon(&[
-        (0.0, 0.0),
-        (10.0, 0.0),
-        (10.0, 4.0),
-        (14.0, 4.0),
-        (14.0, 0.0),
-        (24.0, 0.0),
-        (24.0, 10.0),
-        (14.0, 10.0),
-        (14.0, 6.0),
-        (10.0, 6.0),
-        (10.0, 10.0),
-        (0.0, 10.0),
+    let outline = Loop::polygon(&[
+        [0.0, 0.0],
+        [10.0, 0.0],
+        [10.0, 4.0],
+        [14.0, 4.0],
+        [14.0, 0.0],
+        [24.0, 0.0],
+        [24.0, 10.0],
+        [14.0, 10.0],
+        [14.0, 6.0],
+        [10.0, 6.0],
+        [10.0, 10.0],
+        [0.0, 10.0],
     ]);
-    let plate = extrude(k, &sketch(xy(0.0), vec![outline]), 6.0)?;
+    let plate = extrude(k, &Profile::of(Plane::xy(0.0), vec![outline]), 6.0)?;
     let r = k.offset(plate, &OffsetSpec { distance: -1.5, faces: vec![], sharp: false })?;
     let mut pieces = r.bodies.into_iter();
     let first = pieces.next().ok_or_else(|| Refusal::from("the offset made no body"))?;

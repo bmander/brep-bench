@@ -8,10 +8,10 @@
 //! over its range from knot 3 to knot 15, each of its twelve spans the uniform cubic segment of
 //! four consecutive control points, wrapping around, as the description defines the curve. The
 //! sketch is extruded 10 up.
-use crate::bench::{v3, xy};
+use crate::bench::v3;
 use crate::shared::geometry::Section;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let points = [
@@ -28,5 +28,5 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
         (4.0, -6.0),
         (12.0, -8.0),
     ];
-    Section::on(xy(0.0)).periodic(3, &points).slid(k, v3(0.0, 0.0, 10.0))
+    Section::on(Plane::xy(0.0)).periodic(3, &points).slid(k, v3(0.0, 0.0, 10.0))
 }

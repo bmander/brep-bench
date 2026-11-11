@@ -5,16 +5,15 @@
 //!
 //! The boundary is sketched on the Front plane: the B-spline, a sketch spline (`Curve2::Spline`),
 //! and the axis segment, revolved a whole turn about z.
-use crate::bench::xz;
 use crate::shared::geometry::{turned_about_z, Section};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Plane};
 use std::f64::consts::FRAC_1_SQRT_2;
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let w = FRAC_1_SQRT_2;
     // the Front plane's sketch is the model's (x, z)
-    let section = Section::on(xz(0.0))
+    let section = Section::on(Plane::xz(0.0))
         .spline(
             2,
             &[0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0],

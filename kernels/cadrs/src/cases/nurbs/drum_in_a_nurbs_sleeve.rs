@@ -7,16 +7,15 @@
 //! extruded 6 from z = 2 (sketched with its x axis along +y, so the bore's seam is the B-spline's
 //! own, on the line through (0, 5)), its bore then given the B-spline with Replace face (its
 //! parameters the net's own, 0 to 1 each way); the two united.
-use crate::bench::{cylinder, extrude, face_at, p3, plane, round, sketch_with_holes, union, v3};
+use crate::bench::{cylinder, extrude, p3, union, v3};
 use crate::shared::nurbs::spline_surface;
-use crate::shared::sweep::first;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel, FaceReplacement, Kernel};
+use cadrs_kernel::{BodyId, DefaultKernel, FaceReplacement, Kernel, Loop, Pick, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let drum = cylinder(k, p3(0.0, 0.0, 0.0), v3(0.0, 0.0, 1.0), 5.0, 10.0)?;
-    let on = plane(p3(0.0, 0.0, 2.0), v3(0.0, 1.0, 0.0), v3(0.0, 0.0, 1.0));
-    let ring = sketch_with_holes(on, round((0.0, 0.0), 7.0), vec![round((0.0, 0.0), 5.0)]);
+    let on = Plane::new(p3(0.0, 0.0, 2.0), v3(0.0, 1.0, 0.0), v3(0.0, 0.0, 1.0));
+    let ring = Profile::with_holes(on, Loop::circle([0.0, 0.0], 7.0), vec![Loop::circle([0.0, 0.0], 5.0)]);
     let sleeve = extrude(k, &ring, 6.0)?;
     let h = 2f64.sqrt() / 2.0;
     let around = [(0.0, 5.0), (-5.0, 5.0), (-5.0, 0.0), (-5.0, -5.0), (0.0, -5.0), (5.0, -5.0), (5.0, 0.0), (5.0, 5.0), (0.0, 5.0)];
@@ -31,10 +30,10 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
         &points,
         Some(&weights),
     )?;
-    let face = face_at(k, sleeve, p3(5.0, 0.0, 5.0))?;
-    let sleeve = first(k.replace_faces(
+    let face = k.face_at(sleeve, p3(5.0, 0.0, 5.0))?;
+    let sleeve = k.replace_faces(
         sleeve,
         &[FaceReplacement { face, surface: bore, domain: Some(((0.0, 1.0), (0.0, 1.0))) }],
-    )?)?;
+    )?.first()?;
     union(k, drum, sleeve)
 }

@@ -7,13 +7,12 @@
 //! The section is that periodic B-spline, one sketch spline on the Front (xz) plane
 //! (`Curve2::Spline`, its four poles and the first two again, its knots evenly spaced),
 //! revolved a whole turn about z.
-use crate::bench::xz;
 use crate::shared::geometry::{turned_about_z, Section};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let section =
-        Section::on(xz(0.0)).periodic(2, &[(13.0, 3.0), (7.0, 3.0), (7.0, -3.0), (13.0, -3.0)]);
+        Section::on(Plane::xz(0.0)).periodic(2, &[(13.0, 3.0), (7.0, 3.0), (7.0, -3.0), (13.0, -3.0)]);
     turned_about_z(k, &section)
 }

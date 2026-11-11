@@ -5,23 +5,22 @@
 //!
 //! The wheel is its triangle revolved; what it passes through is cadrs's sweep of a solid (turned
 //! whole turns about the z axis: the solid of revolution it generates), cut from the rod.
-use crate::bench::{axis, cut, p3, plane, polygon, revolve, sketch, v3};
+use crate::bench::{cut, p3, revolve, v3};
 use crate::shared::swept::rod;
-use crate::shared::sweep::first;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel, Kernel, SolidMotion};
+use cadrs_kernel::{Axis, BodyId, DefaultKernel, Kernel, Loop, Plane, Profile, SolidMotion};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let t = 20f64.to_radians();
     let (o, w) = (p3(14.0, 0.0, 10.0), v3(0.0, t.sin(), t.cos()));
     // Sketch x from the wheel's axis toward the rim's dip (−x), sketch y along w.
     let x = v3(-1.0, 0.0, 0.0);
-    let on = plane(o, x, x.cross(&w));
+    let on = Plane::new(o, x, x.cross(&w));
     let h = 2.5 * 30f64.to_radians().tan();
-    let triangle = polygon(&[(10.0, 0.0), (7.5, -h), (7.5, h)]);
-    let wheel = revolve(k, &sketch(on, vec![triangle]), axis(o, w), None)?;
+    let triangle = Loop::polygon(&[[10.0, 0.0], [7.5, -h], [7.5, h]]);
+    let wheel = revolve(k, &Profile::of(on, vec![triangle]), Axis::new(o, w), None)?;
     let motion = SolidMotion::Turn { axis: crate::shared::swept::z_axis() };
-    let swept = first(k.sweep_solid(wheel, &motion)?)?;
+    let swept = k.sweep_solid(wheel, &motion)?.first()?;
     let r = rod(k)?;
     cut(k, r, swept)
 }

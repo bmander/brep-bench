@@ -6,20 +6,19 @@
 //! four filled (cadrs's Fill: the bilinearly blended Coons patch of four curves), each wall the
 //! Fill of its edge and the lines down to the floor, the floor the Fill of its square, and the
 //! six sheets sewn into a solid.
-use crate::bench::{xz, yz};
 use crate::shared::fill::{fill, seg, wall};
 use crate::shared::loft::{flat, sewn};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     // Each edge on its upright plane, in that plane's sketch coordinates: (x, z) on y = c,
     // (y, z) on x = c.
     let edges = [
-        (xz(0.0), (0.0, 5.0), (10.0, 5.0)),
-        (yz(10.0), (0.0, 5.0), (10.0, 15.0)),
-        (xz(10.0), (10.0, 15.0), (0.0, 5.0)),
-        (yz(0.0), (10.0, 5.0), (0.0, 5.0)),
+        (Plane::xz(0.0), (0.0, 5.0), (10.0, 5.0)),
+        (Plane::yz(10.0), (0.0, 5.0), (10.0, 15.0)),
+        (Plane::xz(10.0), (10.0, 15.0), (0.0, 5.0)),
+        (Plane::yz(0.0), (10.0, 5.0), (0.0, 5.0)),
     ];
     let patch = fill(k, &edges.map(|(plane, a, b)| (plane, seg(a, b))))?;
     let mut sheets = vec![patch, flat(k, 0.0, &[(0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0)])?];

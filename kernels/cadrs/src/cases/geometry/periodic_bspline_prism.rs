@@ -6,13 +6,13 @@
 //!
 //! The section is that periodic B-spline, one sketch spline on the Top plane (`Curve2::Spline`,
 //! its four poles and the first two again, its knots evenly spaced), extruded 10 up.
-use crate::bench::{v3, xy};
+use crate::bench::v3;
 use crate::shared::geometry::Section;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let section = Section::on(xy(0.0))
+    let section = Section::on(Plane::xy(0.0))
         .periodic(2, &[(10.0, 10.0), (-10.0, 10.0), (-10.0, -10.0), (10.0, -10.0)]);
     section.slid(k, v3(0.0, 0.0, 10.0))
 }

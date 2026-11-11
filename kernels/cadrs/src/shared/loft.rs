@@ -2,24 +2,12 @@
 //! sections, and the pieces of a loft cadrs's solid Loft cannot make (it takes no guides, and
 //! pairs its sections' curves itself), built as Onshape's surfacing would: each wall a surface
 //! Loft through curves (with guides, or to a point), each flat end a Fill, sewn into a solid.
-use crate::bench::{line, p2, xy};
-use crate::shared::sweep::first;
 use crate::Refusal;
-use cadrs_kernel::{
-    BodyId, BodyKind, CurveLoftEnd, CurveLoftSpec, CurveSection, DefaultKernel, FillCurve,
-    FillSpec, Kernel, LoftEnd, LoftSection, LoftSpec, PathCurve, Profile,
-};
+use cadrs_kernel::{BodyId, CurveLoftSpec, CurveSection, DefaultKernel, FillSpec, Kernel, LoftSection, LoftSpec, PathCurve, Plane, Profile};
 
 /// The solid lofted through `sections` in order, with no end conditions.
 pub fn loft(k: &mut DefaultKernel, sections: Vec<Profile>) -> Result<BodyId, Refusal> {
-    let spec = LoftSpec {
-        body: BodyKind::Solid,
-        sections: sections.into_iter().map(LoftSection::Profile).collect(),
-        start: LoftEnd::default(),
-        end: LoftEnd::default(),
-        source: 1,
-    };
-    first(k.loft_with(&spec)?)
+    Ok(k.loft_with(&LoftSpec::through(sections))?.first()?)
 }
 
 /// The sheet lofted through the curves `sections` in order (each a wire, or a point at either
@@ -29,31 +17,18 @@ pub fn surface_loft(
     sections: Vec<CurveSection>,
     guides: Vec<Vec<PathCurve>>,
 ) -> Result<BodyId, Refusal> {
-    let spec = CurveLoftSpec {
-        sections,
-        guides,
-        start: CurveLoftEnd::default(),
-        end: CurveLoftEnd::default(),
-        source: 1,
-    };
-    first(k.loft_curves(&spec)?)
+    Ok(k.loft_curves(&CurveLoftSpec::new(sections, guides))?.first()?)
 }
 
 /// The flat sheet filling the polygon through `corners` on the plane z = `z` (its Fill).
 pub fn flat(k: &mut DefaultKernel, z: f64, corners: &[(f64, f64)]) -> Result<BodyId, Refusal> {
-    let n = corners.len();
-    let curves = (0..n)
-        .map(|i| {
-            let (a, b) = (corners[i], corners[(i + 1) % n]);
-            FillCurve::Sketch { plane: xy(z), curve: line(p2(a.0, a.1), p2(b.0, b.1)) }
-        })
-        .collect();
-    first(k.fill(&FillSpec { curves, source: 1 })?)
+    let corners: Vec<[f64; 2]> = corners.iter().map(|&(x, y)| [x, y]).collect();
+    Ok(k.fill(&FillSpec::polygon(Plane::xy(z), &corners))?.first()?)
 }
 
 /// The solid the sheets `pieces` close, sewn along their edges.
 pub fn sewn(k: &mut DefaultKernel, pieces: &[BodyId]) -> Result<BodyId, Refusal> {
-    first(k.sew_solid(pieces, 1e-6)?)
+    Ok(k.sew_solid(pieces, 1e-6)?.first()?)
 }
 
 /// The solid lofted through `sections` (each a sketch region, or a point at either end) along
@@ -64,12 +39,5 @@ pub fn guided_loft(
     sections: Vec<LoftSection>,
     guides: Vec<Vec<PathCurve>>,
 ) -> Result<BodyId, Refusal> {
-    let spec = LoftSpec {
-        body: BodyKind::Solid,
-        sections,
-        start: LoftEnd::default(),
-        end: LoftEnd::default(),
-        source: 1,
-    };
-    first(k.loft_guided(&spec, &guides)?)
+    Ok(k.loft_guided(&LoftSpec::solid(sections), &guides)?.first()?)
 }

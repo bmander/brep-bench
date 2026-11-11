@@ -6,20 +6,20 @@
 //! u = (cos 20°, 0, −sin 20°) and v = (0, 1, 0)) extruded 3 along that plane's normal; what it
 //! passes through (one turn) is cut from the block by cadrs's cut by a swept solid (the exact
 //! sweep cut from it where it can be, else meshed).
-use crate::bench::{extrude, p3, plane, polygon, sketch, v3};
+use crate::bench::{extrude, p3, v3};
 use crate::shared::swept::{cut_swept, ring_sector, swing, z_axis};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let block = ring_sector(k, (8.0, 12.0), (-1.0, 1.0), (0.0, 60.0))?;
     let t = 20f64.to_radians();
     let (u, n) = (v3(t.cos(), 0.0, -t.sin()), v3(t.sin(), 0.0, t.cos()));
     // (The sketch's y axis, n × u, is v.)
-    let on = plane(p3(10.0, 0.0, 0.0), u, n);
+    let on = Plane::new(p3(10.0, 0.0, 0.0), u, n);
     let f = 5f64.to_radians();
-    let corner = |p: f64, q: f64| (p * f.cos() - q * f.sin(), p * f.sin() + q * f.cos());
-    let end = polygon(&[corner(0.0, -2.0), corner(3.0, -2.0), corner(3.0, 2.0), corner(0.0, 2.0)]);
-    let bar = extrude(k, &sketch(on, vec![end]), 3.0)?;
+    let corner = |p: f64, q: f64| [p * f.cos() - q * f.sin(), p * f.sin() + q * f.cos()];
+    let end = Loop::polygon(&[corner(0.0, -2.0), corner(3.0, -2.0), corner(3.0, 2.0), corner(0.0, 2.0)]);
+    let bar = extrude(k, &Profile::of(on, vec![end]), 3.0)?;
     cut_swept(k, block, bar, &swing(z_axis(), -140.0, 140.0))
 }

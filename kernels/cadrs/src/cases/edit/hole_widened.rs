@@ -5,16 +5,16 @@
 //! The plate is a rectangle extruded and the hole a circle extruded through it and cut away;
 //! then Move face offsets the hole's wall by 2 into the material (−2 along its outward normal,
 //! which points into the hole).
-use crate::bench::{block, cut, cylinder, face_at, p3, v3};
+use crate::bench::{block, cut, cylinder, p3, v3};
 use crate::shared::edit::offset_face;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let plate = block(k, p3(0.0, 0.0, 0.0), p3(40.0, 30.0, 8.0))?;
     // the hole's cylinder runs past both faces
     let drill = cylinder(k, p3(20.0, 15.0, -1.0), v3(0.0, 0.0, 1.0), 5.0, 10.0)?;
     let drilled = cut(k, plate, drill)?;
-    let wall = face_at(k, drilled, p3(25.0, 15.0, 4.0))?;
+    let wall = k.face_at(drilled, p3(25.0, 15.0, 4.0))?;
     offset_face(k, drilled, wall, -2.0)
 }
