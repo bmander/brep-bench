@@ -8,7 +8,8 @@ site/drawings/<case>/.
     python3 harness/draw.py a/b c/d      # the cases whose id starts with any of these
 
 The solid drawn is a result that passed: the reference kernel's (kernels.json, `"reference":
-true`) where it passed, else the first kernel's that did. Its triangles are rasterised with a
+true`) where it passed, else the first kernel's that did; a kernel whose mesh of it has no
+triangles is passed over for the next. Its triangles are rasterised with a
 depth buffer, lightly shaded, and outlined where the depth jumps (silhouettes) or the surface turns
 sharply (creases), as a technical drawing is. The thumbnail is the isometric view again, small, lit
 hard on a dark ground (GRAPHITE), so a solid stands out from its ground and its turned faces from
@@ -270,13 +271,28 @@ def sheet(tris, out_dir):
     return sizes
 
 
+def has_triangles(path):
+    """Whether an STL file (binary or ASCII, as stl.read reads them) holds a triangle at all."""
+    with open(path, "rb") as f:
+        data = f.read()
+    if len(data) >= 84:
+        n = struct.unpack_from("<I", data, 80)[0]
+        if len(data) == 84 + 50 * n:
+            return n > 0
+    return b"vertex" in data
+
+
 def drawn_from(case_id, results, order):
-    """The kernel whose result is drawn for a case: the first in `order` that passed it."""
+    """The kernel whose result is drawn for a case: the first in `order` that passed it with a
+    mesh of some triangles. A mesh of none (a solid Open CASCADE could not mesh) is passed over,
+    and said so, for the next kernel's."""
     for name in order:
         row = results.get(name, {}).get(case_id)
         mesh = os.path.join(ROOT, "results", "meshes", name, case_id + ".stl")
         if row and row["outcome"] in ("pass", "built") and os.path.exists(mesh):
-            return name, mesh
+            if has_triangles(mesh):
+                return name, mesh
+            print(f"{case_id}: {name}'s mesh has no triangles, not drawn from", flush=True)
     return None, None
 
 
@@ -306,9 +322,10 @@ def main():
         if os.path.exists(path):
             with open(path) as f:
                 results[a["name"]] = {c["case"]: c for c in json.load(f)["cases"]}
-    order = ([a["name"] for a in adapters if a.get("reference")] +
-             sorted((n for n in results), key=lambda n: -sum(
-                 c["outcome"] == "pass" for c in results[n].values())))
+    # the reference first, then the rest by how many cases they pass, each once
+    order = list(dict.fromkeys([a["name"] for a in adapters if a.get("reference")] +
+                               sorted((n for n in results), key=lambda n: -sum(
+                                   c["outcome"] == "pass" for c in results[n].values()))))
     path = os.path.join(ROOT, "site", "drawings", "index.json")
     last = {}
     if os.path.exists(path):
@@ -323,7 +340,7 @@ def main():
             continue
         name, mesh = drawn_from(cid, results, order)
         if not mesh:
-            print(f"{cid}: no passing result to draw")
+            print(f"{cid}: no passing result with a mesh to draw")
             undrawn.add(cid)
             continue
         out_dir = os.path.join(ROOT, "site", "drawings", cid)
