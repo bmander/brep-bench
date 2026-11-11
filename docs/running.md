@@ -84,6 +84,12 @@ what needs no runner (removed cases, cases a kernel has no implementation of), d
 keeps the results for the next run. If any kernel's job fails, nothing is kept, and the next run
 starts again from the last results; the site still shows them.
 
+A run whose kernels all ran but whose last job failed (so its results were never kept) need not be
+run again while its artifacts last (three days): a manual dispatch given its id as `results_from`
+runs no kernel, gathers that run's results, draws them and keeps them under the commit they were
+made at, so the next push plans from there. It refuses a run with a kernel's job that failed or
+whose results are gone.
+
 The whole suite also runs nightly, and on a manual dispatch unless its `full` input is unchecked. CI
 allows 120 s per case, not the 60 s default, so a timeout on the board means more than 120 s. CI
 runs with `--one-core`, which roughly doubles the time spent running cases.
