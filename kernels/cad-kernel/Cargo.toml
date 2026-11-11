@@ -10,7 +10,7 @@ publish = false
 # a commit of geomsolver, exactly, until the release after 0.6.3 carries its planar sweep
 # (`swept::planar_solid`, #880 Q2): the scoreboard says which, and moving to another is a change
 # made here
-cad-kernel = { git = "https://github.com/bmander/geomsolver", rev = "ed4953c0cf869ab94c03ee31bd5f4fe487b48154" }
+cad-kernel = { git = "https://github.com/bmander/geomsolver", rev = "8d7a261af883956298b8325342ad3ad278974ba9" }
 
 [profile.release]
 debug = 0
