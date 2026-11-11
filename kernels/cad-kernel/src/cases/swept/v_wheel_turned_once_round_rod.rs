@@ -2,14 +2,15 @@
 //! sharp V rim — the triangle (4, 0, 10), (6.5, 0, 10) ± 2.5 tan 30°·(0, sin 20°, cos 20°) turned
 //! about the line through (14, 0, 10) along (0, sin 20°, cos 20°) — turned a whole turn about z.
 //!
-//! Refused by the kernel. `cut_from` takes the wheel (cones about an axis leaning to the turn's,
-//! #780 C3, and a sharp rim leaning to it, L2), but the arrangement fails meeting an edge with a
-//! turned contact surface (`Unbuilt::Failed`: where a turned curve meets a revolution "was not
-//! proved: its search read more boxes than any search may").
+//! Sweep the wheel a whole turn into a closed solid, then subtract that solid from the rod. The
+//! kernel builds a whole turn by the wheel's shadow in a half-plane through the axis (#880 Q1,
+//! `swept::shadow`): its flanks' and bore's contacts and its three sharp circles laid in that
+//! half-plane, the shadow's boundary kept by membership and turned once.
 use crate::sketch::polygon;
+use cad_kernel::boolean::{combined, Op};
 use cad_kernel::build::{disc, prism, revolve};
 use cad_kernel::geom::{tolerance, V};
-use cad_kernel::swept::closed::cut_from;
+use cad_kernel::swept::closed::closed;
 use cad_kernel::topo::Brep;
 use cad_kernel::trajectory::{Screw, Trajectory};
 use cad_kernel::util::space::{add, scale};
@@ -34,10 +35,9 @@ pub fn build() -> Result<Brep, String> {
     let wheel = revolve(&triangle, CENTRE, axis, TAU)?;
     // the turn about z: a screw that does not advance, a whole turn over a roll of τ
     let path = Trajectory::Twist(Screw { origin: [0., 0., 0.], axis: up, ratio: 1., advance: 0. });
-    // the kernel's swept solid cut from the rod on one arrangement: cones about an axis leaning to
-    // the turn's, each contact turned into the surface of revolution of its meridian, and the
-    // sharp rim leaning to the axis turned into its ring
-    let size = rod.size().max(wheel.size());
-    cut_from(&rod, &wheel, &path, [0., TAU], BAR, tolerance(size))
-        .map_err(|why| format!("the wheel's sweep not built: {why:?}"))
+    // the kernel's swept solid, a whole turn: its shadow's solid of revolution
+    let tol = tolerance(rod.size().max(wheel.size()));
+    let swept = closed(&wheel, &path, [0., TAU], BAR, tol)
+        .map_err(|why| format!("the wheel's sweep not built: {why:?}"))?;
+    Ok(combined(&rod, &swept, Op::Cut, tol)?)
 }
