@@ -44,8 +44,15 @@ from bench import Refused  # noqa: E402
 # diagonal of the solid's bounding box, and no more than a fraction of its thickness (volume over
 # area), so a thin solid is meshed as closely as a stout one.
 MEASURE_EPS = 1e-10
-MESH_DEFLECTION = 1e-4
 THICKNESS_DEFLECTION = 5e-3
+
+# Allow override for reference mesh generation (fixed chord tolerance)
+import os
+_env_deflection = os.environ.get("BREP_BENCH_MESH_DEFLECTION")
+if _env_deflection is not None:
+    MESH_DEFLECTION = float(_env_deflection)
+else:
+    MESH_DEFLECTION = 1e-4
 
 KINDS = {
     GeomAbs_SurfaceType.GeomAbs_Plane: "plane",

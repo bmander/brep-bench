@@ -1,0 +1,7471 @@
+[
+  {
+    "centroid_error": 5.856996127065856e-09,
+    "centroid_error_rel": 3.3815382906040675e-10,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3866181970236189,
+    "hausdorff_rel": 0.02232141201251941,
+    "vertex_rmse": 0.15099009645019443,
+    "vertex_rmse_rel": 0.00871741728304873,
+    "normal_deviation_deg": 3.5970180056824272,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\box-minus-through-cylinder"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.22558891440205506,
+    "hausdorff_rel": 0.01841925773044754,
+    "vertex_rmse": 0.08807301613932737,
+    "vertex_rmse_rel": 0.007191131654975324,
+    "normal_deviation_deg": 2.8260001618754833,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\boxes-common"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.33591355001971146,
+    "hausdorff_rel": 0.019393977852832322,
+    "vertex_rmse": 0.13217486116155283,
+    "vertex_rmse_rel": 0.0076311191671723936,
+    "normal_deviation_deg": 2.808000297971376,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\boxes-cut"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.42487477985540206,
+    "hausdorff_rel": 0.017345440253717804,
+    "vertex_rmse": 0.17806552136460113,
+    "vertex_rmse_rel": 0.007269494468765489,
+    "normal_deviation_deg": 2.8620006680834584,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\boxes-sharing-a-face"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4186481985380862,
+    "hausdorff_rel": 0.015548203760948695,
+    "vertex_rmse": 0.1872226242542157,
+    "vertex_rmse_rel": 0.00695327370505634,
+    "normal_deviation_deg": 3.8160002507616184,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\boxes-sharing-part-of-a-face"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4386852757688515,
+    "hausdorff_rel": 0.01870560300971553,
+    "vertex_rmse": 0.17403877373538984,
+    "vertex_rmse_rel": 0.007421038246807422,
+    "normal_deviation_deg": 3.384000415845854,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\boxes-union"
+  },
+  {
+    "centroid_error": 3.5917711288635594e-06,
+    "centroid_error_rel": 6.912366760389673e-08,
+    "inertia_axes_aligned": true,
+    "hausdorff": 1.264563406894101,
+    "hausdorff_rel": 0.024336534112588647,
+    "vertex_rmse": 0.5582527227207177,
+    "vertex_rmse_rel": 0.010743578657954929,
+    "normal_deviation_deg": 11.352296706538095,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        33.0
+      ],
+      "shells": 1,
+      "euler": [
+        -64
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        33.0
+      ],
+      "shells": 1,
+      "euler": [
+        -64
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\cross-drilled-cube"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 1.1626464922560718,
+    "hausdorff_rel": 0.011346267966060565,
+    "vertex_rmse": 0.4808866364070414,
+    "vertex_rmse_rel": 0.004692973035496064,
+    "normal_deviation_deg": 6.244864160443803,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        9.0
+      ],
+      "shells": 1,
+      "euler": [
+        -16
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        9.0
+      ],
+      "shells": 1,
+      "euler": [
+        -16
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\drilled-plate"
+  },
+  {
+    "centroid_error": 0.0009333151979502704,
+    "centroid_error_rel": 2.7062333282188905e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.66566540852921,
+    "hausdorff_rel": 0.01930158126601274,
+    "vertex_rmse": 0.26579169193963004,
+    "vertex_rmse_rel": 0.007706874769321403,
+    "normal_deviation_deg": 17.001963654484964,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\golf-ball"
+  },
+  {
+    "centroid_error": 0.00030463757386480617,
+    "centroid_error_rel": 1.4777092877370563e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.35948147893087395,
+    "hausdorff_rel": 0.017437413036296975,
+    "vertex_rmse": 0.1537960470392464,
+    "vertex_rmse_rel": 0.0074602040793561785,
+    "normal_deviation_deg": 3.011891143604204,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\half-cylinder-boss-tangent"
+  },
+  {
+    "centroid_error": 0.0004702852090375581,
+    "centroid_error_rel": 1.733676703775575e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.26522866153925384,
+    "hausdorff_rel": 0.009777486998266595,
+    "vertex_rmse": 0.11511060525364909,
+    "vertex_rmse_rel": 0.004243479719342396,
+    "normal_deviation_deg": 3.9007373169974033,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\half-torus"
+  },
+  {
+    "centroid_error": 0.0006189677664479744,
+    "centroid_error_rel": 4.126480153732565e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.19468701900327284,
+    "hausdorff_rel": 0.012979223857109937,
+    "vertex_rmse": 0.08655134744677774,
+    "vertex_rmse_rel": 0.00577012951041869,
+    "normal_deviation_deg": 2.2984942637345207,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\hemisphere"
+  },
+  {
+    "centroid_error": 1.6640709581631735e-07,
+    "centroid_error_rel": 2.930419467720414e-09,
+    "inertia_axes_aligned": true,
+    "hausdorff": 2.52109413694437,
+    "hausdorff_rel": 0.044396323982556676,
+    "vertex_rmse": 0.5305962703036065,
+    "vertex_rmse_rel": 0.009343770062028002,
+    "normal_deviation_deg": 13.597498125887826,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        6.0
+      ],
+      "shells": 1,
+      "euler": [
+        -10
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        6.0
+      ],
+      "shells": 1,
+      "euler": [
+        -10
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\indexed-pattern"
+  },
+  {
+    "centroid_error": 0.0007073210407344816,
+    "centroid_error_rel": 4.352727853823327e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.2496064385801132,
+    "hausdorff_rel": 0.015360336185858572,
+    "vertex_rmse": 0.11322549055213789,
+    "vertex_rmse_rel": 0.006967695262922423,
+    "normal_deviation_deg": 2.796883292272299,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\napkin-ring"
+  },
+  {
+    "centroid_error": 0.0035178107431708314,
+    "centroid_error_rel": 0.00010149294167968949,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.6610706953779726,
+    "hausdorff_rel": 0.01907266036480182,
+    "vertex_rmse": 0.2950558508037566,
+    "vertex_rmse_rel": 0.00851270532845223,
+    "normal_deviation_deg": 4.428844825412683,
+    "topology": {
+      "lumps": 5,
+      "genus": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "shells": 5,
+      "euler": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 5,
+      "genus": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "shells": 5,
+      "euler": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\nested-shells"
+  },
+  {
+    "centroid_error": 0.0012235621930240506,
+    "centroid_error_rel": 1.766830748846979e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 1.1038337980883068,
+    "hausdorff_rel": 0.015939422672572173,
+    "vertex_rmse": 0.44186159516129697,
+    "vertex_rmse_rel": 0.006380506504013969,
+    "normal_deviation_deg": 3.340477447300863,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\offset-hole-sphere"
+  },
+  {
+    "centroid_error": 0.00082892981286723,
+    "centroid_error_rel": 2.2238486880584023e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4447888673970106,
+    "hausdorff_rel": 0.011932773123485863,
+    "vertex_rmse": 0.193575449632837,
+    "vertex_rmse_rel": 0.005193232322255135,
+    "normal_deviation_deg": 8.49963245847224,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\ring-of-balls"
+  },
+  {
+    "centroid_error": 0.00021187995401914235,
+    "centroid_error_rel": 1.765607891406439e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.1497210763795874,
+    "hausdorff_rel": 0.012476343748016058,
+    "vertex_rmse": 0.06355474010905343,
+    "vertex_rmse_rel": 0.005296053191643234,
+    "normal_deviation_deg": 2.3953963060599124,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\sphere-lens"
+  },
+  {
+    "centroid_error": 0.00024362749744003256,
+    "centroid_error_rel": 8.120916581334418e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.5617612266545091,
+    "hausdorff_rel": 0.01872537422181697,
+    "vertex_rmse": 0.2303369690885199,
+    "vertex_rmse_rel": 0.00767789896961733,
+    "normal_deviation_deg": 3.6013264484231455,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\sphere-pocket"
+  },
+  {
+    "centroid_error": 0.00020451541413460611,
+    "centroid_error_rel": 9.577768065730049e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.30246155226892807,
+    "hausdorff_rel": 0.014164734764323532,
+    "vertex_rmse": 0.1268301094943908,
+    "vertex_rmse_rel": 0.0059396470316360065,
+    "normal_deviation_deg": 3.1288225811265677,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\spheres-union"
+  },
+  {
+    "centroid_error": 1.3249638547654246e-05,
+    "centroid_error_rel": 7.649712049729594e-07,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.26742301874218977,
+    "hausdorff_rel": 0.015439735065145383,
+    "vertex_rmse": 0.11236484641186642,
+    "vertex_rmse_rel": 0.006487412592210287,
+    "normal_deviation_deg": 2.233964672971892,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\steinmetz-common"
+  },
+  {
+    "centroid_error": 8.38964838199294e-06,
+    "centroid_error_rel": 1.9247173404708812e-07,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.5543988120998321,
+    "hausdorff_rel": 0.012718781033485066,
+    "vertex_rmse": 0.2428202646136396,
+    "vertex_rmse_rel": 0.005570678920498212,
+    "normal_deviation_deg": 4.151044410353744,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\steinmetz-union"
+  },
+  {
+    "centroid_error": 0.00022880157713700555,
+    "centroid_error_rel": 9.341166217183164e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3386258806514259,
+    "hausdorff_rel": 0.013824907486152985,
+    "vertex_rmse": 0.145368728298617,
+    "vertex_rmse_rel": 0.005934895514311974,
+    "normal_deviation_deg": 3.1094871006153846,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\stepped-shaft"
+  },
+  {
+    "centroid_error": 8.332008318494174e-09,
+    "centroid_error_rel": 4.810695071565767e-10,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.2878609594843415,
+    "hausdorff_rel": 0.016620378258789214,
+    "vertex_rmse": 0.1386683354889307,
+    "vertex_rmse_rel": 0.008006365963871111,
+    "normal_deviation_deg": 3.426525522052224,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\tube-flush-ends"
+  },
+  {
+    "centroid_error": 8.332008318494174e-09,
+    "centroid_error_rel": 4.810695071565767e-10,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.32340378207820836,
+    "hausdorff_rel": 0.01867253273278707,
+    "vertex_rmse": 0.1380085268099361,
+    "vertex_rmse_rel": 0.007968270246261587,
+    "normal_deviation_deg": 3.650183678119395,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\tube"
+  },
+  {
+    "centroid_error": 0.00012746955676944412,
+    "centroid_error_rel": 1.4907180858570051e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.10177513700231124,
+    "hausdorff_rel": 0.011902295831649772,
+    "vertex_rmse": 0.04691937299481295,
+    "vertex_rmse_rel": 0.00548707939943231,
+    "normal_deviation_deg": 2.4320624551059065,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "boolean\\unequal-lens-aslant"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.31658623882485976,
+    "hausdorff_rel": 0.013674442784717803,
+    "vertex_rmse": 0.15033918040289826,
+    "vertex_rmse_rel": 0.006493663553892189,
+    "normal_deviation_deg": 2.540095019517835,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "chamfer\\box-top-asymmetric"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.2946580630597254,
+    "hausdorff_rel": 0.017012091202642618,
+    "vertex_rmse": 0.12004624660914966,
+    "vertex_rmse_rel": 0.006930873279499675,
+    "normal_deviation_deg": 2.073000134765546,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "chamfer\\cube-all-edges-mitered"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3039777133188346,
+    "hausdorff_rel": 0.017550161461227603,
+    "vertex_rmse": 0.11836011822049274,
+    "vertex_rmse_rel": 0.0068335246115917405,
+    "normal_deviation_deg": 1.7342305300406555,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "chamfer\\cube-all-edges"
+  },
+  {
+    "centroid_error": 0.0007783947831504065,
+    "centroid_error_rel": 4.494258531550436e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.2624533613149557,
+    "hausdorff_rel": 0.015153406520145084,
+    "vertex_rmse": 0.10504450574564772,
+    "vertex_rmse_rel": 0.00606500938031922,
+    "normal_deviation_deg": 2.285040551493625,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "chamfer\\cylinder-rim-to-point"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.28863583068538784,
+    "hausdorff_rel": 0.010415248408998745,
+    "vertex_rmse": 0.12767033225354707,
+    "vertex_rmse_rel": 0.004606906293382148,
+    "normal_deviation_deg": 2.4153021266330956,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "chamfer\\octahedron-all-edges-mitered"
+  },
+  {
+    "centroid_error": 0.001015572198393313,
+    "centroid_error_rel": 1.7193342660957507e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.8454121222758785,
+    "hausdorff_rel": 0.01431258194248752,
+    "vertex_rmse": 0.37905450106462824,
+    "vertex_rmse_rel": 0.006417282724254366,
+    "normal_deviation_deg": 3.6615669555214465,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "draft\\boss-on-plate"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4755627013043591,
+    "hausdorff_rel": 0.0179550511525467,
+    "vertex_rmse": 0.18808448137616504,
+    "vertex_rmse_rel": 0.007101201323919525,
+    "normal_deviation_deg": 2.6205186497093376,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "draft\\box-about-its-middle"
+  },
+  {
+    "centroid_error": 3.8017801300523466e-07,
+    "centroid_error_rel": 9.22067120092957e-09,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.7467310860094779,
+    "hausdorff_rel": 0.01811088906793684,
+    "vertex_rmse": 0.33472199797913577,
+    "vertex_rmse_rel": 0.008118200899327988,
+    "normal_deviation_deg": 3.3761870784298007,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "draft\\box-cross-drilled"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4059690203811333,
+    "hausdorff_rel": 0.015997420478653233,
+    "vertex_rmse": 0.180622211106455,
+    "vertex_rmse_rel": 0.007117512208545642,
+    "normal_deviation_deg": 2.6526924779842855,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "draft\\box-four-sides"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.40893833665634893,
+    "hausdorff_rel": 0.016114427931448863,
+    "vertex_rmse": 0.1842090261836723,
+    "vertex_rmse_rel": 0.007258852522926155,
+    "normal_deviation_deg": 2.486000052820906,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "draft\\box-one-side"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4786002694919205,
+    "hausdorff_rel": 0.017336619288013225,
+    "vertex_rmse": 0.19526524527985353,
+    "vertex_rmse_rel": 0.007073207921907553,
+    "normal_deviation_deg": 2.320563056381724,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "draft\\box-outward"
+  },
+  {
+    "centroid_error": 4.98477929331339e-08,
+    "centroid_error_rel": 1.4390440013098614e-09,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.5845932155232679,
+    "hausdorff_rel": 0.016876481595357012,
+    "vertex_rmse": 0.23834726438871828,
+    "vertex_rmse_rel": 0.00688079011857741,
+    "normal_deviation_deg": 2.8319339553284513,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "draft\\cylinder-parted-both-ways"
+  },
+  {
+    "centroid_error": 8.037972591600595e-05,
+    "centroid_error_rel": 1.713701514576009e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.8724683687805493,
+    "hausdorff_rel": 0.0186010881221624,
+    "vertex_rmse": 0.3896348426847992,
+    "vertex_rmse_rel": 0.008307042757750476,
+    "normal_deviation_deg": 3.3394434053552877,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "draft\\hole-tapered"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.5335183550172022,
+    "hausdorff_rel": 0.013059339041982867,
+    "vertex_rmse": 0.2530414788121026,
+    "vertex_rmse_rel": 0.006193890861328329,
+    "normal_deviation_deg": 3.1216911249907304,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "draft\\l-block-sides"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.9193420748016277,
+    "hausdorff_rel": 0.01761140008709498,
+    "vertex_rmse": 0.4086835412432406,
+    "vertex_rmse_rel": 0.007828956762800767,
+    "normal_deviation_deg": 4.085433712564979,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "draft\\pocket-walls"
+  },
+  {
+    "centroid_error": 7.0448926610157985e-06,
+    "centroid_error_rel": 1.8828267617228063e-07,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.5796882928768691,
+    "hausdorff_rel": 0.01549282130763652,
+    "vertex_rmse": 0.2536856626170865,
+    "vertex_rmse_rel": 0.006780034524641884,
+    "normal_deviation_deg": 2.525082820536892,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "draft\\rounded-box-sides"
+  },
+  {
+    "centroid_error": 2.661234312999225e-05,
+    "centroid_error_rel": 5.098000352246221e-07,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.923373059648241,
+    "hausdorff_rel": 0.01768861975192327,
+    "vertex_rmse": 0.40060640668245223,
+    "vertex_rmse_rel": 0.007674226926968942,
+    "normal_deviation_deg": 4.144460275036009,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "draft\\rounded-pocket-walls"
+  },
+  {
+    "centroid_error": 7.105427357601002e-15,
+    "centroid_error_rel": 1.3534761183099762e-16,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.925103212024376,
+    "hausdorff_rel": 0.017621812755673438,
+    "vertex_rmse": 0.39658101778293897,
+    "vertex_rmse_rel": 0.007554266753147113,
+    "normal_deviation_deg": 3.5915171209968224,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "edit\\block-top-moved-up"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.7405288429144965,
+    "hausdorff_rel": 0.01462456537200074,
+    "vertex_rmse": 0.33523584059722,
+    "vertex_rmse_rel": 0.0066205098056089364,
+    "normal_deviation_deg": 3.7755406881438702,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "edit\\hole-widened"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.8904583619298828,
+    "hausdorff_rel": 0.016535396665115325,
+    "vertex_rmse": 0.3787205583863343,
+    "vertex_rmse_rel": 0.007032664216415226,
+    "normal_deviation_deg": 4.014000421579776,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "edit\\l-block-riser-moved"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.842014863531743,
+    "hausdorff_rel": 0.016039105766567512,
+    "vertex_rmse": 0.3803397282225774,
+    "vertex_rmse_rel": 0.00724489482596822,
+    "normal_deviation_deg": 2.4367494681392556,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "edit\\rounded-block-top-moved-up"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.9463338037234363,
+    "hausdorff_rel": 0.017572977571079933,
+    "vertex_rmse": 0.40919156087933695,
+    "vertex_rmse_rel": 0.007598496527668418,
+    "normal_deviation_deg": 4.158857754694854,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "feature\\hole-through-the-upper-arm"
+  },
+  {
+    "centroid_error": 0.0001467062061203117,
+    "centroid_error_rel": 2.863509472860165e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 1.4296613598248558,
+    "hausdorff_rel": 0.02790508292119088,
+    "vertex_rmse": 0.3547099150293256,
+    "vertex_rmse_rel": 0.006923464444107594,
+    "normal_deviation_deg": 3.9036824431332766,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "feature\\pad-down-to-cylinder"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 1.1845551489610002,
+    "hausdorff_rel": 0.019515512063429434,
+    "vertex_rmse": 0.4864784970661707,
+    "vertex_rmse_rel": 0.0080147192694415,
+    "normal_deviation_deg": 3.321832009184482,
+    "topology": {
+      "lumps": 2,
+      "genus": [
+        0.0,
+        1.0
+      ],
+      "shells": 2,
+      "euler": [
+        2,
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 2,
+      "genus": [
+        0.0,
+        1.0
+      ],
+      "shells": 2,
+      "euler": [
+        2,
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "feature\\post-up-to-dome"
+  },
+  {
+    "centroid_error": 0.0008545446751470546,
+    "centroid_error_rel": 1.7018398990651548e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.6441811909404374,
+    "hausdorff_rel": 0.012828975299402447,
+    "vertex_rmse": 0.27695016343218787,
+    "vertex_rmse_rel": 0.0055155084560137785,
+    "normal_deviation_deg": 4.278169025483987,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "feature\\rib-revolved-to-a-stop"
+  },
+  {
+    "centroid_error": 0.000979227354880349,
+    "centroid_error_rel": 2.59405325077103e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4570005084003509,
+    "hausdorff_rel": 0.012106316766087453,
+    "vertex_rmse": 0.20938366195437383,
+    "vertex_rmse_rel": 0.005546744239160407,
+    "normal_deviation_deg": 2.6886783352602444,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "fillet\\ball-and-post"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3058394077943601,
+    "hausdorff_rel": 0.01765764644188695,
+    "vertex_rmse": 0.13169669235122203,
+    "vertex_rmse_rel": 0.0076035120780361355,
+    "normal_deviation_deg": 1.8127525096924115,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "fillet\\box-all-edges"
+  },
+  {
+    "centroid_error": 8.881784197001252e-16,
+    "centroid_error_rel": 5.1279004970228364e-17,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3275734041890052,
+    "hausdorff_rel": 0.01891245930878842,
+    "vertex_rmse": 0.13699079909634457,
+    "vertex_rmse_rel": 0.007909167473477648,
+    "normal_deviation_deg": 2.694171224978126,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "fillet\\box-one-edge"
+  },
+  {
+    "centroid_error": 0.001473178590062601,
+    "centroid_error_rel": 8.505768011560483e-05,
+    "inertia_axes_aligned": false,
+    "hausdorff": 0.28205998886770517,
+    "hausdorff_rel": 0.0162854445946712,
+    "vertex_rmse": 0.11194610055592949,
+    "vertex_rmse_rel": 0.006463490357181313,
+    "normal_deviation_deg": 2.1973155810924205,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "fillet\\cylinder-rim-to-dome"
+  },
+  {
+    "centroid_error": 7.843846585760398e-05,
+    "centroid_error_rel": 4.5288486694226915e-06,
+    "inertia_axes_aligned": false,
+    "hausdorff": 0.2986125406890097,
+    "hausdorff_rel": 0.017241171060477203,
+    "vertex_rmse": 0.12196319244155841,
+    "vertex_rmse_rel": 0.007041861869280163,
+    "normal_deviation_deg": 2.3975793453949286,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "fillet\\cylinder-rim"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.33659988043754707,
+    "hausdorff_rel": 0.014111001050020952,
+    "vertex_rmse": 0.15152546303698275,
+    "vertex_rmse_rel": 0.006352277859517816,
+    "normal_deviation_deg": 2.115046148164238,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "fillet\\rounded-block-top-rim"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3107623427614619,
+    "hausdorff_rel": 0.01384245494434047,
+    "vertex_rmse": 0.12527044289067024,
+    "vertex_rmse_rel": 0.005579989023646661,
+    "normal_deviation_deg": 2.9145969009461132,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "fillet\\sliver-strip"
+  },
+  {
+    "centroid_error": 0.00033043983777362296,
+    "centroid_error_rel": 1.9077952928957748e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.30553728423234394,
+    "hausdorff_rel": 0.017640203329901096,
+    "vertex_rmse": 0.1381326262220835,
+    "vertex_rmse_rel": 0.007975090893318985,
+    "normal_deviation_deg": 2.986928007024395,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "fillet\\variable-radius-edge"
+  },
+  {
+    "centroid_error": 0.00016385723711357842,
+    "centroid_error_rel": 1.1122238234212276e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.18664235155589715,
+    "hausdorff_rel": 0.012668837429251794,
+    "vertex_rmse": 0.07839965914481808,
+    "vertex_rmse_rel": 0.005321581773561145,
+    "normal_deviation_deg": 2.4284627976374233,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\ellipsoid-half"
+  },
+  {
+    "centroid_error": 0.0002976100243719165,
+    "centroid_error_rel": 1.9054210749237473e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.19170590106124832,
+    "hausdorff_rel": 0.012273795711023047,
+    "vertex_rmse": 0.08587449042632751,
+    "vertex_rmse_rel": 0.0054980360356471384,
+    "normal_deviation_deg": 2.5061263660001947,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\ellipsoid"
+  },
+  {
+    "centroid_error": 1.440600401012621e-05,
+    "centroid_error_rel": 9.377601004557937e-07,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.27547399923601656,
+    "hausdorff_rel": 0.01793200425426391,
+    "vertex_rmse": 0.10435612121567464,
+    "vertex_rmse_rel": 0.006793070906102759,
+    "normal_deviation_deg": 2.3702725572819507,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\elliptic-cylinder"
+  },
+  {
+    "centroid_error": 2.4371874048989562e-05,
+    "centroid_error_rel": 8.142071657582672e-07,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.507280057969375,
+    "hausdorff_rel": 0.016947037286287724,
+    "vertex_rmse": 0.22093458086338003,
+    "vertex_rmse_rel": 0.007380906307868487,
+    "normal_deviation_deg": 3.573916511671327,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\elliptic-hole"
+  },
+  {
+    "centroid_error": 0.0002486569330453069,
+    "centroid_error_rel": 8.194611820700932e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.47795817825449066,
+    "hausdorff_rel": 0.01575134740607167,
+    "vertex_rmse": 0.20803274891221604,
+    "vertex_rmse_rel": 0.006855821804165575,
+    "normal_deviation_deg": 3.0344353533192727,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\high-degree-bezier-dome"
+  },
+  {
+    "centroid_error": 0.0012859331983029081,
+    "centroid_error_rel": 4.2869696525756796e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.41603659381435515,
+    "hausdorff_rel": 0.013869587116942713,
+    "vertex_rmse": 0.1775888550727295,
+    "vertex_rmse_rel": 0.005920354442495073,
+    "normal_deviation_deg": 4.237641533075312,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        -175.0
+      ],
+      "shells": 1,
+      "euler": [
+        352
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        -125.0
+      ],
+      "shells": 1,
+      "euler": [
+        252
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": false,
+    "case": "geometry\\horn-torus"
+  },
+  {
+    "centroid_error": 8.880705450652387e-05,
+    "centroid_error_rel": 4.479951226927243e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.23405474534079265,
+    "hausdorff_rel": 0.011807100791532271,
+    "vertex_rmse": 0.10049609202045727,
+    "vertex_rmse_rel": 0.005069615170215641,
+    "normal_deviation_deg": 1.632799791575107,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\hyperboloid-of-two-sheets"
+  },
+  {
+    "centroid_error": 0.00014883744138791184,
+    "centroid_error_rel": 8.592466910443492e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.2644557199927658,
+    "hausdorff_rel": 0.015267173381414373,
+    "vertex_rmse": 0.1158352299417404,
+    "vertex_rmse_rel": 0.006687231190329062,
+    "normal_deviation_deg": 3.2496324571105593,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\hyperboloid-ruled"
+  },
+  {
+    "centroid_error": 9.402759684516167e-05,
+    "centroid_error_rel": 4.700959285579969e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.2908750122769822,
+    "hausdorff_rel": 0.014542449618896416,
+    "vertex_rmse": 0.13378335493658405,
+    "vertex_rmse_rel": 0.006688569374806234,
+    "normal_deviation_deg": 2.807208465437724,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\hyperboloid"
+  },
+  {
+    "centroid_error": 0.00011753018497749863,
+    "centroid_error_rel": 1.199468245972724e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.12794547103482973,
+    "hausdorff_rel": 0.013057626834475129,
+    "vertex_rmse": 0.049039839156629496,
+    "vertex_rmse_rel": 0.0050048189635069846,
+    "normal_deviation_deg": 3.36685657001461,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\lemon"
+  },
+  {
+    "centroid_error": 0.00047731377736655783,
+    "centroid_error_rel": 2.756028532841118e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.20402487511008882,
+    "hausdorff_rel": 0.011780476572770869,
+    "vertex_rmse": 0.0897335569362747,
+    "vertex_rmse_rel": 0.005181250887710566,
+    "normal_deviation_deg": 2.329018894311528,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\nurbs-cone"
+  },
+  {
+    "centroid_error": 0.00032618215767038077,
+    "centroid_error_rel": 1.883340410433066e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.20731900519494098,
+    "hausdorff_rel": 0.01197037456380375,
+    "vertex_rmse": 0.1009165874124566,
+    "vertex_rmse_rel": 0.005826814333264156,
+    "normal_deviation_deg": 2.5660437915571945,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\nurbs-sphere"
+  },
+  {
+    "centroid_error": 0.0006199821685232665,
+    "centroid_error_rel": 3.444326838083275e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.22269411931028826,
+    "hausdorff_rel": 0.012371828913253008,
+    "vertex_rmse": 0.0990819277350741,
+    "vertex_rmse_rel": 0.00550452190713508,
+    "normal_deviation_deg": 2.520483308087421,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\oblate-spheroid"
+  },
+  {
+    "centroid_error": 0.0004903159695179521,
+    "centroid_error_rel": 2.042984767004029e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3132897027331371,
+    "hausdorff_rel": 0.013053747585914299,
+    "vertex_rmse": 0.1316873368409314,
+    "vertex_rmse_rel": 0.005486976559989467,
+    "normal_deviation_deg": 2.079882421238099,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\paraboloid"
+  },
+  {
+    "centroid_error": 0.00026083647071039186,
+    "centroid_error_rel": 8.694549023679728e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.43854927866623733,
+    "hausdorff_rel": 0.014618309288874578,
+    "vertex_rmse": 0.2037660829876718,
+    "vertex_rmse_rel": 0.006792202766255726,
+    "normal_deviation_deg": 2.7425368217549497,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\periodic-bspline-prism"
+  },
+  {
+    "centroid_error": 0.0016637996101300796,
+    "centroid_error_rel": 4.4654732364512184e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.44599816936201675,
+    "hausdorff_rel": 0.011970148788751167,
+    "vertex_rmse": 0.19900619828372673,
+    "vertex_rmse_rel": 0.005341129105411973,
+    "normal_deviation_deg": 4.241450333128651,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\periodic-bspline-ring"
+  },
+  {
+    "centroid_error": 0.00016501490993080318,
+    "centroid_error_rel": 6.201890539202899e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4354370078050851,
+    "hausdorff_rel": 0.016365385771853033,
+    "vertex_rmse": 0.18474396576190832,
+    "vertex_rmse_rel": 0.0069433838064333914,
+    "normal_deviation_deg": 3.1404687681284957,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\saddle-drum-bored"
+  },
+  {
+    "centroid_error": 0.0002576149426200861,
+    "centroid_error_rel": 9.681970219510307e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.41229422830469525,
+    "hausdorff_rel": 0.015495298523925,
+    "vertex_rmse": 0.17166018276913034,
+    "vertex_rmse_rel": 0.006451523194046395,
+    "normal_deviation_deg": 2.567000076290144,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\saddle-drum"
+  },
+  {
+    "centroid_error": 0.0003530385071996414,
+    "centroid_error_rel": 1.426947737550005e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.360403470395524,
+    "hausdorff_rel": 0.014567162113996881,
+    "vertex_rmse": 0.14597965039980187,
+    "vertex_rmse_rel": 0.005900357259004112,
+    "normal_deviation_deg": 2.8630081075749056,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\spindle-torus"
+  },
+  {
+    "centroid_error": 0.0005034075741496435,
+    "centroid_error_rel": 1.678708517274301e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4363001609848665,
+    "hausdorff_rel": 0.014549260558318972,
+    "vertex_rmse": 0.17859817246103696,
+    "vertex_rmse_rel": 0.005955696510653695,
+    "normal_deviation_deg": 4.2176042247835115,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "geometry\\torus-nearly-horn"
+  },
+  {
+    "centroid_error": 0.0012107350443764664,
+    "centroid_error_rel": 2.6602303235690674e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.63266222601355,
+    "hausdorff_rel": 0.013900871590651932,
+    "vertex_rmse": 0.2582282827950885,
+    "vertex_rmse_rel": 0.005673798833901297,
+    "normal_deviation_deg": 3.097939194281666,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "loft\\slab-pinched-on-four-guides"
+  },
+  {
+    "centroid_error": 0.0016553820491455903,
+    "centroid_error_rel": 3.9820025090365015e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 4.692680028445608,
+    "hausdorff_rel": 0.11288187918324129,
+    "vertex_rmse": 1.8172224891181445,
+    "vertex_rmse_rel": 0.04371307828836791,
+    "normal_deviation_deg": 34.114544499017306,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": false,
+    "case": "loft\\square-spire-on-four-guides"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 1.0182051114748316,
+    "hausdorff_rel": 0.015901692263323195,
+    "vertex_rmse": 0.4408412001089112,
+    "vertex_rmse_rel": 0.006884782861649644,
+    "normal_deviation_deg": 2.3075933238746167,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "loft\\square-to-octagon"
+  },
+  {
+    "centroid_error": 0.0018667269720594089,
+    "centroid_error_rel": 2.9153365771015578e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 1.156529406967072,
+    "hausdorff_rel": 0.018061947639321806,
+    "vertex_rmse": 0.5082921037368422,
+    "vertex_rmse_rel": 0.00793818584107733,
+    "normal_deviation_deg": 4.002076363187481,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "loft\\square-to-round"
+  },
+  {
+    "centroid_error": 0.0012194358920832502,
+    "centroid_error_rel": 1.869431938791896e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 5.447304344195727,
+    "hausdorff_rel": 0.08350881573579369,
+    "vertex_rmse": 1.4827622770402749,
+    "vertex_rmse_rel": 0.022731192154754533,
+    "normal_deviation_deg": 35.04606627144241,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": false,
+    "case": "loft\\twisted-tapering-square"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.7873058496844046,
+    "hausdorff_rel": 0.00954548285065845,
+    "vertex_rmse": 0.38590908201975455,
+    "vertex_rmse_rel": 0.004678853238305718,
+    "normal_deviation_deg": 4.12390612219622,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "loft\\twisted-thin-blade"
+  },
+  {
+    "centroid_error": 0.0020303889719791995,
+    "centroid_error_rel": 6.722826110323333e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.5224669315193169,
+    "hausdorff_rel": 0.017299415912285402,
+    "vertex_rmse": 0.20141353074705393,
+    "vertex_rmse_rel": 0.006669008560260135,
+    "normal_deviation_deg": 2.534741482563524,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "nurbs\\bezier-dome"
+  },
+  {
+    "centroid_error": 0.0014909238225549704,
+    "centroid_error_rel": 4.76718774376336e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4950979456728284,
+    "hausdorff_rel": 0.01583062006836304,
+    "vertex_rmse": 0.202011712729403,
+    "vertex_rmse_rel": 0.006459268719510637,
+    "normal_deviation_deg": 2.843325849400081,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "nurbs\\bspline-dome"
+  },
+  {
+    "centroid_error": 0.0014857404862715815,
+    "centroid_error_rel": 4.91940871034084e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.5303972285268881,
+    "hausdorff_rel": 0.017561887624827542,
+    "vertex_rmse": 0.21259611735435302,
+    "vertex_rmse_rel": 0.007039231959830131,
+    "normal_deviation_deg": 3.3362864627358064,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "nurbs\\drilled-dome"
+  },
+  {
+    "centroid_error": 0.0030852327854539495,
+    "centroid_error_rel": 8.222172999782466e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.6588554319912697,
+    "hausdorff_rel": 0.017558556259415485,
+    "vertex_rmse": 0.27535030092929574,
+    "vertex_rmse_rel": 0.007338110175857344,
+    "normal_deviation_deg": 2.6715158963030956,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "nurbs\\groin-vault"
+  },
+  {
+    "centroid_error": 0.0014639333197552834,
+    "centroid_error_rel": 4.856777328110335e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4947944368649653,
+    "hausdorff_rel": 0.016415408889269605,
+    "vertex_rmse": 0.20015360007578725,
+    "vertex_rmse_rel": 0.006640339787813879,
+    "normal_deviation_deg": 2.7654639590291503,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "nurbs\\sliced-dome"
+  },
+  {
+    "centroid_error": 0.0009767172607805816,
+    "centroid_error_rel": 2.6029602459413694e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.6311757371352529,
+    "hausdorff_rel": 0.016820889912939545,
+    "vertex_rmse": 0.2738843755162053,
+    "vertex_rmse_rel": 0.007299043132332998,
+    "normal_deviation_deg": 2.450364169581406,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "nurbs\\vault-tangent-plane"
+  },
+  {
+    "centroid_error": 5.30180027964914e-14,
+    "centroid_error_rel": 3.0209810807134283e-15,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3255793926596583,
+    "hausdorff_rel": 0.018551607635436736,
+    "vertex_rmse": 0.13093322399633714,
+    "vertex_rmse_rel": 0.0074606128421707395,
+    "normal_deviation_deg": 1.7391573357347623,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "offset\\box-grown"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.20005655187349913,
+    "hausdorff_rel": 0.01857478452734217,
+    "vertex_rmse": 0.08060347387593997,
+    "vertex_rmse_rel": 0.007483844669818919,
+    "normal_deviation_deg": 2.5740000954518933,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "offset\\box-shrunk"
+  },
+  {
+    "centroid_error": 0.0006751251562611686,
+    "centroid_error_rel": 5.271136536459873e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.15398600576856308,
+    "hausdorff_rel": 0.012022678366856753,
+    "vertex_rmse": 0.07000878654301922,
+    "vertex_rmse_rel": 0.0054660364703899905,
+    "normal_deviation_deg": 2.1174537999114844,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "offset\\cone-grown"
+  },
+  {
+    "centroid_error": 0.00015597907649612843,
+    "centroid_error_rel": 7.504828991063462e-06,
+    "inertia_axes_aligned": false,
+    "hausdorff": 0.34209320036264024,
+    "hausdorff_rel": 0.01645958564058397,
+    "vertex_rmse": 0.14391282307711217,
+    "vertex_rmse_rel": 0.0069242692742940174,
+    "normal_deviation_deg": 2.218188977232603,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "offset\\cylinder-grown"
+  },
+  {
+    "centroid_error": 0.0001693938370514851,
+    "centroid_error_rel": 5.346018624164709e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4676617490081425,
+    "hausdorff_rel": 0.014759264348248332,
+    "vertex_rmse": 0.21533312016741504,
+    "vertex_rmse_rel": 0.006795848602594752,
+    "normal_deviation_deg": 2.6127239399397917,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "offset\\drilled-plate-grown"
+  },
+  {
+    "centroid_error": 7.48518659891322e-05,
+    "centroid_error_rel": 3.512906429859079e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.27541906481576756,
+    "hausdorff_rel": 0.012925815421055227,
+    "vertex_rmse": 0.12339941089931136,
+    "vertex_rmse_rel": 0.005791312992143071,
+    "normal_deviation_deg": 4.32492636566971,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "offset\\flanged-drum-shrunk"
+  },
+  {
+    "centroid_error": 0.0003720743270372474,
+    "centroid_error_rel": 1.1158552780938789e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4740014773738729,
+    "hausdorff_rel": 0.01421535999442885,
+    "vertex_rmse": 0.22038239456516115,
+    "vertex_rmse_rel": 0.006609293904598931,
+    "normal_deviation_deg": 3.5511526887415426,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "offset\\grooved-drum-grown"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.40669090424280363,
+    "hausdorff_rel": 0.013764401667255151,
+    "vertex_rmse": 0.19763792707159997,
+    "vertex_rmse_rel": 0.006689030377903563,
+    "normal_deviation_deg": 3.006000332704095,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "offset\\l-block-grown-sharp"
+  },
+  {
+    "centroid_error": 1.2546447177922578e-06,
+    "centroid_error_rel": 4.246329009385069e-08,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.43681606398298584,
+    "hausdorff_rel": 0.014783983847796207,
+    "vertex_rmse": 0.19341428340110697,
+    "vertex_rmse_rel": 0.006546081697779365,
+    "normal_deviation_deg": 2.397503761533111,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "offset\\l-block-grown"
+  },
+  {
+    "centroid_error": 6.936895214610187e-15,
+    "centroid_error_rel": 3.016041397656603e-16,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.34871437430249813,
+    "hausdorff_rel": 0.015161494534891223,
+    "vertex_rmse": 0.13003096613451245,
+    "vertex_rmse_rel": 0.005653520266717933,
+    "normal_deviation_deg": 3.8809699980637937,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "offset\\l-block-shrunk"
+  },
+  {
+    "centroid_error": 0.0002872518529989291,
+    "centroid_error_rel": 1.458126272477627e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3041824940000814,
+    "hausdorff_rel": 0.015440683201822214,
+    "vertex_rmse": 0.13023639660605227,
+    "vertex_rmse_rel": 0.006610962106650321,
+    "normal_deviation_deg": 3.3852515467051902,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "offset\\napkin-ring-grown"
+  },
+  {
+    "centroid_error": 1.5639285352386967e-15,
+    "centroid_error_rel": 1.1287112579342416e-16,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.1948187927566359,
+    "hausdorff_rel": 0.014060371665768677,
+    "vertex_rmse": 0.08621107369822967,
+    "vertex_rmse_rel": 0.006221985675767387,
+    "normal_deviation_deg": 1.9991992529664633,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "offset\\tetrahedron-grown"
+  },
+  {
+    "centroid_error": 0.0008479659428430837,
+    "centroid_error_rel": 3.098720117328793e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3646823172643386,
+    "hausdorff_rel": 0.01332657805987148,
+    "vertex_rmse": 0.16481348750470315,
+    "vertex_rmse_rel": 0.006022775721694856,
+    "normal_deviation_deg": 4.19654289046466,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "offset\\torus-grown-past-its-hole"
+  },
+  {
+    "centroid_error": 0.0006087154921624973,
+    "centroid_error_rel": 1.863347974589192e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.32910634319457066,
+    "hausdorff_rel": 0.010074322830810322,
+    "vertex_rmse": 0.1372717554786869,
+    "vertex_rmse_rel": 0.004202045961255606,
+    "normal_deviation_deg": 5.28476392783481,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "offset\\torus-shrunk"
+  },
+  {
+    "centroid_error": 9.862372513875283e-05,
+    "centroid_error_rel": 1.0730116808608203e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 3.0576760384417954,
+    "hausdorff_rel": 0.03326706734024075,
+    "vertex_rmse": 0.7463230296469889,
+    "vertex_rmse_rel": 0.008119885224168913,
+    "normal_deviation_deg": 14.46652150511467,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        7.0
+      ],
+      "shells": 1,
+      "euler": [
+        -12
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        7.0
+      ],
+      "shells": 1,
+      "euler": [
+        -12
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "parts\\flange"
+  },
+  {
+    "centroid_error": 1.1846243219934846e-19,
+    "centroid_error_rel": 1.3162492466594274e-21,
+    "inertia_axes_aligned": true,
+    "hausdorff": 1.3395645795959386,
+    "hausdorff_rel": 0.014884050884399317,
+    "vertex_rmse": 0.527489645656136,
+    "vertex_rmse_rel": 0.005860996062845955,
+    "normal_deviation_deg": 3.5198025011259584,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "parts\\pin-lug"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 1.5306841822137438,
+    "hausdorff_rel": 0.01739413843424709,
+    "vertex_rmse": 0.6854787839470007,
+    "vertex_rmse_rel": 0.007789531635761371,
+    "normal_deviation_deg": 5.94914443058033,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "parts\\pocketed-tray"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 1.4912575726619703,
+    "hausdorff_rel": 0.00952729515552428,
+    "vertex_rmse": 0.6278611844527441,
+    "vertex_rmse_rel": 0.004011257968199629,
+    "normal_deviation_deg": 4.683938847658902,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "parts\\shelf-bracket"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 1.155828390182168,
+    "hausdorff_rel": 0.010943421765275643,
+    "vertex_rmse": 0.44122742776008966,
+    "vertex_rmse_rel": 0.0041775560086608834,
+    "normal_deviation_deg": 4.0962729042494495,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "parts\\star-handle"
+  },
+  {
+    "centroid_error": 4.964114048711565e-16,
+    "centroid_error_rel": 2.9251827564982945e-18,
+    "inertia_axes_aligned": true,
+    "hausdorff": 1.8244856606531938,
+    "hausdorff_rel": 0.010751070466252337,
+    "vertex_rmse": 0.738912951921254,
+    "vertex_rmse_rel": 0.004354161496499685,
+    "normal_deviation_deg": 3.2716171087135657,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "parts\\turned-shaft"
+  },
+  {
+    "centroid_error": 2.068047585434047e-06,
+    "centroid_error_rel": 2.4621244272710203e-08,
+    "inertia_axes_aligned": true,
+    "hausdorff": 1.4203118639553995,
+    "hausdorff_rel": 0.016909594146758803,
+    "vertex_rmse": 0.5718737181043728,
+    "vertex_rmse_rel": 0.006808471239135236,
+    "normal_deviation_deg": 6.21999726035775,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "parts\\v-belt-pulley"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.6057591615115455,
+    "hausdorff_rel": 0.01618959458054045,
+    "vertex_rmse": 0.2646977920754631,
+    "vertex_rmse_rel": 0.007074346064156496,
+    "normal_deviation_deg": 2.5200001658028417,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "primitives\\box"
+  },
+  {
+    "centroid_error": 0.00020482408649169623,
+    "centroid_error_rel": 1.3332912381498005e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.2034765625970126,
+    "hausdorff_rel": 0.013245196047313255,
+    "vertex_rmse": 0.08751170063937272,
+    "vertex_rmse_rel": 0.005696526502159902,
+    "normal_deviation_deg": 2.0496733015609325,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "primitives\\cone-frustum"
+  },
+  {
+    "centroid_error": 1.3747661351325648e-08,
+    "centroid_error_rel": 7.93755889100337e-10,
+    "inertia_axes_aligned": false,
+    "hausdorff": 0.2696502994493819,
+    "hausdorff_rel": 0.015568939888454359,
+    "vertex_rmse": 0.12101449281876808,
+    "vertex_rmse_rel": 0.006987076847956049,
+    "normal_deviation_deg": 2.352640090364498,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "primitives\\cylinder"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.36291643250302924,
+    "hausdorff_rel": 0.013826014949252749,
+    "vertex_rmse": 0.16525765289595604,
+    "vertex_rmse_rel": 0.006295815165103714,
+    "normal_deviation_deg": 3.402000477104125,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "primitives\\extruded-l"
+  },
+  {
+    "centroid_error": 0.001000729200243462,
+    "centroid_error_rel": 6.809099753611036e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.1978009353760781,
+    "hausdorff_rel": 0.013458648953239487,
+    "vertex_rmse": 0.08579846635384128,
+    "vertex_rmse_rel": 0.005837846202229495,
+    "normal_deviation_deg": 3.4675294339123575,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "primitives\\revolved-sector"
+  },
+  {
+    "centroid_error": 3.706005153256459e-08,
+    "centroid_error_rel": 1.2974520373093224e-09,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.41300167129519155,
+    "hausdorff_rel": 0.01445896154146605,
+    "vertex_rmse": 0.15787950475921284,
+    "vertex_rmse_rel": 0.00552727469683182,
+    "normal_deviation_deg": 4.6989675420181785,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "primitives\\revolved-washer"
+  },
+  {
+    "centroid_error": 0.00010507767590966976,
+    "centroid_error_rel": 6.066602231261685e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.2283689454553036,
+    "hausdorff_rel": 0.013184756343878456,
+    "vertex_rmse": 0.10058412546636189,
+    "vertex_rmse_rel": 0.005807169550536113,
+    "normal_deviation_deg": 2.2505581093232334,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "primitives\\sphere"
+  },
+  {
+    "centroid_error": 0.0010856474367583085,
+    "centroid_error_rel": 3.1767525120547085e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4090616836960208,
+    "hausdorff_rel": 0.011969702937326238,
+    "vertex_rmse": 0.1580183875577022,
+    "vertex_rmse_rel": 0.004623833600378307,
+    "normal_deviation_deg": 4.917076103330483,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "primitives\\torus"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.22734193214915127,
+    "hausdorff_rel": 0.017698545414175485,
+    "vertex_rmse": 0.07883657478087186,
+    "vertex_rmse_rel": 0.006137419022821969,
+    "normal_deviation_deg": 2.8980008070396406,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\box-five-faces-open"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.25412479040721414,
+    "hausdorff_rel": 0.01796933625645512,
+    "vertex_rmse": 0.11010350916336756,
+    "vertex_rmse_rel": 0.007785493796185237,
+    "normal_deviation_deg": 2.7180001236179474,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\box-hairline-cavity"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3037781369902879,
+    "hausdorff_rel": 0.021480358064204855,
+    "vertex_rmse": 0.13527917435380835,
+    "vertex_rmse_rel": 0.009565682153889516,
+    "normal_deviation_deg": 4.176000064203778,
+    "topology": {
+      "lumps": 2,
+      "genus": [
+        0.0,
+        0.0
+      ],
+      "shells": 2,
+      "euler": [
+        2,
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 2,
+      "genus": [
+        0.0,
+        0.0
+      ],
+      "shells": 2,
+      "euler": [
+        2,
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\box-hollowed"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3360590096858267,
+    "hausdorff_rel": 0.023762960462768372,
+    "vertex_rmse": 0.1184024226333695,
+    "vertex_rmse_rel": 0.008372315595297114,
+    "normal_deviation_deg": 4.2120003298508015,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\box-open-top-and-bottom"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.28874423940762306,
+    "hausdorff_rel": 0.02041730097136822,
+    "vertex_rmse": 0.11760221574315853,
+    "vertex_rmse_rel": 0.008315732423455076,
+    "normal_deviation_deg": 3.654000147467961,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\box-open-top-and-front"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.35366467051594525,
+    "hausdorff_rel": 0.020661310661797758,
+    "vertex_rmse": 0.1547691039359485,
+    "vertex_rmse_rel": 0.009041707594382194,
+    "normal_deviation_deg": 4.032000355084028,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\box-open-top-outward-sharp"
+  },
+  {
+    "centroid_error": 6.2803698347351005e-15,
+    "centroid_error_rel": 3.6690312333754865e-16,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3742868021238489,
+    "hausdorff_rel": 0.021866068454081018,
+    "vertex_rmse": 0.15183970893852514,
+    "vertex_rmse_rel": 0.008870570511323875,
+    "normal_deviation_deg": 4.060953076050236,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\box-open-top-outward"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.30737320777264104,
+    "hausdorff_rel": 0.02173456795710961,
+    "vertex_rmse": 0.127483915792196,
+    "vertex_rmse_rel": 0.009014474134887658,
+    "normal_deviation_deg": 4.014000552429223,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\box-open-top"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.23335173789995414,
+    "hausdorff_rel": 0.016500459627072344,
+    "vertex_rmse": 0.09754826612963077,
+    "vertex_rmse_rel": 0.0068977040473251925,
+    "normal_deviation_deg": 1.7640006227609402,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\box-paper-thin"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.24142477971946805,
+    "hausdorff_rel": 0.01707130988861043,
+    "vertex_rmse": 0.10955474334853647,
+    "vertex_rmse_rel": 0.007746690193290195,
+    "normal_deviation_deg": 2.7540002947334306,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        -0.5
+      ],
+      "shells": 1,
+      "euler": [
+        3
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        -0.5
+      ],
+      "shells": 1,
+      "euler": [
+        3
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\box-walls-meeting"
+  },
+  {
+    "centroid_error": 4.3171444730834445e-05,
+    "centroid_error_rel": 2.24750259672683e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.37584645178702414,
+    "hausdorff_rel": 0.01956654176455157,
+    "vertex_rmse": 0.16286693229280957,
+    "vertex_rmse_rel": 0.008478841871779703,
+    "normal_deviation_deg": 3.116200212217774,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\capsule-open-at-its-dome"
+  },
+  {
+    "centroid_error": 0.0006355924404103036,
+    "centroid_error_rel": 3.083076196065624e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.38154239957948677,
+    "hausdorff_rel": 0.018507524871974625,
+    "vertex_rmse": 0.16452977163665386,
+    "vertex_rmse_rel": 0.007980866200196194,
+    "normal_deviation_deg": 3.3925756544271652,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\capsule-open-base"
+  },
+  {
+    "centroid_error": 2.9648637683572787e-05,
+    "centroid_error_rel": 1.5803655833226202e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.2620515487933361,
+    "hausdorff_rel": 0.013968171259309993,
+    "vertex_rmse": 0.10443287603595304,
+    "vertex_rmse_rel": 0.005566600557369337,
+    "normal_deviation_deg": 2.8296483799672423,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\cone-open-base"
+  },
+  {
+    "centroid_error": 4.248177496448594e-05,
+    "centroid_error_rel": 2.4526864211399057e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3442799952438424,
+    "hausdorff_rel": 0.019877014793063547,
+    "vertex_rmse": 0.1500119646058066,
+    "vertex_rmse_rel": 0.008660944814682704,
+    "normal_deviation_deg": 3.872869189705014,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\cylinder-open-top"
+  },
+  {
+    "centroid_error": 6.705600017716362e-15,
+    "centroid_error_rel": 2.235200005905454e-16,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.6919655701453309,
+    "hausdorff_rel": 0.023065519004844364,
+    "vertex_rmse": 0.29375301845137974,
+    "vertex_rmse_rel": 0.009791767281712658,
+    "normal_deviation_deg": 4.696286619962416,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\drilled-block-open-at-its-bore"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.6363839760731108,
+    "hausdorff_rel": 0.021212799202437026,
+    "vertex_rmse": 0.2851284479629133,
+    "vertex_rmse_rel": 0.009504281598763776,
+    "normal_deviation_deg": 5.681840587796575,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\drilled-block-open-top"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.47506187396696214,
+    "hausdorff_rel": 0.01780369643859981,
+    "vertex_rmse": 0.19104004704189242,
+    "vertex_rmse_rel": 0.007159528456257922,
+    "normal_deviation_deg": 6.183935042629264,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\dumbbell-neck-filled"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.2676464774483365,
+    "hausdorff_rel": 0.014606719470545563,
+    "vertex_rmse": 0.11711598833101945,
+    "vertex_rmse_rel": 0.006391566978112386,
+    "normal_deviation_deg": 4.682658750973825,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\half-torus-open-ends"
+  },
+  {
+    "centroid_error": 0.001088051068114344,
+    "centroid_error_rel": 7.253299641197896e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.22314742799412013,
+    "hausdorff_rel": 0.014875727866422992,
+    "vertex_rmse": 0.09639264927319084,
+    "vertex_rmse_rel": 0.006425845154483816,
+    "normal_deviation_deg": 3.7185407464416356,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\hemisphere-open"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.61905674584261,
+    "hausdorff_rel": 0.02063522486142033,
+    "vertex_rmse": 0.28178984161700027,
+    "vertex_rmse_rel": 0.009392994720566676,
+    "normal_deviation_deg": 5.750667418138894,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\hole-skin-merging-wall"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.5022796482370431,
+    "hausdorff_rel": 0.019135330625109692,
+    "vertex_rmse": 0.20045130988845633,
+    "vertex_rmse_rel": 0.007636586715020019,
+    "normal_deviation_deg": 5.220000255050284,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\l-block-open-top-sharp"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4379523550769055,
+    "hausdorff_rel": 0.016684655931922292,
+    "vertex_rmse": 0.20192894390378754,
+    "vertex_rmse_rel": 0.007692880087697001,
+    "normal_deviation_deg": 5.064188360531442,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\l-block-open-top"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.46302594241884265,
+    "hausdorff_rel": 0.01755095305370013,
+    "vertex_rmse": 0.21817637120784777,
+    "vertex_rmse_rel": 0.008269954008390699,
+    "normal_deviation_deg": 3.9301889689821228,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\round-consumed"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.5322986630787149,
+    "hausdorff_rel": 0.02017672875398198,
+    "vertex_rmse": 0.2319758221670966,
+    "vertex_rmse_rel": 0.008793020847124177,
+    "normal_deviation_deg": 4.055906323200558,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\rounded-tray"
+  },
+  {
+    "centroid_error": 0.0021015641708183185,
+    "centroid_error_rel": 0.00012132973327417328,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.32485350796494883,
+    "hausdorff_rel": 0.018754787515824167,
+    "vertex_rmse": 0.12762059243263774,
+    "vertex_rmse_rel": 0.007367927496648652,
+    "normal_deviation_deg": 3.15861916635532,
+    "topology": {
+      "lumps": 2,
+      "genus": [
+        0.0,
+        0.0
+      ],
+      "shells": 2,
+      "euler": [
+        2,
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 2,
+      "genus": [
+        0.0,
+        0.0
+      ],
+      "shells": 2,
+      "euler": [
+        2,
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\sphere-hollowed"
+  },
+  {
+    "centroid_error": 0.001986466243853702,
+    "centroid_error_rel": 0.0001222331100430105,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.2537926970652377,
+    "hausdorff_rel": 0.015616611037047305,
+    "vertex_rmse": 0.11991747058557864,
+    "vertex_rmse_rel": 0.007378874634048915,
+    "normal_deviation_deg": 3.5633361004234265,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\sphere-open-at-a-cap"
+  },
+  {
+    "centroid_error": 0.0008553109314673004,
+    "centroid_error_rel": 5.0201885949646425e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3026682750012238,
+    "hausdorff_rel": 0.0177649059110249,
+    "vertex_rmse": 0.12579748958485545,
+    "vertex_rmse_rel": 0.0073835969967749535,
+    "normal_deviation_deg": 3.4256793565017225,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\sphere-opening-sealed"
+  },
+  {
+    "centroid_error": 0.00201471316540441,
+    "centroid_error_rel": 0.00012017813017677181,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.29004605294748864,
+    "hausdorff_rel": 0.017301317580552623,
+    "vertex_rmse": 0.12653692713126188,
+    "vertex_rmse_rel": 0.007547958469759149,
+    "normal_deviation_deg": 3.20250312192055,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\sphere-pinhole-opening"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3358560825396941,
+    "hausdorff_rel": 0.0146116545122354,
+    "vertex_rmse": 0.16345885869775667,
+    "vertex_rmse_rel": 0.007111392332677627,
+    "normal_deviation_deg": 5.099584089528265,
+    "topology": {
+      "lumps": 2,
+      "genus": [
+        1.0,
+        1.0
+      ],
+      "shells": 2,
+      "euler": [
+        0,
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 2,
+      "genus": [
+        1.0,
+        1.0
+      ],
+      "shells": 2,
+      "euler": [
+        0,
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "shell\\torus-hollowed"
+  },
+  {
+    "centroid_error": 0.0003285819492942355,
+    "centroid_error_rel": 1.897160614376976e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.2515927953920088,
+    "hausdorff_rel": 0.01452642006975573,
+    "vertex_rmse": 0.0989660190839796,
+    "vertex_rmse_rel": 0.0057140824068725,
+    "normal_deviation_deg": 2.1763378681444476,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "singular\\ball-cut-aslant-through-a-pole"
+  },
+  {
+    "centroid_error": 0.001037587926049588,
+    "centroid_error_rel": 6.916594766542571e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.1888998808143909,
+    "hausdorff_rel": 0.012592127319905706,
+    "vertex_rmse": 0.08615805329448167,
+    "vertex_rmse_rel": 0.00574332377575901,
+    "normal_deviation_deg": 2.4219305220682776,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        -1.0
+      ],
+      "shells": 1,
+      "euler": [
+        4
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        -1.0
+      ],
+      "shells": 1,
+      "euler": [
+        4
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "singular\\ball-halved-through-its-poles"
+  },
+  {
+    "centroid_error": 0.00040532473387213606,
+    "centroid_error_rel": 1.805737911596395e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.29615737084674526,
+    "hausdorff_rel": 0.01319392940144096,
+    "vertex_rmse": 0.1264680012437146,
+    "vertex_rmse_rel": 0.0056342000713343245,
+    "normal_deviation_deg": 3.1484779178610163,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        -0.5
+      ],
+      "shells": 1,
+      "euler": [
+        3
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        -0.5
+      ],
+      "shells": 1,
+      "euler": [
+        3
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "singular\\balls-meeting-through-a-pole"
+  },
+  {
+    "centroid_error": 0.0006674346170852378,
+    "centroid_error_rel": 4.169495084794509e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.20055140762365517,
+    "hausdorff_rel": 0.012528539679095785,
+    "vertex_rmse": 0.08695645437806171,
+    "vertex_rmse_rel": 0.005432210134737187,
+    "normal_deviation_deg": 2.741313167139209,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "singular\\cone-cut-aslant-through-its-apex"
+  },
+  {
+    "centroid_error": 0.0004943847393146324,
+    "centroid_error_rel": 3.295898262097549e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.1699992565415397,
+    "hausdorff_rel": 0.01133328376943598,
+    "vertex_rmse": 0.07439826456628848,
+    "vertex_rmse_rel": 0.004959884304419232,
+    "normal_deviation_deg": 2.632173978465122,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        -0.5
+      ],
+      "shells": 1,
+      "euler": [
+        3
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        -0.5
+      ],
+      "shells": 1,
+      "euler": [
+        3
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "singular\\cone-halved-through-its-apex"
+  },
+  {
+    "centroid_error": 0.00017843946373992376,
+    "centroid_error_rel": 1.5453310841095264e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.14126057865738756,
+    "hausdorff_rel": 0.012233524949207686,
+    "vertex_rmse": 0.05976402391802602,
+    "vertex_rmse_rel": 0.005175716286986768,
+    "normal_deviation_deg": 2.012295039874983,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "singular\\cylinder-hoof"
+  },
+  {
+    "centroid_error": 0.0006060388286087465,
+    "centroid_error_rel": 3.730143182551398e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.2544289168589252,
+    "hausdorff_rel": 0.015659991486749424,
+    "vertex_rmse": 0.11245728451110604,
+    "vertex_rmse_rel": 0.006921697972889438,
+    "normal_deviation_deg": 2.8082117951965873,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "singular\\napkin-ring-poles-near-its-rims"
+  },
+  {
+    "centroid_error": 0.0006297081466315523,
+    "centroid_error_rel": 3.875375583134294e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.2905653773174551,
+    "hausdorff_rel": 0.017882093070952922,
+    "vertex_rmse": 0.11290255282343613,
+    "vertex_rmse_rel": 0.006948294997070803,
+    "normal_deviation_deg": 3.0457080617981798,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.5
+      ],
+      "shells": 1,
+      "euler": [
+        1
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.5
+      ],
+      "shells": 1,
+      "euler": [
+        1
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "singular\\napkin-ring-poles-on-its-rims"
+  },
+  {
+    "centroid_error": 0.0004674776207874863,
+    "centroid_error_rel": 1.8896662824698475e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3736081572478498,
+    "hausdorff_rel": 0.015102214656129972,
+    "vertex_rmse": 0.16616374641286974,
+    "vertex_rmse_rel": 0.006716771349104016,
+    "normal_deviation_deg": 2.740818675250544,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "singular\\saddle-drum-cut-level-through-its-saddle"
+  },
+  {
+    "centroid_error": 0.0003557605998212076,
+    "centroid_error_rel": 2.138969527440914e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.19816969262442125,
+    "hausdorff_rel": 0.011914723946355938,
+    "vertex_rmse": 0.07611013504563517,
+    "vertex_rmse_rel": 0.004576033986727097,
+    "normal_deviation_deg": 3.1458287109137126,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        -1.0
+      ],
+      "shells": 1,
+      "euler": [
+        4
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        -1.0
+      ],
+      "shells": 1,
+      "euler": [
+        4
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "singular\\sectors-sharing-an-apex"
+  },
+  {
+    "centroid_error": 0.0004498452152144009,
+    "centroid_error_rel": 1.4253038405558895e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.5436278800401565,
+    "hausdorff_rel": 0.01722447808820634,
+    "vertex_rmse": 0.20488729772699113,
+    "vertex_rmse_rel": 0.006491714093084562,
+    "normal_deviation_deg": 3.2241298871675435,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "spline\\peanut-prism"
+  },
+  {
+    "centroid_error": 0.0024825373717239207,
+    "centroid_error_rel": 2.57262286338826e-05,
+    "inertia_axes_aligned": false,
+    "hausdorff": 1.1943507234123085,
+    "hausdorff_rel": 0.012376909258051298,
+    "vertex_rmse": 0.5513990482308706,
+    "vertex_rmse_rel": 0.005714080337667592,
+    "normal_deviation_deg": 3.206461907118438,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "spline\\pipe-on-planar-cubic"
+  },
+  {
+    "centroid_error": 0.0013398316830327474,
+    "centroid_error_rel": 2.5096799907772112e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.6190143456108143,
+    "hausdorff_rel": 0.011594948356998506,
+    "vertex_rmse": 0.2754186902077661,
+    "vertex_rmse_rel": 0.005158952312098771,
+    "normal_deviation_deg": 2.9982972327959585,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "spline\\pipe-on-twisted-cubic"
+  },
+  {
+    "centroid_error": 0.0004884391167032922,
+    "centroid_error_rel": 1.5257019127453959e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4739293189520936,
+    "hausdorff_rel": 0.014803787078146157,
+    "vertex_rmse": 0.19396205575911726,
+    "vertex_rmse_rel": 0.006058652334585218,
+    "normal_deviation_deg": 2.2160630331595867,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "spline\\rational-cap"
+  },
+  {
+    "centroid_error": 0.0008392481260460148,
+    "centroid_error_rel": 3.199440587979047e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.33267100108471637,
+    "hausdorff_rel": 0.012682317306189681,
+    "vertex_rmse": 0.1447861696637054,
+    "vertex_rmse_rel": 0.005519639942272342,
+    "normal_deviation_deg": 2.721173443496166,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "spline\\rational-spheroid"
+  },
+  {
+    "centroid_error": 6.847721140222393e-05,
+    "centroid_error_rel": 2.2574302855610884e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3951516141295848,
+    "hausdorff_rel": 0.013026628901180741,
+    "vertex_rmse": 0.17790152171002618,
+    "vertex_rmse_rel": 0.00586472893290999,
+    "normal_deviation_deg": 2.3172790317006235,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "spline\\revolved-cubic-dome"
+  },
+  {
+    "centroid_error": 0.0035598696237124612,
+    "centroid_error_rel": 5.874740625646842e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.8431135157388765,
+    "hausdorff_rel": 0.013913636583627835,
+    "vertex_rmse": 0.36100731876168435,
+    "vertex_rmse_rel": 0.005957589984639309,
+    "normal_deviation_deg": 3.489858427768677,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "spline\\square-on-planar-cubic"
+  },
+  {
+    "centroid_error": 0.0008849712920444878,
+    "centroid_error_rel": 5.0758873363450087e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.19436826312970337,
+    "hausdorff_rel": 0.011148287117067742,
+    "vertex_rmse": 0.08321648982925502,
+    "vertex_rmse_rel": 0.004773008239889489,
+    "normal_deviation_deg": 3.019850485149383,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "sweep\\circle-along-arc"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 1.0205259305756578,
+    "hausdorff_rel": 0.01759004653404614,
+    "vertex_rmse": 0.4449207284437214,
+    "vertex_rmse_rel": 0.007668767723395503,
+    "normal_deviation_deg": 4.8489870053484125,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "sweep\\duct-elbow"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4545181867178692,
+    "hausdorff_rel": 0.012815978087934405,
+    "vertex_rmse": 0.19335127755033227,
+    "vertex_rmse_rel": 0.005451895674963012,
+    "normal_deviation_deg": 9.894009832934202,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "sweep\\helical-pipe-round-ends"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.4455356702009613,
+    "hausdorff_rel": 0.012559476504574755,
+    "vertex_rmse": 0.19581706238231156,
+    "vertex_rmse_rel": 0.005520006497069434,
+    "normal_deviation_deg": 10.123559096376432,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        -2.0
+      ],
+      "shells": 1,
+      "euler": [
+        6
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        -2.0
+      ],
+      "shells": 1,
+      "euler": [
+        6
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "sweep\\helical-pipe"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.9235032817821653,
+    "hausdorff_rel": 0.017604116271156097,
+    "vertex_rmse": 0.41077077543947904,
+    "vertex_rmse_rel": 0.007830244498616995,
+    "normal_deviation_deg": 4.25200076409965,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "sweep\\hollow-reducer"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.770018380466772,
+    "hausdorff_rel": 0.011820326661482961,
+    "vertex_rmse": 0.3285198049258395,
+    "vertex_rmse_rel": 0.005043011319594924,
+    "normal_deviation_deg": 3.9540003042582423,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "sweep\\mitered-elbow"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 1.0453213450636438,
+    "hausdorff_rel": 0.011050624730485879,
+    "vertex_rmse": 0.45042776691794667,
+    "vertex_rmse_rel": 0.004761701503472061,
+    "normal_deviation_deg": 9.396000429618896,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "sweep\\mitered-picture-frame"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.46906997925645594,
+    "hausdorff_rel": 0.008286886393107842,
+    "vertex_rmse": 0.19012985358502296,
+    "vertex_rmse_rel": 0.0033589540287673994,
+    "normal_deviation_deg": 4.702974005679545,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "sweep\\mitered-pipe-on-cube-edges"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.9760938251458282,
+    "hausdorff_rel": 0.017406528350338867,
+    "vertex_rmse": 0.40346637390398465,
+    "vertex_rmse_rel": 0.007194952672422554,
+    "normal_deviation_deg": 4.318571831271875,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "sweep\\narrowing-bend"
+  },
+  {
+    "centroid_error": 0.00020464351429306607,
+    "centroid_error_rel": 4.349318870049884e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.42580453755987313,
+    "hausdorff_rel": 0.009049686800774271,
+    "vertex_rmse": 0.19527130850265306,
+    "vertex_rmse_rel": 0.004150129994511622,
+    "normal_deviation_deg": 3.571006651223315,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "sweep\\round-cornered-pipe"
+  },
+  {
+    "centroid_error": 0.0001561535881720033,
+    "centroid_error_rel": 2.976649868567104e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.8107845539299704,
+    "hausdorff_rel": 0.015455435665259887,
+    "vertex_rmse": 0.3310908984878649,
+    "vertex_rmse_rel": 0.006311361083692117,
+    "normal_deviation_deg": 3.328965802526046,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "sweep\\twisted-duct"
+  },
+  {
+    "centroid_error": 0.00023766765354885582,
+    "centroid_error_rel": 4.450361398855176e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.7949585459889006,
+    "hausdorff_rel": 0.014885714458538157,
+    "vertex_rmse": 0.3563970281937557,
+    "vertex_rmse_rel": 0.006673586216957145,
+    "normal_deviation_deg": 3.9616981040751456,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        -0.5
+      ],
+      "shells": 1,
+      "euler": [
+        3
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        -0.5
+      ],
+      "shells": 1,
+      "euler": [
+        3
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "swept\\ball-along-spline-groove"
+  },
+  {
+    "centroid_error": 0.00016274534231533428,
+    "centroid_error_rel": 4.667041685588306e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.5811387752903499,
+    "hausdorff_rel": 0.01666529346281788,
+    "vertex_rmse": 0.2523672591402558,
+    "vertex_rmse_rel": 0.007237125817113257,
+    "normal_deviation_deg": 3.910756139924271,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "swept\\ball-swung-groove"
+  },
+  {
+    "centroid_error": 0.0005955655355777471,
+    "centroid_error_rel": 2.430073089229607e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.37530164322893694,
+    "hausdorff_rel": 0.01531335124470502,
+    "vertex_rmse": 0.1652362027318636,
+    "vertex_rmse_rel": 0.006742096807795747,
+    "normal_deviation_deg": 11.389140577155715,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "swept\\ball-thread-groove"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.32061825257188037,
+    "hausdorff_rel": 0.014425297159580405,
+    "vertex_rmse": 0.1313490997818246,
+    "vertex_rmse_rel": 0.005909675387465372,
+    "normal_deviation_deg": 2.4259801509991505,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "swept\\box-slid-aslant"
+  },
+  {
+    "centroid_error": 4.973714493289316e-05,
+    "centroid_error_rel": 2.04197214012133e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.42252418921567064,
+    "hausdorff_rel": 0.017346846588597812,
+    "vertex_rmse": 0.15749542644898182,
+    "vertex_rmse_rel": 0.006466017971865151,
+    "normal_deviation_deg": 3.5939816103900095,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "swept\\torus-slid-through-rod"
+  },
+  {
+    "centroid_error": 6.349196681965319e-05,
+    "centroid_error_rel": 2.6066763642933485e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.38015499403447517,
+    "hausdorff_rel": 0.01560734510764929,
+    "vertex_rmse": 0.15803828418396398,
+    "vertex_rmse_rel": 0.006488295774581336,
+    "normal_deviation_deg": 3.0319129607051662,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "swept\\two-beads-slid-through-rod"
+  },
+  {
+    "centroid_error": 0.00014904679737565672,
+    "centroid_error_rel": 6.665331263466291e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.28739662341169875,
+    "hausdorff_rel": 0.01285229694813631,
+    "vertex_rmse": 0.11894786493643086,
+    "vertex_rmse_rel": 0.005319315388475754,
+    "normal_deviation_deg": 3.142273634262468,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "tangent\\ball-in-a-paraboloid-cup"
+  },
+  {
+    "centroid_error": 0.0001572514410247385,
+    "centroid_error_rel": 9.07930841421727e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.24561625905383355,
+    "hausdorff_rel": 0.014181273970934334,
+    "vertex_rmse": 0.10692882983075172,
+    "vertex_rmse_rel": 0.00617380558218236,
+    "normal_deviation_deg": 3.9845584890946317,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "tangent\\ball-in-band"
+  },
+  {
+    "centroid_error": 0.00012539539493916507,
+    "centroid_error_rel": 7.239706502326638e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.33483041535582825,
+    "hausdorff_rel": 0.019331443043856162,
+    "vertex_rmse": 0.13602099389688338,
+    "vertex_rmse_rel": 0.007853175744180605,
+    "normal_deviation_deg": 3.3109533132071873,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "tangent\\bore-a-micron-from-the-wall"
+  },
+  {
+    "centroid_error": 4.0535725334034985e-05,
+    "centroid_error_rel": 1.8982592605014894e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.32745147449290024,
+    "hausdorff_rel": 0.015334320249577767,
+    "vertex_rmse": 0.1442276559824905,
+    "vertex_rmse_rel": 0.00675407881154431,
+    "normal_deviation_deg": 2.4059429259230725,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "tangent\\coaxial-overlap"
+  },
+  {
+    "centroid_error": 0.0003841275016165789,
+    "centroid_error_rel": 1.1998127394466547e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.542063747886159,
+    "hausdorff_rel": 0.016931226938163676,
+    "vertex_rmse": 0.2366948973195235,
+    "vertex_rmse_rel": 0.007393106506845466,
+    "normal_deviation_deg": 3.139011146357583,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "tangent\\cone-tip-on-face"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3338494526195745,
+    "hausdorff_rel": 0.019274582876789046,
+    "vertex_rmse": 0.13691192665716023,
+    "vertex_rmse_rel": 0.00790452180306966,
+    "normal_deviation_deg": 2.717998239836736,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "tangent\\cube-turned-a-hair"
+  },
+  {
+    "centroid_error": 6.188150470145049e-15,
+    "centroid_error_rel": 2.5263018505698666e-16,
+    "inertia_axes_aligned": true,
+    "hausdorff": 2.0541872174929936,
+    "hausdorff_rel": 0.08386184198342342,
+    "vertex_rmse": 0.7187464999196327,
+    "vertex_rmse_rel": 0.02934270298690751,
+    "normal_deviation_deg": 26.615955162944136,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": false,
+    "case": "tangent\\cylinder-inscribed-through-a-cube"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.009716282660449022,
+    "hausdorff_rel": 0.010867935383598194,
+    "vertex_rmse": 0.00402943230077724,
+    "vertex_rmse_rel": 0.0045070333385511755,
+    "normal_deviation_deg": 0.8480720700024329,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "tangent\\grazing-cylinders"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.3573736982651547,
+    "hausdorff_rel": 0.020632980089467914,
+    "vertex_rmse": 0.1424865170425163,
+    "vertex_rmse_rel": 0.008226462897038898,
+    "normal_deviation_deg": 3.3480000821044418,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "tangent\\hairline-slot"
+  },
+  {
+    "centroid_error": 0.00028793347317941995,
+    "centroid_error_rel": 1.6621250786322365e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.2579688505853928,
+    "hausdorff_rel": 0.014891512658437259,
+    "vertex_rmse": 0.10000872017090007,
+    "vertex_rmse_rel": 0.005773104462029171,
+    "normal_deviation_deg": 2.9134295121585616,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        -1.0
+      ],
+      "shells": 1,
+      "euler": [
+        4
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        -1.0
+      ],
+      "shells": 1,
+      "euler": [
+        4
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "tangent\\half-balls-overlapping"
+  },
+  {
+    "centroid_error": 0.0003077372806005711,
+    "centroid_error_rel": 8.25925486883555e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.463894484416486,
+    "hausdorff_rel": 0.012450304271115693,
+    "vertex_rmse": 0.18508353484358042,
+    "vertex_rmse_rel": 0.004967393236577846,
+    "normal_deviation_deg": 4.668501459464321,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        1.0
+      ],
+      "shells": 1,
+      "euler": [
+        0
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "tangent\\half-tori-overlapping"
+  },
+  {
+    "centroid_error": 0.00114055954876205,
+    "centroid_error_rel": 1.9562173035895288e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.6859122227149025,
+    "hausdorff_rel": 0.0117643428637708,
+    "vertex_rmse": 0.3094757677789749,
+    "vertex_rmse_rel": 0.005307937254376428,
+    "normal_deviation_deg": 2.160828587192621,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "tangent\\ice-cream-cone"
+  },
+  {
+    "centroid_error": 0.00015470215401548217,
+    "centroid_error_rel": 8.931462419074376e-06,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.2426102687313672,
+    "hausdorff_rel": 0.014006686018340039,
+    "vertex_rmse": 0.10002816509334637,
+    "vertex_rmse_rel": 0.005774953833485613,
+    "normal_deviation_deg": 2.2127637780997262,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "tangent\\inscribed-ball-common"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.34560006316039005,
+    "hausdorff_rel": 0.019953228949760284,
+    "vertex_rmse": 0.137944662670082,
+    "vertex_rmse_rel": 0.007964238812584396,
+    "normal_deviation_deg": 2.2500000665943447,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "tangent\\inscribed-ball-union"
+  },
+  {
+    "centroid_error": 0.0019749985143628075,
+    "centroid_error_rel": 0.00011403151864725918,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.33296385784824384,
+    "hausdorff_rel": 0.019224507810495787,
+    "vertex_rmse": 0.12842607509024279,
+    "vertex_rmse_rel": 0.007415003236684516,
+    "normal_deviation_deg": 2.374378614507264,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "tangent\\knife-edge-dish"
+  },
+  {
+    "centroid_error": 2.4078638285938234e-06,
+    "centroid_error_rel": 1.3901808296106067e-07,
+    "inertia_axes_aligned": true,
+    "hausdorff": 1.8842612057730561,
+    "hausdorff_rel": 0.10878787143766426,
+    "vertex_rmse": 0.6997395139782414,
+    "vertex_rmse_rel": 0.040399479675795553,
+    "normal_deviation_deg": 27.934644486690836,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": false,
+    "case": "tangent\\midsphere-common"
+  },
+  {
+    "centroid_error": 0.0,
+    "centroid_error_rel": 0.0,
+    "inertia_axes_aligned": true,
+    "hausdorff": 0.000764069854759647,
+    "hausdorff_rel": 0.009550868391695723,
+    "vertex_rmse": 0.0002873293190865503,
+    "vertex_rmse_rel": 0.0035916146862441573,
+    "normal_deviation_deg": 0.13451335576996287,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": true,
+    "case": "tangent\\paraboloid-tip-a-ten-thousandth-high"
+  },
+  {
+    "centroid_error": 0.000658197157978521,
+    "centroid_error_rel": 2.1284834547661146e-05,
+    "inertia_axes_aligned": true,
+    "hausdorff": 2.4141740868574164,
+    "hausdorff_rel": 0.07806976281366425,
+    "vertex_rmse": 0.8446415897774091,
+    "vertex_rmse_rel": 0.027314090121112782,
+    "normal_deviation_deg": 20.16277983673514,
+    "topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "ref_topology": {
+      "lumps": 1,
+      "genus": [
+        0.0
+      ],
+      "shells": 1,
+      "euler": [
+        2
+      ]
+    },
+    "thresholds": {
+      "tol_vertex_rel": 0.02,
+      "tol_hausdorff_rel": 0.05,
+      "tol_normal_deg": 20.0
+    },
+    "passed": false,
+    "case": "tangent\\paraboloid-tip-on-face"
+  }
+]

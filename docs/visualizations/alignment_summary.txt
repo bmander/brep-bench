@@ -1,0 +1,35 @@
+BREP Bench - Mesh Alignment Results Summary
+==================================================
+
+Total cases: 201
+Passed: 195
+Failed: 6
+Pass rate: 97.0%
+
+Failed cases:
+  geometry\horn-torus: hausdorff=0.0135, vertex_rmse=0.0059, normal=4.23°
+  loft\square-spire-on-four-guides: hausdorff=0.1130, vertex_rmse=0.0437, normal=34.25°
+  loft\twisted-tapering-square: hausdorff=0.0834, vertex_rmse=0.0228, normal=35.35°
+  tangent\cylinder-inscribed-through-a-cube: hausdorff=0.0838, vertex_rmse=0.0291, normal=26.65°
+  tangent\midsphere-common: hausdorff=0.1087, vertex_rmse=0.0407, normal=28.56°
+  tangent\paraboloid-tip-on-face: hausdorff=0.0781, vertex_rmse=0.0274, normal=20.80°
+
+Category breakdown:
+  boolean: 26/26 passed (100%)
+  chamfer: 5/5 passed (100%)
+  draft: 12/12 passed (100%)
+  edit: 4/4 passed (100%)
+  feature: 4/4 passed (100%)
+  fillet: 8/8 passed (100%)
+  geometry: 19/20 passed (95%)
+  loft: 4/6 passed (67%)
+  nurbs: 6/6 passed (100%)
+  offset: 14/14 passed (100%)
+  parts: 7/7 passed (100%)
+  primitives: 8/8 passed (100%)
+  shell: 29/29 passed (100%)
+  singular: 10/10 passed (100%)
+  spline: 7/7 passed (100%)
+  sweep: 11/11 passed (100%)
+  swept: 6/6 passed (100%)
+  tangent: 15/18 passed (83%)
