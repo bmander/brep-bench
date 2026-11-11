@@ -1020,11 +1020,25 @@ def newton2(s, q, u, v):
                 break
         else:
             du, dv = (G * a - F * b) / det, (E * b - F * a) / det
+        # a step no longer than a quarter of the parameter's span (near a pole the metric
+        # vanishes, and a full step would leave the surface's domain by orders of magnitude)
+        for i, (d, (a, b)) in enumerate(((du, (u0, u1)), (dv, (v0, v1)))):
+            span_ = s.periods[i] or (b - a)
+            if math.isfinite(span_) and abs(d) > span_ / 4:
+                d = math.copysign(span_ / 4, d)
+            if i == 0:
+                du = d
+            else:
+                dv = d
         nu, nv = u + du, v + dv
         if not s.periods[0]:
             nu = min(max(nu, u0), u1)
+        elif math.isfinite(u0):
+            nu = u0 + (nu - u0) % s.periods[0]
         if not s.periods[1]:
             nv = min(max(nv, v0), v1)
+        elif math.isfinite(v0):
+            nv = v0 + (nv - v0) % s.periods[1]
         done = abs(nu - u) < 1e-15 * (1 + abs(u)) and abs(nv - v) < 1e-15 * (1 + abs(v))
         u, v = nu, nv
         if done:
@@ -1736,8 +1750,22 @@ class Face:
         below = [x for x in sing if x < first[1] - eps]
         above = [x for x in sing if x > first[1] + eps]
         # the inner integral from the pole below the face (H is zero along it), to the pole above
-        self.vref = below[-1] if below else above[0] if above else first[1]
-        self.top = next((x for x in sing if x > self.vref + eps), None)
+        if not any(ps for ps in paths) and len(sing) > 1:
+            # bounded by points alone (a whole sphere): from one pole to the next
+            # (on a closed profile, the half from its start, as it was drawn)
+            lo0 = s.domain[1][0] if math.isfinite(s.domain[1][0]) else 0.0
+            self.vref = sing[0] if not s.periods[1] else \
+                max((x for x in sing if x <= lo0 + 1e-12), default=sing[0])
+        else:
+            # the pole nearer the face, so that a small face by a pole is not the difference of
+            # the whole surface and most of it
+            near = min(below[-1:] + above[:1], key=lambda x: abs(x - first[1]), default=None)
+            self.vref = near if near is not None else first[1]
+        if any(ps for ps in paths) and below and self.vref == (above[:1] or [None])[0]:
+            # the top: the pole on the face's other side (below it)
+            self.top = below[-1]
+        else:
+            self.top = next((x for x in sing if x > self.vref + eps), None)
         total = [0.0] * NM
         for ps in paths:
             for p in ps:
@@ -2023,12 +2051,33 @@ def face_loops(m, f, s, scale):
     return loops
 
 
+def collapsed(s, uv, scale):
+    """Record a pole the surface did not know of at the point `uv` of a loop: a line of the surface
+    through it, inside its domain, collapsed to that point (a cone's apex where the surface runs
+    on past it)."""
+    if not isinstance(s, (BSplineSurface, Swept, Offset)):
+        return
+    for axis in (0, 1):
+        fixed = uv[1 - axis]
+        if any(ax == 1 - axis and abs(val - fixed) < 1e-9 for _, ax, val in s.singular):
+            continue
+        lo, hi = s.domain[axis]
+        if not (math.isfinite(lo) and math.isfinite(hi)):
+            continue
+        ps = [s.ev(*((lo + (hi - lo) * k / 8, fixed) if axis == 0 else
+                     (fixed, lo + (hi - lo) * k / 8)))[0] for k in range(9)]
+        if max(norm(sub(q, ps[0])) for q in ps) < 1e-7 * scale:
+            s.singular = tuple(s.singular) + ((ps[0], 1 - axis, fixed),)
+
+
 def join(s, paths, scale):
     """A loop's paths joined end to start on the (u, v) plane: each moved by whole periods to
     meet the last, a path along a singular line inserted where the loop passes through a pole;
     and how many times the loop winds round each period. (paths, (wu, wv))."""
     if not paths:
         raise Unsupported("an empty loop")
+    for p in paths:
+        collapsed(s, p.start, scale)
     out = [paths[0]]
     for p in paths[1:]:
         prev = out[-1].end
@@ -2057,6 +2106,21 @@ def gap(s, out, a, b, scale):
         if norm(sub(S1, p)) < 1e-6 * scale:
             out.append(Path(s, line=(a, b)))
             return
+    # a line of the surface collapsed to a point inside its domain (a cone's apex where the surface
+    # runs on past it): a pole the surface did not know of
+    for axis in (0, 1):
+        d_ = (du, dv)[axis]
+        if abs(d_) > 1e-7 and abs((du, dv)[1 - axis]) < 1e-7:
+            fixed = a[1 - axis]
+            lo, hi = s.domain[axis]
+            if not (math.isfinite(lo) and math.isfinite(hi)):
+                lo, hi = min(a[axis], b[axis]), max(a[axis], b[axis])
+            ps = [s.ev(*((lo + (hi - lo) * k / 8, fixed) if axis == 0 else
+                         (fixed, lo + (hi - lo) * k / 8)))[0] for k in range(9)]
+            if max(norm(sub(q, ps[0])) for q in ps) < 1e-7 * scale:
+                s.singular = tuple(s.singular) + ((ps[0], 1 - axis, fixed),)
+                out.append(Path(s, line=(a, b)))
+                return
     if norm(sub(S1, s.ev(*b)[0])) < 1e-5 * scale:
         # the same point to within a writer's tolerance (an edge's curve ending a hair from its
         # vertex), or apart in (u, v) where the surface's parameters run off (a closed B-spline
@@ -2072,7 +2136,8 @@ def measure(text):
     m = Model(text)
     faces, nsolids = faces_of(m)
     centre, scale = bounding(m)
-    total = [0.0] * NM
+    # each face's loops on its surface first
+    found = []
     for f, sense in faces:
         fn, fa = m.one(f)
         if fn in ("ADVANCED_FACE", "FACE_SURFACE"):
@@ -2091,7 +2156,22 @@ def measure(text):
         else:
             raise Unsupported(f"a face {fn}")
         try:
-            loops = face_loops(m, f, s, scale)
+            found.append((f, s, face_loops(m, f, s, scale), same, sense))
+        except Unsupported as e:
+            raise type(e)(f"face #{f}: {e}") from None
+    # the measures about the middle of the solid's own edges, their tolerances by its size: the
+    # file's other points (a sphere's centre, a placement's origin) may lie far off a small solid
+    # whose measures are the small differences of its faces'
+    edge = [p.c.point(t) for _, _, loops, _, _ in found for ps, _ in loops for p in ps
+            if not p.line for t, _ in p.ref[::4]]
+    if edge and all(any(ps for ps, _ in loops) for _, _, loops, _, _ in found):
+        lo = tuple(min(q[i] for q in edge) for i in range(3))
+        hi = tuple(max(q[i] for q in edge) for i in range(3))
+        if norm(sub(hi, lo)) > 0:
+            centre, scale = mul(add(lo, hi), 0.5), norm(sub(hi, lo))
+    total = [0.0] * NM
+    for f, s, loops, same, sense in found:
+        try:
             part = Face(s, loops, same, centre, scale).measure()
         except Unsupported as e:
             raise type(e)(f"face #{f}: {e}") from None
