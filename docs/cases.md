@@ -119,13 +119,14 @@ a bend past its own radius, so that the moved bend turns inside out and is no pa
 Solids hollowed to a wall of constant thickness, open at some of their faces or closed around a
 void. They run from a box open at its top, at two faces opposite or sharing an edge, or at every
 face but one, through walls grown outward rounded or sharp and an L's inside corner rounded or kept
-sharp, to the thickness at its limits: walls that meet at half the width and hollow nothing, a
-slot 0.02 wide, a wall 0.001 thick, rounds shrunk to an edge or consumed, a neck whose walls cross
-and fill it, and a bore's tube running into a wall. Curved walls bring a cup, a bowl through its
-pole, a cone's apex moved in, a capsule open at a dome tangent to its side, a torus hollowed and
-one halved into a pipe, a bore opened into a hollow block, a cylinder open at its side that falls
-into two disks, and a ball cut by a plane whose cavity reaches it aslant, through a pinhole, or not
-at all.
+sharp, to the thickness at its limits: walls that meet at half the width and hollow nothing, a slot
+0.02 wide, a wall 0.001 thick, rounds shrunk to an edge or consumed, a neck whose walls cross and
+fill it, and a bore's tube running into a wall. Curved walls bring a cup, a bowl through its pole, a
+cone's apex moved in, a cone frustum whose cavity closes to a point below its opening, seals into a
+ring against a bore, or is never made at all, a capsule open at a dome tangent to its side, a torus
+hollowed and one halved into a pipe, a bore opened into a hollow block, a cylinder open at its side
+that falls into two disks, and a ball cut by a plane whose cavity reaches it aslant, through a
+pinhole, or not at all.
 
 ## Geometry (`geometry/`)
 
