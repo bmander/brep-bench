@@ -11,7 +11,8 @@
 //! popkern's gate tessellation (the mesh `assert_watertight` checks), welded by popkern's own weld.
 //! Asked for `OUT.step`, the runner also writes the part there with popkern's own STEP writer,
 //! `Part::step_bytes` (what `Part::export_step` writes: `popkern_io::export_step`, AP214), or says
-//! in `step_error` why the writer declined it.
+//! in `step_error` why the writer declined it. Given OUT.step, the STEP is the whole answer: it is
+//! written, and nothing is measured or meshed unless the writer declines.
 //!
 //! popkern sorts its own errors: a feature the kernel declines (`FeatureFailed`, `BooleanFailed`,
 //! …) is a refusal, in popkern's words. So is a script's own `throw "…"`: a case that refuses,
@@ -22,7 +23,7 @@ use popkern_assembly::Document;
 use popkern_analysis::FaceId;
 use popkern_analysis_brep::weld::{WeldedMesh, weld};
 use popkern_core::geometry::surface::SurfaceGeometry;
-use popkern_part::PartError;
+use popkern_part::{Part, PartError};
 use popkern_rhai::outcome::{self, Outcome};
 use popkern_rhai::{HostOptions, ScriptHost};
 use serde_json::{Value, json};
@@ -73,8 +74,25 @@ fn kind(surface: &SurfaceGeometry) -> &'static str {
     }
 }
 
+/// With `out_step`, `part` written there as STEP; why popkern's writer would not, if it would not.
+fn step(part: &Part, out_step: Option<&Path>) -> Result<Option<String>, Failure> {
+    if let Some(path) = out_step {
+        // the product is named for the file's stem, as `Part::export_step` names it; the writer's
+        // refusal is its own error, without the file name `PartError::Io` wraps it in
+        let product = path.file_stem().map_or("part".into(), |s| s.to_string_lossy());
+        match part.step_bytes(&product) {
+            Ok(step) => std::fs::write(path, step)
+                .map_err(|e| Failure::Fault(format!("no STEP written: {e}")))?,
+            Err(PartError::Io { source, .. }) => return Ok(Some(source.to_string())),
+            Err(e) => return Ok(Some(e.to_string())),
+        }
+    }
+    Ok(None)
+}
+
 /// Run the case's script and report the part it built, its triangles written to `out`; with
-/// `out_step`, the part written there as STEP, or why popkern's writer would not (`step_error`).
+/// `out_step`, the part written there as STEP (`step`). A STEP written is the whole answer: nothing
+/// is then measured or meshed.
 fn build(script: &Path, out: &str, out_step: Option<&Path>) -> Result<Value, Failure> {
     let source = std::fs::read_to_string(script)
         .map_err(|e| Failure::Fault(format!("{}: {e}", script.display())))?;
@@ -95,6 +113,12 @@ fn build(script: &Path, out: &str, out_step: Option<&Path>) -> Result<Value, Fai
         return Err(Failure::Fault("the script built an assembly, not a part".into()));
     };
     let part = model.to_part().map_err(|e| Failure::Refused(e.to_string()))?;
+    // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
+    // measured or meshed; only where the writer declines does the runner go on to its triangles
+    let declined = step(&part, out_step)?;
+    if out_step.is_some() && declined.is_none() {
+        return Ok(json!({"status": "ok"}));
+    }
     let brep = part.brep();
     let tolerance = part.tolerance();
     let volume = popkern_measure::body_volume(brep, &tolerance)
@@ -117,16 +141,8 @@ fn build(script: &Path, out: &str, out_step: Option<&Path>) -> Result<Value, Fai
     write_stl(&welded, Path::new(out)).map_err(|e| Failure::Fault(format!("no STL written: {e}")))?;
     let mut reply =
         json!({"status": "ok", "volume": volume, "area": area, "faces": faces, "valid": valid});
-    if let Some(path) = out_step {
-        // the product is named for the file's stem, as `Part::export_step` names it; the writer's
-        // refusal is its own error, without the file name `PartError::Io` wraps it in
-        let product = path.file_stem().map_or("part".into(), |s| s.to_string_lossy());
-        match part.step_bytes(&product) {
-            Ok(step) => std::fs::write(path, step)
-                .map_err(|e| Failure::Fault(format!("no STEP written: {e}")))?,
-            Err(PartError::Io { source, .. }) => reply["step_error"] = json!(source.to_string()),
-            Err(e) => reply["step_error"] = json!(e.to_string()),
-        }
+    if let Some(why) = declined {
+        reply["step_error"] = json!(why);
     }
     Ok(reply)
 }

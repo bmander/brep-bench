@@ -5,11 +5,11 @@
 //! The mill is its half section turned about its axis (the round a quarter circle, drawn as the
 //! rational quadratic it is); what it passes through is cadrs's sweep of a solid (one slide), cut
 //! from the block.
-use crate::bench::{block, cut, p3, plane, v3};
+use crate::bench::{block, cut, p3, v3};
 use crate::shared::geometry::Section;
 use crate::shared::swept::slid;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let b = block(k, p3(-8.0, -8.0, -8.0), p3(8.0, 8.0, 0.0))?;
@@ -18,7 +18,7 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     // The half section in the plane through the axis and y = 0: sketch x along the radius
     // (square to a in that plane), sketch y along a.
     let radial = v3(1.0, 0.0, 0.0) - a * a.x;
-    let on = plane(c, radial, radial.cross(&a));
+    let on = Plane::new(c, radial, radial.cross(&a));
     let section = Section::on(on)
         .line((0.0, 0.0), (1.5, 0.0))
         .conic((1.5, 0.0), (2.0, 0.0), 2f64.sqrt() / 2.0, (2.0, 0.5))

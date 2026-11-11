@@ -6,14 +6,14 @@
 //!
 //! The drum a circle extruded; the flange an annulus sketched at z = 2.2 and extruded 1.6,
 //! united with it; then cadrs's offset inward.
-use crate::bench::{cylinder, extrude, p3, round, sketch_with_holes, union, v3, xy};
+use crate::bench::{cylinder, extrude, p3, union, v3};
 use crate::shared::offset::shrunk;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let drum = cylinder(k, p3(0.0, 0.0, 0.0), v3(0.0, 0.0, 1.0), 8.0, 6.0)?;
-    let ring = sketch_with_holes(xy(2.2), round((0.0, 0.0), 11.0), vec![round((0.0, 0.0), 8.0)]);
+    let ring = Profile::with_holes(Plane::xy(2.2), Loop::circle([0.0, 0.0], 11.0), vec![Loop::circle([0.0, 0.0], 8.0)]);
     let flange = extrude(k, &ring, 1.6)?;
     let part = union(k, drum, flange)?;
     shrunk(k, part, 1.0)

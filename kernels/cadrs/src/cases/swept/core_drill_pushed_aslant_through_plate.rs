@@ -5,16 +5,16 @@
 //!
 //! The tube is its annulus sketched square to u and extruded 12; what it passes through is cadrs's
 //! sweep of a solid (one slide), cut from the plate (two solids).
-use crate::bench::{block, cut, extrude, p3, round, sketch_with_holes, square_to, v3, P3};
+use crate::bench::{block, cut, extrude, p3, v3, P3};
 use crate::shared::swept::slid;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let plate = block(k, p3(-10.0, -10.0, 0.0), p3(10.0, 10.0, 4.0))?;
     let u = v3(30f64.to_radians().sin(), 0.0, 30f64.to_radians().cos());
     let from = P3::new(0.0, 0.0, 2.0) - u * 18.0;
-    let ring = sketch_with_holes(square_to(from, u), round((0.0, 0.0), 2.5), vec![round((0.0, 0.0), 1.5)]);
+    let ring = Profile::with_holes(Plane::square_to(from, u), Loop::circle([0.0, 0.0], 2.5), vec![Loop::circle([0.0, 0.0], 1.5)]);
     let tube = extrude(k, &ring, 12.0)?;
     let swept = slid(k, tube, u * 24.0)?;
     cut(k, plate, swept)

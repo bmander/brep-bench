@@ -5,13 +5,13 @@
 //! above the plane is cut away with a block: a
 //! square of side 40 sketched on the plane itself, extruded 20 along its normal (−3, 0, 4)/5,
 //! away from the kept side, reaching past the torus.
-use crate::bench::{cut, extrude, p3, plane, rectangle, sketch, torus, v3};
+use crate::bench::{cut, extrude, p3, torus, v3};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let ring = torus(k, p3(0.0, 0.0, 0.0), v3(0.0, 0.0, 1.0), 5.0, 3.0)?;
-    let on = plane(p3(0.0, 0.0, 0.0), v3(4.0, 0.0, 3.0), v3(-3.0, 0.0, 4.0));
-    let above = extrude(k, &sketch(on, vec![rectangle(-20.0, -20.0, 20.0, 20.0)]), 20.0)?;
+    let on = Plane::new(p3(0.0, 0.0, 0.0), v3(4.0, 0.0, 3.0), v3(-3.0, 0.0, 4.0));
+    let above = extrude(k, &Profile::of(on, vec![Loop::rectangle(-20.0, -20.0, 20.0, 20.0)]), 20.0)?;
     cut(k, ring, above)
 }

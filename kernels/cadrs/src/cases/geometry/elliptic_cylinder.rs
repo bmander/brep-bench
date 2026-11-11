@@ -3,12 +3,11 @@
 //! z = 10. It has two flat elliptic ends and one curved side.
 //!
 //! Built as cadrs's Part Studio builds it: an ellipse sketched on the Top plane, extruded 10.
-use crate::bench::{extrude, sketch, xy};
-use crate::shared::geometry::ellipse;
+use crate::bench::extrude;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let s = sketch(xy(0.0), vec![ellipse((0.0, 0.0), 5.0, 3.0)]);
+    let s = Profile::of(Plane::xy(0.0), vec![Loop::ellipse([0.0, 0.0], 5.0, 3.0)]);
     extrude(k, &s, 10.0)
 }

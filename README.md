@@ -20,21 +20,22 @@ self-intersecting curves, chamfers, splines, NURBS, quadrics and pinched tori, s
 offsets, thickened sheets, shells, drafts, form features, singular points, direct edits, filled
 surfaces, real parts and an integration test, the Utah teapot ([a tour](docs/cases.md)).
 
-A runner builds the case, writes its triangles as STL, and reports the solid's volume and area. It
-**passes** when:
-
-- volume and area are within 1e-6 (relative) of the expected values, or 1e-3 for a kernel that can
-  only measure its mesh;
-- the mesh is closed, consistently oriented, and encloses the expected volume to within 2%.
+A runner builds the case and writes the solid as STEP with its kernel's own writer, and is timed
+on that alone: a kernel's product is a B-rep, not a mesh. The harness then measures the file's solid
+itself, untimed, from its exact geometry (its volume, area, centre of gravity and inertia), and it
+**passes** when the file holds a closed solid, right side out, whose volume and area are within
+1e-6 (relative) of the expected values. A kernel with no STEP to give writes its triangles as
+STL and reports its own measures instead, and passes when they are within 1e-6 (1e-3 for a kernel
+that can only measure its mesh) and the mesh is closed, consistently oriented, and encloses the
+expected volume to within 2%.
 
 A case with no closed form is *unsettled* until two independent kernels agree on it to 1e-8; until
 then a sound result is graded **built**. A result that works around a missing feature (a ball
 revolved from a half disk, for a kernel with no sphere) is marked † as a **workaround**; one that
 stands out as especially clean, or for an idea in its kernel's API, is marked ✦ as **elegant**. A solid stored as a mesh in B-rep form, with many times the faces the
 other kernels' solids have, is marked ▦ as **faceted**.
-**Refused** ranks above **wrong**. Each solid is also written as STEP with its kernel's own
-writer, and the file judged (a closed B-rep, faceted, open, or refused by the writer), which is
-shown but not graded. The full rules are in [SPEC.md](SPEC.md).
+**Refused** ranks above **wrong**. Each STEP file is also judged (a closed B-rep, faceted, open, or
+refused by the writer), and shown. The full rules are in [SPEC.md](SPEC.md).
 
 ## Running it
 
@@ -46,7 +47,8 @@ python3 harness/site.py          # render the board: site/
 python3 -m http.server -d site   # serve it
 ```
 
-The harness needs only Python 3.11+; each runner needs its kernel's toolchain. `build.py NAME` and
+The harness needs only Python 3.11+ (and, for the drawings' and the viewer's triangles of each STEP
+file, Open CASCADE: `pip install cadquery-ocp`); each runner needs its kernel's toolchain. `build.py NAME` and
 `run.py --kernel NAME` build and run one kernel. CI does not run on pull requests, so run your
 changes locally. See [running the bench](docs/running.md) for more.
 

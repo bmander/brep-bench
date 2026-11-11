@@ -3,13 +3,8 @@
 use crate::bench::{unit, V3};
 use crate::Refusal;
 use cadrs_kernel::{
-    Axis, BodyId, DefaultKernel, ExtrudeEnd, ExtrudeSpec, Kernel, OpResult, Profile, RevolveEnd,
-    RevolveSpec,
+    Axis, BodyId, DefaultKernel, ExtrudeEnd, ExtrudeSpec, Kernel, Profile, RevolveEnd, RevolveSpec,
 };
-
-fn first(r: OpResult) -> Result<BodyId, Refusal> {
-    r.bodies.first().copied().ok_or_else(|| Refusal::from("the feature made no body"))
-}
 
 /// `profile` extruded along `dir` to `end`, the bodies of `scene` the ones "Up to next"
 /// considers.
@@ -20,10 +15,7 @@ pub fn extrude_to(
     end: ExtrudeEnd,
     scene: &[BodyId],
 ) -> Result<BodyId, Refusal> {
-    let mut spec = ExtrudeSpec::blind(unit(dir), 0.0);
-    spec.end = end;
-    spec.scene = scene.to_vec();
-    first(k.extrude_with(profile, &spec)?)
+    Ok(k.extrude_with(profile, &ExtrudeSpec::up_to(unit(dir), end, scene))?.first()?)
 }
 
 /// `profile` revolved about `axis` (right-handed) to `end`, the bodies of `scene` the ones "Up to
@@ -35,8 +27,5 @@ pub fn revolve_to(
     end: RevolveEnd,
     scene: &[BodyId],
 ) -> Result<BodyId, Refusal> {
-    let mut spec = RevolveSpec::solid(axis, Some(0.0));
-    spec.end = end;
-    spec.scene = scene.to_vec();
-    first(k.revolve_with(profile, &spec)?)
+    Ok(k.revolve_with(profile, &RevolveSpec::up_to(axis, end, scene))?.first()?)
 }

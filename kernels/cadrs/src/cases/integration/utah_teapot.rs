@@ -10,7 +10,6 @@
 //! face is cadrs's Fill of its loop of cubic Bézier curves, sketched on its plane (`Kernel::fill`);
 //! each solid its faces sewn (`Kernel::sew_solid`); the teapot the four united.
 use crate::bench::{union, P3, V3};
-use crate::shared::sweep::first;
 use crate::Refusal;
 use cadrs_kernel::{BodyId, BsplineSurface, Curve2, DefaultKernel, FillCurve, FillSpec, Kernel, Plane};
 use nalgebra::{Point2, Unit};
@@ -92,7 +91,7 @@ fn patch(k: &mut DefaultKernel, p: &Patch) -> Result<BodyId, Refusal> {
         poles: p.iter().map(|row| row.iter().map(|&q| pt(q)).collect()).collect(),
         weights: Vec::new(),
     };
-    first(k.bspline_face(&surface, None)?)
+    Ok(k.bspline_face(&surface, None)?.first()?)
 }
 
 /// The flat face inside the closed loop of cubic Bézier curves `rows`, on the plane through the
@@ -112,14 +111,14 @@ fn cap(k: &mut DefaultKernel, rows: &[Row], normal: V3) -> Result<BodyId, Refusa
         .iter()
         .map(|r| FillCurve::Sketch { plane, curve: Curve2::Bezier { poles: r.map(at), source: None } })
         .collect();
-    first(k.fill(&FillSpec { curves, source: 1 })?)
+    Ok(k.fill(&FillSpec { curves, source: 1 })?.first()?)
 }
 
 /// The solid `patches` and `caps` bound.
 fn solid(k: &mut DefaultKernel, patches: &[Patch], caps: Vec<BodyId>) -> Result<BodyId, Refusal> {
     let mut faces = patches.iter().map(|p| patch(k, p)).collect::<Result<Vec<_>, _>>()?;
     faces.extend(caps);
-    first(k.sew_solid(&faces, 1e-6)?)
+    Ok(k.sew_solid(&faces, 1e-6)?.first()?)
 }
 
 /// The normal of the plane of a row (through its ends and its second control point).

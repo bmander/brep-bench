@@ -7,10 +7,10 @@
 //! the length travelled, here to the angle); the hole, a square of half-width 7 scaled to 4, is
 //! swept the same way along the arc run on a degree past each end (its law run on with it), so
 //! it cuts through the outside's flat ends.
-use crate::bench::{arc, cut, p2, p3, plane, rectangle, sketch, v3, xy};
-use crate::shared::sweep::{on, sweep_law};
+use crate::bench::{arc, cut, p2, p3, v3};
+use crate::shared::sweep::sweep_law;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, PathCurve, Plane, Profile};
 
 /// The square of half-width `h` about the arc's point at `start` degrees, in the vertical plane
 /// through the z axis there, swept along the arc to `end` degrees, its half-width running
@@ -25,10 +25,10 @@ fn square_along(
     let (s, c) = start.to_radians().sin_cos();
     // The plane through the z axis at `start`, its sketch x out from the axis and y up z.
     let radial = v3(c, s, 0.0);
-    let on_plane = plane(p3(0.0, 0.0, 0.0), radial, radial.cross(&v3(0.0, 0.0, 1.0)));
+    let on_plane = Plane::new(p3(0.0, 0.0, 0.0), radial, radial.cross(&v3(0.0, 0.0, 1.0)));
     let hs = h(start);
-    let profile = sketch(on_plane, vec![rectangle(30.0 - hs, -hs, 30.0 + hs, hs)]);
-    let path = vec![on(xy(0.0), arc(p2(0.0, 0.0), 30.0, start, end - start))];
+    let profile = Profile::of(on_plane, vec![Loop::rectangle(30.0 - hs, -hs, 30.0 + hs, hs)]);
+    let path = vec![PathCurve::sketch(Plane::xy(0.0), arc(p2(0.0, 0.0), 30.0, start, end - start))];
     sweep_law(k, &profile, path, 0.0, h(end) / hs)
 }
 

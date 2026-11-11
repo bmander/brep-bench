@@ -8,17 +8,17 @@
 //! φ about the y axis together, φ from −60° to 60° (its pitch point at rest on the circle).
 //! cadrs's `Kernel::sweep_solid` with that planar motion gives what the tooth fills, cut from the
 //! blank.
-use crate::bench::{cut, extrude, p3, plane, polygon, round, sketch, v3};
+use crate::bench::{cut, extrude, p3, v3};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel, Kernel, PlanarStep, SolidMotion};
+use cadrs_kernel::{BodyId, DefaultKernel, Kernel, Loop, PlanarStep, Plane, Profile, SolidMotion};
 use std::f64::consts::PI;
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     // Planes square to y with sketch x along the model's x and sketch y along its z.
-    let at = |y: f64| plane(p3(0.0, y, 0.0), v3(1.0, 0.0, 0.0), v3(0.0, -1.0, 0.0));
-    let blank = extrude(k, &sketch(at(0.0), vec![round((0.0, 0.0), 22.0)]), -6.0)?;
+    let at = |y: f64| Plane::new(p3(0.0, y, 0.0), v3(1.0, 0.0, 0.0), v3(0.0, -1.0, 0.0));
+    let blank = extrude(k, &Profile::of(at(0.0), vec![Loop::circle([0.0, 0.0], 22.0)]), -6.0)?;
     let tooth = [(18.0, -0.842856), (24.0, -3.026666), (24.0, 3.026666), (18.0, 0.842856)];
-    let rack = extrude(k, &sketch(at(-2.0), vec![polygon(&tooth)]), -10.0)?;
+    let rack = extrude(k, &Profile::of(at(-2.0), vec![Loop::polygon(&tooth.map(|(x, y)| [x, y]))]), -10.0)?;
     let (f0, f1) = (-PI / 3.0, PI / 3.0);
     let motion = SolidMotion::Planar {
         normal: crate::bench::unit(v3(0.0, 1.0, 0.0)),

@@ -4,16 +4,16 @@
 //!
 //! The mill is its half section turned about its axis; what it passes through is cadrs's sweep of
 //! a solid along a path (exact: an upright solid of revolution's slot), cut from the block.
-use crate::bench::{block, cut, p3, v3, xz};
+use crate::bench::{block, cut, p3, v3};
 use crate::shared::geometry::Section;
 use crate::shared::swept::{bezier_path, carried};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let b = block(k, p3(-10.0, -10.0, -8.0), p3(30.0, 25.0, 0.0))?;
     let w = 2f64.sqrt() / 2.0;
-    let section = Section::on(xz(0.0))
+    let section = Section::on(Plane::xz(0.0))
         .line((0.0, -1.5), (1.5, -1.5))
         .conic((1.5, -1.5), (2.0, -1.5), w, (2.0, -1.0))
         .line((2.0, -1.0), (2.0, 5.0))

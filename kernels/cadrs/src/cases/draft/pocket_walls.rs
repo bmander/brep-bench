@@ -5,18 +5,16 @@
 //!
 //! The rectangle extruded; the pocket a rectangle sketched on the top face and extruded 10 down,
 //! cut; then cadrs's Draft of the pocket's walls (leaning into the material: a positive angle).
-use crate::bench::{block, cut, extrude, faces_at, p3, rectangle, sketch, v3, xy};
+use crate::bench::{block, cut, extrude, p3, v3};
 use crate::shared::draft::drafted;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Pick, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let b = block(k, p3(0.0, 0.0, 0.0), p3(40.0, 30.0, 15.0))?;
-    let pocket = extrude(k, &sketch(xy(15.0), vec![rectangle(8.0, 8.0, 32.0, 22.0)]), -10.0)?;
+    let pocket = extrude(k, &Profile::of(Plane::xy(15.0), vec![Loop::rectangle(8.0, 8.0, 32.0, 22.0)]), -10.0)?;
     let part = cut(k, b, pocket)?;
-    let walls = faces_at(
-        k,
-        part,
+    let walls = k.faces_at(part,
         &[p3(8.0, 15.0, 10.0), p3(32.0, 15.0, 10.0), p3(20.0, 8.0, 10.0), p3(20.0, 22.0, 10.0)],
     )?;
     drafted(k, part, walls, 5.0, v3(0.0, 0.0, 1.0), p3(0.0, 0.0, 5.0))

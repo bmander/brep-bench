@@ -7,7 +7,6 @@
 //! solid (one slide), cut from the plate.
 use crate::bench::{block, cut, p3, v3};
 use crate::shared::swept::slid;
-use crate::shared::sweep::first;
 use cadrs_kernel::Kernel;
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};
@@ -20,7 +19,7 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
         v3(-2.0, 2.0, 1.0) / 3.0,
         v3(1.0, 2.0, -2.0) / 3.0,
     ]);
-    let tilted = first(k.transform_affine(local, m, v3(-2.0, -1.0, -8.0))?)?;
+    let tilted = k.transform_affine(local, m, v3(-2.0, -1.0, -8.0))?.first()?;
     let swept = slid(k, tilted, v3(4.0, 2.0, 18.0))?;
     cut(k, plate, swept)
 }

@@ -7,10 +7,10 @@
 //! The octahedron is two square pyramids, each the square through its corners in z = 0 lofted
 //! to a point, united; then twelve Chamfer features, one per edge, each edge picked again on the
 //! body the chamfers before it left, by the point at its middle.
-use crate::bench::{edge_at, p3};
+use crate::bench::p3;
 use crate::shared::chamfer::{chamfer, octahedron};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, ChamferSpec, DefaultKernel};
+use cadrs_kernel::{BodyId, ChamferSpec, DefaultKernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let mut body = octahedron(k, 10.0)?;
@@ -20,7 +20,7 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
         p3(5.0, 0.0, -5.0), p3(-5.0, 0.0, -5.0), p3(0.0, 5.0, -5.0), p3(0.0, -5.0, -5.0),
     ];
     for m in middles {
-        let edge = edge_at(k, body, m)?;
+        let edge = k.edge_at(body, m)?;
         body = chamfer(k, body, &[edge], ChamferSpec::EqualDistance(6f64.sqrt()))?;
     }
     Ok(body)

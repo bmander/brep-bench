@@ -6,15 +6,15 @@
 //!
 //! The L is sketched on the Front plane and extruded along +y; the inside edge is picked by a
 //! point on it and chamfered, equal distance 7.
-use crate::bench::{edge_at, extrude, p3, polygon, sketch, xz};
+use crate::bench::{extrude, p3};
 use crate::shared::chamfer::chamfer;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, ChamferSpec, DefaultKernel};
+use cadrs_kernel::{BodyId, ChamferSpec, DefaultKernel, Loop, Pick, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let l = polygon(&[(0.0, 0.0), (10.0, 0.0), (10.0, 3.0), (3.0, 3.0), (3.0, 10.0), (0.0, 10.0)]);
+    let l = Loop::polygon(&[[0.0, 0.0], [10.0, 0.0], [10.0, 3.0], [3.0, 3.0], [3.0, 10.0], [0.0, 10.0]]);
     // the Front plane's normal is −y: extrude against it, along +y
-    let block = extrude(k, &sketch(xz(0.0), vec![l]), -10.0)?;
-    let inside = edge_at(k, block, p3(3.0, 5.0, 3.0))?;
+    let block = extrude(k, &Profile::of(Plane::xz(0.0), vec![l]), -10.0)?;
+    let inside = k.edge_at(block, p3(3.0, 5.0, 3.0))?;
     chamfer(k, block, &[inside], ChamferSpec::EqualDistance(7.0))
 }

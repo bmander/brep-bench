@@ -7,14 +7,14 @@
 //! and its seam toward +y: away from the cup's (the parabola turned, in the xz plane), whose seam
 //! it would otherwise touch to fourth order out of the point of contact, the two within 10⁻⁷ of
 //! each other for a tenth of a unit (a boolean then sees them overlap there).
-use crate::bench::{ball_oriented, p3, union, v3, xz};
+use crate::bench::{ball_oriented, p3, union, v3};
 use crate::shared::geometry::{turned_about_z, Section};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let a = 50f64.sqrt();
-    let section = Section::on(xz(0.0))
+    let section = Section::on(Plane::xz(0.0))
         .bezier(&[(0.0, 0.0), (a / 2.0, 0.0), (a, 5.0)], &[])
         .line((a, 5.0), (0.0, 5.0))
         .line((0.0, 5.0), (0.0, 0.0));

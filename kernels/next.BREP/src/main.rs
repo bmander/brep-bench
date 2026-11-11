@@ -9,8 +9,10 @@
 //! the solid to `OUT.step` with the kernel's own STEP writer, `export_step`, AP242) and prints one
 //! line of JSON: the kernel's own measures of the solid (`solid_mass_properties`, integrated from
 //! the B-rep), its faces by surface kind and whether it passes the kernel's validation, or a
-//! refusal. A kernel error is a refusal: the kernel declined, saying why. A case may also refuse in
-//! its own words, where the kernel has no operation for what it describes.
+//! refusal. Given OUT.step, the STEP is the whole answer: it is written, and nothing is measured or
+//! meshed unless the writer declines. A kernel error is a refusal: the kernel declined, saying why.
+//! A case may also refuse in its own words, where the kernel has no operation for what it
+//! describes.
 use brep_kernel::{
     export_step, solid_mass_properties, tessellate_brep_watertight, write_binary_stl, AnalyticSurface,
     BrepSolid, KernelRefusal,
@@ -177,10 +179,29 @@ fn ascii_stl(points: &[[f64; 3]], indices: &[u32]) -> Vec<u8> {
     text.into_bytes()
 }
 
+/// With `out_step`, `solid` written there as STEP; why the kernel's writer would not, if it would not.
+fn step(solid: &BrepSolid, out_step: Option<&str>, case: &str) -> Option<String> {
+    if let Some(path) = out_step {
+        // the body is in millimetres, the unit the file is labelled with; no time stamp, so the
+        // same case writes the same file
+        match export_step(std::slice::from_ref(solid), case, "millimeter", "") {
+            Ok(step) => std::fs::write(path, step).expect("the STEP file writes"),
+            Err(e) => return Some(e),
+        }
+    }
+    None
+}
+
 /// The measures, face kinds and validity of `solid`, its triangles written to `out`; with
-/// `out_step`, the solid written there as STEP, or why the kernel's writer would not
-/// (`step_error`).
+/// `out_step`, the solid written there as STEP (`step`). A STEP written is the whole answer:
+/// nothing is then measured or meshed.
 fn report(solid: &BrepSolid, out: &str, out_step: Option<&str>, case: &str) -> Result<Value, Refusal> {
+    // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
+    // measured or meshed; only where the writer declines does the runner go on to its triangles
+    let declined = step(solid, out_step, case);
+    if out_step.is_some() && declined.is_none() {
+        return Ok(json!({"status": "ok"}));
+    }
     let props = solid_mass_properties(solid).map_err(|e| format!("not measured: {e}"))?;
     let mut faces: BTreeMap<&str, usize> = BTreeMap::new();
     for face in solid.shells.iter().flat_map(|s| &s.faces) {
@@ -193,13 +214,8 @@ fn report(solid: &BrepSolid, out: &str, out_step: Option<&str>, case: &str) -> R
         "status": "ok", "volume": props.volume, "area": props.surface_area, "faces": faces,
         "valid": valid,
     });
-    if let Some(path) = out_step {
-        // the body is in millimetres, the unit the file is labelled with; no time stamp, so the
-        // same case writes the same file
-        match export_step(std::slice::from_ref(solid), case, "millimeter", "") {
-            Ok(step) => std::fs::write(path, step).expect("the STEP file writes"),
-            Err(e) => reply["step_error"] = json!(e),
-        }
+    if let Some(why) = declined {
+        reply["step_error"] = json!(why);
     }
     Ok(reply)
 }

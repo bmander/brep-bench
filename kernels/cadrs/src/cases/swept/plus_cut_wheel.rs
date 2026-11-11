@@ -6,18 +6,18 @@
 //! with the frame, by 2t/3 about the wheel's axis: cadrs's `Kernel::sweep_solid` with that planar
 //! motion (its sides' envelopes and its corners' paths, the region they bound extruded through
 //! the plus's height) gives what the plus fills, cut from the wheel.
-use crate::bench::{cut, extrude, p3, polygon, round, sketch, xy};
+use crate::bench::{cut, extrude, p3};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel, Kernel, PlanarStep, SolidMotion};
+use cadrs_kernel::{BodyId, DefaultKernel, Kernel, Loop, PlanarStep, Plane, Profile, SolidMotion};
 use std::f64::consts::PI;
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let wheel = extrude(k, &sketch(xy(-8.0), vec![round((-50.0, 0.0), 40.0)]), 6.0)?;
+    let wheel = extrude(k, &Profile::of(Plane::xy(-8.0), vec![Loop::circle([-50.0, 0.0], 40.0)]), 6.0)?;
     let plus = [
         (30.0, -4.0), (30.0, 4.0), (4.0, 4.0), (4.0, 30.0), (-4.0, 30.0), (-4.0, 4.0),
         (-30.0, 4.0), (-30.0, -4.0), (-4.0, -4.0), (-4.0, -30.0), (4.0, -30.0), (4.0, -4.0),
     ];
-    let tool = extrude(k, &sketch(xy(-10.0), vec![polygon(&plus)]), 10.0)?;
+    let tool = extrude(k, &Profile::of(Plane::xy(-10.0), vec![Loop::polygon(&plus.map(|(x, y)| [x, y]))]), 10.0)?;
     let motion = SolidMotion::Planar {
         normal: crate::bench::unit(crate::bench::v3(0.0, 0.0, 1.0)),
         steps: vec![

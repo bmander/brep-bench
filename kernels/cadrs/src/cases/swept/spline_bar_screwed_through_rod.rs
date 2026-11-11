@@ -8,15 +8,15 @@
 //! (exactly half a turn at a time where it can be, else meshed); of the
 //! bar, its part within 5.5 of the axis (the screw maps the cylinder about its axis onto itself, so
 //! only that part reaches the rod).
-use crate::bench::{extrude, p3, plane, v3};
+use crate::bench::{extrude, p3, v3};
 use crate::shared::geometry::Section;
 use crate::shared::swept::{cut_swept, near_axis, rod, screw, z_axis};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     // The plane y = 8, sketch x along +x and sketch y along +z (normal −y, the extrusion's way).
-    let on = plane(p3(0.0, 8.0, 0.0), v3(1.0, 0.0, 0.0), v3(0.0, -1.0, 0.0));
+    let on = Plane::new(p3(0.0, 8.0, 0.0), v3(1.0, 0.0, 0.0), v3(0.0, -1.0, 0.0));
     // (The same loop started from (12, −1): its seam, where the periodic spline's first span
     // starts, then lies at its far end, out of the part near the axis.)
     let poles = [(12.0, -1.0), (12.0, 1.0), (8.0, 1.5), (4.5, 1.5), (3.5, 0.0), (4.5, -1.5), (8.0, -1.5)];

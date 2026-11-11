@@ -5,15 +5,15 @@
 //!
 //! The plate is the box (a rectangle on the Top plane extruded 10) with its four vertical edges
 //! filleted to radius 2; cadrs's Shell feature (inward), its top picked as the face to remove.
-use crate::bench::{block, edges_at, p3};
+use crate::bench::{block, p3};
 use crate::shared::shell::{shell_inward, Joins};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel, Kernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Kernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let b = block(k, p3(0.0, 0.0, 0.0), p3(20.0, 14.0, 10.0))?;
     let corners = [p3(0.0, 0.0, 5.0), p3(20.0, 0.0, 5.0), p3(20.0, 14.0, 5.0), p3(0.0, 14.0, 5.0)];
-    let edges = edges_at(k, b, &corners)?;
+    let edges = k.edges_at(b, &corners)?;
     let plate = k.fillet(b, &edges, 2.0)?.bodies[0];
     shell_inward(k, plate, &[p3(10.0, 7.0, 10.0)], 2.0, Joins::Rounded)
 }

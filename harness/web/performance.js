@@ -33,9 +33,9 @@ const METRICS = [
     compare: true, least: 'fastest', most: 'slowest', top: 'The slowest runs',
     about: (counted) => (counted ? `Each dot is one case's wall-clock time, from starting the
       kernel's runner to its exit, starting it counted.` : `Each dot is one case's wall-clock
-      time less the runner's start-up: the kernel's own time, building the
-      solid, measuring it and writing its triangles. A run no longer than the start sits at the
-      axis's left end.`),
+      time less the runner's start-up: the kernel's own time, building the solid and writing it
+      as STEP where it can, not meshing or measuring it. A run no longer than the start sits at
+      the axis's left end.`),
   },
   {
     key: 'builtCpu', raw: 'cpu', start: 'cpu', label: 'CPU time', text: secondsText,

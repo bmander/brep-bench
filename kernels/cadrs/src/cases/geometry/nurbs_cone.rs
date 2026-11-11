@@ -8,10 +8,9 @@
 //! The side is cadrs's face on a B-spline surface given by its net (`Kernel::bspline_face`), which
 //! bounds it by its base circle, its seam and its pole at the apex; the base is the Fill of that
 //! circle (`Kernel::fill`), a flat disk; the two are sewn into a solid (`Kernel::sew_solid`).
-use crate::bench::{edge_at, p3};
-use crate::shared::sweep::first;
+use crate::bench::p3;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, BsplineSurface, DefaultKernel, FillCurve, FillSpec, Kernel};
+use cadrs_kernel::{BodyId, BsplineSurface, DefaultKernel, FillCurve, FillSpec, Kernel, Pick};
 use nalgebra::Point3;
 
 /// The control points cᵢ of the unit circle as a rational quadratic, and their weights.
@@ -36,8 +35,8 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
         poles: c.iter().map(|&(x, y)| vec![Point3::new(5.0 * x, 5.0 * y, 0.0), Point3::new(0.0, 0.0, 10.0)]).collect(),
         weights: w.iter().map(|&wi| vec![wi, wi]).collect(),
     };
-    let side = first(k.bspline_face(&surface, None)?)?;
-    let rim = edge_at(k, side, p3(-5.0, 0.0, 0.0))?;
-    let base = first(k.fill(&FillSpec { curves: vec![FillCurve::Edge { body: side, edge: rim }], source: 1 })?)?;
-    first(k.sew_solid(&[side, base], 1e-7)?)
+    let side = k.bspline_face(&surface, None)?.first()?;
+    let rim = k.edge_at(side, p3(-5.0, 0.0, 0.0))?;
+    let base = k.fill(&FillSpec { curves: vec![FillCurve::Edge { body: side, edge: rim }], source: 1 })?.first()?;
+    Ok(k.sew_solid(&[side, base], 1e-7)?.first()?)
 }

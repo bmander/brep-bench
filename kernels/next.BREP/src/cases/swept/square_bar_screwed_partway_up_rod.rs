@@ -1,17 +1,17 @@
 //! A rod threaded partway up by a bar carried along a screw that stops inside it.
 //!
-//! Through the kernel's sweep of a solid (`sweep_solid_within`), asked for the bar as a prism (its
-//! rectangle 4 ≤ x ≤ 12, |y| ≤ 8 from z = −1 to 1) along the screw about the z axis that rises 6 a
-//! turn, from −120° to +600°, within 5.2 of the z axis from z = −0.4 to 20.4, which holds the rod;
-//! cut from the rod. The kernel's sweep takes a prism only along a planar motion and a screw only
-//! where neither end position reaches the region asked for, so it may refuse.
+//! Through the kernel's sweep of a solid within a region (`sweep_solid_clipped`): the bar, the box
+//! 4 ≤ x ≤ 12, |y| ≤ 8, |z| ≤ 1, as a convex polyhedron, along the screw about the z axis that rises
+//! 6 a turn, from −120° to +600°, asked for within 5.2 of the z axis from z = −0.4 to 20.4, which
+//! holds the rod (the screw maps that cylinder onto itself, so the kernel may sweep only the bar's
+//! part that reaches it); cut from the rod.
 use crate::solids::p;
 use crate::Refusal;
 #[allow(unused_imports)]
 use brep_kernel::{
     boolean_operation_nary, make_box_brep, make_cylinder_brep, revolve_profile_brep,
-    sweep_solid_within, BooleanOperation, BrepSolid, OutlinePiece, ScrewStep, SolidMotion,
-    SweepClip, SweptTool, Vec3,
+    sweep_solid_clipped, sweep_solid_within, BooleanOperation, BrepSolid, OutlinePiece, ScrewStep, SolidMotion,
+    SolidTool, SweepClip, SweptTool, Vec3,
 };
 #[allow(unused_imports)]
 use std::f64::consts::{FRAC_PI_2, PI, TAU};
@@ -19,18 +19,11 @@ use std::f64::consts::{FRAC_PI_2, PI, TAU};
 pub fn build() -> Result<BrepSolid, Refusal> {
     let rod = make_cylinder_brep(p(0.0, 0.0, 0.0), p(0.0, 0.0, 1.0), 5.0, 20.0)?;
     let mut operands = vec![rod];
-    let tool0 = SweptTool::Prism {
-        origin: p(0.0, 0.0, 0.0),
-        normal: p(0.0, 0.0, 1.0),
-        x_axis: p(1.0, 0.0, 0.0),
-        outline: vec![
-            OutlinePiece::Line { from: [4.0, -8.0], to: [12.0, -8.0] },
-            OutlinePiece::Line { from: [12.0, -8.0], to: [12.0, 8.0] },
-            OutlinePiece::Line { from: [12.0, 8.0], to: [4.0, 8.0] },
-            OutlinePiece::Line { from: [4.0, 8.0], to: [4.0, -8.0] },
-        ],
-        from: -1.0,
-        to: 1.0,
+    let tool0 = SolidTool::Polyhedron {
+        vertices: (0..8)
+            .map(|i| p(if i & 1 != 0 { 12.0 } else { 4.0 }, if i & 2 != 0 { 8.0 } else { -8.0 }, if i & 4 != 0 { 1.0 } else { -1.0 }))
+            .collect(),
+        faces: vec![vec![0, 2, 3, 1], vec![4, 5, 7, 6], vec![0, 1, 5, 4], vec![2, 6, 7, 3], vec![0, 4, 6, 2], vec![1, 3, 7, 5]],
     };
     let motion0 = SolidMotion {
         steps: vec![
@@ -47,6 +40,6 @@ pub fn build() -> Result<BrepSolid, Refusal> {
         axial: [-0.4, 20.4],
         angle: None,
     };
-    operands.extend(sweep_solid_within(&tool0, &motion0, &clip0)?);
+    operands.push(sweep_solid_clipped(&tool0, &motion0, &clip0)?);
     Ok(boolean_operation_nary(&operands, BooleanOperation::Subtract)?)
 }

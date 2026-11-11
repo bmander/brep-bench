@@ -2,10 +2,9 @@
 //! them groove, a slide, a swing or a screw of a solid (cadrs's sweep of a solid,
 //! `Kernel::sweep_solid`), the solid a torus fills as it slides along the z axis, and the gear
 //! ladder's blanks, pinion tooth and worm thread, cut under a pair's two turns.
-use crate::bench::{arc, axis, chain, cylinder, extrude, line, p2, p3, plane, sketch, torus, v3, xy, P3, V3};
-use crate::shared::sweep::first;
+use crate::bench::{arc, cylinder, extrude, p2, p3, torus, v3, P3, V3};
 use crate::Refusal;
-use cadrs_kernel::{Axis, BodyId, CylindricalBox, DefaultKernel, Kernel, RigidStep, SolidMotion};
+use cadrs_kernel::{Axis, BodyId, Curve2, CylindricalBox, DefaultKernel, Kernel, Loop, Plane, Profile, RigidStep, SolidMotion};
 
 /// The rod: the cylinder of radius 5 about the z axis from z = 0 to z = 20.
 pub fn rod(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
@@ -23,33 +22,31 @@ pub fn ring_sector(
 ) -> Result<BodyId, Refusal> {
     let start = angles.0.rem_euclid(360.0);
     let spec = CylindricalBox {
-        frame: plane(p3(0.0, 0.0, heights.0), v3(1.0, 0.0, 0.0), v3(0.0, 0.0, 1.0)),
+        frame: Plane::new(p3(0.0, 0.0, heights.0), v3(1.0, 0.0, 0.0), v3(0.0, 0.0, 1.0)),
         length: heights.1 - heights.0,
         inner_radius: radii.0,
         outer_radius: radii.1,
         start_angle: start.to_radians(),
         end_angle: (start + angles.1 - angles.0).to_radians(),
     };
-    first(k.cylindrical_box(&spec)?)
+    Ok(k.cylindrical_box(&spec)?.first()?)
 }
 
 /// The z axis.
 pub fn z_axis() -> Axis {
-    axis(p3(0.0, 0.0, 0.0), v3(0.0, 0.0, 1.0))
+    Axis::new(p3(0.0, 0.0, 0.0), v3(0.0, 0.0, 1.0))
 }
 
 /// Everything `tool` passes through as it slides without turning along `v` (cadrs's sweep of a
 /// solid, one slide).
 pub fn slid(k: &mut DefaultKernel, tool: BodyId, v: V3) -> Result<BodyId, Refusal> {
-    let steps = vec![RigidStep::Slide { from: V3::zeros(), to: v }];
-    first(k.sweep_solid(tool, &SolidMotion::Rigid { steps })?)
+    Ok(k.sweep_solid(tool, &slide(v))?.first()?)
 }
 
 /// Everything `tool` (drawn where it is at a turn of 0) passes through as it turns rigidly about
 /// `about`, right-handed, from `from` to `to` degrees (cadrs's sweep of a solid, one turn).
 pub fn swung(k: &mut DefaultKernel, tool: BodyId, about: Axis, from: f64, to: f64) -> Result<BodyId, Refusal> {
-    let steps = vec![RigidStep::Turn { axis: about, from: from.to_radians(), to: to.to_radians() }];
-    first(k.sweep_solid(tool, &SolidMotion::Rigid { steps })?)
+    Ok(k.sweep_solid(tool, &swing(about, from, to))?.first()?)
 }
 
 /// Everything `tool` (drawn where it is at a turn of 0) passes through as it is screwed about
@@ -63,13 +60,7 @@ pub fn screwed(
     from: f64,
     to: f64,
 ) -> Result<BodyId, Refusal> {
-    let z = about.dir.into_inner();
-    let rise = |deg: f64| z * (lead * deg / 360.0);
-    let steps = vec![
-        RigidStep::Turn { axis: about, from: from.to_radians(), to: to.to_radians() },
-        RigidStep::Slide { from: rise(from), to: rise(to) },
-    ];
-    first(k.sweep_solid(tool, &SolidMotion::Rigid { steps })?)
+    Ok(k.sweep_solid(tool, &screw(about, lead, from, to))?.first()?)
 }
 
 /// Everything `tool` (drawn in the frame where `path` starts) passes through as a frame rides
@@ -77,50 +68,39 @@ pub fn screwed(
 /// (cadrs's sweep of a solid along a path: exact for a prism in its plane, a torus, and an end
 /// or bull-nose mill; else the region its places hold, meshed).
 pub fn carried(k: &mut DefaultKernel, tool: BodyId, path: Vec<cadrs_kernel::PathCurve>) -> Result<BodyId, Refusal> {
-    let motion = SolidMotion::Path { path, up: crate::bench::unit(v3(0.0, 0.0, 1.0)) };
-    first(k.sweep_solid(tool, &motion)?)
+    Ok(k.sweep_solid(tool, &carry(path))?.first()?)
 }
 
 /// The cubic Bézier curve in the plane z = 0 on these control points, as a path.
 pub fn bezier_path(poles: [(f64, f64); 4]) -> Vec<cadrs_kernel::PathCurve> {
-    vec![cadrs_kernel::PathCurve::Bezier3 {
-        poles: poles.iter().map(|&(x, y)| p3(x, y, 0.0)).collect(),
-        weights: vec![],
-    }]
+    vec![cadrs_kernel::PathCurve::bezier(&poles.map(|(x, y)| p3(x, y, 0.0)))]
 }
 
 /// `target` less everything `tool` passes through as it moves by `motion` (cadrs's cut by a swept
 /// solid: the exact sweep cut from it, else the region inside it and in none of the tool's
 /// places, meshed).
 pub fn cut_swept(k: &mut DefaultKernel, target: BodyId, tool: BodyId, motion: &SolidMotion) -> Result<BodyId, Refusal> {
-    first(k.cut_swept(target, tool, motion)?)
+    Ok(k.cut_swept(target, tool, motion)?.first()?)
 }
 
 /// The motion of [`slid`].
 pub fn slide(v: V3) -> SolidMotion {
-    SolidMotion::Rigid { steps: vec![RigidStep::Slide { from: V3::zeros(), to: v }] }
+    SolidMotion::slide(v)
 }
 
 /// The motion of [`swung`].
 pub fn swing(about: Axis, from: f64, to: f64) -> SolidMotion {
-    SolidMotion::Rigid { steps: vec![RigidStep::Turn { axis: about, from: from.to_radians(), to: to.to_radians() }] }
+    SolidMotion::swing(about, from.to_radians(), to.to_radians())
 }
 
 /// The motion of [`screwed`].
 pub fn screw(about: Axis, lead: f64, from: f64, to: f64) -> SolidMotion {
-    let z = about.dir.into_inner();
-    let rise = |deg: f64| z * (lead * deg / 360.0);
-    SolidMotion::Rigid {
-        steps: vec![
-            RigidStep::Turn { axis: about, from: from.to_radians(), to: to.to_radians() },
-            RigidStep::Slide { from: rise(from), to: rise(to) },
-        ],
-    }
+    SolidMotion::helical(about, lead, from.to_radians(), to.to_radians())
 }
 
 /// The motion of [`carried`].
 pub fn carry(path: Vec<cadrs_kernel::PathCurve>) -> SolidMotion {
-    SolidMotion::Path { path, up: crate::bench::unit(v3(0.0, 0.0, 1.0)) }
+    SolidMotion::along(path, V3::z())
 }
 
 /// The part of `tool` within `radius` of the z axis (cadrs's boolean common with a cylinder about
@@ -150,13 +130,13 @@ pub fn torus_slid(
     let start = torus(k, center, v3(0.0, 1.0, 0.0), major, minor)?;
     let end = torus(k, center + v3(0.0, 0.0, rise), v3(0.0, 1.0, 0.0), major, minor)?;
     let (x0, x1, y, r) = (center.x - major, center.x + major, center.y, minor);
-    let stadium = chain(vec![
-        line(p2(x0, y - r), p2(x1, y - r)),
+    let stadium = Loop::new(vec![
+        Curve2::line(p2(x0, y - r), p2(x1, y - r)),
         arc(p2(x1, y), r, -90.0, 180.0),
-        line(p2(x1, y + r), p2(x0, y + r)),
+        Curve2::line(p2(x1, y + r), p2(x0, y + r)),
         arc(p2(x0, y), r, 90.0, 180.0),
     ]);
-    let shadow = extrude(k, &sketch(xy(center.z), vec![stadium]), rise)?;
+    let shadow = extrude(k, &Profile::of(Plane::xy(center.z), vec![stadium]), rise)?;
     Ok(vec![start, shadow, end])
 }
 
@@ -180,22 +160,24 @@ pub fn tumbling_torus(
     let q = p3(0.0, h * l.cos(), h * l.sin());
     let u = v3(a.cos(), a.sin() * l.cos(), a.sin() * l.sin());
     let (t0, t1) = (rolls.0.to_radians(), rolls.1.to_radians());
-    let motion = SolidMotion::Rigid {
-        steps: vec![
-            RigidStep::Turn { axis: axis(p3(2.0, 0.0, 0.0), v3(0.0, 0.0, 1.0)), from: rate * t0, to: rate * t1 },
-            RigidStep::Turn { axis: axis(q, u), from: sign * t0, to: sign * t1 },
-        ],
-    };
-    first(k.sweep_solid(t, &motion)?)
+    let motion = SolidMotion::rigid(vec![
+        RigidStep::turn(Axis::new(p3(2.0, 0.0, 0.0), v3(0.0, 0.0, 1.0)), rate * t0, rate * t1),
+        RigidStep::turn(Axis::new(q, u), sign * t0, sign * t1),
+    ]);
+    Ok(k.sweep_solid(t, &motion)?.first()?)
 }
 
 /// The two operands of `swept/tumbling-torus-crossed-*`: the torus (center (3, 0, 2), tube 0.22)
 /// rolled from −100° to 100° at 0.7 about the upright axis, the second axis leaning 45° and
 /// tilted 20° at 0.7071, turned against the roll (A) and with it (B).
 pub fn crossed_tori(k: &mut DefaultKernel) -> Result<(BodyId, BodyId), Refusal> {
-    let a = tumbling_torus(k, p3(3.0, 0.0, 2.0), 0.22, (45.0, 20.0, 0.7071), 0.7, -1.0, (-100.0, 100.0))?;
-    let b = tumbling_torus(k, p3(3.0, 0.0, 2.0), 0.22, (45.0, 20.0, 0.7071), 0.7, 1.0, (-100.0, 100.0))?;
-    Ok((a, b))
+    Ok((crossed_torus(k, -1.0)?, crossed_torus(k, 1.0)?))
+}
+
+/// One operand of `swept/tumbling-torus-crossed-*`: its second axis turned against the roll
+/// (`sign` −1: A, the forward tumble) or with it (+1: B, the reverse).
+pub fn crossed_torus(k: &mut DefaultKernel, sign: f64) -> Result<BodyId, Refusal> {
+    tumbling_torus(k, p3(3.0, 0.0, 2.0), 0.22, (45.0, 20.0, 0.7071), 0.7, sign, (-100.0, 100.0))
 }
 
 /// The gear ladder's bevel pair (`swept/straight-bevel-gear-cut-by-its-pinion`,
@@ -214,10 +196,10 @@ pub fn bevel_blank(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let (ae, ai) = (15.0 * 5f64.sqrt(), 15.0 * 5f64.sqrt() - 10.0);
     let at = |s: f64, u: f64| {
         let p = g * s + d * u;
-        (p.x, p.z)
+        [p.x, p.z]
     };
     let corners = [at(ae, -2.0), at(ae, 6.0), at(ai, 6.0), at(ai, -2.0 * ai / ae)];
-    let quad = sketch(crate::bench::xz(0.0), vec![crate::bench::polygon(&corners)]);
+    let quad = Profile::of(Plane::xz(0.0), vec![Loop::polygon(&corners)]);
     crate::bench::revolve(k, &quad, z_axis(), None)
 }
 
@@ -234,23 +216,23 @@ pub fn bevel_tooth(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let tan20 = 20f64.to_radians().tan();
     let w = |u: f64| std::f64::consts::FRAC_PI_2 - u * tan20;
     // sketch x along d, sketch y along g × d = −y, on the outer plane
-    let base = plane(P3::origin() + g * outer, d, g);
+    let base = Plane::new(P3::origin() + g * outer, d, g);
     let trapezoid = [(2.5, w(2.5)), (-2.5, w(-2.5)), (-2.5, -w(-2.5)), (2.5, -w(2.5))]
-        .map(|(u, w)| (u * scale, w * scale));
+        .map(|(u, w)| [u * scale, w * scale]);
     let spec = LoftSpec {
         body: BodyKind::Solid,
         sections: vec![
-            LoftSection::Profile(sketch(base, vec![crate::bench::polygon(&trapezoid)])),
+            LoftSection::Profile(Profile::of(base, vec![Loop::polygon(&trapezoid)])),
             LoftSection::Point(P3::origin()),
         ],
         start: LoftEnd::default(),
         end: LoftEnd::default(),
         source: 1,
     };
-    let pyramid = first(k.loft_with(&spec)?)?;
+    let pyramid = k.loft_with(&spec)?.first()?;
     // the slab from the inner plane to past the outer one, wide enough to hold the tooth
-    let slab_base = plane(P3::origin() + g * inner, d, g);
-    let slab = extrude(k, &sketch(slab_base, vec![crate::bench::rectangle(-10.0, -10.0, 10.0, 10.0)]), 15.0)?;
+    let slab_base = Plane::new(P3::origin() + g * inner, d, g);
+    let slab = extrude(k, &Profile::of(slab_base, vec![Loop::rectangle(-10.0, -10.0, 10.0, 10.0)]), 15.0)?;
     crate::bench::common(k, pyramid, slab)
 }
 
@@ -272,7 +254,7 @@ pub fn bevel_cut(
             RigidStep::Turn { axis: z_axis(), from: -ratio * t0, to: -ratio * t1 },
         ],
     };
-    let swept = first(k.sweep_solid(tooth, &motion)?)?;
+    let swept = k.sweep_solid(tooth, &motion)?.first()?;
     let blank = bevel_blank(k)?;
     crate::bench::cut(k, blank, swept)
 }
@@ -293,14 +275,14 @@ pub fn worm_thread(k: &mut DefaultKernel, at: P3, from: f64, to: f64) -> Result<
     let turns_before = (-from / TAU).ceil() + 1.0;
     let start = -TAU * turns_before;
     let mid = start - FRAC_PI_2;
-    let section = [(7.5, mid - w(7.5)), (12.5, mid - w(12.5)), (12.5, mid + w(12.5)), (7.5, mid + w(7.5))];
-    let profile = sketch(crate::bench::xz(0.0), vec![crate::bench::polygon(&section)]);
+    let section = [[7.5, mid - w(7.5)], [12.5, mid - w(12.5)], [12.5, mid + w(12.5)], [7.5, mid + w(7.5)]];
+    let profile = Profile::of(Plane::xz(0.0), vec![Loop::polygon(&section)]);
     let turns = ((to - start) / TAU).ceil() + 1.0;
     let path = crate::shared::sweep::helix(p3(0.0, 0.0, start), 10.0, TAU, 0.0, turns);
     let thread = crate::shared::sweep::sweep(k, &profile, path)?;
     let ends = cylinder(k, p3(0.0, 0.0, from), v3(0.0, 0.0, 1.0), 13.0, to - from)?;
     let thread = crate::bench::common(k, thread, ends)?;
-    let thread = crate::bench::turned(k, thread, axis(P3::origin(), v3(0.0, 1.0, 0.0)), 90.0)?;
+    let thread = crate::bench::turned(k, thread, Axis::new(P3::origin(), v3(0.0, 1.0, 0.0)), 90.0)?;
     crate::bench::moved(k, thread, at.coords)
 }
 
@@ -313,10 +295,10 @@ pub fn hobbed(k: &mut DefaultKernel, blank: BodyId, at: P3, from: f64, to: f64) 
     let thread = worm_thread(k, at, from, to)?;
     let motion = SolidMotion::Rigid {
         steps: vec![
-            RigidStep::Turn { axis: axis(at, v3(1.0, 0.0, 0.0)), from: 0.0, to: 60.0 * PI },
+            RigidStep::Turn { axis: Axis::new(at, v3(1.0, 0.0, 0.0)), from: 0.0, to: 60.0 * PI },
             RigidStep::Turn { axis: z_axis(), from: 0.0, to: -TAU },
         ],
     };
-    let swept = first(k.sweep_solid(thread, &motion)?)?;
+    let swept = k.sweep_solid(thread, &motion)?.first()?;
     crate::bench::cut(k, blank, swept)
 }

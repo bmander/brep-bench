@@ -5,17 +5,17 @@
 //! The spring is its circular section swept along the helix (cadrs's Sweep) with a ball at each
 //! end (united); what it passes through is cadrs's sweep of a solid (one slide), cut from the
 //! plate.
-use crate::bench::{ball, block, cut, p3, round, sketch, square_to, union_each, v3};
+use crate::bench::{ball, block, cut, p3, union_each, v3};
 use crate::shared::sweep::{helix, helix_at, sweep};
 use crate::shared::swept::slid;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let plate = block(k, p3(-15.0, -15.0, 0.0), p3(15.0, 15.0, 4.0))?;
     let o = p3(0.0, 0.0, -12.0);
     let (start, tangent) = helix_at(o, 2.0, 1.5, 0.0, 0.0);
-    let section = sketch(square_to(start, tangent), vec![round((0.0, 0.0), 0.4)]);
+    let section = Profile::of(Plane::square_to(start, tangent), vec![Loop::circle([0.0, 0.0], 0.4)]);
     let coil = sweep(k, &section, helix(o, 2.0, 1.5, 0.0, 3.0))?;
     let first = ball(k, p3(2.0, 0.0, -12.0), 0.4)?;
     let last = ball(k, p3(2.0, 0.0, -7.5), 0.4)?;

@@ -8,16 +8,16 @@
 //! (as Onshape does), so each edge whose first face is not the top is flipped on its own (the
 //! dialog's direction override): the top's loop runs along an edge when the top lies on the left
 //! of the edge's direction, seen from above.
-use crate::bench::{block, edges_at, p3, v3};
+use crate::bench::{block, p3, v3};
 use crate::shared::chamfer::chamfer_with;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, ChamferOpts, ChamferSpec, DefaultKernel, Kernel};
+use cadrs_kernel::{BodyId, ChamferOpts, ChamferSpec, DefaultKernel, Kernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let b = block(k, p3(0.0, 0.0, 0.0), p3(20.0, 10.0, 6.0))?;
     let top_center = p3(10.0, 5.0, 6.0);
     let picks = [p3(10.0, 0.0, 6.0), p3(20.0, 5.0, 6.0), p3(10.0, 10.0, 6.0), p3(0.0, 5.0, 6.0)];
-    let edges = edges_at(k, b, &picks)?;
+    let edges = k.edges_at(b, &picks)?;
     let mut opts = ChamferOpts::new(ChamferSpec::TwoDistances(1.0, 2.0));
     let infos = k.edges(b)?;
     for info in infos.iter().filter(|i| edges.contains(&i.id)) {

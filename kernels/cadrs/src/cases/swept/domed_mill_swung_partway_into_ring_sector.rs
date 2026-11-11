@@ -7,11 +7,11 @@
 //! (10, 0, −0.8) to the rim (11, 0, 1.2 − √3), drawn as the rational quadratic it is, and the
 //! cylinder's side up to z = 3. What it passes through is cadrs's sweep of a solid (one turn),
 //! cut from the block (cadrs's cylindrical box).
-use crate::bench::{cut, p3, v3, xz};
+use crate::bench::{cut, p3, v3};
 use crate::shared::geometry::Section;
 use crate::shared::swept::{ring_sector, swung, z_axis};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let block = ring_sector(k, (8.0, 12.0), (-1.0, 1.0), (0.0, 60.0))?;
@@ -20,7 +20,7 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let half = 15f64.to_radians();
     let m = (10.0 + 2.0 / half.cos() * (-75f64).to_radians().cos(), 1.2 + 2.0 / half.cos() * (-75f64).to_radians().sin());
     let rim = 1.2 - 3f64.sqrt();
-    let section = Section::on(xz(0.0))
+    let section = Section::on(Plane::xz(0.0))
         .conic((10.0, -0.8), m, half.cos(), (11.0, rim))
         .line((11.0, rim), (11.0, 3.0))
         .line((11.0, 3.0), (10.0, 3.0))

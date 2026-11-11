@@ -7,20 +7,19 @@
 //! upright plane, the four filled (cadrs's Fill: the bilinearly blended Coons patch of four
 //! curves), each wall the Fill of its arc and the lines down to the floor, the floor the Fill of
 //! its square, and the six sheets sewn into a solid.
-use crate::bench::{xz, yz};
 use crate::shared::fill::{bezier, fill, wall};
 use crate::shared::loft::{flat, sewn};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     // Each arc on its upright plane, its three control points in that plane's sketch
     // coordinates: (x, z) on y = c, (y, z) on x = c.
     let arcs = [
-        (xz(0.0), [(0.0, 10.0), (5.0, 14.0), (10.0, 10.0)]),
-        (yz(10.0), [(0.0, 10.0), (5.0, 6.0), (10.0, 10.0)]),
-        (xz(10.0), [(10.0, 10.0), (5.0, 6.0), (0.0, 10.0)]),
-        (yz(0.0), [(10.0, 10.0), (5.0, 14.0), (0.0, 10.0)]),
+        (Plane::xz(0.0), [(0.0, 10.0), (5.0, 14.0), (10.0, 10.0)]),
+        (Plane::yz(10.0), [(0.0, 10.0), (5.0, 6.0), (10.0, 10.0)]),
+        (Plane::xz(10.0), [(10.0, 10.0), (5.0, 6.0), (0.0, 10.0)]),
+        (Plane::yz(0.0), [(10.0, 10.0), (5.0, 14.0), (0.0, 10.0)]),
     ];
     let patch = fill(k, &arcs.map(|(plane, poles)| (plane, bezier(&poles))))?;
     let mut sheets = vec![patch, flat(k, 0.0, &[(0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0)])?];

@@ -11,7 +11,8 @@
 //!
 //! Given `OUT.step`, it also writes the solid there as STEP (AP242) with the kernel's own writer,
 //! `solidcraft_kernel::step_export`, the one SolidCraft's app exports a body with. Where the
-//! writer declines the solid, no file is written and the reply says why in `step_error`.
+//! writer declines the solid, no file is written and the reply says why in `step_error`. A STEP
+//! written is the whole answer: the solid is then not meshed, and `OUT.stl` not written.
 //!
 //! SolidCraft measures a solid from its tessellations (`solidcraft_kernel::measure`: fine and
 //! medium meshes, face by face), so the runner answers `"measured": "mesh"` and the harness takes
@@ -163,10 +164,17 @@ fn main() -> ExitCode {
         return ExitCode::from(2);
     };
     let reply = match build().and_then(|body| {
+        // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"):
+        // nothing meshed; only where the writer declines does the runner go on to its triangles
+        let declined = match out_step {
+            Some(path) => match step(&[&body], path) {
+                None => return Ok(json!({"status": "ok"})),
+                why => why,
+            },
+            None => None,
+        };
         let mut reply = report(&body, out)?;
-        if let Some(path) = out_step
-            && let Some(why) = step(&[&body], path)
-        {
+        if let Some(why) = declined {
             reply["step_error"] = json!(why);
         }
         Ok(reply)

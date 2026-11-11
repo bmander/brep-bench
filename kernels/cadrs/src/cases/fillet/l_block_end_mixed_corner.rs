@@ -6,17 +6,17 @@
 //! Two Fillet features one after another, as the case composes the corner: the concave edge,
 //! then the chain, picked by its straight edge up the upright (tangent propagation takes the
 //! rest).
-use crate::bench::{block, edge_at, p3, union};
+use crate::bench::{block, p3, union};
 use crate::shared::fillet::fillet;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let foot = block(k, p3(0.0, 0.0, 0.0), p3(20.0, 10.0, 6.0))?;
     let upright = block(k, p3(0.0, 0.0, 0.0), p3(6.0, 10.0, 20.0))?;
     let l = union(k, foot, upright)?;
-    let inside = edge_at(k, l, p3(6.0, 5.0, 6.0))?;
+    let inside = k.edge_at(l, p3(6.0, 5.0, 6.0))?;
     let rounded = fillet(k, l, &[inside], 2.0)?;
-    let chain = edge_at(k, rounded, p3(6.0, 0.0, 14.0))?;
+    let chain = k.edge_at(rounded, p3(6.0, 0.0, 14.0))?;
     fillet(k, rounded, &[chain], 2.0)
 }

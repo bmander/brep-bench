@@ -6,13 +6,12 @@
 //! is, a sketch spline (`Curve2::Spline`: its ends (0, 0) and (8, 8) and the point (4, 0) where
 //! their tangents meet), the top edge from (8, 8) to (0, 8) and the axis back down, revolved a
 //! whole turn about z.
-use crate::bench::xz;
 use crate::shared::geometry::{turned_about_z, Section};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let section = Section::on(xz(0.0))
+    let section = Section::on(Plane::xz(0.0))
         .bezier(&[(0.0, 0.0), (4.0, 0.0), (8.0, 8.0)], &[])
         .line((8.0, 8.0), (0.0, 8.0))
         .line((0.0, 8.0), (0.0, 0.0));

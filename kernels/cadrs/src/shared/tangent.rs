@@ -1,9 +1,9 @@
 //! What the cadrs implementations of the tangent cases share: the ball and the cylinder of the
 //! three Viviani cases, each sketched so that its seam (and the ball's poles) stay off Viviani's
 //! curve, as the cases ask.
-use crate::bench::{extrude, p3, plane, round, sketch, v3};
+use crate::bench::{extrude, p3, v3};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Plane, Profile};
 
 /// The ball of radius 10 about the origin with its poles on the y axis and its seam through
 /// (−10, 0, 0) (cadrs's sphere primitive).
@@ -15,6 +15,6 @@ pub fn viviani_ball(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
 /// the plane z = −12, its sketch x axis along −x so that the circle's seam is on the line
 /// x = 0, y = 0, extruded 24 up.
 pub fn viviani_cylinder(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let on = plane(p3(5.0, 0.0, -12.0), v3(-1.0, 0.0, 0.0), v3(0.0, 0.0, 1.0));
-    extrude(k, &sketch(on, vec![round((0.0, 0.0), 5.0)]), 24.0)
+    let on = Plane::new(p3(5.0, 0.0, -12.0), v3(-1.0, 0.0, 0.0), v3(0.0, 0.0, 1.0));
+    extrude(k, &Profile::of(on, vec![Loop::circle([0.0, 0.0], 5.0)]), 24.0)
 }

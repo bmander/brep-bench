@@ -6,16 +6,15 @@
 //! inside it as a hole, one region, extruded 8. (Cutting an elliptic cylinder that runs past both
 //! faces from the extruded block is the other way; cadrs's boolean gives that solid's volume and
 //! area off by about 1e-6 of them and leaves its mesh open.)
-use crate::bench::{extrude, rectangle, sketch_with_holes, xy};
-use crate::shared::geometry::ellipse;
+use crate::bench::extrude;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let s = sketch_with_holes(
-        xy(0.0),
-        rectangle(-12.0, -8.0, 12.0, 8.0),
-        vec![ellipse((0.0, 0.0), 6.0, 3.0)],
+    let s = Profile::with_holes(
+        Plane::xy(0.0),
+        Loop::rectangle(-12.0, -8.0, 12.0, 8.0),
+        vec![Loop::ellipse([0.0, 0.0], 6.0, 3.0)],
     );
     extrude(k, &s, 8.0)
 }

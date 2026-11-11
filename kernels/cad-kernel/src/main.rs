@@ -6,8 +6,9 @@
 //! Builds the case with its own file, `src/cases/<category>/<name_snake>.rs`, then measures the
 //! solid with the kernel (exact volume and area, faces by surface, its validity check), meshes it
 //! into OUT.stl, writes it as STEP into OUT.step if asked (the kernel's own writer, `step::write`)
-//! and prints one line of JSON. A case that refuses, or a kernel operation that
-//! declines, is a refusal saying why. The runner never reads the case's description.
+//! and prints one line of JSON. Given OUT.step, the STEP is the whole answer: it is written, and
+//! nothing is measured or meshed unless the writer declines. A case that refuses, or a kernel
+//! operation that declines, is a refusal saying why. The runner never reads the case's description.
 use cad_kernel::geom::{tolerance, Surface};
 use cad_kernel::mesh::mesh;
 use cad_kernel::props::{area, volume};
@@ -65,9 +66,28 @@ fn refused(why: String) -> String {
     format!("{{\"status\":\"refused\",\"reason\":{}}}", Json::Str(why).dump(None))
 }
 
+/// The solid written as STEP into `out_step`, if asked for: where the writer declines, the
+/// reply's `step_error` field saying why (else nothing).
+fn step(b: &Brep, out_step: Option<&str>, case: &str) -> String {
+    let step_error = out_step.and_then(|path| {
+        cad_kernel::step::write(b, case, tolerance(b.size()))
+            .and_then(|text| std::fs::write(path, text).map_err(|e| e.to_string()))
+            .err()
+    });
+    step_error
+        .map(|e| format!(",\"step_error\":{}", Json::Str(e).dump(None)))
+        .unwrap_or_default()
+}
+
 /// The reply for a solid built: its measures, once its triangles are written (and its STEP, if
-/// asked for: where the writer declines, the reply says why in `step_error`).
+/// asked for). A STEP written is the whole answer: nothing is then measured or meshed.
 fn measured(b: &Brep, out: &str, out_step: Option<&str>, case: &str) -> String {
+    // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
+    // measured or meshed; only where the writer declines does the runner go on to its triangles
+    let step_error = step(b, out_step, case);
+    if out_step.is_some() && step_error.is_empty() {
+        return "{\"status\":\"ok\"}".into();
+    }
     let mut faces = BTreeMap::new();
     for f in &b.faces {
         *faces.entry(kind(&f.surface)).or_insert(0) += 1;
@@ -76,14 +96,6 @@ fn measured(b: &Brep, out: &str, out_step: Option<&str>, case: &str) -> String {
     let a: f64 = b.faces.iter().map(|f| area(b, f)).sum();
     let valid = b.check(tolerance(b.size())).is_ok();
     let v = volume(b);
-    let step_error = out_step.and_then(|path| {
-        cad_kernel::step::write(b, case, tolerance(b.size()))
-            .and_then(|text| std::fs::write(path, text).map_err(|e| e.to_string()))
-            .err()
-    });
-    let step_error = step_error
-        .map(|e| format!(",\"step_error\":{}", Json::Str(e).dump(None)))
-        .unwrap_or_default();
     match stl(b, out, v, a) {
         Ok(()) => format!(
             "{{\"status\":\"ok\",\"volume\":{v:e},\"area\":{a:e},\"faces\":{{{faces}}},\"valid\":{valid}{step_error}}}"

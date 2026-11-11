@@ -3,22 +3,22 @@
 //! the xz plane revolved a whole turn about the z axis. Six bolt holes of radius 3 go through the
 //! plate along z about (24, 0) and that point turned by 60°, 120°, … 300°, cut one after another:
 //! the first a circle extruded from z = −1 to z = 7, past both faces, and the others it turned.
-use crate::bench::{axis, cut, cylinder, p3, polygon, revolve, sketch, turned, xz, V3};
+use crate::bench::{cut, cylinder, p3, revolve, turned, V3};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{Axis, BodyId, DefaultKernel, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     // on the Front plane, sketch (x, y) is the model's (x, z)
-    let section = polygon(&[
-        (8.0, 0.0),
-        (32.0, 0.0),
-        (32.0, 6.0),
-        (15.0, 6.0),
-        (15.0, 16.0),
-        (8.0, 16.0),
+    let section = Loop::polygon(&[
+        [8.0, 0.0],
+        [32.0, 0.0],
+        [32.0, 6.0],
+        [15.0, 6.0],
+        [15.0, 16.0],
+        [8.0, 16.0],
     ]);
-    let z = axis(p3(0.0, 0.0, 0.0), V3::z());
-    let mut flange = revolve(k, &sketch(xz(0.0), vec![section]), z, None)?;
+    let z = Axis::new(p3(0.0, 0.0, 0.0), V3::z());
+    let mut flange = revolve(k, &Profile::of(Plane::xz(0.0), vec![section]), z, None)?;
     let first = cylinder(k, p3(24.0, 0.0, -1.0), V3::z(), 3.0, 8.0)?;
     for i in 0..6 {
         let hole = if i == 0 { first } else { turned(k, first, z, 60.0 * i as f64)? };

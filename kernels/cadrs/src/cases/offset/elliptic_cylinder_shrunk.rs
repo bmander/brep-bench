@@ -4,14 +4,13 @@
 //!
 //! The ellipse sketched and extruded (as `geometry/elliptic-cylinder`), then offset inward by 1
 //! (cadrs's offset of a solid).
-use crate::bench::{extrude, sketch, xy};
-use crate::shared::geometry::ellipse;
+use crate::bench::extrude;
 use crate::shared::offset::shrunk;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let s = sketch(xy(0.0), vec![ellipse((0.0, 0.0), 5.0, 3.0)]);
+    let s = Profile::of(Plane::xy(0.0), vec![Loop::ellipse([0.0, 0.0], 5.0, 3.0)]);
     let c = extrude(k, &s, 10.0)?;
     shrunk(k, c, 1.0)
 }

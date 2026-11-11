@@ -2,13 +2,13 @@
 //! about the line x = 0.999999, y = 0: a circle extruded from z = −1 to z = 11, cut away. The wall
 //! left at (5, 0) is 10⁻⁶ thick. The hole's circle is sketched with its x axis along −x, so that
 //! its seam is on the far side of the hole, not beside the cylinder's own seam at (5, 0).
-use crate::bench::{cut, cylinder, extrude, p3, plane, round, sketch, V3};
+use crate::bench::{cut, cylinder, extrude, p3, V3};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let tube = cylinder(k, p3(0.0, 0.0, 0.0), V3::z(), 5.0, 10.0)?;
-    let on = plane(p3(0.999999, 0.0, -1.0), -V3::x(), V3::z());
-    let hole = extrude(k, &sketch(on, vec![round((0.0, 0.0), 4.0)]), 12.0)?;
+    let on = Plane::new(p3(0.999999, 0.0, -1.0), -V3::x(), V3::z());
+    let hole = extrude(k, &Profile::of(on, vec![Loop::circle([0.0, 0.0], 4.0)]), 12.0)?;
     cut(k, tube, hole)
 }

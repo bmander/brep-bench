@@ -4,21 +4,19 @@
 //!
 //! Two Fillet features one after another, as the case composes the corners: the four upright
 //! edges, then the root, picked by one straight edge (tangent propagation takes the rest).
-use crate::bench::{block, edge_at, edges_at, p3, union};
+use crate::bench::{block, p3, union};
 use crate::shared::fillet::fillet;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let plate = block(k, p3(0.0, 0.0, 0.0), p3(40.0, 30.0, 5.0))?;
     let boss = block(k, p3(12.0, 7.0, 5.0), p3(28.0, 23.0, 15.0))?;
     let b = union(k, plate, boss)?;
-    let uprights = edges_at(
-        k,
-        b,
+    let uprights = k.edges_at(b,
         &[p3(12.0, 7.0, 10.0), p3(28.0, 7.0, 10.0), p3(28.0, 23.0, 10.0), p3(12.0, 23.0, 10.0)],
     )?;
     let rounded = fillet(k, b, &uprights, 3.0)?;
-    let root = edge_at(k, rounded, p3(20.0, 7.0, 5.0))?;
+    let root = k.edge_at(rounded, p3(20.0, 7.0, 5.0))?;
     fillet(k, rounded, &[root], 2.0)
 }

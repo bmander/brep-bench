@@ -6,14 +6,13 @@
 //! as four rounds meeting in one ball, which this apex has none of, so the solid is built as the
 //! case composes it: the pyramid shrunk by 3/2 (its faces moved in, the apex a short ridge: a hip
 //! roof), then grown by 3/2 (every point within 3/2 of it).
-use crate::bench::{p3, polygon, sketch, xy};
+use crate::bench::p3;
 use crate::shared::offset::{grown, offset};
-use crate::shared::sweep::first;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, BodyKind, DefaultKernel, Kernel, LoftEnd, LoftSection, LoftSpec};
+use cadrs_kernel::{BodyId, BodyKind, DefaultKernel, Kernel, LoftEnd, LoftSection, LoftSpec, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let base = sketch(xy(0.0), vec![polygon(&[(-10.0, -6.0), (10.0, -6.0), (10.0, 6.0), (-10.0, 6.0)])]);
+    let base = Profile::of(Plane::xy(0.0), vec![Loop::polygon(&[[-10.0, -6.0], [10.0, -6.0], [10.0, 6.0], [-10.0, 6.0]])]);
     let spec = LoftSpec {
         body: BodyKind::Solid,
         sections: vec![LoftSection::Profile(base), LoftSection::Point(p3(0.0, 0.0, 12.0))],
@@ -21,7 +20,7 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
         end: LoftEnd::default(),
         source: 1,
     };
-    let pyramid = first(k.loft_with(&spec)?)?;
+    let pyramid = k.loft_with(&spec)?.first()?;
     let roof = offset(k, pyramid, -1.5, true)?;
     grown(k, roof, 1.5)
 }

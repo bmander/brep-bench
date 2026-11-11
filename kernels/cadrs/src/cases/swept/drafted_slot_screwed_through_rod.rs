@@ -9,25 +9,25 @@
 //! (exactly half a turn at a time where it can be, else meshed); of the bar, its part within 5.5
 //! of the axis (the screw maps the cylinder about its axis onto itself, so only that part reaches
 //! the rod).
-use crate::bench::{arc, chain, line, p2, p3, plane, sketch, v3};
+use crate::bench::{arc, p2, p3, v3};
 use crate::shared::loft::loft;
 use crate::shared::swept::{cut_swept, near_axis, rod, screw, z_axis};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, Curve2, DefaultKernel, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     // The plane x = c, sketch x along +y and sketch y along +z (normal +x).
-    let at = |c: f64| plane(p3(c, 0.0, 0.0), v3(0.0, 1.0, 0.0), v3(1.0, 0.0, 0.0));
+    let at = |c: f64| Plane::new(p3(c, 0.0, 0.0), v3(0.0, 1.0, 0.0), v3(1.0, 0.0, 0.0));
     let slot = |r: f64| {
-        chain(vec![
-            line(p2(-1.5, -r), p2(1.5, -r)),
+        Loop::new(vec![
+            Curve2::line(p2(-1.5, -r), p2(1.5, -r)),
             arc(p2(1.5, 0.0), r, -90.0, 180.0),
-            line(p2(1.5, r), p2(-1.5, r)),
+            Curve2::line(p2(1.5, r), p2(-1.5, r)),
             arc(p2(-1.5, 0.0), r, 90.0, 180.0),
         ])
     };
     let shrink = 8.0 * 3f64.to_radians().tan();
-    let bar = loft(k, vec![sketch(at(4.0), vec![slot(1.0 - shrink)]), sketch(at(12.0), vec![slot(1.0)])])?;
+    let bar = loft(k, vec![Profile::of(at(4.0), vec![slot(1.0 - shrink)]), Profile::of(at(12.0), vec![slot(1.0)])])?;
     let bar = near_axis(k, bar, 5.5)?;
     let r = rod(k)?;
     cut_swept(k, r, bar, &screw(z_axis(), 6.0, -90.0, 1350.0))

@@ -9,19 +9,19 @@
 //! correspond: on the plane z = −5 with its sketch x axis along x, the halves meet at angles 0°
 //! and 180°; on the plane z = 5 with its sketch x axis along y, at 90° and 270°. Each ruling then
 //! runs from angle θ below to θ + 90° above.
-use crate::bench::{arc, chain, p2, p3, plane, sketch, v3};
+use crate::bench::{arc, p2, p3, v3};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, BodyKind, DefaultKernel, Kernel, LoftEnd, LoftSection, LoftSpec};
+use cadrs_kernel::{BodyId, BodyKind, DefaultKernel, Kernel, LoftEnd, LoftSection, LoftSpec, Loop, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     // The circle of radius 5 about the sketch's origin, as two halves from its sketch x axis.
     let rim = || {
         let c = p2(0.0, 0.0);
-        chain(vec![arc(c, 5.0, 0.0, 180.0), arc(c, 5.0, 180.0, 180.0)])
+        Loop::new(vec![arc(c, 5.0, 0.0, 180.0), arc(c, 5.0, 180.0, 180.0)])
     };
     let z = v3(0.0, 0.0, 1.0);
-    let lower = sketch(plane(p3(0.0, 0.0, -5.0), v3(1.0, 0.0, 0.0), z), vec![rim()]);
-    let upper = sketch(plane(p3(0.0, 0.0, 5.0), v3(0.0, 1.0, 0.0), z), vec![rim()]);
+    let lower = Profile::of(Plane::new(p3(0.0, 0.0, -5.0), v3(1.0, 0.0, 0.0), z), vec![rim()]);
+    let upper = Profile::of(Plane::new(p3(0.0, 0.0, 5.0), v3(0.0, 1.0, 0.0), z), vec![rim()]);
     let spec = LoftSpec {
         body: BodyKind::Solid,
         sections: vec![LoftSection::Profile(lower), LoftSection::Profile(upper)],

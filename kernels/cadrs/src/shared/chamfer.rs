@@ -1,13 +1,8 @@
 //! What the cadrs implementations of the chamfer cases share: the Chamfer feature on picked
 //! edges, and the octahedron.
-use crate::bench::{
-    cut, extrude, p3, polygon, round, sketch, square_to, union, xy, P3, V3,
-};
+use crate::bench::{cut, extrude, p3, union, P3, V3};
 use crate::Refusal;
-use cadrs_kernel::{
-    BodyId, BodyKind, ChamferOpts, ChamferSpec, DefaultKernel, EdgeId, Kernel, LoftEnd,
-    LoftSection, LoftSpec,
-};
+use cadrs_kernel::{BodyId, BodyKind, ChamferOpts, ChamferSpec, DefaultKernel, EdgeId, Kernel, LoftEnd, LoftSection, LoftSpec, Loop, Plane, Profile};
 
 /// `body` with `edges` chamfered by `spec` in one Chamfer feature.
 pub fn chamfer(
@@ -35,7 +30,7 @@ pub fn chamfer_with(
 /// pyramids united.
 pub fn octahedron(k: &mut DefaultKernel, a: f64) -> Result<BodyId, Refusal> {
     let mut pyramid = |tip: f64| -> Result<BodyId, Refusal> {
-        let square = sketch(xy(0.0), vec![polygon(&[(a, 0.0), (0.0, a), (-a, 0.0), (0.0, -a)])]);
+        let square = Profile::of(Plane::xy(0.0), vec![Loop::polygon(&[[a, 0.0], [0.0, a], [-a, 0.0], [0.0, -a]])]);
         let spec = LoftSpec {
             body: BodyKind::Solid,
             sections: vec![LoftSection::Profile(square), LoftSection::Point(p3(0.0, 0.0, tip))],

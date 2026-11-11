@@ -6,15 +6,15 @@
 //! The mill is its half section turned about its axis (the round a quarter circle, drawn as the
 //! rational quadratic it is); what it passes through is cadrs's sweep of a solid (one turn), cut
 //! from the block (cadrs's cylindrical box).
-use crate::bench::{cut, p3, v3, xz};
+use crate::bench::{cut, p3, v3};
 use crate::shared::geometry::Section;
 use crate::shared::swept::{ring_sector, swung, z_axis};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Plane};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let block = ring_sector(k, (8.0, 12.0), (-1.0, 1.0), (0.0, 60.0))?;
-    let section = Section::on(xz(0.0))
+    let section = Section::on(Plane::xz(0.0))
         .line((10.0, -0.5), (10.7, -0.5))
         .conic((10.7, -0.5), (11.0, -0.5), 2f64.sqrt() / 2.0, (11.0, -0.2))
         .line((11.0, -0.2), (11.0, 0.5))

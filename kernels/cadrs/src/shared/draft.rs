@@ -1,6 +1,6 @@
 //! What the cadrs implementations of the draft cases share: cadrs's Draft feature, and picking
 //! a part's side faces.
-use crate::bench::{unit, P3, V3};
+use crate::bench::{P3, V3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel, DraftSpec, FaceId, FaceInfo, Kernel, SurfaceKind};
 
@@ -16,16 +16,7 @@ pub fn drafted(
     pull: V3,
     neutral: P3,
 ) -> Result<BodyId, Refusal> {
-    let spec = DraftSpec {
-        faces,
-        angle: angle.to_radians(),
-        pull: unit(pull),
-        neutral,
-        neutral_normal: None,
-        tangent_propagation: true,
-    };
-    let r = k.draft(body, &spec)?;
-    r.bodies.first().copied().ok_or_else(|| Refusal::from("the draft made no body"))
+    Ok(k.draft(body, &DraftSpec::new(faces, angle.to_radians(), pull, neutral))?.first()?)
 }
 
 /// Whether a face is a side for a pull along z: a plane square to the xy plane, or a cylinder

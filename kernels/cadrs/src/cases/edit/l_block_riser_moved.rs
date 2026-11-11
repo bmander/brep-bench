@@ -6,15 +6,15 @@
 //!
 //! The L is sketched on the Front plane and extruded along +y; then Move face translates the
 //! riser by 10 along +x.
-use crate::bench::{extrude, face_at, p3, polygon, sketch, v3, xz};
+use crate::bench::{extrude, p3, v3};
 use crate::shared::edit::move_faces;
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Loop, Pick, Plane, Profile};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let l = polygon(&[(0.0, 0.0), (40.0, 0.0), (40.0, 10.0), (15.0, 10.0), (15.0, 30.0), (0.0, 30.0)]);
+    let l = Loop::polygon(&[[0.0, 0.0], [40.0, 0.0], [40.0, 10.0], [15.0, 10.0], [15.0, 30.0], [0.0, 30.0]]);
     // the Front plane's normal is −y: extrude against it, along +y
-    let block = extrude(k, &sketch(xz(0.0), vec![l]), -20.0)?;
-    let riser = face_at(k, block, p3(15.0, 10.0, 20.0))?;
+    let block = extrude(k, &Profile::of(Plane::xz(0.0), vec![l]), -20.0)?;
+    let riser = k.face_at(block, p3(15.0, 10.0, 20.0))?;
     move_faces(k, block, &[riser], v3(10.0, 0.0, 0.0))
 }

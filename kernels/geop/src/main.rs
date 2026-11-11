@@ -10,16 +10,16 @@
 //! editor offers (`geop_cad_base::runner`), as geop's own examples are built. Then the part's
 //! solids are measured with the kernel's own tools: their exact volume and area (integrated over
 //! the trimmed NURBS faces, `Model::mass_properties` and `Model::solid_area`), their faces (every
-//! one a NURBS: geop has no other kind of surface) and its validity check
-//! (`validation::validate`). The solids are meshed into OUT.stl by geop's rasterizer, as finely as
-//! geop meshes an STL file (its `STL_QUALITY`, refined to each face's curvature), and
-//! one line of JSON is printed. Given `OUT.step`, the part's bodies are also written there by
-//! geop's own STEP writer (`geop_ops_step::write_step`, AP214, every surface and curve the NURBS
-//! geop holds), the product named after the case; where the writer fails, nothing is written and
-//! the reply says why in `step_error`. A step that fails is a refusal: the kernel declined,
-//! saying why. A case may also refuse in its own words, where geop has no operation for what it
-//! describes.
-//! The runner never reads the case's description.
+//! one a NURBS: geop has no other kind of surface) and its validity check (`validation::validate`).
+//! The solids are meshed into OUT.stl by geop's rasterizer, as finely as geop meshes an STL file
+//! (its `STL_QUALITY`, refined to each face's curvature), and one line of JSON is printed. Given
+//! `OUT.step`, the part's bodies are written there instead by geop's own STEP writer
+//! (`geop_ops_step::write_step`, AP214, every surface and curve the NURBS geop holds), the product
+//! named after the case, and nothing is measured or meshed; where the writer fails, nothing is
+//! written, the reply says why in `step_error`, and the runner goes on as without it. A step that
+//! fails is a refusal: the kernel
+//! declined, saying why. A case may also refuse in its own words, where geop has no operation for
+//! what it describes. The runner never reads the case's description.
 use geop_core_math::primitives::TriangleFace;
 use geop_core_rasterize::rasterize;
 use geop_core_topology::validation::{ValidationParameters, validate};
@@ -124,9 +124,9 @@ fn measures(model: &Model, solid: SolidId) -> Result<(f64, f64, bool), Refusal> 
 }
 
 /// The reply for the part built: the measures of its solids, once their triangles are written.
-/// Measuring, checking and meshing it are independent, and run side by side. With `out_step`,
-/// the part is then written there as STEP, the product called `name`, or the reply says why geop
-/// would not (`step_error`).
+/// Measuring, checking and meshing it are independent, and run side by side. With `out_step`, the
+/// part is then written there as STEP, the product called `name`, or the reply says why geop would
+/// not (`step_error`). A STEP written is the whole answer: nothing is then measured or meshed.
 fn measured(
     part: &NamedModel,
     out: &str,
@@ -137,6 +137,19 @@ fn measured(
     let solids: Vec<_> = model.solids.keys().copied().collect();
     if solids.is_empty() {
         return Err("the program built no solid".into());
+    }
+    // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
+    // measured or meshed; only where the writer declines does the runner go on to its triangles
+    let step_error = match out_step.map(|path| (path, write_step(part, name))) {
+        None => String::new(),
+        Some((path, Ok(text))) => {
+            std::fs::write(path, text).expect("the STEP file writes");
+            String::new()
+        }
+        Some((_, Err(e))) => format!(",\"step_error\":{}", quoted(&Refusal::from(e).to_string())),
+    };
+    if out_step.is_some() && step_error.is_empty() {
+        return Ok("{\"status\":\"ok\"}".into());
     }
     let (measures, valid, raster) = std::thread::scope(|s| {
         let valid = s.spawn(|| validate(&ValidationParameters::default(), model).is_ok());
@@ -161,16 +174,6 @@ fn measured(
     }
     std::fs::write(out, stl(&triangles)).map_err(|e| format!("{out} not written: {e}"))?;
     let valid = valid && converged;
-    let mut step_error = String::new();
-    if let Some(path) = out_step {
-        match write_step(part, name) {
-            Ok(text) => std::fs::write(path, text).expect("the STEP file writes"),
-            Err(e) => {
-                let why = Refusal::from(e).to_string();
-                step_error = format!(",\"step_error\":{}", quoted(&why));
-            }
-        }
-    }
     Ok(format!(
         "{{\"status\":\"ok\",\"volume\":{volume:e},\"area\":{area:e},\"faces\":{{\"bspline\":{faces}}},\"valid\":{valid}{step_error}}}"
     ))
