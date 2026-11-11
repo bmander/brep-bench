@@ -22,7 +22,12 @@ and area, which are graded, and its centre of gravity and inertia, which are sho
 harness/mass.py FILE` prints them for any STEP file). Open CASCADE (`harness/occt.py`, where
 `cadquery-ocp` is installed) meshes the file for the drawings and the viewer. A kernel with no STEP
 to give, or a file the harness cannot measure, is graded on the runner's own measures and
-triangles. So the time, CPU time (user and system, over every thread) and peak memory recorded
+triangles. The files are measured once all of a kernel's timed runs are done (so that nothing runs
+beside those), as many at once as the run may use cores (`--jobs`), each in `--mass-timeout`
+seconds (30 by default) and its pictures' meshing in 15; and what each file measured is kept by
+its SHA-256 in `results/mass/<kernel>.json`, so that a file a kernel writes again byte for byte is
+not measured again (CI keeps that file from run to run in a cache of its own; a change to
+`mass.py` or `step.py` starts it afresh). So the time, CPU time (user and system, over every thread) and peak memory recorded
 beside each outcome are a kernel's shortest path to a B-rep, not its meshing; none of them is
 graded. Runners are started by
 `harness/measure.py`, a small process that holds almost no memory, because on Linux a child's

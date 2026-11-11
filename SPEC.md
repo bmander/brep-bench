@@ -301,14 +301,16 @@ The harness then measures the file's solid itself (`harness/mass.py`), untimed: 
 area, which are graded as a runner's measures are, and its centre of gravity and its moments of
 inertia (of unit density, about the centre), which are shown. It reads the exact geometry the file
 holds, surface by surface and edge by edge, and integrates over each face by the divergence and
-Green theorems, to about 1e-12 of the solid's size; it relies on no kernel's reader, and on none of
+Green theorems, to well within the grade's 1e-6; it relies on no kernel's reader, and on none of
 the file's curves in a surface's parameters, which writers often leave out. A solid whose faces
 face into it (its volume negative) is **inside out**, and a wrong answer; so is a file a loop of
 which is not closed (its edges do not meet, vertex to vertex), which is no solid. An edge's curve
 may end a writer's tolerance from its vertex: the harness closes gaps of up to 1e-5 of the solid's
-size, which moves its measures by about as much. Where the harness cannot
-measure a file (a surface or a curve it does not yet read), it says why, and grades the runner's own
-measures and triangles in its place, from a second run without `OUT.step`, untimed. Open CASCADE
+size, which moves its measures by about as much. Where the harness cannot measure a file (a surface
+or a curve it does not yet read, or a file it does not finish in its own time limit, 30 s by
+default), it says why, and grades the runner's own measures and triangles in its place, from a
+second run without `OUT.step`, untimed. None of this is a kernel's time: the files are measured
+after all of a kernel's timed runs, several at once. Open CASCADE
 (`harness/occt.py`, where `cadquery-ocp` is installed) meshes the file for the drawings and the case
 page's viewer; nothing it makes is graded.
 
