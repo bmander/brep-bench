@@ -415,7 +415,9 @@ def first_run(command, case, timeout, keep, keep_step, writes_step, work):
         except (ValueError, OSError) as e:
             return First("wrong", f"its STEP cannot be read: {e}", None, None, ran,
                          {"error": f"unreadable STEP: {e}"}, None)
-        if os.path.getsize(out_step) <= STEP_KEPT:
+        # (its size, for the page's download: a file too large to keep still says how large)
+        made["bytes"] = os.path.getsize(out_step)
+        if made["bytes"] <= STEP_KEPT:
             keep_file(out_step, keep_step)
         verdict = step.verdict(made)
         if verdict in NOT_A_SOLID:

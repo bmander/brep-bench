@@ -42,7 +42,8 @@ descending, then back to the order drawn, with blank cells last. It has:
   its time (the solid built and written as STEP, not meshed; see
   [SPEC.md](../SPEC.md#step-is-the-answer)); its notes (why it failed, what it works around, what makes it elegant); its data (its measures against the
   expected ones, which other kernels it agrees with, its faces, its mesh and its STL to download,
-  and its STEP: its verdict (below) and what its STEP file says the solid is made of: whether it
+  and its STEP: its verdict (below), its file to download with its size (or the size alone, where
+  the file was too large to keep) and what the file says the solid is made of: whether it
   is a B-rep of faces on surfaces, a faceted B-rep or triangles, its faces by surface, its edges
   by curve, its topology, how many faces are flat triangles and how many edges are unpaired; or
   why it has none);

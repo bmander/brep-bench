@@ -41,7 +41,7 @@ kernel's cases keeps its last start-up and binary size. `--one-core` runs each c
 builds a second time, pinned to one core, for its speedup on all of them (Linux only). For each
 case a kernel with `"step": true` builds, `harness/step.py` reads the file for what the solid is made of (its
 form, its topology, its faces by surface and edges by curve, its unpaired edges), and the result keeps that
-as `step`, or `{"refused": why}` where the kernel's writer declined it, or `{"error": why}` where
+as `step`, with the file's size as `bytes`, or `{"refused": why}` where the kernel's writer declined it, or `{"error": why}` where
 the run failed. The run prints each one's verdict (`STEP brep`, `STEP refused: …`) at the end of
 its line. The file
 is kept beside the triangles, as `results/meshes/<kernel>/<case>.step`, for the case page's

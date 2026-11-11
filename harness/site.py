@@ -29,7 +29,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import step  # noqa: E402
 from highlight import highlight, loc  # noqa: E402
 import markdown  # noqa: E402
-from run import FROM_MESH, keep_file  # noqa: E402
+from run import FROM_MESH, keep_file, STEP_KEPT  # noqa: E402
 from suite import ROOT, cases as read_cases, kernels as read_kernels, source  # noqa: E402
 SITE = os.path.join(ROOT, "site")
 REPO = "https://github.com/bmander/brep-bench"
@@ -397,10 +397,11 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
             mb = os.path.getsize(stl) / 1e6
         # its STEP file, what the viewer shows where the run kept it (run.py's STEP_KEPT); its
         # triangles are shown only where there is none, or it cannot be read
-        step_file, step_href = stl[:-len(".stl")] + ".step", None
+        step_file, step_href, step_mb = stl[:-len(".stl")] + ".step", None, None
         if row and (row.get("step") or {}).get("faces") and os.path.exists(step_file):
             keep_file(step_file, os.path.join(SITE, "meshes", name, cid + ".step"))
             step_href = f"{up}meshes/{e(name)}/{e(cid)}.step"
+            step_mb = os.path.getsize(step_file) / 1e6
         src = source(registry.get(name, {}), cid)
         code = None
         if src and os.path.exists(src):
@@ -411,7 +412,8 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
         neat = r["elegance"].get(cid)
         facets = r["faceted"].get(cid)
         entries.append({"name": name, "row": row, "outcome": o, "stl": href, "mb": mb,
-                        "step": step_href, "writes": registry.get(name, {}).get("step"),
+                        "step": step_href, "step_mb": step_mb,
+                        "writes": registry.get(name, {}).get("step"),
                         "wa": wa,
                         "neat": neat, "facets": facets, "src": src, "code": code,
                         "loc": None if code is None else loc(code, src),
@@ -579,8 +581,10 @@ def step_badge(verdict):
     return f"<span class='badge {colour}' title='{html.escape(means)}'>{word}</span>"
 
 
-def step_facts(row, writes, faces):
-    """The data rows for a result's STEP (harness/step.py): its verdict and what its file says
+def step_facts(row, writes, faces, href=None, mb=None):
+    """The data rows for a result's STEP (harness/step.py): its verdict, its file to download
+    (`href`, `mb` megabytes, where the run kept it; else its size, where the run recorded one, and
+    that it was too large to keep) and what the file says
     the solid is made of, or why it has none (its kernel's writer refused, the runner failed, its
     kernel cannot write STEP or has not been set up to); `faces` its runner's own count, set
     beside the file's. None where it built no solid."""
@@ -599,6 +603,13 @@ def step_facts(row, writes, faces):
     if made.get("schema"):
         form += f" <span class=muted>{e(made['schema'])}</span>"
     rows = [("STEP", form)]
+    if href:
+        rows.append(("STEP file", f"<a href='{href}' download>download</a> "
+                                  f"<span class=muted>{size_text(mb)}</span>"))
+    elif made.get("bytes"):
+        rows.append(("STEP file", f"{size_text(made['bytes'] / 1e6)} <span class=muted>not kept: "
+                                  f"over the {size_text(STEP_KEPT / 1e6)} the site carries"
+                                  "</span>"))
     said = sum(faces.values()) if faces else None
     surfaces = f"{made['faces']}: {e(counted(made['surfaces']))}" if made["faces"] else "none"
     if made.get("triangles"):
@@ -735,7 +746,7 @@ def entry(en, exp):
     if en["stl"]:
         facts.append(("STL", f"<a href='{en['stl']}' download>download</a> "
                              f"<span class=muted>{size_text(en['mb'])}</span>"))
-    facts += step_facts(row, en["writes"], faces)
+    facts += step_facts(row, en["writes"], faces, en["step"], en["step_mb"])
     if facts:
         out.append("<table class=facts>" + "".join(
             f"<tr><th scope=row>{k}</th><td>{v}</td></tr>" for k, v in facts) + "</table>")
