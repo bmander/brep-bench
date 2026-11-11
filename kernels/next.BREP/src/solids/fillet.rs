@@ -100,7 +100,8 @@ pub fn lies_in_plane_z(face: &FaceRecord, height: f64) -> bool {
 /// chamfer takes them as its face 1 and face 2.
 pub fn faces_of_edge_at(solid: &BrepSolid, point: Vec3) -> Vec<&FaceRecord> {
     let Some(edge) = solid.edges.iter().find(|e| {
-        !e.degenerate && project_point_to_curve(&e.curve, point).is_ok_and(|hit| hit.distance <= 1e-7)
+        !e.degenerate
+            && project_point_to_curve(&e.curve, point).is_ok_and(|hit| hit.distance <= 1e-7)
     }) else {
         return Vec::new();
     };
