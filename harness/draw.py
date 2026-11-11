@@ -18,8 +18,10 @@ each other at the explorer's forty pixels.
 A case is drawn again only when what its drawing is made from changed: the kernel it is drawn
 from, that kernel's mesh, or this code. Each drawing's stamp (a hash of the mesh and of the code)
 is kept in site/drawings/index.json, so a run that adds or changes a kernel redraws only the cases
-whose drawing that changes, not every case it ran. Standard library only.
+whose drawing that changes, not every case it ran. The cases to draw are drawn several at once, a
+process to a processor. Standard library only.
 """
+import concurrent.futures
 import hashlib
 import json
 import math
@@ -42,6 +44,8 @@ ISO = 320
 THUMB = 160
 # Rendered at this many times the size and averaged down, so lines are smooth.
 SUPER = 2
+# How many cases are drawn at once, a process each: one to a processor.
+PARALLEL_JOBS = os.cpu_count() or 1
 # A crease is drawn where neighbouring facets turn by more than this.
 CREASE = math.radians(28)
 # Facets turned further from the eye than this (the cosine) draw no crease.
@@ -312,6 +316,11 @@ def current(drawn, name, made_from, out_dir):
                     for view in (*VIEWS, "iso", "thumb")))
 
 
+def draw(mesh, out_dir):
+    """A case's drawings made from its mesh: their sizes."""
+    return sheet(stl.read(mesh), out_dir)
+
+
 def main():
     prefixes = tuple(sys.argv[1:]) or ("",)
     with open(os.path.join(ROOT, "kernels.json")) as f:
@@ -334,6 +343,7 @@ def main():
     index = {}
     undrawn = set()
     kept = 0
+    todo = []
     case_ids = sorted({cid for r in results.values() for cid in r})
     for cid in case_ids:
         if not cid.startswith(prefixes):
@@ -349,11 +359,16 @@ def main():
             index[cid] = last[cid]
             kept += 1
             continue
-        sizes = sheet(stl.read(mesh), out_dir)
-        index[cid] = {"from": name, "sizes": sizes, "stamp": made_from}
-        print(f"{cid}: drawn from {name}", flush=True)
+        todo.append((cid, name, mesh, out_dir, made_from))
+    if todo:
+        with concurrent.futures.ProcessPoolExecutor(min(len(todo), PARALLEL_JOBS)) as pool:
+            drawing = [pool.submit(draw, mesh, out_dir) for _, _, mesh, out_dir, _ in todo]
+            for (cid, name, _, _, made_from), sizes in zip(todo, drawing):
+                index[cid] = {"from": name, "sizes": sizes.result(), "stamp": made_from}
+                print(f"{cid}: drawn from {name}", flush=True)
     if kept:
         print(f"{kept} drawings unchanged, kept")
+    index = {cid: index[cid] for cid in case_ids if cid in index}
     if prefixes != ("",):
         # the others' drawings are kept, but not of a case with nothing to draw any more
         index = {cid: d for cid, d in {**last, **index}.items()
