@@ -222,6 +222,10 @@ def gauss(n):
     return LEGENDRE[n]
 
 
+def gauss_nodes(n):
+    return gauss(n)
+
+
 def exact(p):
     """How many Gauss points integrate the measures exactly along a polynomial parameter of
     degree p: x³ (degree 3p) times the normal (2p - 1), 5p - 1 in all."""
@@ -251,8 +255,11 @@ for _i, _x in enumerate(XK):
     if _x:
         KRONROD.append((_x, WK[_i], _g))
 
+# how near each panel of the integral round a loop is taken, as a fraction of the solid's size's
+# power (its size cubed, for the volume)
+TOLERANCE = 1e-11
 # the most points the integral along one piece of a loop may take, before it is given up
-BUDGET = 400000
+BUDGET = 3000000
 
 # the measures integrated, in order: the face's area in (u, v), its area, the solid's volume, its
 # first moments ∫x, ∫y, ∫z, its second moments ∫x², ∫y², ∫z², ∫xy, ∫yz, ∫zx
@@ -299,34 +306,41 @@ def span(n, p, t, U):
 
 
 def basis(i, t, p, U):
-    """The non-zero basis functions at `t` and their first derivatives (A2.3, to one derivative)."""
-    ndu = [[0.0] * (p + 1) for _ in range(p + 1)]
-    ndu[0][0] = 1.0
+    """The non-zero basis functions at `t` and their first derivatives: Cox-de Boor's triangle
+    (the NURBS Book, A2.2), the derivatives from the degree below's values (its eq. 2.7)."""
+    if p == 1:
+        h = U[i + 1] - U[i]
+        x = (t - U[i]) / h if h else 0.0
+        return [1.0 - x, x], ([-1.0 / h, 1.0 / h] if h else [0.0, 0.0])
+    N = [1.0] + [0.0] * p
     left = [0.0] * (p + 1)
     right = [0.0] * (p + 1)
+    below = [1.0]
     for j in range(1, p + 1):
         left[j] = t - U[i + 1 - j]
         right[j] = U[i + j] - t
+        if j == p:
+            below = N[:p]
         saved = 0.0
         for r in range(j):
-            ndu[j][r] = right[r + 1] + left[j - r]
-            tmp = ndu[r][j - 1] / ndu[j][r] if ndu[j][r] else 0.0
-            ndu[r][j] = saved + right[r + 1] * tmp
+            den = right[r + 1] + left[j - r]
+            tmp = N[r] / den if den else 0.0
+            N[r] = saved + right[r + 1] * tmp
             saved = left[j - r] * tmp
-        ndu[j][j] = saved
-    N = [ndu[j][p] for j in range(p + 1)]
+        N[j] = saved
     if p == 0:
         return N, [0.0]
     D = []
     for r in range(p + 1):
+        a = i - p + r  # the function's index
         d = 0.0
         if r >= 1:
-            k = ndu[p][r - 1]
-            d += ndu[r - 1][p - 1] / k if k else 0.0
+            den = U[a + p] - U[a]
+            d += below[r - 1] / den if den else 0.0
         if r <= p - 1:
-            k = ndu[p][r]
-            d -= ndu[r][p - 1] / k if k else 0.0
-        D.append(d * p)
+            den = U[a + p + 1] - U[a + 1]
+            d -= below[r] / den if den else 0.0
+        D.append(p * d)
     return N, D
 
 
@@ -450,8 +464,9 @@ class Newton1:
     def samples(self):
         if not hasattr(self, "_samples"):
             ts = []
+            each = 4 if len(self.knots) < 1000 else 1  # a long fit: a sample a piece is plenty
             for a, b in zip(self.knots, self.knots[1:]):
-                ts += [a + (b - a) * k / 4 for k in range(4)]
+                ts += [a + (b - a) * k / each for k in range(each)]
             ts.append(self.knots[-1])
             self._samples = [(t, self.point(t)) for t in ts]
         return self._samples
@@ -1626,7 +1641,8 @@ def at_singular(s, q, scale):
 def piece(s, curve, t0, t1, scale, seed=None):
     """One piece of an edge, through no singular point but perhaps at its ends."""
     path = Path(s, curve, t0, t1)
-    n = 16 + 4 * sum(1 for b in curve.breaks if min(t0, t1) < b < max(t0, t1))
+    # a sample a piece of the curve (fast turns are refined below), at least 16
+    n = min(16 + sum(1 for b in curve.breaks if min(t0, t1) < b < max(t0, t1)), 4000)
     ts = [t0 + (t1 - t0) * k / n for k in range(n + 1)]
     ends = [at_singular(s, curve.point(t0), scale), at_singular(s, curve.point(t1), scale)]
     # within a hair of a singular end the angles are rounding's: no samples there (the end itself
@@ -1882,16 +1898,23 @@ class Face:
         return [-x for x in self.green(line)]
 
     def green(self, path):
-        """-∫ H(u(t), v(t)) u'(t) dt along a path."""
+        """-∫ H(u(t), v(t)) u'(t) dt along a path: nothing along a line of constant u (a seam, a
+        meridian, a B-spline face's own boundary), where du is nothing."""
+        us = [path.line[0][0], path.line[1][0]] if path.line else [uv[0] for _, uv in path.ref]
+        if max(us) - min(us) <= 1e-13 * (1 + max(abs(x) for x in us)):
+            return [0.0] * NM
         t0, t1 = (0.0, 1.0) if path.line else (path.t0, path.t1)
-        cuts = [t0] + sorted(b for b in (path.c.breaks if path.c else ())
-                             if min(t0, t1) < b < max(t0, t1)) + [t1]
+        inner = sorted(b for b in (path.c.breaks if path.c else ()) if min(t0, t1) < b < max(t0, t1))
+        cuts = [t0] + inner + [t1]
         if t1 < t0:
             cuts = [t0] + sorted((b for b in cuts[1:-1]), reverse=True) + [t1]
         out = [0.0] * NM
         L = self.L
-        tol = [1e-10 * max(L * L, 1.0), 1e-12 * L ** 2, 1e-13 * L ** 3] + [1e-13 * L ** 4] * 3 + \
-              [1e-13 * L ** 5] * 6
+        # each panel's error to TOLERANCE of the solid's size's power: the measures are graded to
+        # 1e-6, and some thousand panels' errors still come well short of that
+        e = TOLERANCE
+        tol = [1e-9 * max(L * L, 1.0), e * L ** 2, e * L ** 3] + [e * L ** 4] * 3 + \
+              [e * L ** 5] * 6
 
         spent = [0]
 
@@ -1923,8 +1946,12 @@ class Face:
         # a curve of very many pieces (a polyline, a B-spline fitted point by point): each piece
         # tiny beside the whole, and smooth, so Gauss's seven points are exact to well within the
         # tolerance there, with no estimate of the error
-        small = abs(t1 - t0) / 512 if len(cuts) > 513 else 0.0
-        gauss = [(x, wg) for x, _, wg in KRONROD if wg]
+        # (a kink between pieces is no smoothness an estimate of the error can rely on: every
+        # break is a cut; along a straight piece, four points are plenty)
+        small = abs(t1 - t0) / 128 if len(cuts) > 129 else 0.0
+        straight = path.c is not None and getattr(path.c, "p", None) == 1 or \
+            isinstance(path.c, Polyline)
+        gauss = list(zip(*gauss_nodes(4))) if straight else [(x, wg) for x, _, wg in KRONROD if wg]
         for a, b in zip(cuts, cuts[1:]):
             if a == b:
                 continue
