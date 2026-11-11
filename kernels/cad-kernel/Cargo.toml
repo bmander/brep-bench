@@ -8,7 +8,7 @@ publish = false
 
 [dependencies]
 # a release, exactly: the scoreboard says which, and moving to another is a change made here
-cad-kernel = "=0.6.3"
+cad-kernel = "=0.7.0"
 
 [profile.release]
 debug = 0
