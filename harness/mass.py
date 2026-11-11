@@ -275,10 +275,18 @@ def integrand(p, n, c):
 
 def span(n, p, t, U):
     """The knot span of `t`: i with U[i] <= t < U[i+1], p <= i <= n (the NURBS Book, A2.1)."""
+    # at the domain's ends, the last (or first) span of non-zero length: knots need not be
+    # clamped, and an end knot may be repeated past the domain
     if t >= U[n + 1]:
-        return n
+        i = n
+        while i > p and U[i] >= U[i + 1]:
+            i -= 1
+        return i
     if t <= U[p]:
-        return p
+        i = p
+        while i < n and U[i] >= U[i + 1]:
+            i += 1
+        return i
     lo, hi = p, n + 1
     mid = (lo + hi) // 2
     while t < U[mid] or t >= U[mid + 1]:
