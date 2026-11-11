@@ -180,15 +180,14 @@ fn write_step(body: &Body, path: &str) -> Result<(), String> {
 /// that is less: the reference runner's rule (`kernels/occt/run.py`). A STEP written is the whole
 /// answer: nothing is then measured or meshed.
 fn measured(body: &Body, out: &str, out_step: Option<&str>) -> Result<String, Refusal> {
-    let step_error = || {
+    // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
+    // measured or meshed; only where the writer declines does the runner go on to its triangles
+    let step_error = {
         out_step
             .and_then(|path| write_step(body, path).err())
             .map(|e| format!(",\"step_error\":{}", quoted(&e)))
             .unwrap_or_default()
     };
-    // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
-    // measured or meshed; only where the writer declines does the runner go on to its triangles
-    let step_error = step_error();
     if out_step.is_some() && step_error.is_empty() {
         return Ok("{\"status\":\"ok\"}".into());
     }

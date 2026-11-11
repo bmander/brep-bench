@@ -79,15 +79,15 @@ fn kind(k: SurfaceKind) -> &'static str {
     }
 }
 
-/// With `out_step`, `body` written there as STEP, or why arris would not (`step_error` in
-/// `reply`).
-fn step(m: &Model, body: Body, out_step: Option<&str>, reply: &mut Value) {
+/// With `out_step`, `body` written there as STEP; why arris would not, if it would not.
+fn step(m: &Model, body: Body, out_step: Option<&str>) -> Option<String> {
     if let Some(path) = out_step {
         match arris::io::step::write(m, &[body]) {
             Ok(text) => std::fs::write(path, text).expect("the STEP file writes"),
-            Err(e) => reply["step_error"] = json!(e.to_string()),
+            Err(e) => return Some(e.to_string()),
         }
     }
+    None
 }
 
 /// The measures, face kinds and validity of `body`, its triangles written to `out`; with
@@ -96,12 +96,10 @@ fn step(m: &Model, body: Body, out_step: Option<&str>, reply: &mut Value) {
 fn report(m: &Model, body: Body, out: &str, out_step: Option<&str>) -> Result<Value, OpError> {
     // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
     // measured or meshed; only where the writer declines does the runner go on to its triangles
-    let mut written = json!({"status": "ok"});
-    step(m, body, out_step, &mut written);
-    if out_step.is_some() && written.get("step_error").is_none() {
-        return Ok(written);
+    let declined = step(m, body, out_step);
+    if out_step.is_some() && declined.is_none() {
+        return Ok(json!({"status": "ok"}));
     }
-    let declined = written.get("step_error").cloned();
     let props = mass_properties(m, body, &Control::NONE)?;
     let mut faces: BTreeMap<&str, usize> = BTreeMap::new();
     for f in m.faces(body)? {
@@ -128,7 +126,7 @@ fn report(m: &Model, body: Body, out: &str, out_step: Option<&str>) -> Result<Va
         "status": "ok", "volume": props.volume, "area": props.area, "faces": faces, "valid": valid,
     });
     if let Some(why) = declined {
-        reply["step_error"] = why;
+        reply["step_error"] = json!(why);
     }
     Ok(reply)
 }

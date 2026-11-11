@@ -74,9 +74,8 @@ fn kind(surface: &SurfaceGeometry) -> &'static str {
     }
 }
 
-/// With `out_step`, `part` written there as STEP, or why popkern's writer would not
-/// (`step_error` in `reply`).
-fn step(part: &Part, out_step: Option<&Path>, reply: &mut Value) -> Result<(), Failure> {
+/// With `out_step`, `part` written there as STEP; why popkern's writer would not, if it would not.
+fn step(part: &Part, out_step: Option<&Path>) -> Result<Option<String>, Failure> {
     if let Some(path) = out_step {
         // the product is named for the file's stem, as `Part::export_step` names it; the writer's
         // refusal is its own error, without the file name `PartError::Io` wraps it in
@@ -84,11 +83,11 @@ fn step(part: &Part, out_step: Option<&Path>, reply: &mut Value) -> Result<(), F
         match part.step_bytes(&product) {
             Ok(step) => std::fs::write(path, step)
                 .map_err(|e| Failure::Fault(format!("no STEP written: {e}")))?,
-            Err(PartError::Io { source, .. }) => reply["step_error"] = json!(source.to_string()),
-            Err(e) => reply["step_error"] = json!(e.to_string()),
+            Err(PartError::Io { source, .. }) => return Ok(Some(source.to_string())),
+            Err(e) => return Ok(Some(e.to_string())),
         }
     }
-    Ok(())
+    Ok(None)
 }
 
 /// Run the case's script and report the part it built, its triangles written to `out`; with
@@ -116,12 +115,10 @@ fn build(script: &Path, out: &str, out_step: Option<&Path>) -> Result<Value, Fai
     let part = model.to_part().map_err(|e| Failure::Refused(e.to_string()))?;
     // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
     // measured or meshed; only where the writer declines does the runner go on to its triangles
-    let mut written = json!({"status": "ok"});
-    step(&part, out_step, &mut written)?;
-    if out_step.is_some() && written.get("step_error").is_none() {
-        return Ok(written);
+    let declined = step(&part, out_step)?;
+    if out_step.is_some() && declined.is_none() {
+        return Ok(json!({"status": "ok"}));
     }
-    let declined = written.get("step_error").cloned();
     let brep = part.brep();
     let tolerance = part.tolerance();
     let volume = popkern_measure::body_volume(brep, &tolerance)
@@ -145,7 +142,7 @@ fn build(script: &Path, out: &str, out_step: Option<&Path>) -> Result<Value, Fai
     let mut reply =
         json!({"status": "ok", "volume": volume, "area": area, "faces": faces, "valid": valid});
     if let Some(why) = declined {
-        reply["step_error"] = why;
+        reply["step_error"] = json!(why);
     }
     Ok(reply)
 }

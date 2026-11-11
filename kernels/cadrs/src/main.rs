@@ -182,7 +182,9 @@ fn measured(k: &DefaultKernel, body: BodyId, out: &str, out_step: Option<&str>) 
         BodyClass::Solid => {}
         other => return Err(format!("the result is not a solid but {other:?}").into()),
     }
-    let step_error = || match out_step.map(|path| (path, k.export_step(&[body]))) {
+    // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
+    // measured or meshed; only where the writer declines does the runner go on to its triangles
+    let step_error = match out_step.map(|path| (path, k.export_step(&[body]))) {
         None => String::new(),
         Some((path, Ok(step))) => {
             std::fs::write(path, step).expect("the STEP file writes");
@@ -190,9 +192,6 @@ fn measured(k: &DefaultKernel, body: BodyId, out: &str, out_step: Option<&str>) 
         }
         Some((_, Err(e))) => format!(",\"step_error\":{}", quoted(&e.to_string())),
     };
-    // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
-    // measured or meshed; only where the writer declines does the runner go on to its triangles
-    let step_error = step_error();
     if out_step.is_some() && step_error.is_empty() {
         return Ok("{\"status\":\"ok\"}".into());
     }

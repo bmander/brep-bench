@@ -157,15 +157,15 @@ fn stl(meshes: &[TriangleMesh]) -> Vec<u8> {
     out
 }
 
-/// With `out_step`, `solids` written there as STEP, or why brepkit would not (`step_error` in
-/// `reply`).
-fn step(topo: &Topology, solids: &[SolidId], out_step: Option<&str>, reply: &mut Value) {
+/// With `out_step`, `solids` written there as STEP; why brepkit would not, if it would not.
+fn step(topo: &Topology, solids: &[SolidId], out_step: Option<&str>) -> Option<String> {
     if let Some(path) = out_step {
         match brepkit_io::step::write_step(topo, solids) {
             Ok(step) => std::fs::write(path, step).expect("the STEP file writes"),
-            Err(e) => reply["step_error"] = json!(e.to_string()),
+            Err(e) => return Some(e.to_string()),
         }
     }
+    None
 }
 
 /// The measures, face kinds and validity of `solids`, their triangles written to `out` and, if
@@ -182,12 +182,10 @@ fn report(
     }
     // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
     // measured or meshed; only where the writer declines does the runner go on to its triangles
-    let mut written = json!({"status": "ok"});
-    step(topo, solids, out_step, &mut written);
-    if out_step.is_some() && written.get("step_error").is_none() {
-        return Ok(written);
+    let declined = step(topo, solids, out_step);
+    if out_step.is_some() && declined.is_none() {
+        return Ok(json!({"status": "ok"}));
     }
-    let declined = written.get("step_error").cloned();
     let diag = extent(topo, solids)?;
     // brepkit's measures tessellate what they cannot integrate exactly; ask for a fine one (they
     // clamp it to a small fraction of the solid's extent besides)
@@ -212,7 +210,7 @@ fn report(
         "status": "ok", "volume": volume, "area": area, "faces": faces, "valid": valid,
     });
     if let Some(why) = declined {
-        reply["step_error"] = why;
+        reply["step_error"] = json!(why);
     }
     Ok(reply)
 }
