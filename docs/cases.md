@@ -49,6 +49,18 @@ opposing sweeps. Thickness and interval controls, plus both Boolean operands sep
 which stage a kernel reaches. The cases stay unsettled; the originating field-mesher failures
 and native B-rep refusals are recorded separately.
 
+Five gears cut by their mates make a ladder from bevel to worm. In each the blank turns about the z
+axis while the tool turns about a line square to it, at the pair's ratio, and only the distance
+between the shafts and the tool change: a
+[straight bevel gear](../cases/swept/straight-bevel-gear-cut-by-its-pinion.md) whose pinion's
+axis meets its own, a [hypoid gear](../cases/swept/hypoid-gear-cut-by-its-pinion.md) whose
+pinion's axis misses it by 12 (one tooth space each, the tool a straight-sided pinion tooth), and
+then, the pinion become a single-start worm that cuts every tooth over one turn of the gear, a
+[spiroid face gear](../cases/swept/spiroid-face-gear-hobbed-by-its-worm.md) under a tapered worm,
+a [helicon face gear](../cases/swept/helicon-face-gear-hobbed-by-its-worm.md) under a cylindrical
+one, and a [worm wheel](../cases/swept/worm-wheel-hobbed-by-its-worm.md) with the same worm beside
+its rim.
+
 ## Solid sweeps at their hardest (`swept/`, `nurbs/`, from geomsolver's sweep epic)
 
 The degenerate contacts and trims that
