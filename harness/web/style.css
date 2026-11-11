@@ -29,7 +29,19 @@ body.wide { max-width: 1600px; }
 h1 { font-size: 1.6em; margin: 0 0 4px; }
 h2 { margin-top: 32px; }
 p.lede { color: var(--muted); margin: 0 0 24px; max-width: 80ch; }
-p.definition { max-width: 80ch; }
+/* the definition, folded (fold.js): its first sentence and the line after it, which fades out;
+   the height here is that at the full measure, and fold.js sets it for the measure in hand */
+.definition { max-width: 80ch; overflow: hidden; max-height: 4.5em;
+              -webkit-mask-image: linear-gradient(#000 calc(100% - 1.5em), transparent);
+              mask-image: linear-gradient(#000 calc(100% - 1.5em), transparent); }
+.definition.whole { max-height: none; -webkit-mask-image: none; mask-image: none; }
+.definition p { margin: 0 0 0.8em; }
+.definition p:last-child { margin-bottom: 0; }
+button.unfold { font: inherit; line-height: 1; padding: 6px 12px 6px 0; margin: 0 0 16px;
+                border: 0; background: none; color: var(--muted); cursor: pointer; }
+button.unfold:hover, button.unfold:focus-visible { color: var(--accent); }
+@media print { .definition { max-height: none; -webkit-mask-image: none; mask-image: none; }
+               button.unfold { display: none; } }
 nav.top { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 0 0 16px; font-size: 0.95em; }
 nav.top a { text-decoration: none; color: var(--muted); }
 nav.top a:first-child { color: var(--fg); font-weight: 600; }
