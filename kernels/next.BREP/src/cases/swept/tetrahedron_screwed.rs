@@ -1,13 +1,23 @@
 //! The solid a regular tetrahedron fills as it is carried along a screw.
 //!
-//! Refused: the kernel's sweep of a solid takes a solid of revolution along a screw, or a prism
-//! along a planar motion; a tetrahedron is neither, and its sweep's walls are envelopes no
-//! elementary composition of the kernel's operations gives.
+//! Through the kernel's whole sweep of a solid (`sweep_solid`): the tetrahedron as a convex
+//! polyhedron, its four corners and four faces, along the screw about the z axis that turns 1 and
+//! rises 5/2π per radian, from 0 to 3π (540°). The kernel bounds the sweep by the tetrahedron's back
+//! faces at the start, its front faces at the end, and the sheets its silhouette edges sweep between.
+use crate::solids::p;
 use crate::Refusal;
-use brep_kernel::BrepSolid;
+use brep_kernel::{sweep_solid, BrepSolid, ScrewStep, SolidMotion, SolidTool};
+use std::f64::consts::{PI, TAU};
 
 pub fn build() -> Result<BrepSolid, Refusal> {
-    Err(Refusal::from(
-        "next.BREP's sweep of a solid (sweepSolidWithin) carries a solid of revolution along a screw or a turn, or a prism along a planar motion; a tetrahedron is neither, and the walls its edges sweep under the screw are envelopes that would have to be computed outside the kernel",
-    ))
+    let tool = SolidTool::Polyhedron {
+        vertices: vec![p(5.0, 1.0, 1.0), p(5.0, -1.0, -1.0), p(3.0, 1.0, -1.0), p(3.0, -1.0, 1.0)],
+        faces: vec![vec![0, 1, 2], vec![0, 1, 3], vec![0, 2, 3], vec![1, 2, 3]],
+    };
+    let motion = SolidMotion {
+        steps: vec![ScrewStep { axis_origin: p(0.0, 0.0, 0.0), axis_direction: p(0.0, 0.0, 1.0), turn: 1.0, advance: 5.0 / TAU }],
+        from: 0.0,
+        to: 3.0 * PI,
+    };
+    Ok(sweep_solid(&tool, &motion)?)
 }
