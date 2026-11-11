@@ -493,6 +493,11 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
             # the file cannot be read, its runner's triangles instead
             out.append("<div id=view hidden><canvas id=viewer></canvas>"
                        "<p class=legend id=kinds hidden></p>"
+                       # a B-spline surface's control net, drawn over its faces at a click
+                       "<p class=legend id=nets hidden><button type=button class=chip "
+                       "title='Draw the control points of each B-spline "
+                       "surface, joined in rows along u and along v, faint where the solid "
+                       "hides them'>Control nets</button> <span></span></p>"
                        "<p class=muted id=faces-note hidden>Drag to turn, scroll or pinch to zoom, "
                        "right-drag to move. The solid as its STEP file has it, meshed in the "
                        "browser by Open CASCADE (occt-import-js): each face colored by the kind "
@@ -925,35 +930,195 @@ const KINDS = [
 const COLOR = Object.fromEntries(KINDS.map(([k, c]) => [k, new THREE.Color(c)]));
 const KIND_OF = Object.fromEntries(KINDS.flatMap(([k, , names]) => names.map((n) => [n, k])));
 
+// A STEP entity's parts, a simple entity's one and a complex entity's each in turn, its strings
+// emptied: `NAME(a, (b, c), #3)` as {name: 'NAME', args: ['a', ['b', 'c'], '#3']}, a typed value
+// (`LENGTH_MEASURE(1.)`) a part in its place. Enough for a control net and the unit of length.
+function parts(body) {
+  const tokens = body.match(/'(?:[^']|'')*'|[A-Z_][A-Z0-9_]*\\s*\\(|[(),]|[^\\s(),']+/g) || [];
+  let i = tokens[0] === '(' ? 1 : 0;  // a complex entity's parts are in one more '('
+  const list = () => {  // the items after a '(', to its ')'
+    const out = [];
+    while (i < tokens.length) {
+      const t = tokens[i++];
+      if (t === ')') break;
+      if (t === '(') out.push(list());
+      else if (t.endsWith('(')) out.push({ name: t.slice(0, -1).trim(), args: list() });
+      else if (t !== ',') out.push(t);
+    }
+    return out;
+  };
+  return list().filter((x) => x.name);
+}
+
+// The millimetres in the file's unit of length (Open CASCADE gives the faces in millimetres),
+// as harness/mass.py's Model._unit reads it; null where it does not know it
+const PREFIX = { '$': 1, '.MILLI.': 1e-3, '.CENTI.': 1e-2, '.DECI.': 1e-1, '.KILO.': 1e3,
+                 '.MICRO.': 1e-6, '.NANO.': 1e-9 };
+function millimetres(entities, at) {
+  const scale = (e, depth = 0) => {
+    if (!e || depth > 4) return null;
+    const ps = parts(e.body);
+    const si = ps.find((p) => p.name === 'SI_UNIT');
+    if (si) {
+      const prefix = PREFIX[si.args.length >= 2 ? si.args[si.args.length - 2] : '$'];
+      return prefix === undefined ? null : prefix * 1000;
+    }
+    const by = ps.find((p) => p.name === 'CONVERSION_BASED_UNIT');
+    const measure = by && at(by.args[1]);
+    const m = measure && parts(measure.body).find((p) => p.name.endsWith('MEASURE_WITH_UNIT'));
+    if (!m) return null;
+    const v = typeof m.args[0] === 'object' ? m.args[0].args[0] : m.args[0];
+    const of = scale(at(m.args[1]), depth + 1);
+    return of === null ? null : parseFloat(v) * of;
+  };
+  for (const e of entities.values()) {
+    if (e.names.includes('LENGTH_UNIT')) return scale(e);
+  }
+  return 1;
+}
+
+// The knot spans of a B-spline's parameter, its patches along it: the distinct knots in its
+// domain, less one. A Bézier's is one (as harness/mass.py's implicit_knots has it); a uniform
+// one's, its control points less its degree.
+function spans(bezier, poles, degree, mults, knots) {
+  if (bezier) return 1;
+  if (!mults) return Math.max(1, poles - degree);
+  const all = [];
+  mults.forEach((m, k) => { for (let j = 0; j < +m; j++) all.push(parseFloat(knots[k])); });
+  const lo = all[degree], hi = all[all.length - degree - 1];
+  return Math.max(1, new Set(all.filter((u) => u >= lo && u <= hi)).size - 1);
+}
+
+// A B-spline surface's control net, from its entity: its control points (in millimetres) as rows
+// along u, its degrees, its knot spans and whether it is rational (as harness/step.py's kind
+// has it: the entity says so). Null where it is not one.
+function controlNet(e, at, mm) {
+  const ps = parts(e.body);
+  const bezier = ps.some((p) => p.name === 'BEZIER_SURFACE');
+  let pu, pv, grid, knots = [];
+  if (ps.length === 1) {
+    const [{ name, args }] = ps;
+    [pu, pv, grid] = [+args[1], +args[2], args[3]];
+    if (name === 'B_SPLINE_SURFACE_WITH_KNOTS') knots = args.slice(8, 12);
+  } else {
+    const base = ps.find((p) => p.name === 'B_SPLINE_SURFACE');
+    if (!base) return null;
+    [pu, pv, grid] = [+base.args[0], +base.args[1], base.args[2]];
+    const k = ps.find((p) => p.name === 'B_SPLINE_SURFACE_WITH_KNOTS');
+    if (k) knots = k.args.slice(0, 4);
+  }
+  if (!Array.isArray(grid) || !Array.isArray(grid[0])) return null;
+  const point = (ref) => {
+    const p = at(ref);
+    const c = p && parts(p.body).find((x) => x.name === 'CARTESIAN_POINT');
+    const xyz = c && c.args.find(Array.isArray);
+    return xyz ? [0, 1, 2].map((j) => parseFloat(xyz[j] || 0) * mm) : null;
+  };
+  const points = grid.map((row) => row.map(point));
+  if (points.some((row) => row.some((q) => !q))) return null;
+  return {
+    points, degree: [pu, pv],
+    spans: [spans(bezier, grid.length, pu, knots[0], knots[2]),
+            spans(bezier, grid[0].length, pv, knots[1], knots[3])],
+    rational: e.names.includes('RATIONAL_B_SPLINE_SURFACE'),
+  };
+}
+
 // The kind of each face in a STEP file, in the order Open CASCADE reads them: each solid's
-// shells in turn (its outer shell, then its voids), each shell's faces as it lists them.
-function faceKinds(text) {
+// shells in turn (its outer shell, then its voids), each shell's faces as it lists them; and
+// the control net of each B-spline surface a face lies on, once however many faces lie on it.
+function readStep(text) {
   const entities = new Map();
-  const record = /#(\d+)\s*=\s*((?:'(?:[^']|'')*'|[^;'])*);/g;
+  const record = /#(\\d+)\\s*=\\s*((?:'(?:[^']|'')*'|[^;'])*);/g;
   let m;
   while ((m = record.exec(text))) {
-    const body = m[2].replace(/'(?:[^']|'')*'/g, "''");
-    const names = body.trim().startsWith('(')
-      ? [...body.matchAll(/([A-Z_][A-Z0-9_]*)\s*\(/g)].map((x) => x[1])
-      : [(body.match(/^\s*([A-Z_][A-Z0-9_]*)/) || [])[1] || '?'];
-    entities.set(+m[1], { names, refs: [...body.matchAll(/#(\d+)/g)].map((x) => +x[1]) });
+    // its strings emptied to name it; its own text, which `parts` reads, kept as it is (a part
+    // of the file's, not a copy)
+    const bare = m[2].replace(/'(?:[^']|'')*'/g, "''");
+    const names = bare.trim().startsWith('(')
+      ? [...bare.matchAll(/([A-Z_][A-Z0-9_]*)\\s*\\(/g)].map((x) => x[1])
+      : [(bare.match(/^\\s*([A-Z_][A-Z0-9_]*)/) || [])[1] || '?'];
+    entities.set(+m[1], { names, body: m[2],
+                          refs: [...bare.matchAll(/#(\\d+)/g)].map((x) => +x[1]) });
   }
+  const surfaceOf = (face) => face.refs[face.refs.length - 1];
   const kindOf = (face) => {
-    const surface = entities.get(face.refs[face.refs.length - 1]);
+    const surface = entities.get(surfaceOf(face));
     for (const n of surface ? surface.names : []) if (KIND_OF[n]) return KIND_OF[n];
     return 'other';
   };
-  const out = [];
+  const kinds = [];
+  const splines = new Set();
   for (const e of entities.values()) {
     if (!e.names.includes('MANIFOLD_SOLID_BREP') && !e.names.includes('BREP_WITH_VOIDS')) continue;
     for (const r of e.refs) {
       let shell = entities.get(r);
       if (shell && shell.names[0] === 'ORIENTED_CLOSED_SHELL') shell = entities.get(shell.refs[0]);
       if (!shell || !shell.names[0].endsWith('_SHELL')) continue;
-      for (const f of shell.refs) if (entities.has(f)) out.push(kindOf(entities.get(f)));
+      for (const f of shell.refs) {
+        const face = entities.get(f);
+        if (!face) continue;
+        const kind = kindOf(face);
+        kinds.push(kind);
+        if (kind === 'bspline') splines.add(surfaceOf(face));
+      }
     }
   }
-  return out;
+  const at = (ref) => entities.get(+String(ref).slice(1));  // `#12`'s entity
+  const mm = splines.size ? millimetres(entities, at) : null;
+  const nets = mm === null ? []
+    : [...splines].map((s) => controlNet(entities.get(s), at, mm)).filter(Boolean);
+  return { kinds, nets };
+}
+
+// The control nets as lines and dots: each row of control points joined along u and along v,
+// and a dot at each point (smaller where there are thousands); what the solid hides drawn
+// again, faint, through it.
+const NETS = 1;  // the layer the nets are drawn on, which the camera sees while they are asked for
+function drawNets(nets) {
+  const lines = [], dots = [];
+  for (const { points } of nets) {
+    for (let i = 0; i < points.length; i++) {
+      for (let j = 0; j < points[i].length; j++) {
+        dots.push(...points[i][j]);
+        if (j + 1 < points[i].length) lines.push(...points[i][j], ...points[i][j + 1]);
+        if (i + 1 < points.length) lines.push(...points[i][j], ...points[i + 1][j]);
+      }
+    }
+  }
+  const color = dark.matches ? 0xff6fae : 0xc2185b;
+  const lineGeometry = new THREE.BufferGeometry();
+  lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(lines, 3));
+  const dotGeometry = new THREE.BufferGeometry();
+  dotGeometry.setAttribute('position', new THREE.Float32BufferAttribute(dots, 3));
+  const group = new THREE.Group();
+  for (const seen of [true, false]) {
+    const look = seen ? {} : { transparent: true, opacity: 0.25, depthTest: false };
+    const l = new THREE.LineSegments(lineGeometry, new THREE.LineBasicMaterial({ color, ...look }));
+    const d = new THREE.Points(dotGeometry, new THREE.PointsMaterial({
+      color, size: dots.length > 9000 ? 3 : 5, sizeAttenuation: false, ...look }));
+    l.renderOrder = d.renderOrder = seen ? 1 : 2;
+    l.layers.set(NETS);
+    d.layers.set(NETS);
+    group.add(l, d);
+  }
+  return group;
+}
+
+// What the control nets say of the surfaces: how many, their control points and patches, the
+// largest, and whether any is rational
+function sizeOf(nets) {
+  const count = (n) => n.points.length * n.points[0].length;
+  const poles = nets.reduce((a, n) => a + count(n), 0);
+  const patches = nets.reduce((a, n) => a + n.spans[0] * n.spans[1], 0);
+  const big = nets.reduce((a, n) => (count(n) > count(a) ? n : a));
+  const s = (k, one, many = one + 's') => `${k.toLocaleString()} ${k === 1 ? one : many}`;
+  return `${s(nets.length, 'B-spline surface')}: ${s(poles, 'control point')}, `
+    + s(patches, 'patch', 'patches')
+    + (nets.length > 1 ? `; the largest ${big.points.length}×${big.points[0].length} points`
+                       : ` (${big.points.length}×${big.points[0].length} points)`)
+    + `, degree ${big.degree[0]}×${big.degree[1]}, ${big.spans[0]}×${big.spans[1]} patches`
+    + (nets.some((n) => n.rational) ? '; rational' : '');
 }
 
 // Open CASCADE compiled for the browser (occt-import-js), loaded the first time faces are shown
@@ -973,9 +1138,10 @@ function openCascade() {
 }
 
 // A STEP file's solid, meshed by Open CASCADE: each B-rep face colored by its surface's kind,
-// and the edges bounding each face (those of its triangles that only one of them uses) drawn.
-// Where the file's faces and Open CASCADE's are not as many, the kinds are not known, and every
-// face is drawn in one color.
+// and the edges bounding each face (those of its triangles that only one of them uses) drawn;
+// and, hidden till asked for, the control nets of its B-spline surfaces. Where the file's faces
+// and Open CASCADE's are not as many, the kinds are not known, and every face is drawn in one
+// color.
 function buildFaces(src) {
   const key = 'step:' + src;
   if (!built.has(key)) {
@@ -984,7 +1150,7 @@ function buildFaces(src) {
       return r.arrayBuffer();
     }), openCascade()]).then(([buffer, oc]) => {
       const bytes = new Uint8Array(buffer);
-      const kinds = faceKinds(new TextDecoder('latin1').decode(bytes));
+      const { kinds, nets } = readStep(new TextDecoder('latin1').decode(bytes));
       const read = oc.ReadStepFile(bytes, { linearUnit: 'millimeter',
         linearDeflectionType: 'bounding_box_ratio', linearDeflection: 0.0005,
         angularDeflection: 0.2 });
@@ -1044,6 +1210,10 @@ function buildFaces(src) {
       group.userData.sphere = geometry.boundingSphere;
       group.userData.tally = tally;
       group.userData.known = known;
+      if (nets.length) {
+        group.add(drawNets(nets));
+        group.userData.size = sizeOf(nets);
+      }
       return group;
     }));
   }
@@ -1058,11 +1228,24 @@ const meshNote = document.getElementById('mesh-note');
 const meshWhy = document.getElementById('mesh-why');
 const facesNote = document.getElementById('faces-note');
 const facesNoteText = facesNote.textContent;
+// the control nets' switch, and what they say of the surfaces; whether they are drawn is kept
+// from one entry to the next, and from one page to the next where the browser keeps it
+const netsBar = document.getElementById('nets');
+const netsButton = netsBar.querySelector('button');
+const netsSize = netsBar.querySelector('span');
+function showNets(on) {
+  camera.layers[on ? 'enable' : 'disable'](NETS);
+  netsButton.setAttribute('aria-pressed', String(on));
+  try { localStorage.setItem('brep-bench.nets', on ? '1' : '0'); } catch (_) {}
+}
+try { showNets(localStorage.getItem('brep-bench.nets') === '1'); } catch (_) { showNets(false); }
+netsButton.addEventListener('click', () => showNets(!camera.layers.isEnabled(NETS)));
 
 function marks(showing) {
   meshNote.hidden = showing !== 'mesh';
   facesNote.hidden = showing !== 'faces';
   legend.hidden = true;
+  netsBar.hidden = true;
 }
 
 function describe(group) {
@@ -1072,6 +1255,8 @@ function describe(group) {
       c.toString(16).padStart(6, '0')}'></span>${k} ${t[k]}</span>`).join('')
     : `${Object.values(t).reduce((a, b) => a + b, 0)} faces; their surfaces could not be matched to them`;
   legend.hidden = false;
+  netsBar.hidden = !group.userData.size;
+  netsSize.textContent = group.userData.size || '';
 }
 
 let wanted = null;
