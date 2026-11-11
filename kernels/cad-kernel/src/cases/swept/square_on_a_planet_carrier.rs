@@ -8,6 +8,10 @@
 //! stretch kept where it stands outside the square at every pose; the roll is a whole period, so no
 //! end pose bounds it — fitted and carried from z = 0 to 2 (#880 Q2), and judges it by the sweep's
 //! definition before returning it.
+//!
+//! cad-kernel 0.6.3 has no such method yet and refuses the sweep on its road for any other rigid
+//! motion (`Unbuilt::Curved`, the tool no convex solid of revolution); geomsolver's commit carrying
+//! #880 Q2 builds it, and a release after 0.6.3 will.
 use crate::sketch::block;
 use cad_kernel::geom::tolerance;
 use cad_kernel::swept::closed::closed;
