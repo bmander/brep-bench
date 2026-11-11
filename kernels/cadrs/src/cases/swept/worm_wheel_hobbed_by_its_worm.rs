@@ -4,9 +4,9 @@
 //! 60π.
 //!
 //! The thread is its axial trapezoid swept along a helix (cadrs's sweep, by the helix's screw
-//! motion), cut to its ends and placed; cadrs's sweep of a solid under the two turns
-//! (`SolidMotion::Rigid`), cut from the wheel. The thread is no polyhedron, torus or solid of
-//! revolution, so cadrs finds what it fills as a closed mesh.
+//! motion), cut to its ends and placed; cadrs's cut by a moving tool under the two turns
+//! (`Kernel::cut_swept`, `SolidMotion::Rigid`): each tooth space two flanks the thread's flanks
+//! envelop, the root its crest envelops and the two fillets its crest's edges trace.
 use crate::bench::{cylinder, p3, v3};
 use crate::shared::swept::hobbed;
 use crate::Refusal;

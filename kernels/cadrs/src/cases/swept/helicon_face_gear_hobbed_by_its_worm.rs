@@ -3,9 +3,9 @@
 //! x = 0 to 52: the worm turns by t about its axis while the gear turns by t/30, t from 0 to 60π.
 //!
 //! The ring is a circle and its bore extruded; the thread its axial trapezoid swept along a helix
-//! (cadrs's sweep, by the helix's screw motion), cut to its ends and placed; cadrs's sweep of a
-//! solid under the two turns (`SolidMotion::Rigid`), cut from the ring. The thread is no
-//! polyhedron, torus or solid of revolution, so cadrs finds what it fills as a closed mesh.
+//! (cadrs's sweep, by the helix's screw motion), cut to its ends and placed; cadrs's cut by a
+//! moving tool under the two turns (`Kernel::cut_swept`, `SolidMotion::Rigid`): each tooth space
+//! the sheets the thread's flank and crest envelop and the ones its crest's edges trace.
 use crate::bench::{extrude, p3};
 use crate::shared::swept::hobbed;
 use crate::Refusal;
