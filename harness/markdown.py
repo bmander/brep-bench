@@ -86,7 +86,7 @@ def blocks(lines):
                 body += "\n" + lines[i]
                 i += 1
             tex, _, rest = body.partition("$$")
-            out.append(f"<p>{math(tex.strip(), True)}</p>")
+            out.append(f"<p class=display>{math(tex.strip(), True)}</p>")
             if rest.strip():
                 out.append(f"<p>{inline(rest.strip())}</p>")
             continue

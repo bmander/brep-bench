@@ -77,6 +77,9 @@ details { margin: 0 0 12px; } summary { cursor: pointer; font-weight: 600; }
 .description { font-size: 1.05em; }
 .description > * { max-width: 70ch; }
 .description > .scroll { max-width: 100%; }
+/* a formula on a line of its own takes the width it needs, from the text's measure to the page's
+   (only one wider than the page scrolls) */
+.description > p.display { width: fit-content; min-width: min(70ch, 100%); max-width: 100%; }
 .description table { margin: 0 0 16px; }
 .description td, .description th { padding: 4px 10px; }
 .description li { margin: 2px 0; }
