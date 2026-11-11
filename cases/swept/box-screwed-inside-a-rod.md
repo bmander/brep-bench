@@ -2,7 +2,14 @@
 title = "A sealed helical tunnel: a box screwed inside a rod"
 tags = ["swept", "solid-sweep", "screw", "helix", "prism", "void", "boolean", "cut"]
 origin = "geomsolver #721, box D4 (a prism screwed wholly within)"
-settled = false
+
+[volume]
+value = 1522.316218895
+exact = "no closed form: cad-kernel and OCCT agree to 4e-11; the mean of their values (cadrs is 1.2e-8 from it)"
+
+[area]
+value = 961.1374881545
+exact = "no closed form: cad-kernel and OCCT agree to 7e-11; the mean of their values (cadrs is 1.2e-8 from it)"
 +++
 
 A rod, the cylinder of radius 5 about the z axis from z = 0 to z = 20, with a sealed helical tunnel

@@ -2,7 +2,14 @@
 title = "A square key carried along a spline"
 tags = ["swept", "solid-sweep", "frame", "general-motion", "spline", "prism", "boolean", "cut"]
 origin = "geomsolver #721, box K2 and X11 (any rigid motion, past convex tools of revolution)"
-settled = false
+
+[volume]
+value = 10652.8799891
+exact = "no closed form: OCCT and cadrs give the same volume to the twelve figures the board publishes"
+
+[area]
+value = 3996.725031465
+exact = "no closed form: OCCT and cadrs agree to 2e-11; the mean of their values"
 +++
 
 A block, the box from (−6, −6, −8) to (36, 26, 0), with a groove cut into its top by a square key

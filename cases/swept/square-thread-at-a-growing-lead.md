@@ -2,7 +2,14 @@
 title = "A rod threaded at a lead that grows along it"
 tags = ["swept", "solid-sweep", "general-motion", "helix", "prism", "variable-pitch", "boolean", "cut"]
 origin = "geomsolver #721, box K2 (any rigid motion)"
-settled = false
+
+[volume]
+value = 1324.478271075
+exact = "no closed form: OCCT and cadrs agree to 8e-10; the mean of their values"
+
+[area]
+value = 808.437626175
+exact = "no closed form: OCCT and cadrs agree to 2e-10; the mean of their values"
 +++
 
 A rod, the cylinder of radius 5 about the z axis from z = 0 to z = 20, threaded by a bar carried

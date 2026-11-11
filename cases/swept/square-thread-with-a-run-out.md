@@ -2,7 +2,14 @@
 title = "A thread with a run-out: a bar screwed up a rod, then withdrawn"
 tags = ["swept", "solid-sweep", "screw", "slide", "path", "pieces", "prism", "boolean", "cut"]
 origin = "geomsolver #721, box K1 (paths made of pieces, a screw among them)"
-settled = false
+
+[volume]
+value = 1364.02421385
+exact = "no closed form: cad-kernel, OCCT and cadrs agree to 4e-11; the mean of their values"
+
+[area]
+value = 822.6335769893
+exact = "no closed form: cad-kernel, OCCT and cadrs agree to 3e-11; the mean of their values"
 +++
 
 A rod, the cylinder of radius 5 about the z axis from z = 0 to z = 20, with a thread cut partway up

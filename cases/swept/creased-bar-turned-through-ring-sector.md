@@ -2,7 +2,14 @@
 title = "A groove cut by a bar drafted both ways from a parting line"
 tags = ["swept", "solid-sweep", "turn", "prism", "draft", "crease", "boolean", "cut"]
 origin = "geomsolver rust/examples/solid_sweeps/creased.sv"
-settled = false
+
+[volume]
+value = 38.02835463795
+exact = "no closed form: OCCT and cadrs agree to 2e-10; the mean of their values"
+
+[area]
+value = 84.178253743
+exact = "no closed form: OCCT and cadrs agree to 2e-10; the mean of their values"
 +++
 
 A curved block grooved by a bar drafted both ways from the plane its section is drawn in, as a tool

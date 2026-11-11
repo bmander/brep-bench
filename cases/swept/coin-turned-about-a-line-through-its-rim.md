@@ -2,7 +2,14 @@
 title = "A disc turned about an upright line through its rim"
 tags = ["swept", "solid-sweep", "turn", "cylinder", "sharp-edge", "rim-on-axis"]
 origin = "geomsolver #721, box X9 (a sharp circle through the turn's axis)"
-settled = false
+
+[volume]
+value = 46.5470010749
+exact = "no closed form: OCCT and cadrs give the same volume to the twelve figures the board publishes"
+
+[area]
+value = 71.4550571539
+exact = "no closed form: OCCT and cadrs give the same area to the twelve figures the board publishes"
 +++
 
 The solid a thick disc fills as it is turned partway about an upright line that passes through its
