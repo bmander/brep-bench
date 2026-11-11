@@ -343,6 +343,27 @@
       "source": "kernels/smlib/cases/{category}/{name_snake}.py",
       "step": "the usd-brep package writes USD and SMLib's own format, and has no STEP writer",
       "binary": [{"python": "python3", "distribution": "usd-brep"}]
+    },
+    {
+      "name": "smlib-cpp",
+      "kernel": "https://github.com/NVIDIA-Omniverse/usd-brep",
+      "license": "Apache-2.0",
+      "backend": "C++",
+      "frontend": "C++ (SM_API, SMLib's C-style C++ API)",
+      "build": [
+        "python3",
+        "kernels/smlib-cpp/build.py"
+      ],
+      "command": [
+        "kernels/smlib-cpp/build/brep-bench-smlib-cpp"
+      ],
+      "version": [
+        "kernels/smlib-cpp/build/brep-bench-smlib-cpp",
+        "--version"
+      ],
+      "source": "kernels/smlib-cpp/src/cases/{category}/{name_snake}.cpp",
+      "step": "SM_API writes USD and SMLib's own format, and has no STEP writer",
+      "binary": ["kernels/smlib-cpp/build/brep-bench-smlib-cpp", "kernels/smlib-cpp/upstream/lib"]
     }
   ]
 }

@@ -1,0 +1,7 @@
+# The cases smlib-cpp builds by working around a feature it lacks, and what that is
+# (SPEC.md, "A workaround is flagged").
+
+"boolean/half-torus" = "no cut by a plane that leaves a solid (SmApiCut leaves an open shell)"
+"boolean/hemisphere" = "no cut by a plane that leaves a solid (SmApiCut leaves an open shell)"
+"chamfer/box-top-asymmetric" = "no chamfer with two distances"
+"fillet/conic-edge" = "no conic blend"
