@@ -2,7 +2,14 @@
 title = "A ball on a leaning stem swung partway into a block"
 tags = ["swept", "solid-sweep", "turn", "sphere", "cylinder", "concave", "stopped", "boolean", "cut"]
 origin = "geomsolver #721, box X9 (the ball on a leaning stem turned part of a turn)"
-settled = false
+
+[volume]
+value = 71.03324855515
+exact = "no closed form: cad-kernel and cadrs agree to 2e-11; the mean of their values"
+
+[area]
+value = 164.1729535245
+exact = "no closed form: cad-kernel and cadrs agree to 7e-12; the mean of their values"
 +++
 
 A curved block with a notch cut into it by a ball on a leaning stem, swung partway into it.

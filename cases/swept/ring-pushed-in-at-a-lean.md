@@ -2,7 +2,14 @@
 title = "A ring pushed straight down into a block at a lean"
 tags = ["swept", "solid-sweep", "slide", "torus", "leaning", "stopped", "boolean", "cut"]
 origin = "geomsolver rust/examples/solid_sweeps/leaning_ring.sv"
-settled = false
+
+[volume]
+value = 1880.891253785
+exact = "no closed form: cad-kernel and cadrs agree to 5e-11; the mean of their values"
+
+[area]
+value = 1186.342576165
+exact = "no closed form: cad-kernel and cadrs agree to 6e-11; the mean of their values"
 +++
 
 A block, the box from (−8, −8, −8) to (8, 8, 0), with a hole bored into its top by a ring pushed

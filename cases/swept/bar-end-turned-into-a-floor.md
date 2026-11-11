@@ -2,7 +2,14 @@
 title = "A floor cut by a leaning bar's flat end, turned"
 tags = ["swept", "solid-sweep", "turn", "prism", "cap", "cone", "boolean", "cut"]
 origin = "geomsolver rust/examples/solid_sweeps/flat_end.sv"
-settled = false
+
+[volume]
+value = 53.56455344653
+exact = "no closed form: cad-kernel, OCCT and cadrs agree to 2e-12; the mean of their values"
+
+[area]
+value = 131.121294585
+exact = "no closed form: cad-kernel, OCCT and cadrs give the same area to the twelve figures the board publishes"
 +++
 
 A curved block whose floor is cut by the flat end of a leaning bar turned past it.

@@ -2,7 +2,14 @@
 title = "A ball swung about an axis that passes through it"
 tags = ["swept", "solid-sweep", "turn", "sphere", "canal", "spindle", "self-intersecting"]
 origin = "geomsolver #721, box X9 (a ball reaching across the axis, a spindle torus)"
-settled = false
+
+[volume]
+value = 59.3331943709
+exact = "no closed form: OCCT and cadrs agree to 8e-10; the mean of their values"
+
+[area]
+value = 75.5328704821
+exact = "no closed form: OCCT and cadrs agree to 9e-10; the mean of their values"
 +++
 
 The solid a ball fills as it is swung partway about an upright line that passes through it.

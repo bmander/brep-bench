@@ -2,7 +2,14 @@
 title = "A helical groove milled by a ball-end mill screwed across a block"
 tags = ["swept", "solid-sweep", "screw", "helix", "sphere", "cylinder", "canal", "boolean", "cut"]
 origin = "geomsolver rust/examples/solid_sweeps/ball_end_mill.sv"
-settled = false
+
+[volume]
+value = 109.195626256
+exact = "no closed form: OCCT and cadrs agree to 2e-9; the mean of their values"
+
+[area]
+value = 242.2865388095
+exact = "no closed form: OCCT and cadrs agree to 2e-9; the mean of their values"
 +++
 
 A curved block with a helical groove milled into it by a ball-end mill screwed across it.

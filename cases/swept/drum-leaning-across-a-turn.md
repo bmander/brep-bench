@@ -2,7 +2,14 @@
 title = "A flat-end mill leaning across a turn, its rims digging past its ends"
 tags = ["swept", "solid-sweep", "turn", "cylinder", "sharp-edge", "leaning", "boolean", "cut"]
 origin = "geomsolver rust/examples/solid_sweeps/leaning_mill.sv"
-settled = false
+
+[volume]
+value = 798.14204226
+exact = "no closed form: cad-kernel and cadrs give the same volume to the twelve figures the board publishes"
+
+[area]
+value = 806.412078241
+exact = "no closed form: cad-kernel and cadrs give the same area to the twelve figures the board publishes"
 +++
 
 A ring with a channel cut inside it by a drum leaning across a turn.

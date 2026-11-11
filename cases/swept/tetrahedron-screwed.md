@@ -2,7 +2,14 @@
 title = "A regular tetrahedron carried along a screw"
 tags = ["swept", "solid-sweep", "screw", "helix", "polyhedron", "vertex"]
 origin = "geomsolver #721, box G1 (vertices)"
-settled = false
+
+[volume]
+value = 153.4631140397
+exact = "no closed form: cad-kernel, OCCT and cadrs agree to 2e-10; the mean of their values"
+
+[area]
+value = 324.9050838577
+exact = "no closed form: cad-kernel, OCCT and cadrs agree to 7e-11; the mean of their values"
 +++
 
 The solid a regular tetrahedron fills as it is carried along a screw.

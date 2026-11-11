@@ -2,7 +2,14 @@
 title = "A leaning bull-nose mill carried along a spline"
 tags = ["swept", "solid-sweep", "frame", "general-motion", "spline", "torus", "leaning", "boolean", "cut"]
 origin = "geomsolver rust/examples/solid_sweeps/spline_mill.sv"
-settled = false
+
+[volume]
+value = 10507.5864133
+exact = "no closed form: cad-kernel and cadrs agree to 4e-10; the mean of their values"
+
+[area]
+value = 3968.62573204
+exact = "no closed form: cad-kernel and cadrs agree to 1e-9; the mean of their values"
 +++
 
 A block, the box from (−6, −6, −8) to (36, 26, 0), with a groove cut into its top by a leaning

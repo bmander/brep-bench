@@ -2,7 +2,14 @@
 title = "A rod spun partway about a line through it"
 tags = ["swept", "solid-sweep", "turn", "cylinder", "pole", "axis-crossing"]
 origin = "geomsolver #721, box D3 (crossing a pole under a turn about a meeting axis)"
-settled = false
+
+[volume]
+value = 41.68570617465
+exact = "no closed form: next.BREP and cadrs agree to 6e-9; the mean of their values"
+
+[area]
+value = 111.350261639
+exact = "no closed form: next.BREP and cadrs agree to 7e-9; the mean of their values"
 +++
 
 The solid a rod fills as it is spun partway about an upright line that passes through it.

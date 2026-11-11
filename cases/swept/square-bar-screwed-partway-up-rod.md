@@ -2,7 +2,14 @@
 title = "A thread stopped short: a bar screwed partway up a rod"
 tags = ["swept", "solid-sweep", "screw", "helix", "prism", "stopped", "boolean", "cut"]
 origin = "geomsolver rust/examples/solid_sweeps/stopped_screw.sv"
-settled = false
+
+[volume]
+value = 1431.585742257
+exact = "no closed form: cad-kernel, OCCT and cadrs agree to 3e-11; the mean of their values"
+
+[area]
+value = 806.9351761057
+exact = "no closed form: cad-kernel, OCCT and cadrs agree to 4e-11; the mean of their values"
 +++
 
 A rod, the cylinder of radius 5 about the z axis from z = 0 to z = 20, with a thread cut partway up
