@@ -12,7 +12,7 @@
   (harness/highlight.py).
 
 Kernels are listed in kernels.json's order, everywhere: the board ranks nothing. Run
-harness/draw.py first for the drawings. Standard library only."""
+harness/draw first for the drawings. Standard library only."""
 import hashlib
 import html
 import json
