@@ -121,8 +121,8 @@ jobs:
           python harness/changed.py --base "${base%%-*}" > all.json
           jq --arg k "$KERNEL" '.run |= with_entries(select(.key == $k))' all.json > plan.json
           cat plan.json
-      # Open CASCADE, which reads each kernel's STEP files: their measures, graded, and their
-      # triangles (harness/occt.py)
+      # Open CASCADE, which meshes each kernel's STEP files for the drawings and the viewer
+      # (harness/occt.py); the harness measures them itself (harness/mass.py)
       - name: Install Open CASCADE
         run: python -m pip install cadquery-ocp
       # for Aetheris, a .NET kernel

@@ -14,20 +14,22 @@ as results/meshes/<kernel>/<case>.stl for the drawings and the viewer.
 What is timed is a kernel's shortest path to a boundary representation, and no more. Each case is
 run once: a kernel whose runner writes STEP (`"step": true` in kernels.json) is given OUT.step as
 well as OUT.stl, and a STEP written is its whole answer: the runner neither measures nor meshes
-the solid. The file is then graded untimed: harness/step.py reads what it is made of, and Open
-CASCADE (harness/occt.py) measures its volume and area, to 1e-6, and meshes it for the drawings
-and the viewer. Only where there is no STEP (a kernel with no writer, or a writer that declined
-the solid) are the runner's own measures and triangles graded, as they always were. The run's
-wall-clock time, the CPU time it spent (user and system, over every thread) and its peak memory
-(the largest resident set) are kept, from the operating system's account of the runner's process
-(wait4), which harness/measure.py starts and waits for; nothing measured is graded. So is what
-starting the runner costs, alone: it is given a case id no case has, `harness/start`, so that it
-starts and builds nothing, a few times over (`startup`). With `--one-core` a case the kernel built
-is run a second time on one core only, for what its other cores bought it; that run is timed and
-nothing else. Times are kept to the microsecond: a kernel's own time, a run's less its runner's
-start-up, can be under a millisecond. Standard library only, but for Open CASCADE
-(`cadquery-ocp`), which harness/occt.py loads (where there is no wait4, only the time is kept;
-pinning to one core needs Linux).
+the solid. The file is then graded, untimed: harness/step.py reads what it is made of, and the
+harness measures its solid itself (harness/mass.py): its volume and area, graded to 1e-6, and its
+centre of gravity and inertia, shown. Open CASCADE (harness/occt.py), where it is installed,
+meshes the file for the drawings and the viewer; nothing it makes is graded. Where there is no
+STEP (a kernel with no writer, or a writer that declined the solid), or the harness cannot measure
+the file, the runner's own measures and triangles are graded, as they always were (where it wrote
+a STEP, from a second run without OUT.step, untimed). The timed run's wall-clock time, the CPU
+time it spent (user and system, over every thread) and its peak memory (the largest resident set)
+are kept, from the operating system's account of the runner's process (wait4), which
+harness/measure.py starts and waits for; nothing measured is graded. So is what starting the
+runner costs, alone: it is given a case id no case has, `harness/start`, so that it starts and
+builds nothing, a few times over (`startup`). With `--one-core` a case the kernel built is run a
+second time on one core only, for what its other cores bought it; that run is timed and nothing
+else. Times are kept to the microsecond: a kernel's own time, a run's less its runner's start-up,
+can be under a millisecond. Standard library only (but for the pictures' Open CASCADE; where there
+is no wait4, only the time is kept; pinning to one core needs Linux).
 """
 import argparse
 import functools
@@ -192,16 +194,43 @@ def argv(command, cid, out_stl, out_step):
     return command + [cid, out_stl] + ([out_step] if out_step else [])
 
 
+# the harness's own measurer of a STEP file's solid, run in a process of its own (it is given a
+# time limit, as a run is)
+MASS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mass.py")
+
+
+def mass_of(out_step, timeout, by_surface=False):
+    """The mass properties of the solid in the STEP file at `out_step` (harness/mass.py):
+    {"volume", "area", "centroid", "inertia", ...}, or {"invalid": why} where the file holds no
+    solid, or {"error": why} where it cannot measure the file. With `by_surface`, its faces' loops taken by their surfaces' normals, not the faces'
+    (a diagnosis). Untimed."""
+    try:
+        p = subprocess.run([sys.executable, MASS, *(["--loops-by-surface"] if by_surface else []),
+                            out_step], capture_output=True, text=True, timeout=timeout, cwd=ROOT)
+    except subprocess.TimeoutExpired:
+        return {"error": f"not measured in {timeout:g} s"}
+    try:
+        return json.loads(p.stdout.strip().splitlines()[-1])
+    except (ValueError, IndexError):
+        said = (p.stderr.strip().splitlines() or ["no answer"])[-1]
+        return {"error": f"harness/mass.py failed: {said[:200]}"}
+
+
 # where harness/occt.py is, and the one process of it a run keeps, started when first wanted
 OCCT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "occt.py")
 reader = None
+# Open CASCADE could not be loaded: no triangles of STEP files this run
+no_occt = False
 
 
-def occt(out_step, out_stl, timeout):
-    """What Open CASCADE makes of the STEP file at `out_step` (harness/occt.py): {"volume",
-    "area", "solids"}, its triangles written to `out_stl`, or {"error": why}. Untimed. A reader
-    that runs past `timeout` is stopped, and the next file is read by a new one."""
-    global reader
+def triangles(out_step, out_stl, timeout):
+    """Open CASCADE's triangles of the solid in the STEP file at `out_step`, written to `out_stl`
+    (harness/occt.py), for the drawings and the viewer: whether it wrote them. Untimed, and not
+    graded. A reader that runs past `timeout` is stopped, and the next file is read by a new one;
+    where Open CASCADE is not installed, there are none."""
+    global reader, no_occt
+    if no_occt:
+        return False
     if reader is None or reader.poll() is not None:
         log = tempfile.TemporaryFile()
         reader = subprocess.Popen([sys.executable, OCCT], stdin=subprocess.PIPE,
@@ -212,19 +241,19 @@ def occt(out_step, out_stl, timeout):
     ready, _, _ = select.select([reader.stdout], [], [], timeout)
     line = reader.stdout.readline() if ready else ""
     if line:
-        return json.loads(line)
+        return "error" not in json.loads(line)
     if ready:
         # it stopped: Open CASCADE crashed on the file, or could not be loaded at all
         reader.wait()
         reader.log.seek(0)
-        said = reader.log.read().decode(errors="replace").strip().splitlines()
-        if any("No module named 'OCP'" in s for s in said):
-            sys.exit("harness/occt.py needs Open CASCADE: python3 -m pip install cadquery-ocp")
-        return {"error": "Open CASCADE stopped reading the file"
-                + (f": {said[-1][:200]}" if said else "")}
+        if "No module named 'OCP'" in reader.log.read().decode(errors="replace"):
+            no_occt = True
+            print("harness/occt.py: Open CASCADE (cadquery-ocp) is not installed, so STEP files "
+                  "are not meshed for the drawings and the viewer", file=sys.stderr)
+        return False
     reader.kill()
     reader.wait()
-    return {"error": f"Open CASCADE did not read the file in {timeout} s"}
+    return False
 
 
 # how harness/step.py's verdict of a STEP file that is no closed B-rep reads, as a wrong answer
@@ -233,22 +262,24 @@ NOT_A_SOLID = {"open": "its STEP's faces do not close into a solid",
                "empty": "its STEP holds no solid and no faces"}
 
 
-def grade_step(case, made, read):
-    """The outcome of a run whose solid was written as STEP, graded on the file (SPEC.md,
-    "Grading"): its make-up as harness/step.py reads it (`made`) and its measures as Open CASCADE
-    takes them (`read`, harness/occt.py's answer). Pass (built for an unsettled case) or wrong."""
-    if "error" in made:
-        return "wrong", f"its STEP cannot be read: {made['error']}"
-    verdict = step.verdict(made)
-    if verdict in NOT_A_SOLID:
-        return "wrong", NOT_A_SOLID[verdict]
-    if "error" in read:
-        return "wrong", read["error"]
+# why a STEP that holds the solid only with its loops taken against ISO 10303-42 fails
+BY_SURFACE = ("its STEP's loops run anticlockwise about their surfaces' normals where same_sense is "
+              "false, not about the faces' normals as ISO 10303-42 directs: read by the standard, "
+              "the faces are the other sides of their loops (read its way, it holds the solid)")
+
+
+def grade_step(case, measured):
+    """The outcome of a run whose solid was written as STEP and measured by the harness
+    (`measured`, harness/mass.py's answer; SPEC.md, "Grading"): pass (built for an unsettled
+    case) or wrong."""
+    if measured["volume"] < 0:
+        return "wrong", ("its STEP's solid is inside out: its faces face into it (its volume "
+                         f"{measured['volume']:.10g})")
     exp = case["expect"]
     if exp is None:
         return "built", ""
-    why = [f"{key} {read[key]} against {exp[key]['value']:.12g} (its STEP's)"
-           for key in ("volume", "area") if not near(read[key], exp[key]["value"], EXACT)]
+    why = [f"{key} {measured[key]} against {exp[key]['value']:.12g} (its STEP's)"
+           for key in ("volume", "area") if not near(measured[key], exp[key]["value"], EXACT)]
     return ("pass", "") if not why else ("wrong", "; ".join(why))
 
 
@@ -263,58 +294,89 @@ def keep_file(path, keep):
     shutil.copyfile(path, keep)
 
 
+def graded(case, ran, out_stl, keep):
+    """A run graded on the runner's own reply and triangles, as a kernel with no STEP is:
+    (outcome, why, reply, mesh)."""
+    if ran.code is None:
+        return "timeout", "over the time limit", None, None
+    if ran.code != 0:
+        return "crashed", why_crashed(ran.stderr, ran.code), None, None
+    reply = said(ran)
+    if reply is None:
+        return "crashed", "no JSON reply", None, None
+    mesh = None
+    if reply.get("status") == "ok" and os.path.exists(out_stl):
+        try:
+            mesh = stl.check(stl.read(out_stl))
+        except (ValueError, OSError) as e:
+            return "wrong", f"unreadable STL: {e}", reply, None
+        # kept for the drawings and the viewer (results/meshes, not committed)
+        keep_file(out_stl, keep)
+    return (*grade(case, reply, mesh), reply, mesh)
+
+
 def run_one(command, case, timeout, keep, keep_step, writes_step):
     """Run and grade one case (SPEC.md, "A runner"), in one run, the one timed. Where the runner
-    wrote its solid as STEP, the file is graded (`grade_step`), and Open CASCADE's triangles of it
-    kept; else its own triangles and measures are, as a kernel with no STEP writer's always are.
-    (outcome, why, its measures and how they were taken: a reply, mesh, how it ran, its STEP's
+    wrote its solid as STEP, the harness measures the file (harness/mass.py) and grades that,
+    and keeps Open CASCADE's triangles of it for the pictures; else, or where the harness cannot
+    measure the file, the runner's own measures and triangles are graded, as a kernel's with no
+    STEP writer always are (from a second run, untimed, without OUT.step, where it wrote STEP).
+    (outcome, why, its measures and how they were taken, mesh, how the timed run ran, its STEP's
     make-up or None)."""
     with tempfile.TemporaryDirectory() as tmp:
         out_stl = os.path.join(tmp, "result.stl")
         out_step = os.path.join(tmp, "result.step") if writes_step else None
         ran = execute(argv(command, case["id"], out_stl, out_step), timeout)
-        if ran.code is None:
-            return "timeout", f"over {timeout} s", None, None, ran, None
-        if ran.code != 0:
-            return "crashed", why_crashed(ran.stderr, ran.code), None, None, ran, None
-        reply = said(ran)
-        if reply is None:
-            return "crashed", "no JSON reply", None, None, ran, None
-        if reply.get("status") != "ok":
-            return (*grade(case, reply, None), reply, None, ran, None)
-        made = None
-        if out_step and os.path.exists(out_step):
-            # the STEP is the answer: Open CASCADE measures it and meshes it, untimed
-            try:
-                made = step.read(out_step)
-            except (ValueError, OSError) as e:
-                made = {"error": f"unreadable STEP: {e}"}
-            read = occt(out_step, out_stl, timeout) if "error" not in made else {}
-            outcome, why = grade_step(case, made, read)
-            if "error" not in made and os.path.getsize(out_step) <= STEP_KEPT:
-                keep_file(out_step, keep_step)
-            measures = {"status": "ok", "measured": "step", "volume": read.get("volume"),
-                        "area": read.get("area")}
-        else:
+        reply = said(ran) if ran.code == 0 else None
+        if not (out_step and os.path.exists(out_step) and reply
+                and reply.get("status") == "ok"):
             # no STEP: the kernel has no writer, or its writer declined the solid (`step_error`),
-            # and the runner wrote its own triangles in its place
-            if out_step:
+            # and the runner wrote its own triangles in its place; or the run failed
+            outcome, why, reply, mesh = graded(case, ran, out_stl, keep)
+            if outcome == "timeout":
+                why = f"over {timeout} s"
+            made = None
+            if out_step and reply and reply.get("status") == "ok":
                 made = ({"refused": str(reply["step_error"])} if reply.get("step_error") else
                         {"error": "no STEP written, and no step_error saying why"})
-            measures = reply
+            return outcome, why, reply, mesh, ran, made
+        # the STEP is the answer: read for what it is made of, measured, and meshed for the
+        # pictures, all untimed
+        try:
+            made = step.read(out_step)
+        except (ValueError, OSError) as e:
+            return "wrong", f"its STEP cannot be read: {e}", None, None, ran, \
+                {"error": f"unreadable STEP: {e}"}
+        if os.path.getsize(out_step) <= STEP_KEPT:
+            keep_file(out_step, keep_step)
+        verdict = step.verdict(made)
+        if verdict in NOT_A_SOLID:
+            return "wrong", NOT_A_SOLID[verdict], None, None, ran, made
+        measured = mass_of(out_step, timeout)
+        if "invalid" in measured:
+            return "wrong", f"its STEP is no solid: {measured['invalid']}", None, None, ran, made
+        if "error" in measured or grade_step(case, measured)[0] == "wrong":
+            # its loops perhaps directed by its surfaces' normals, against the standard: so measured,
+            # does the file hold the solid? If so, that is why it fails
+            other = mass_of(out_step, timeout, by_surface=True)
+            if "volume" in other and grade_step(case, other)[0] != "wrong":
+                return "wrong", BY_SURFACE, {"status": "ok", "measured": "step", **other}, None, \
+                    ran, made
+        if "error" in measured:
+            # the harness cannot measure it: the runner's own measures and triangles instead
+            made["unmeasured"] = measured["error"]
+            again = execute(command + [case["id"], out_stl], timeout)
+            outcome, why, reply, mesh = graded(case, again, out_stl, keep)
+            return outcome, why, reply, mesh, ran, made
+        outcome, why = grade_step(case, measured)
         mesh = None
-        if os.path.exists(out_stl) and os.path.getsize(out_stl):
+        if triangles(out_step, out_stl, timeout) and os.path.exists(out_stl):
             try:
                 mesh = stl.check(stl.read(out_stl))
-            except (ValueError, OSError) as e:
-                if measures is reply:
-                    return "wrong", f"unreadable STL: {e}", reply, None, ran, made
-            else:
-                # kept for the drawings and the viewer (results/meshes, not committed)
                 keep_file(out_stl, keep)
-        if measures is reply:
-            outcome, why = grade(case, reply, mesh)
-        return outcome, why, measures, mesh, ran, made
+            except (ValueError, OSError):
+                mesh = None
+        return outcome, why, {"status": "ok", "measured": "step", **measured}, mesh, ran, made
 
 
 # the decimal places a time in seconds is kept to: microseconds
@@ -455,6 +517,10 @@ def run_kernel(k, chosen, timeout, one_core=None):
             "measured": (reply or {}).get("measured", "exact"),
             "volume": (reply or {}).get("volume"), "area": (reply or {}).get("area"),
             "faces": (reply or {}).get("faces"), "mesh": mesh,
+            # the centre of gravity and the inertia about it (unit density): of the STEP's solid
+            # where the harness measured it, else of the triangles
+            "centroid": (reply or {}).get("centroid") or (mesh or {}).get("centroid"),
+            "inertia": (reply or {}).get("inertia") or (mesh or {}).get("inertia"),
         }
         if made is not None:
             row["step"] = made

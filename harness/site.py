@@ -622,6 +622,9 @@ def step_facts(row, writes, faces):
                  f"{made['vertices']} vertices"))
     if made.get("tessellated"):
         rows.append(("STEP triangles", f"{made['tessellated']} tessellated faces"))
+    if made.get("unmeasured"):
+        rows.append(("STEP measured", "<span class=muted>not by the harness, which graded the "
+                     f"runner's own measures instead: {html.escape(made['unmeasured'])}</span>"))
     return rows
 
 
@@ -690,8 +693,9 @@ def entry(en, exp):
         out.append("<p class=muted>It wrote no STEP, and has no exact measures: its volume and "
                    f"area are its triangles', graded to {FROM_MESH:g}.</p>")
     elif row and row.get("measured") == "step":
-        out.append("<p class=muted>Its volume and area are its STEP file's, as Open CASCADE "
-                   "measures them, and its triangles Open CASCADE's mesh of the file.</p>")
+        out.append("<p class=muted>Its volume and area are its STEP file's, as the harness "
+                   "measures them from the file's exact geometry (harness/mass.py); its triangles "
+                   "are Open CASCADE's mesh of the file, for the pictures.</p>")
 
     out.append("<h3>Data</h3>")
     facts = []
@@ -723,6 +727,15 @@ def entry(en, exp):
         if m.get("degenerate"):
             bits.append(f"{m['degenerate']} degenerate")
         facts.append(("mesh", ", ".join(bits)))
+    g, inertia = (row or {}).get("centroid"), (row or {}).get("inertia")
+    if g and inertia:
+        of = "its STEP's solid" if row.get("measured") == "step" else "its triangles"
+        facts.append(("centre of gravity", f"({', '.join(f'{x:.6g}' for x in g)}) "
+                      f"<span class=muted>{of}</span>"))
+        facts.append(("inertia", "<span class=muted>about it, of unit density:</span> "
+                      + "; ".join(f"I<sub>{a}</sub> {inertia[i][j]:.6g}" for a, i, j in
+                                  (("xx", 0, 0), ("yy", 1, 1), ("zz", 2, 2), ("xy", 0, 1),
+                                   ("yz", 1, 2), ("zx", 2, 0)))))
     if en["stl"]:
         facts.append(("STL", f"<a href='{en['stl']}' download>download</a> "
                              f"<span class=muted>{size_text(en['mb'])}</span>"))

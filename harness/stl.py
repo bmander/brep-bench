@@ -34,7 +34,9 @@ def check(tris):
     Vertices are joined where their coordinates are equal. The surface is *closed* when every edge
     is used exactly twice, once each way (so it is also consistently oriented and manifold along its
     edges), its *volume* is the divergence theorem's (positive when the normals face out), and its
-    *area* is its triangles' summed.
+    *area* is its triangles' summed. Its *centroid* and its *inertia* (of unit density, about the
+    centroid) are those of the polyhedron the triangles bound, summed over the tetrahedra each makes
+    with a point; as harness/mass.py gives them of a STEP file's solid.
     """
     index = {}
     def vid(p):
@@ -43,6 +45,10 @@ def check(tris):
     volume = 0.0
     area = 0.0
     degenerate = 0
+    # the tetrahedra's apex: the first vertex, so that the sums do not cancel far from the origin
+    o = tris[0][0] if tris else (0.0, 0.0, 0.0)
+    m1 = [0.0, 0.0, 0.0]
+    m2 = [[0.0] * 3 for _ in range(3)]
     for a, b, c in tris:
         ia, ib, ic = vid(a), vid(b), vid(c)
         if ia == ib or ib == ic or ic == ia:
@@ -57,12 +63,29 @@ def check(tris):
         volume += (a[0] * (b[1] * c[2] - b[2] * c[1])
                    - a[1] * (b[0] * c[2] - b[2] * c[0])
                    + a[2] * (b[0] * c[1] - b[1] * c[0])) / 6.0
+        p, q, r = ([x[k] - o[k] for k in range(3)] for x in (a, b, c))
+        t = (p[0] * (q[1] * r[2] - q[2] * r[1]) - p[1] * (q[0] * r[2] - q[2] * r[0])
+             + p[2] * (q[0] * r[1] - q[1] * r[0])) / 6.0
+        sm = [p[k] + q[k] + r[k] for k in range(3)]
+        for i in range(3):
+            m1[i] += t * sm[i] / 4
+            for j in range(3):
+                m2[i][j] += t / 20 * (p[i] * p[j] + q[i] * q[j] + r[i] * r[j] + sm[i] * sm[j])
     bad = 0
     for (i, j), n in uses.items():
         if n != 1 or uses.get((j, i), 0) != 1:
             bad += 1
+    centroid = inertia = None
+    if volume:
+        g = [m1[i] / volume for i in range(3)]
+        s2 = [[m2[i][j] - volume * g[i] * g[j] for j in range(3)] for i in range(3)]
+        tr = s2[0][0] + s2[1][1] + s2[2][2]
+        inertia = [[(tr - s2[i][i]) if i == j else -s2[i][j] for j in range(3)] for i in range(3)]
+        centroid = [o[i] + g[i] for i in range(3)]
     return {
         "triangles": len(tris),
+        "centroid": centroid,
+        "inertia": inertia,
         "degenerate": degenerate,
         "unmatched_edges": bad,
         "closed": bad == 0 and len(tris) > 0,

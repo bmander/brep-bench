@@ -17,9 +17,11 @@ kernel, writes `results/<kernel>.json`.
 
 Each case is run once. A kernel marked `"step": true` in `kernels.json` writes its solid as STEP
 and nothing more ([SPEC.md](../SPEC.md#step-is-the-answer)); the harness then reads the file,
-untimed: `harness/step.py` for what the solid is made of, and Open CASCADE (`harness/occt.py`,
-which needs `cadquery-ocp`) for its volume and area, which are graded, and its triangles, for the
-drawings and the viewer. A kernel with no STEP to give is graded on its own measures and
+untimed: `harness/step.py` for what the solid is made of, and `harness/mass.py` for its volume
+and area, which are graded, and its centre of gravity and inertia, which are shown (`python3
+harness/mass.py FILE` prints them for any STEP file). Open CASCADE (`harness/occt.py`, where
+`cadquery-ocp` is installed) meshes the file for the drawings and the viewer. A kernel with no STEP
+to give, or a file the harness cannot measure, is graded on the runner's own measures and
 triangles. So the time, CPU time (user and system, over every thread) and peak memory recorded
 beside each outcome are a kernel's shortest path to a B-rep, not its meshing; none of them is
 graded. Runners are started by
@@ -45,8 +47,9 @@ result file also records its machine and the size of the kernel's binary, as `bi
 
 CI does not run on pull requests, so run a change locally before proposing it.
 
-The harness uses only Python's standard library (3.11 or later), but for Open CASCADE
-(`python3 -m pip install cadquery-ocp`), which reads the kernels' STEP files. The runners need their
+The harness uses only Python's standard library (3.11 or later); Open CASCADE (`python3 -m pip
+install cadquery-ocp`) is wanted only for the triangles of the STEP files that the drawings and
+the viewer show. The runners need their
 own toolchains: Rust, Python's pip and, for Aetheris, the .NET 10 SDK.
 
 ## On GitHub
@@ -61,8 +64,8 @@ A push to `main` reruns only the cases its changes affect, on top of the last ru
 - a kernel newly added, or one with no results yet that the push touches: it runs every case;
 - a change of which kernel is the reference: every case is drawn again;
 - a deleted case: its rows are dropped from the results;
-- how a run is made, measured or graded (`harness/run.py`, `measure.py`, `occt.py`, `stl.py`,
-  `step.py`, `suite.py`, `build.py`): the whole suite runs;
+- how a run is made, measured or graded (`harness/run.py`, `measure.py`, `mass.py`, `occt.py`,
+  `stl.py`, `step.py`, `suite.py`, `build.py`): the whole suite runs;
 - `harness/draw.py`: every case is drawn again;
 - anything else (the site, the docs, a kernel's display-only fields, such as its license):
   nothing runs, and the site is only rebuilt.

@@ -1,22 +1,17 @@
-"""The harness's reader of STEP files: Open CASCADE, through the OCP Python bindings, measures the
-solid a kernel wrote as STEP and meshes it, untimed, so that every kernel that writes STEP is graded
-the same way and none is timed on meshing (SPEC.md, "Grading").
+"""Open CASCADE's triangles of the solid in a STEP file, for the drawings and the case page's viewer,
+through the OCP Python bindings (`cadquery-ocp`). Nothing it makes is graded: the harness measures
+a STEP file's solid itself (harness/mass.py).
 
 harness/run.py starts it once a run, `python3 harness/occt.py`, and asks it of each file. It reads
 requests from its standard input, one line of JSON each:
 
     {"step": PATH, "stl": PATH}
 
-reads the STEP file at `step` (STEPControl_Reader, its lengths in millimetres), measures every solid
-in it (BRepGProp: volume and area, summed over the solids), meshes them as finely as the reference
-runner meshes a solid (kernels/occt/run.py) and writes the triangles to `stl` as binary STL, and
-answers one line of JSON:
-
-    {"volume": V, "area": A, "solids": N}
-
-or {"error": "..."} where Open CASCADE cannot read the file, finds no solid in it, or cannot mesh
-it. Open CASCADE's own messages go to standard error, so that the answers are all that standard
-output carries. Needs `cadquery-ocp`.
+reads the STEP file at `step` (STEPControl_Reader, its lengths in millimetres), meshes its solids as
+finely as the reference runner meshes a solid (kernels/occt/run.py), writes the triangles to `stl` as
+binary STL, and answers one line of JSON, {"solids": N}, or {"error": "..."} where Open CASCADE
+cannot read the file, finds no solid in it, or cannot mesh it. Open CASCADE's own messages go to
+standard error, so that the answers are all that standard output carries.
 """
 import json
 import os
@@ -80,7 +75,7 @@ def read(req):
     writer.ASCIIMode = False
     if not writer.Write(shape, req["stl"]):
         return {"error": "Open CASCADE could not mesh the solid"}
-    return {"volume": volume.Mass(), "area": surface.Mass(), "solids": solids}
+    return {"solids": solids}
 
 
 def main():

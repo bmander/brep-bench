@@ -21,9 +21,10 @@ offsets, thickened sheets, shells, drafts, form features, singular points, direc
 surfaces, real parts and an integration test, the Utah teapot ([a tour](docs/cases.md)).
 
 A runner builds the case and writes the solid as STEP with its kernel's own writer, and is timed
-on that alone: a kernel's product is a B-rep, not a mesh. The harness then reads the file with Open
-CASCADE, untimed, and it **passes** when the file holds a closed solid whose volume and area are
-within 1e-6 (relative) of the expected values. A kernel with no STEP to give writes its triangles as
+on that alone: a kernel's product is a B-rep, not a mesh. The harness then measures the file's solid
+itself, untimed, from its exact geometry (its volume, area, centre of gravity and inertia), and it
+**passes** when the file holds a closed solid, right side out, whose volume and area are within
+1e-6 (relative) of the expected values. A kernel with no STEP to give writes its triangles as
 STL and reports its own measures instead, and passes when they are within 1e-6 (1e-3 for a kernel
 that can only measure its mesh) and the mesh is closed, consistently oriented, and encloses the
 expected volume to within 2%.
@@ -46,8 +47,8 @@ python3 harness/site.py          # render the board: site/
 python3 -m http.server -d site   # serve it
 ```
 
-The harness needs Python 3.11+ and Open CASCADE (`pip install cadquery-ocp`), which reads the
-STEP files; each runner needs its kernel's toolchain. `build.py NAME` and
+The harness needs only Python 3.11+ (and, for the drawings' and the viewer's triangles of each STEP
+file, Open CASCADE: `pip install cadquery-ocp`); each runner needs its kernel's toolchain. `build.py NAME` and
 `run.py --kernel NAME` build and run one kernel. CI does not run on pull requests, so run your
 changes locally. See [running the bench](docs/running.md) for more.
 

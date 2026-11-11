@@ -297,11 +297,27 @@ beside **refused** and **failed** where there is no file to judge. A file that i
 solid (open, triangles or empty) is a wrong answer; the verdict itself is shown, and a faceted file
 is graded like any other, on its measures.
 
-The harness then reads the file with Open CASCADE (`harness/occt.py`, through `cadquery-ocp`),
-untimed: it measures the volume and area of every solid in it, which are graded as a runner's
-measures are, and meshes it, for the drawings and the case page's viewer. Open CASCADE is the
-reader here, and not a source of answers: what it measures is the file's solid, which the
-kernel's own writer wrote.
+The harness then measures the file's solid itself (`harness/mass.py`), untimed: its volume and
+area, which are graded as a runner's measures are, and its centre of gravity and its moments of
+inertia (of unit density, about the centre), which are shown. It reads the exact geometry the file
+holds, surface by surface and edge by edge, and integrates over each face by the divergence and
+Green theorems, to about 1e-12 of the solid's size; it relies on no kernel's reader, and on none of
+the file's curves in a surface's parameters, which writers often leave out. A solid whose faces
+face into it (its volume negative) is **inside out**, and a wrong answer. Where the harness cannot
+measure a file (a surface or a curve it does not yet read), it says why, and grades the runner's own
+measures and triangles in its place, from a second run without `OUT.step`, untimed. Open CASCADE
+(`harness/occt.py`, where `cadquery-ocp` is installed) meshes the file for the drawings and the case
+page's viewer; nothing it makes is graded.
+
+The file is read as ISO 10303-42 defines it. A face's normal is its surface's normal, turned by its
+`same_sense`; each of its loops runs anticlockwise about the face's normal (seen from where the
+normal points, the face lies to the left of the loop), turned by its `face_bound`'s `orientation`;
+and the faces' normals point out of the solid. Some writers direct a face's loops by its surface's
+normal whatever `same_sense` says: read by the standard, such a face is the other side of its loops,
+and the solid is not the one meant. Where a file fails so, the harness measures it once more with
+the loops taken the writer's way, to say why: the result is still **wrong**, its reason that the
+loops run against the standard. Many readers repair both faults silently; a file that needs the
+repair is not the solid it says it is.
 
 **Welding.** The harness joins only vertices whose coordinates are exactly equal. A runner may weld
 its triangles with its own kernel's tools, but no further: a gap the kernel leaves is the kernel's
@@ -319,7 +335,7 @@ Each case and kernel get one outcome. The outcomes, best first:
 
 | outcome | when |
 |---|---|
-| **pass** | where it wrote STEP: the file holds a closed solid, and its volume and area, as Open CASCADE measures them, are within 1e-6 of the expected values (relative). Where it did not: `volume` and `area` are within 1e-6 of the expected values (1e-3 for a kernel measured from its mesh), **and** the triangles are closed (every edge used exactly twice, once each way) with a volume within 2e-2 of the expected volume |
+| **pass** | where it wrote STEP: the file holds a closed solid, right side out, and its volume and area, as the harness measures them, are within 1e-6 of the expected values (relative). Where it did not: `volume` and `area` are within 1e-6 of the expected values (1e-3 for a kernel measured from its mesh), **and** the triangles are closed (every edge used exactly twice, once each way) with a volume within 2e-2 of the expected volume |
 | **refused** | the runner answered `refused` |
 | **wrong** | it answered `ok`, but some condition of a pass fails; the reason is recorded |
 | **crashed** | it exited non-zero, or printed no JSON |
@@ -327,8 +343,8 @@ Each case and kernel get one outcome. The outcomes, best first:
 | **missing** | the kernel has no implementation of the case; not ranked |
 
 An unsettled case has no answer to meet, so a sound result is graded **built** instead of pass:
-the runner answered `ok`, and its STEP file holds a closed solid that Open CASCADE reads, or, with
-no STEP, its triangles are closed and consistently oriented. Anything less is **wrong**; refused,
+the runner answered `ok`, and its STEP file holds a closed solid, right side out, or, with no STEP,
+its triangles are closed and consistently oriented. Anything less is **wrong**; refused,
 crashed and timeout are as above.
 
 The harness checks the solid itself, from its STEP file or else its triangles: what a kernel's
@@ -387,10 +403,11 @@ One entry per kernel:
 
 - **1.16:** a kernel that writes STEP is graded on its STEP file and timed on its shortest path
   to it. Given `OUT.step`, the runner builds the solid and writes it as STEP, and measures and
-  meshes nothing; the harness reads the file untimed, and grades the volume and area Open CASCADE
-  measures of it to 1e-6, the file a closed solid. Only where the kernel has no STEP to give (no
-  writer, or its writer declines the solid) are its own measures and triangles graded, as in 1.9.
-  STEP is no longer a run of its own: each case is one run.
+  meshes nothing; the harness measures the file's solid itself, untimed, and grades its volume and
+  area to 1e-6, the file a closed solid, right side out (and shows its centre of gravity and its
+  inertia). Only where the kernel has no STEP to give (no writer, or its writer declines the
+  solid), or the harness cannot measure the file, are its own measures and triangles graded, as in
+  1.9. STEP is no longer a run of its own: each case is one run.
 - **1.15:** a description may end with its solid stated again as a set of points, under
   `**As a set:**`, in a notation this file defines. It is optional and not graded, and the words
   remain the definition. Grading is as in 1.9.
