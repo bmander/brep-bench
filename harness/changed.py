@@ -19,8 +19,8 @@ changed decides it:
   every case again. A change to which kernel is the reference draws every case again; a change to
   what the board only shows (its licence, languages, note, the files its binary's size counts)
   runs nothing;
-- how a run is made, measured or graded (harness/run.py, measure.py, stl.py, step.py, suite.py,
-  build.py): the whole suite runs again;
+- how a run is made, measured or graded (harness/run.py, measure.py, mass.py, occt.py, stl.py,
+  step.py, suite.py, build.py): the whole suite runs again;
 - anything else (the site, the drawings' code, the docs): nothing runs, the site is only made
   again. A change to harness/draw.py draws every case again.
 
@@ -41,8 +41,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from suite import ROOT, cases, implements, kernels  # noqa: E402
 
-WHOLE_SUITE = {"harness/run.py", "harness/measure.py", "harness/stl.py", "harness/step.py",
-               "harness/suite.py", "harness/build.py"}
+WHOLE_SUITE = {"harness/run.py", "harness/measure.py", "harness/mass.py", "harness/occt.py",
+               "harness/stl.py", "harness/step.py", "harness/suite.py", "harness/build.py"}
 REDRAW = {"harness/draw.py", "harness/stl.py"}
 # a kernel's flags of its implementations (its workarounds, its elegant ones), which the site reads
 # and no run depends on

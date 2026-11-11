@@ -11,7 +11,8 @@
 //! (`measure::solid_volume` and `measure::solid_surface_area`), its faces by surface kind and
 //! whether it passes `validate::validate_solid`, or a refusal. A kernel error is a refusal: the
 //! kernel declined, saying why. A case may also refuse in its own words, where the kernel has no
-//! operation for what it describes.
+//! operation for what it describes. Given OUT.step, the STEP is the whole answer: it is written,
+//! and nothing is measured or meshed unless the writer declines.
 //!
 //! brepkit measures exactly where it can (planar solids, analytic primitives, solids of planes and
 //! quadrics) and otherwise integrates a tessellation of its exact faces; the runner asks it for a
@@ -156,8 +157,20 @@ fn stl(meshes: &[TriangleMesh]) -> Vec<u8> {
     out
 }
 
+/// With `out_step`, `solids` written there as STEP; why brepkit would not, if it would not.
+fn step(topo: &Topology, solids: &[SolidId], out_step: Option<&str>) -> Option<String> {
+    if let Some(path) = out_step {
+        match brepkit_io::step::write_step(topo, solids) {
+            Ok(step) => std::fs::write(path, step).expect("the STEP file writes"),
+            Err(e) => return Some(e.to_string()),
+        }
+    }
+    None
+}
+
 /// The measures, face kinds and validity of `solids`, their triangles written to `out` and, if
-/// asked, the solids to `out_step` as STEP, or why brepkit would not (`step_error`).
+/// asked, the solids to `out_step` as STEP (`step`). A STEP written is the whole answer: nothing is
+/// then measured or meshed.
 fn report(
     topo: &Topology,
     solids: &[SolidId],
@@ -166,6 +179,12 @@ fn report(
 ) -> Result<Value, Refusal> {
     if solids.is_empty() {
         return Err("the operation left no solid".into());
+    }
+    // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
+    // measured or meshed; only where the writer declines does the runner go on to its triangles
+    let declined = step(topo, solids, out_step);
+    if out_step.is_some() && declined.is_none() {
+        return Ok(json!({"status": "ok"}));
     }
     let diag = extent(topo, solids)?;
     // brepkit's measures tessellate what they cannot integrate exactly; ask for a fine one (they
@@ -190,11 +209,8 @@ fn report(
     let mut reply = json!({
         "status": "ok", "volume": volume, "area": area, "faces": faces, "valid": valid,
     });
-    if let Some(path) = out_step {
-        match brepkit_io::step::write_step(topo, solids) {
-            Ok(step) => std::fs::write(path, step).expect("the STEP file writes"),
-            Err(e) => reply["step_error"] = json!(e.to_string()),
-        }
+    if let Some(why) = declined {
+        reply["step_error"] = json!(why);
     }
     Ok(reply)
 }

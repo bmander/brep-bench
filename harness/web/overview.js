@@ -65,7 +65,7 @@ function kernels(b) {
   const rows = b.kernels.map((k) => {
     let name = `<a href='${kernelPage(k.name)}'>${esc(k.name)}</a>`;
     if (k.measured === 'mesh') {
-      name += ` <span class=muted title='no exact measures: graded on its triangles, to 1e-3'>(mesh)</span>`;
+      name += ` <span class=muted title='no exact measures of its own: graded on its triangles, to 1e-3, where it writes no STEP'>(mesh)</span>`;
     }
     if (k.outcomes) name += `<small class=muted>${esc(k.version)} · run ${esc(k.run.slice(0, 10))}</small>`;
     if (k.note) name += `<small class=muted>${esc(k.note)}</small>`;

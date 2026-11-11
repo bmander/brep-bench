@@ -6,15 +6,17 @@
 //!
 //! Builds the case `CASE` (`boolean/napkin-ring`) with its implementation,
 //! `src/cases/boolean/napkin_ring.rs`, in a session of cadrs's native kernel (`DefaultKernel`)
-//! through the `Kernel` trait, the API cadrs's Part Studio features call. It then measures the
-//! body with the kernel's own tools: its volume and area integrated over the exact B-rep
+//! through the `Kernel` trait, the API cadrs's Part Studio features call. It then measures the body
+//! with the kernel's own tools: its volume and area integrated over the exact B-rep
 //! (`Kernel::mass_properties`), its faces by surface kind, and the kernel's full validity check
 //! (`Body::check_with(CheckLevel::Full)`). It meshes the body with the kernel's tessellator
 //! (`Kernel::tessellate`) into OUT.stl and, if asked, writes it as STEP (AP214) into OUT.step with
 //! the kernel's own writer (`Kernel::export_step`; where the writer declines the body, the reply
-//! says why in `step_error`), and prints one line of JSON. An operation's error is a
-//! refusal: the kernel declined, saying why. A case may also refuse in its own words, where the
-//! kernel has no operation for what it describes. The runner never reads the case's description.
+//! says why in `step_error`), and prints one line of JSON. Given OUT.step, the STEP is the whole
+//! answer: it is written, and nothing is measured or meshed unless the writer declines. An
+//! operation's error is a refusal: the kernel declined, saying why. A case may also refuse in its
+//! own words, where the kernel has no operation for what it describes. The runner never reads the
+//! case's description.
 use cadrs_kernel::native::{CheckLevel, Surface};
 use cadrs_kernel::{BodyClass, BodyId, DefaultKernel, Kernel, KernelError, Tessellation};
 use std::collections::BTreeMap;
@@ -162,9 +164,10 @@ fn write_stl(path: &str, mesh: &cadrs_kernel::TriMesh) -> std::io::Result<()> {
 /// coarsest of a ladder of chords that bounds the body's exact volume to 1/100 (the harness asks
 /// 1/50): from a thousandth of the body's size, or a twentieth of its thickness (its volume over
 /// its area) where that is less, at 15°, each step a chord where the volume would be off 0.7 of
-/// that (in proportion to how far off this one is, a half to a sixteenth of it) and half the
-/// angle (to 5°), down to a hundred-thousandth of the size. With `out_step`, the body is also
-/// written there as STEP by the kernel's writer, or the reply says why it was not (`step_error`).
+/// that (in proportion to how far off this one is, a half to a sixteenth of it) and half the angle
+/// (to 5°), down to a hundred-thousandth of the size. With `out_step`, the body is also written
+/// there as STEP by the kernel's writer, or the reply says why it was not (`step_error`). A STEP
+/// written is the whole answer: nothing is then measured or meshed.
 fn measured(k: &DefaultKernel, body: BodyId, out: &str, out_step: Option<&str>) -> Result<String, Refusal> {
     let timing = std::env::var_os("BREP_TIMING").is_some();
     let t0 = std::time::Instant::now();
@@ -178,6 +181,19 @@ fn measured(k: &DefaultKernel, body: BodyId, out: &str, out_step: Option<&str>) 
     match k.body_class(body)? {
         BodyClass::Solid => {}
         other => return Err(format!("the result is not a solid but {other:?}").into()),
+    }
+    // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
+    // measured or meshed; only where the writer declines does the runner go on to its triangles
+    let step_error = match out_step.map(|path| (path, k.export_step(&[body]))) {
+        None => String::new(),
+        Some((path, Ok(step))) => {
+            std::fs::write(path, step).expect("the STEP file writes");
+            String::new()
+        }
+        Some((_, Err(e))) => format!(",\"step_error\":{}", quoted(&e.to_string())),
+    };
+    if out_step.is_some() && step_error.is_empty() {
+        return Ok("{\"status\":\"ok\"}".into());
     }
     let m = k.mass_properties(body)?;
     let (volume, area) = (m.volume, m.surface_area);
@@ -243,14 +259,6 @@ fn measured(k: &DefaultKernel, body: BodyId, out: &str, out_step: Option<&str>) 
     }
     write_stl(out, &mesh).map_err(|e| format!("{out} not written: {e}"))?;
     lap(&format!("write {} triangles", mesh.indices.len()), &mut t);
-    let step_error = match out_step.map(|path| (path, k.export_step(&[body]))) {
-        None => String::new(),
-        Some((path, Ok(step))) => {
-            std::fs::write(path, step).expect("the STEP file writes");
-            String::new()
-        }
-        Some((_, Err(e))) => format!(",\"step_error\":{}", quoted(&e.to_string())),
-    };
     Ok(format!(
         "{{\"status\":\"ok\",\"volume\":{volume:e},\"area\":{area:e},\"faces\":{{{faces}}},\"valid\":{valid}{step_error}}}"
     ))

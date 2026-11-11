@@ -15,20 +15,32 @@ boolean/` runs part of the suite; `NAME` is the kernel's `name` in `kernels.json
 run narrowed by `--case` is only a check and is not recorded; a run of every case, even for one
 kernel, writes `results/<kernel>.json`.
 
-Each run's time, CPU time (user and system, over every thread) and peak memory are recorded
-beside its outcome; none of them is graded. Runners are started by `harness/measure.py`, a
-small process that holds almost no memory, because on Linux a child's peak resident set starts
-at its parent's. Before its cases, each runner is given the case id `harness/start`, which names
-no case, five times; the median is the kernel's start-up, which the board subtracts from its
-times. Times are recorded to the microsecond, since a fast kernel's run less its start-up can be
-under a millisecond. In its means and ratios the board takes any time under 0.1 ms, about the
+Each case is run once. A kernel marked `"step": true` in `kernels.json` writes its solid as STEP
+and nothing more ([SPEC.md](../SPEC.md#step-is-the-answer)); the harness then reads the file,
+untimed: `harness/step.py` for what the solid is made of, and `harness/mass.py` for its volume
+and area, which are graded, and its centre of gravity and inertia, which are shown (`python3
+harness/mass.py FILE` prints them for any STEP file). Open CASCADE (`harness/occt.py`, where
+`cadquery-ocp` is installed) meshes the file for the drawings and the viewer. A kernel with no STEP
+to give, or a file the harness cannot measure, is graded on the runner's own measures and
+triangles. The files are measured once all of a kernel's timed runs are done (so that nothing runs
+beside those), as many at once as the run may use cores (`--jobs`), each in `--mass-timeout`
+seconds (30 by default) and its pictures' meshing in 15; and what each file measured is kept by
+its SHA-256 in `results/mass/<kernel>.json`, so that a file a kernel writes again byte for byte is
+not measured again (CI keeps that file from run to run in a cache of its own; a change to
+`mass.py` or `step.py` starts it afresh). So the time, CPU time (user and system, over every thread) and peak memory recorded
+beside each outcome are a kernel's shortest path to a B-rep, not its meshing; none of them is
+graded. Runners are started by
+`harness/measure.py`, a small process that holds almost no memory, because on Linux a child's
+peak resident set starts at its parent's. Before its cases, each runner is given the case id
+`harness/start`, which names no case, five times; the median is the kernel's start-up, which the
+board subtracts from its times. Times are recorded to the microsecond, since a fast kernel's run
+less its start-up can be under a millisecond. In its means and ratios the board takes any time under 0.1 ms, about the
 spread of a runner's start-up, as 0.1 ms; a time recorded only to the millisecond, or one whose
 kernel's start-up was never measured, it takes as no less than 1 ms. A CI run of only some of a
 kernel's cases keeps its last start-up and binary size. `--one-core` runs each case a kernel
-builds a second time, pinned to one core, for its speedup on all of them (Linux only). A kernel
-marked `"step": true` in `kernels.json` runs each case it builds once more, untimed, writing its
-solid as STEP; `harness/step.py` reads the file for what the solid is made of (its form, its
-topology, its faces by surface and edges by curve, its unpaired edges), and the result keeps that
+builds a second time, pinned to one core, for its speedup on all of them (Linux only). For each
+case a kernel with `"step": true` builds, `harness/step.py` reads the file for what the solid is made of (its
+form, its topology, its faces by surface and edges by curve, its unpaired edges), and the result keeps that
 as `step`, or `{"refused": why}` where the kernel's writer declined it, or `{"error": why}` where
 the run failed. The run prints each one's verdict (`STEP brep`, `STEP refused: …`) at the end of
 its line. The file
@@ -40,8 +52,10 @@ result file also records its machine and the size of the kernel's binary, as `bi
 
 CI does not run on pull requests, so run a change locally before proposing it.
 
-The harness uses only Python's standard library (3.11 or later). The runners need their own
-toolchains: Rust, Python's pip and, for Aetheris, the .NET 10 SDK.
+The harness uses only Python's standard library (3.11 or later); Open CASCADE (`python3 -m pip
+install cadquery-ocp`) is wanted only for the triangles of the STEP files that the drawings and
+the viewer show. The runners need their
+own toolchains: Rust, Python's pip and, for Aetheris, the .NET 10 SDK.
 
 ## On GitHub
 
@@ -55,8 +69,8 @@ A push to `main` reruns only the cases its changes affect, on top of the last ru
 - a kernel newly added, or one with no results yet that the push touches: it runs every case;
 - a change of which kernel is the reference: every case is drawn again;
 - a deleted case: its rows are dropped from the results;
-- how a run is made, measured or graded (`harness/run.py`, `measure.py`, `stl.py`, `suite.py`,
-  `build.py`): the whole suite runs;
+- how a run is made, measured or graded (`harness/run.py`, `measure.py`, `mass.py`, `occt.py`,
+  `stl.py`, `step.py`, `suite.py`, `build.py`): the whole suite runs;
 - `harness/draw.py`: every case is drawn again;
 - anything else (the site, the docs, a kernel's display-only fields, such as its license):
   nothing runs, and the site is only rebuilt.

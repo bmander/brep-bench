@@ -39,7 +39,7 @@ function draw(b) {
   const counted = (o, count, extra = {}) => (count
     ? `<a href='${explore({ ...extra, [`f.${k.name}`]: o })}'>${count}</a>` : '<span class=muted>·</span>');
   out += `<p class=muted>${esc(k.version)} · run ${esc(k.run.slice(0, 10))}${
-    k.measured === 'mesh' ? ' · no exact measures: graded on its triangles, to 1e-3' : ''}${
+    k.measured === 'mesh' ? ' · no exact measures of its own: graded on its triangles, to 1e-3, where it writes no STEP' : ''}${
     { writes: ' · writes STEP', cannot: ' · cannot write STEP', unset: ' · STEP not set up' }[
       stepStanding(k).standing]}</p>
     <p>It has an implementation of ${n - t.missing} of the ${n} cases.</p>

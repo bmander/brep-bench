@@ -15,6 +15,9 @@
 // and a body it cannot write is no body at all: the compiler refuses the case. So there is no
 // separate STEP refusal to report.
 //
+// Given OUT.step, the STEP is the whole answer: the runner compiles the part, writes its STEP, and
+// reads nothing back and meshes nothing (OUT.stl is not written).
+//
 // Aetheris has exact volumes for only a few families of body, and no exact area: its general mass
 // properties are integrated over a display tessellation, and it says so. So the runner answers
 // `"measured": "mesh"` and the harness measures the triangles.
@@ -106,6 +109,12 @@ static class Runner
                 throw new Fault(words);
             throw new Refused(words);
         }
+        // a STEP asked for is the whole answer (SPEC.md, "A runner"): written, and nothing meshed
+        if (step is not null)
+        {
+            File.WriteAllText(step, built.Value.StepText, new UTF8Encoding(false));
+            return new { status = "ok" };
+        }
         // the body Aetheris exports, read back by its own importer: what `aetheris measure` measures
         var imported = Step242Importer.ImportBody(built.Value.StepText);
         if (!imported.IsSuccess || imported.Value is null)
@@ -127,8 +136,6 @@ static class Runner
                 + $"{topology.OrientationConflictEdgeCount} edges whose faces disagree in orientation"
                 + (topology.IsOutwardOriented ? "" : ", not oriented outward") + (topology.IsConnected ? "" : ", not connected"));
         BinaryStlExporter.Export(output, mesh);
-        // the AP242 text Aetheris exported, written as `aetheris build` writes it: UTF-8, no BOM
-        if (step is not null) File.WriteAllText(step, built.Value.StepText, new UTF8Encoding(false));
         return new { status = "ok", measured = "mesh", faces, valid };
     }
 

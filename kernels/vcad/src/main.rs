@@ -6,7 +6,8 @@
 //! Builds the case `CASE` (`boolean/napkin-ring`) with its implementation,
 //! `src/cases/boolean/napkin_ring.rs`, writes the solid's triangles to `OUT.stl` (and, if asked,
 //! the solid to `OUT.step` with vcad's own STEP writer, `Solid::to_step_buffer`) and prints one
-//! line of JSON, or a refusal.
+//! line of JSON, or a refusal. Given OUT.step, the STEP is the whole answer: it is written, and
+//! nothing is measured or meshed unless the writer declines.
 //!
 //! vcad measures only meshes: `Solid::volume` and `Solid::surface_area` are its tessellation's.
 //! So a built case answers `"measured": "mesh"` and the harness takes the volume and area from the
@@ -91,13 +92,31 @@ fn kind(k: SurfaceKind) -> &'static str {
     }
 }
 
+/// With `out_step`, `solid` written there as STEP; why vcad would not, if it would not.
+fn step(solid: &Solid, out_step: Option<&str>) -> Option<String> {
+    if let Some(path) = out_step {
+        match solid.to_step_buffer() {
+            Ok(step) => std::fs::write(path, step).expect("the STEP file writes"),
+            Err(e) => return Some(e.to_string()),
+        }
+    }
+    None
+}
+
 /// The faces of `solid` by surface kind, its validity, and its triangles written to `out`; with
-/// `out_step`, the solid written there as STEP, or why vcad would not (`step_error`).
+/// `out_step`, the solid written there as STEP (`step`). A STEP written is the whole answer:
+/// nothing is then measured or meshed.
 fn report(solid: &Solid, out: &str, out_step: Option<&str>) -> Result<Value, Refusal> {
     // vcad's ledger of the solid's construction: an operation that could not be done and left the
     // wrong solid in its place (a skipped cut, two meshes concatenated) is the kernel declining
     if let Some(event) = solid.wrong_geometry_events().next() {
         return Err(Refusal(event.to_string()));
+    }
+    // given OUT.step, the solid written there is the whole answer (SPEC.md, "A runner"): nothing
+    // measured or meshed; only where the writer declines does the runner go on to its triangles
+    let declined = step(solid, out_step);
+    if out_step.is_some() && declined.is_none() {
+        return Ok(json!({"status": "ok"}));
     }
     let mut faces: BTreeMap<&str, usize> = BTreeMap::new();
     if let Some(brep) = solid.brep() {
@@ -124,11 +143,8 @@ fn report(solid: &Solid, out: &str, out_step: Option<&str>) -> Result<Value, Ref
         .map_err(|e| Refusal(format!("no STL written: {e:?}")))?;
     std::fs::write(out, bytes).expect("the STL file writes");
     let mut reply = json!({"status": "ok", "measured": "mesh", "faces": faces, "valid": valid});
-    if let Some(path) = out_step {
-        match solid.to_step_buffer() {
-            Ok(step) => std::fs::write(path, step).expect("the STEP file writes"),
-            Err(e) => reply["step_error"] = json!(e.to_string()),
-        }
+    if let Some(why) = declined {
+        reply["step_error"] = json!(why);
     }
     Ok(reply)
 }
