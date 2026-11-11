@@ -4,7 +4,6 @@ use cad_kernel::offset::{grown, Join};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    // the tetrahedron: the convex hull of its corners
     let tetrahedron = hull(&[[3., 3., 3.], [3., -3., -3.], [-3., 3., -3.], [-3., -3., 3.]])?;
     grown(&tetrahedron, 1., Join::Round)
 }

@@ -10,7 +10,7 @@ publish = false
 # a release, exactly: the scoreboard says which, and moving to another is a change made here.
 # For now the geomsolver commit that adds `build::hull`, which no release has yet: to be pinned
 # to the release that carries it before this merges.
-cad-kernel = { git = "https://github.com/bmander/geomsolver", rev = "aaf50bbfe2eb030a9c6b44525752bb63eb3fdef7" }
+cad-kernel = { git = "https://github.com/bmander/geomsolver", rev = "dbfe3831ccbe9daaa47dc914ceae122bb7c83241" }
 
 [profile.release]
 debug = 0

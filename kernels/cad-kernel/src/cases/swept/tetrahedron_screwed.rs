@@ -11,7 +11,6 @@ const LEAD: f64 = 5.;
 const TURN: f64 = 540f64.to_radians();
 
 pub fn build() -> Result<Brep, String> {
-    // the tetrahedron: the convex hull of its corners
     let tool = hull(&CORNERS)?;
     // the screw about z: a radian a radian of the roll, rising the lead a turn
     let path = Trajectory::Twist(Screw {

@@ -1,11 +1,11 @@
 //! The solids and picks the cases share: a closed polygon as a profile, a rectangle and a rounded
-//! one, a block between two corners, the L-block, a ball cut by a level, a rounded plate, a
+//! one, a block between two corners, the octahedron, the L-block, a ball cut by a level, a rounded plate, a
 //! capsule, a drilled block, a bent flange and a half pipe, a face picked by a point inside it,
 //! drafts about a plane a profile or a face does not start on, and a section swept along a path of
 //! straight runs mitred at its corners. Everything else a case builds with cad-kernel's own `build`
 //! functions.
 use cad_kernel::boolean::{combined, Op};
-use cad_kernel::build::{disc, drafted, kept, offset, prism, revolve, sphere, Profile, ProfileEdge};
+use cad_kernel::build::{disc, drafted, hull, kept, offset, prism, revolve, sphere, Profile, ProfileEdge};
 use cad_kernel::geom::{tolerance, Frame, Rigid, V};
 use cad_kernel::query::{Located, Place};
 use cad_kernel::topo::Brep;
@@ -30,6 +30,12 @@ pub fn rectangle(lo: [f64; 2], hi: [f64; 2], z: f64) -> Profile {
 /// swept up.
 pub fn block(lo: V, hi: V) -> Result<Brep, String> {
     prism(&rectangle([lo[0], lo[1]], [hi[0], hi[1]], lo[2]), 0., hi[2] - lo[2])
+}
+
+/// The octahedron |x| + |y| + |z| ≤ `reach`: the convex hull of its six corners on the axes.
+pub fn octahedron(reach: f64) -> Result<Brep, String> {
+    let (r, o) = (reach, 0.);
+    hull(&[[r, o, o], [-r, o, o], [o, r, o], [o, -r, o], [o, o, r], [o, o, -r]])
 }
 
 /// The L-shaped plate through (0, 0), (20, 0), (20, 5), (5, 5), (5, 15) and (0, 15), 8 high.
