@@ -2,7 +2,7 @@
 //! 5 about (0, 0, 10), the concave circle where the post meets the ball (radius 3 at z = 6)
 //! chamfered with two distances, 2 down the post and 1 on the ball, each a straight line from the
 //! edge in the plane square to it: the groove between the post and the ball filled up to the cone
-//! from the circle on the post at z = 4 to the circle on the ball 1 in a straight line from the edge.
+//! from the circle on the post at z = 4 to the circle on the ball 1 in a straight line from it.
 use crate::solids::boolean::union;
 use crate::solids::fillet::distances_ball_first;
 use crate::solids::p;

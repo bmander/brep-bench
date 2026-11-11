@@ -2,7 +2,10 @@
 //! edges, and the octahedron.
 use crate::bench::{cut, extrude, p3, union, P3, V3};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, BodyKind, ChamferOpts, ChamferSpec, DefaultKernel, EdgeId, Kernel, LoftEnd, LoftSection, LoftSpec, Loop, Pick, Plane, Profile};
+use cadrs_kernel::{
+    BodyId, BodyKind, ChamferMeasure, ChamferOpts, ChamferSpec, DefaultKernel, EdgeId, Kernel, LoftEnd,
+    LoftSection, LoftSpec, Loop, Pick, Plane, Profile,
+};
 
 /// `body` with `edges` chamfered by `spec` in one Chamfer feature.
 pub fn chamfer(
@@ -26,11 +29,18 @@ pub fn chamfer_with(
 }
 
 /// `body` with the circular edge through `edge_point` chamfered by two distances in one Chamfer
-/// feature: `on_ball` on its face on the ball about `centre`, through `ball_point`, and
-/// `on_other` on its other face. cadrs puts the first distance on the face whose loop runs along
-/// the edge: the face on the left of the edge's direction, seen from outside the face (its
-/// outward normal on a ball pointing away from the ball's centre).
-pub fn two_distances_on_ball(
+/// feature, each a chord from the edge in the plane square to it: `on_ball` on its face on the
+/// ball about `centre`, through `ball_point`, and `on_other` on its other face, itself on a ball of
+/// radius `other_ball` where that is given (else a plane or a cylinder along the section).
+///
+/// The distances are measured along the faces' tangent planes (`ChamferMeasure::Tangent`): on a
+/// ball of radius R a tangent distance t lands at the angle atan(t/R) round it from the edge, so
+/// the chord c is t = R·tan(2·asin(c/2R)); on a face straight across the edge the two are the
+/// same. cadrs puts the first distance on the face whose loop runs along the edge: the face on
+/// the left of the edge's direction, seen from outside the face (its outward normal on a ball
+/// pointing away from the ball's centre).
+#[allow(clippy::too_many_arguments)]
+pub fn chord_two_distances_on_ball(
     k: &mut DefaultKernel,
     body: BodyId,
     edge_point: P3,
@@ -38,7 +48,12 @@ pub fn two_distances_on_ball(
     ball_point: P3,
     on_ball: f64,
     on_other: f64,
+    other_ball: Option<f64>,
 ) -> Result<BodyId, Refusal> {
+    let tangent = |chord: f64, radius: f64| radius * (2.0 * (chord / (2.0 * radius)).asin()).tan();
+    let radius = (edge_point - centre).norm();
+    let on_ball = tangent(on_ball, radius);
+    let on_other = other_ball.map_or(on_other, |r| tangent(on_other, r));
     let edge = k.edge_at(body, edge_point)?;
     let info = k.edges(body)?.into_iter().find(|i| i.id == edge).ok_or("the edge is gone")?;
     let circle = info.circle.ok_or("the edge is not a circle")?;
@@ -53,7 +68,9 @@ pub fn two_distances_on_ball(
     } else {
         ChamferSpec::TwoDistances(on_other, on_ball)
     };
-    chamfer(k, body, &[edge], spec)
+    let mut opts = ChamferOpts::new(spec);
+    opts.measurement = ChamferMeasure::Tangent;
+    chamfer_with(k, body, &[edge], &opts)
 }
 
 /// The octahedron |x| + |y| + |z| ≤ `a`: the square through its four corners in the plane z = 0

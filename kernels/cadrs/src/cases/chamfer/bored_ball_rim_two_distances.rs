@@ -5,9 +5,10 @@
 //! line from the rim.
 //!
 //! The ball is cadrs's sphere primitive less a cylinder running past both its sides; the upper rim
-//! goes into one Chamfer feature of two distances, the first on the edge's first face.
+//! goes into one Chamfer feature of two distances measured along the faces' tangent planes, each
+//! given as the tangent distance that lands on the chord, the first on the edge's first face.
 use crate::bench::{ball, cut, cylinder, p3, v3};
-use crate::shared::chamfer::two_distances_on_ball;
+use crate::shared::chamfer::chord_two_distances_on_ball;
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};
 
@@ -20,5 +21,14 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let bored = cut(k, b, bore)?;
     // The upper rim through (0, −2, √21), ON_BALL on the face through (5, 0, 0).
     let rim = p3(0.0, -2.0, 21f64.sqrt());
-    two_distances_on_ball(k, bored, rim, p3(0.0, 0.0, 0.0), p3(5.0, 0.0, 0.0), ON_BALL, DOWN_BORE)
+    chord_two_distances_on_ball(
+        k,
+        bored,
+        rim,
+        p3(0.0, 0.0, 0.0),
+        p3(5.0, 0.0, 0.0),
+        ON_BALL,
+        DOWN_BORE,
+        None,
+    )
 }
