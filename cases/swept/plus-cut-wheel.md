@@ -2,7 +2,14 @@
 title = "A wheel cut by a plus always in mesh with it"
 tags = ["swept", "solid-sweep", "generating", "conjugate", "envelope", "boolean", "cut"]
 origin = "geomsolver rust/examples/solid_sweeps/conjugate.sv"
-settled = false
+
+[volume]
+value = 17485.5244499
+exact = "no closed form: cad-kernel and cadrs agree to 1e-11; the mean of their values (next.BREP is 7e-10 from it)"
+
+[area]
+value = 8193.42160418
+exact = "no closed form: cad-kernel and cadrs agree to 2.5e-10; the mean of their values (next.BREP is 1.0e-8 from it)"
 +++
 
 A wheel cut by a plus-shaped tool that turns in mesh with it, as a gear shaper cuts.
