@@ -1803,6 +1803,8 @@ class Face:
                 if k:
                     C = self.column(top)
                     total = [x + k * cx for x, cx in zip(total, C)]
+        if abs(total[0]) <= 1e-12 * max(1.0, self.L * self.L) and abs(total[1]) <= 1e-12 * self.L ** 2:
+            return [0.0] * NM  # a face of no area (a loop out along an edge and back): nothing
         if total[0] <= 0:
             raise Unsupported("a face whose loops bound no region of its surface")
         # the linear measures by the face's outward normal; its areas are positive
