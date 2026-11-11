@@ -1,13 +1,22 @@
-//! A block grooved by a square key carried along a spline by its moving frame.
+//! A block grooved by a square key carried along a spline.
 //!
-//! Refused: the kernel's sweep of a solid takes motions made of screws and turns about fixed axes;
-//! a frame riding a Bézier curve is none, and the key's sweep is an envelope that would have to be
-//! computed outside the kernel.
+//! Through the kernel's sweep of a prism carried by a frame along a curve (`sweep_prism_along`):
+//! the curve is the cubic Bézier (0, 0, 0), (10, 0, 0), (20, 20, 0), (30, 20, 0), the frame's up the
+//! z axis; the key, drawn in the frame at the curve's start, is the rectangle −1.5 ≤ x ≤ 1.5,
+//! −0.8 ≤ y ≤ 0.8 from z = −1.5 to 2.5. The motion is planar, so the kernel finds the plane region
+//! the moving rectangle covers (its corners' paths, its sides' grazing points' paths and its end
+//! positions, split where they meet) and extrudes it; cut from the block, the box from (−6, −6, −8)
+//! to (36, 26, 0).
+use crate::solids::p;
 use crate::Refusal;
-use brep_kernel::BrepSolid;
+use brep_kernel::{boolean_operation_nary, make_box_brep, sweep_prism_along, BooleanOperation, BrepSolid, FrameCurve};
 
 pub fn build() -> Result<BrepSolid, Refusal> {
-    Err(Refusal::from(
-        "next.BREP's sweep of a solid (sweepSolidWithin) carries a solid of revolution along a screw or a turn, or a prism along a planar motion, about fixed axes; a frame riding a Bézier curve is no such motion, and the key's sweep is an envelope that would have to be computed outside the kernel",
-    ))
+    let block = make_box_brep(p(-6.0, -6.0, -8.0), 42.0, 32.0, 8.0)?;
+    let path = FrameCurve {
+        control: [p(0.0, 0.0, 0.0), p(10.0, 0.0, 0.0), p(20.0, 20.0, 0.0), p(30.0, 20.0, 0.0)],
+        up: p(0.0, 0.0, 1.0),
+    };
+    let key = sweep_prism_along(&[[-1.5, -0.8], [1.5, -0.8], [1.5, 0.8], [-1.5, 0.8]], -1.5, 2.5, &path)?;
+    Ok(boolean_operation_nary(&[block, key], BooleanOperation::Subtract)?)
 }
