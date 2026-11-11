@@ -1,6 +1,7 @@
 //! What the cadrs implementations of the swept cases share: the rod and the ring sector several of
 //! them groove, a slide, a swing or a screw of a solid (cadrs's sweep of a solid,
-//! `Kernel::sweep_solid`), and the solid a torus fills as it slides along the z axis.
+//! `Kernel::sweep_solid`), the solid a torus fills as it slides along the z axis, and the gear
+//! ladder's blanks, pinion tooth and worm thread, cut under a pair's two turns.
 use crate::bench::{arc, cylinder, extrude, p2, p3, torus, v3, P3, V3};
 use crate::Refusal;
 use cadrs_kernel::{Axis, BodyId, Curve2, CylindricalBox, DefaultKernel, Kernel, Loop, Plane, Profile, RigidStep, SolidMotion};
@@ -177,4 +178,127 @@ pub fn crossed_tori(k: &mut DefaultKernel) -> Result<(BodyId, BodyId), Refusal> 
 /// (`sign` −1: A, the forward tumble) or with it (+1: B, the reverse).
 pub fn crossed_torus(k: &mut DefaultKernel, sign: f64) -> Result<BodyId, Refusal> {
     tumbling_torus(k, p3(3.0, 0.0, 2.0), 0.22, (45.0, 20.0, 0.7071), 0.7, sign, (-100.0, 100.0))
+}
+
+/// The gear ladder's bevel pair (`swept/straight-bevel-gear-cut-by-its-pinion`,
+/// `swept/hypoid-gear-cut-by-its-pinion`): g along the line where the pitch cones touch, d square
+/// to it in the xz-plane, from the pinion into the gear.
+fn bevel_frame() -> (V3, V3) {
+    let s5 = 5f64.sqrt();
+    (v3(2.0 / s5, 0.0, 1.0 / s5), v3(-1.0 / s5, 0.0, 2.0 / s5))
+}
+
+/// The bevel gear's blank: the quadrilateral of the points s·g + u·d (s from 15√5 − 10 to 15√5,
+/// u from 6 inside the pitch cone to the face cone through O, 2 outside it at the outer end) on
+/// the Front plane, revolved about the z axis.
+pub fn bevel_blank(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
+    let (g, d) = bevel_frame();
+    let (ae, ai) = (15.0 * 5f64.sqrt(), 15.0 * 5f64.sqrt() - 10.0);
+    let at = |s: f64, u: f64| {
+        let p = g * s + d * u;
+        [p.x, p.z]
+    };
+    let corners = [at(ae, -2.0), at(ae, 6.0), at(ai, 6.0), at(ai, -2.0 * ai / ae)];
+    let quad = Profile::of(Plane::xz(0.0), vec![Loop::polygon(&corners)]);
+    crate::bench::revolve(k, &quad, z_axis(), None)
+}
+
+/// The pinion's tooth: the pyramid with apex O over the trapezoid P + u·d + w·y (P = 15√5·g,
+/// |u| ≤ 2.5, |w| ≤ π/2 − u·tan 20°), between the planes square to g at 15√5 − 12 and 15√5 + 2.
+/// The trapezoid, scaled out to the outer plane, lofted to the apex; then the part beyond the
+/// inner plane kept (common with a slab square to g).
+pub fn bevel_tooth(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
+    use cadrs_kernel::{BodyKind, LoftEnd, LoftSection, LoftSpec};
+    let (g, d) = bevel_frame();
+    let ae = 15.0 * 5f64.sqrt();
+    let (inner, outer) = (ae - 12.0, ae + 2.0);
+    let scale = outer / ae;
+    let tan20 = 20f64.to_radians().tan();
+    let w = |u: f64| std::f64::consts::FRAC_PI_2 - u * tan20;
+    // sketch x along d, sketch y along g × d = −y, on the outer plane
+    let base = Plane::new(P3::origin() + g * outer, d, g);
+    let trapezoid = [(2.5, w(2.5)), (-2.5, w(-2.5)), (-2.5, -w(-2.5)), (2.5, -w(2.5))]
+        .map(|(u, w)| [u * scale, w * scale]);
+    let spec = LoftSpec {
+        body: BodyKind::Solid,
+        sections: vec![
+            LoftSection::Profile(Profile::of(base, vec![Loop::polygon(&trapezoid)])),
+            LoftSection::Point(P3::origin()),
+        ],
+        start: LoftEnd::default(),
+        end: LoftEnd::default(),
+        source: 1,
+    };
+    let pyramid = k.loft_with(&spec)?.first()?;
+    // the slab from the inner plane to past the outer one, wide enough to hold the tooth
+    let slab_base = Plane::new(P3::origin() + g * inner, d, g);
+    let slab = extrude(k, &Profile::of(slab_base, vec![Loop::rectangle(-10.0, -10.0, 10.0, 10.0)]), 15.0)?;
+    crate::bench::common(k, pyramid, slab)
+}
+
+/// The blank less what `tooth` passes through as it turns about `pinion` by `roll` (degrees)
+/// while the gear turns by `ratio` times it about the z axis (seen from the gear, by −ratio
+/// times it): cadrs's sweep of a solid under the two turns, applied in order at each instant,
+/// cut from the blank.
+pub fn bevel_cut(
+    k: &mut DefaultKernel,
+    tooth: BodyId,
+    pinion: Axis,
+    ratio: f64,
+    roll: (f64, f64),
+) -> Result<BodyId, Refusal> {
+    let (t0, t1) = (roll.0.to_radians(), roll.1.to_radians());
+    let motion = SolidMotion::Rigid {
+        steps: vec![
+            RigidStep::Turn { axis: pinion, from: t0, to: t1 },
+            RigidStep::Turn { axis: z_axis(), from: -ratio * t0, to: -ratio * t1 },
+        ],
+    };
+    let swept = k.sweep_solid(tooth, &motion)?.first()?;
+    let blank = bevel_blank(k)?;
+    crate::bench::cut(k, blank, swept)
+}
+
+/// The gear ladder's cylindrical worm (`swept/helicon-face-gear-hobbed-by-its-worm`,
+/// `swept/worm-wheel-hobbed-by-its-worm`): its thread on the line through `at` along the x axis,
+/// from x = `from` to `to`, lead 2π, one start, right-handed. Built about the z axis: its axial
+/// section, the trapezoid π wide at radius 10 from radius 7.5 to 12.5, its sides 20° from square to
+/// the axis, on the Front plane, swept along the helix of radius 10 through (10, 0, ·) (cadrs's
+/// sweep follows it by the helix's screw motion, the section kept in its plane through the axis) a
+/// turn past each end, and cut to the planes z = `from` and `to`; then turned by 90° about the y
+/// axis (z onto x, the half-plane x > 0 onto −z, a quarter turn behind +y about the new axis, so the
+/// section is centred a quarter turn back, z ≡ −π/2) and moved to `at`.
+pub fn worm_thread(k: &mut DefaultKernel, at: P3, from: f64, to: f64) -> Result<BodyId, Refusal> {
+    use std::f64::consts::{FRAC_PI_2, TAU};
+    let tan20 = 20f64.to_radians().tan();
+    let w = |r: f64| FRAC_PI_2 - (r - 10.0) * tan20;
+    let turns_before = (-from / TAU).ceil() + 1.0;
+    let start = -TAU * turns_before;
+    let mid = start - FRAC_PI_2;
+    let section = [[7.5, mid - w(7.5)], [12.5, mid - w(12.5)], [12.5, mid + w(12.5)], [7.5, mid + w(7.5)]];
+    let profile = Profile::of(Plane::xz(0.0), vec![Loop::polygon(&section)]);
+    let turns = ((to - start) / TAU).ceil() + 1.0;
+    let path = crate::shared::sweep::helix(p3(0.0, 0.0, start), 10.0, TAU, 0.0, turns);
+    let thread = crate::shared::sweep::sweep(k, &profile, path)?;
+    let ends = cylinder(k, p3(0.0, 0.0, from), v3(0.0, 0.0, 1.0), 13.0, to - from)?;
+    let thread = crate::bench::common(k, thread, ends)?;
+    let thread = crate::bench::turned(k, thread, Axis::new(P3::origin(), v3(0.0, 1.0, 0.0)), 90.0)?;
+    crate::bench::moved(k, thread, at.coords)
+}
+
+/// `blank` less what the worm's thread on the line through `at` along x (from x = `from` to `to`)
+/// passes through as it turns by t about its axis while the gear turns by t/30 about the z axis,
+/// t from 0 to 60π: cadrs's sweep of a solid under the two turns (seen from the gear, by t about the
+/// worm's axis, then by −t/30 about the z axis), cut from the blank.
+pub fn hobbed(k: &mut DefaultKernel, blank: BodyId, at: P3, from: f64, to: f64) -> Result<BodyId, Refusal> {
+    use std::f64::consts::{PI, TAU};
+    let thread = worm_thread(k, at, from, to)?;
+    let motion = SolidMotion::Rigid {
+        steps: vec![
+            RigidStep::Turn { axis: Axis::new(at, v3(1.0, 0.0, 0.0)), from: 0.0, to: 60.0 * PI },
+            RigidStep::Turn { axis: z_axis(), from: 0.0, to: -TAU },
+        ],
+    };
+    let swept = k.sweep_solid(thread, &motion)?.first()?;
+    crate::bench::cut(k, blank, swept)
 }

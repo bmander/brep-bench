@@ -19,6 +19,7 @@ use std::collections::BTreeMap;
 
 mod sketch;
 mod tumble;
+mod gears;
 
 /// Every case file, found by `build.rs`.
 mod cases {
