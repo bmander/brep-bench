@@ -10,10 +10,15 @@ Loads the case's implementation, `cases/<category>/<name_snake>.py` beside this 
 solid. It meshes the solid with SMLib's tessellator, writes the triangles to OUT.stl, and prints
 one line of JSON (SPEC.md, "A runner"). The runner never reads the case's description: the
 implementation is the whole of the case here. Needs `usd-brep`.
+
+A case is refused when its implementation says so, and when one of SMLib's operations declines
+while building it: the package raises a RuntimeError naming the SM_API call and the status it
+returned, and the runner refuses in those words. Any other error is left uncaught.
 """
 import importlib.util
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -25,6 +30,10 @@ if len(sys.argv) > 1 and sys.argv[1] == "--version":
 
 sys.path.insert(0, HERE)
 from bench import Refused  # noqa: E402
+
+# What the package raises when an SM_API call returns a status other than success: the call, the
+# status's name and its number, then where the kernel or the binding reported it.
+DECLINED = re.compile(r"(SmApi\w+ failed: \w+ \(-?\d+\))")
 
 # How finely the measures integrate. SMLib's documentation advises against asking for better than
 # 1e-8, and at 1e-8 the integration of some solids does not converge and the call fails. The
@@ -115,9 +124,15 @@ def main():
     build = implementation(case_id).build
     try:
         solid = build()
-        reply = measure(solid, out_stl)
     except Refused as why:
         reply = {"status": "refused", "reason": str(why)}
+    except RuntimeError as error:
+        declined = DECLINED.match(str(error))
+        if not declined:
+            raise
+        reply = {"status": "refused", "reason": declined.group(1)}
+    else:
+        reply = measure(solid, out_stl)
     print(json.dumps(reply))
 
 
