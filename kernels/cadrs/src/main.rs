@@ -280,6 +280,33 @@ fn measured(k: &DefaultKernel, body: BodyId, out: &str, out_step: Option<&str>) 
     ))
 }
 
+/// The two sides of `body` cut by the plane through p along n (`plane` = "px,py,pz,nx,ny,nz"),
+/// written as STEP to `<step>.above.step` (the side n points to) and `<step>.below.step`: each
+/// the body in common with a slab, a square on the plane far wider than the body, extruded off it
+/// far past the body (the kernel's own sketch, extrude and boolean). A side the plane leaves
+/// nothing of is written as no file.
+fn sliced(k: &mut DefaultKernel, body: BodyId, plane: &str, step: &str) -> Result<(), Refusal> {
+    use crate::bench::{common, extrude, p3, v3};
+    use cadrs_kernel::{Loop, Plane, Profile};
+    let x: Vec<f64> = plane.split(',').map(|s| s.trim().parse().map_err(|_| "a bad plane")).collect::<Result<_, _>>()?;
+    let [px, py, pz, nx, ny, nz] = x[..] else { return Err("a plane is six numbers".into()) };
+    let (p, n) = (p3(px, py, pz), v3(nx, ny, nz).normalize());
+    let bb = k.bounding_box(body)?;
+    let reach = 4.0 * bb.diagonal() + (p - nalgebra::center(&bb.min, &bb.max)).norm();
+    for (side, sign) in [("above", 1.0), ("below", -1.0)] {
+        let on = Plane::square_to(p, n * sign);
+        let square = Profile::of(on, vec![Loop::rectangle(-reach, -reach, reach, reach)]);
+        let slab = extrude(k, &square, reach)?;
+        let piece = common(k, body, slab)?;
+        let step_out = format!("{step}.{side}.step");
+        match k.export_step(&[piece]) {
+            Ok(text) => std::fs::write(&step_out, text).expect("the STEP file writes"),
+            Err(e) => return Err(format!("{side}: STEP declined: {e}").into()),
+        }
+    }
+    Ok(())
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
     if args.get(1).map(String::as_str) == Some("--version") {
@@ -347,10 +374,20 @@ fn main() -> ExitCode {
             let _ = measured(&k, *body, out, None);
         }
     }
+    // (Mock-up: the hidden slice. The solid built, cut by the plane the harness hands it, each side
+    // written as STEP beside OUT.step.)
+    let whole = built.as_ref().ok().copied();
     let reply = match built.and_then(|body| measured(&k, body, out, out_step)) {
         Ok(reply) => reply,
         Err(why) => refused(&why.to_string()),
     };
+    if let (Some(body), Some(plane), Some(step)) = (whole, std::env::var("BREP_SLICE").ok(), out_step) {
+        let slice = sliced(&mut k, body, &plane, step);
+        println!("{{\"slice\":{}}}", match slice {
+            Ok(()) => "\"ok\"".to_string(),
+            Err(why) => quoted(&why.to_string()),
+        });
+    }
     println!("{reply}");
     ExitCode::SUCCESS
 }

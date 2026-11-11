@@ -20,3 +20,4 @@ pub mod sweep;
 pub mod swept;
 pub mod tangent;
 pub mod thicken;
+pub mod mock;
