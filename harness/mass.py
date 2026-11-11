@@ -1653,20 +1653,27 @@ def piece(s, curve, t0, t1, scale, seed=None):
         q = curve.point(t)
         return all(norm(sub(q, p)) > 1e-6 * scale for p in near)
     ts = [t for k, t in enumerate(ts) if k in (0, len(ts) - 1) or clear(t)]
-    pts = []
-    # followed from where the loop's last edge ended (on a surface that comes near itself, the
-    # nearest of its samples may be on the wrong fold), and from a point off any singular end (a
-    # singular point's angles are rounding's), the ends set below
-    prev = seed if ends[0] is None else None
-    order = ts[1:] + ts[:1] if ends[0] is not None else ts
-    for t in order:
-        uv = s.invert(curve.point(t), prev)
-        if prev is not None:
-            uv = (nearest(uv[0], prev[0], s.periods[0]), nearest(uv[1], prev[1], s.periods[1]))
-        pts.append((t, uv))
-        prev = uv
-    if ends[0] is not None:
-        pts = pts[-1:] + pts[:-1]
+    # followed continuously: from where the loop's last edge ended, where that is given and this
+    # edge does not start at a pole (on a surface that comes near itself, the nearest of its
+    # samples may be on the wrong fold); else from the middle of the edge outwards both ways, away
+    # from any pole at its ends (near one, inversion from a sample can settle on the pole's line)
+    def walk(order, prev):
+        out = []
+        for t in order:
+            uv = s.invert(curve.point(t), prev)
+            if prev is not None:
+                uv = (nearest(uv[0], prev[0], s.periods[0]),
+                      nearest(uv[1], prev[1], s.periods[1]))
+            out.append((t, uv))
+            prev = uv
+        return out
+    if seed is not None and ends[0] is None:
+        pts = walk(ts, seed)
+    else:
+        mid = len(ts) // 2
+        ahead = walk(ts[mid:], None)
+        back = walk(ts[mid - 1::-1], ahead[0][1]) if mid else []
+        pts = back[::-1] + ahead
     # refine where it turns fast (near a pole the angle sweeps): bisect
     k = 0
     while k < len(pts) - 1 and len(pts) < 5000:
