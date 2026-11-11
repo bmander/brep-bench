@@ -11,6 +11,11 @@
 # nothing to run or draw it is skipped, building nothing. `site` renders the newest results there
 # are and deploys them, every time, even when the bench fails. The nightly run, and a run by hand
 # unless told otherwise, runs the whole suite.
+#
+# A run by hand given `results_from`, the id of a run whose kernels all ran but whose `merge` failed
+# (its results never kept), runs no kernel: `merge` gathers that run's results, which its artifacts
+# keep for three days, and keeps them under the commit they were made at, so the next push plans
+# from there.
 name: bench
 
 on:
@@ -24,9 +29,17 @@ on:
         description: Run the whole suite, not only what changed since the last run
         type: boolean
         default: true
+      results_from:
+        description: >-
+          Run no kernel: keep the results of this run (its id) instead, one whose kernels all ran
+          and whose merge failed
+        type: string
+        default: ""
 
 permissions:
   contents: read
+  # to read another run's jobs and download its artifacts (results_from)
+  actions: read
   pages: write
   id-token: write
 
@@ -36,11 +49,14 @@ concurrency:
 
 env:
   FULL: ${{ github.event_name == 'schedule' || inputs.full == true }}
+  # the run whose results are kept instead of running the kernels, or empty
+  FROM: ${{ inputs.results_from }}
   # the last results: each kernel's, their triangles, and the drawings
   STATE: |
     results
     site/drawings
-  # the key they are kept under: bench-results-<commit>-<run>-<attempt>
+  # their keys are bench-results-<commit they were made at>-<run>-<attempt>; this run's own, which
+  # `plan` looks up first (it names this commit: see `plan`'s `key` for the one they are kept under)
   KEY: bench-results-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
 
 jobs:
@@ -54,6 +70,8 @@ jobs:
       # the key of the last results, which every later job restores exactly, so that all of them
       # plan from the same results; empty for a run of the whole suite from nothing
       last: ${{ steps.last.outputs.cache-matched-key }}
+      # the key this run's results are kept under, naming the commit they were made at
+      key: ${{ steps.key.outputs.key }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,7 +80,7 @@ jobs:
       # only the key, which names their commit: nothing is downloaded
       - name: Find the last results
         id: last
-        if: env.FULL != 'true'
+        if: env.FULL != 'true' || env.FROM != ''
         uses: actions/cache/restore@v4
         with:
           path: ${{ env.STATE }}
@@ -76,16 +94,48 @@ jobs:
         env:
           LAST: ${{ steps.last.outputs.cache-matched-key }}
         run: |
-          if [ "$FULL" = true ] || [ -z "$LAST" ]; then
+          if [ -n "$FROM" ] || [ "$FULL" = true ] || [ -z "$LAST" ]; then
             python3 harness/changed.py --full
           else
             base=${LAST#bench-results-}
             python3 harness/changed.py --base "${base%%-*}"
           fi
+      # with results_from: that run is this workflow's, every kernel's job in it succeeded and
+      # each kernel to run left its results, still kept; its commit names the results
+      - name: Check the run whose results are kept
+        id: from
+        if: env.FROM != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KERNELS: ${{ steps.plan.outputs.kernels }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$FROM" > run.json
+          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$FROM/jobs?filter=latest" \
+            --jq '.jobs[]' | jq -s . > jobs.json
+          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$FROM/artifacts" \
+            --jq '.artifacts[]' | jq -s . > artifacts.json
+          jq -e '.path == ".github/workflows/bench.yml"' run.json > /dev/null ||
+            { echo "::error::run $FROM is not a bench run"; exit 1; }
+          failed=$(jq -r '.[] | select(.name | startswith("run ("))
+                           | select(.conclusion != "success") | .name' jobs.json)
+          [ -z "$failed" ] || { echo "::error::in run $FROM, not succeeded: $failed"; exit 1; }
+          missing=$(jq -r --slurpfile a artifacts.json '.[] as $k
+                            | select([$a[0][] | select(.expired | not) | .name]
+                                     | any(. == "results-" + $k) | not) | $k' <<< "$KERNELS")
+          [ -z "$missing" ] || { echo "::error::run $FROM kept no results of: $missing"; exit 1; }
+          echo "sha=$(jq -r .head_sha run.json)" >> "$GITHUB_OUTPUT"
+          echo "keeping the results of run $FROM, made at $(jq -r .head_sha run.json)"
+      - name: Name the results
+        id: key
+        env:
+          SHA: ${{ steps.from.outputs.sha || github.sha }}
+        run: echo "key=bench-results-$SHA-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" >> "$GITHUB_OUTPUT"
 
   run:
     needs: plan
-    if: needs.plan.outputs.work == 'true' && needs.plan.outputs.kernels != '[]'
+    if: >-
+      needs.plan.outputs.work == 'true' && needs.plan.outputs.kernels != '[]' &&
+      !inputs.results_from
     runs-on: ubuntu-latest
     strategy:
       # the others' results are still worth seeing in their logs; `merge` needs every one
@@ -217,6 +267,15 @@ jobs:
           pattern: results-*
           merge-multiple: true
           path: results
+      - name: Gather the results of the run kept
+        if: env.FROM != ''
+        uses: actions/download-artifact@v4
+        with:
+          pattern: results-*
+          merge-multiple: true
+          path: results
+          run-id: ${{ env.FROM }}
+          github-token: ${{ github.token }}
       # the rest of the plan, which asks no runner: the kernels not built record the cases they
       # have no implementation of, and every kernel drops the rows of cases removed
       - name: Record the rest
@@ -236,7 +295,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: ${{ env.STATE }}
-          key: ${{ env.KEY }}
+          key: ${{ needs.plan.outputs.key }}
 
   site:
     needs: [plan, run, merge]
@@ -252,7 +311,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ${{ env.STATE }}
-          key: ${{ env.KEY }}
+          key: ${{ needs.plan.outputs.key }}
           restore-keys: bench-results-
       - name: Render the scoreboard and the case pages
         run: python3 harness/site.py
