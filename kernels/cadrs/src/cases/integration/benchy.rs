@@ -14,44 +14,36 @@ use crate::bench::{block, common, cut, cut_each, cylinder, extrude, extrude_symm
 use crate::shared::geometry::Section;
 use crate::Refusal;
 use cadrs_kernel::{
-    BodyId, BsplineSurface, Curve2, DefaultKernel, FillCurve, FillSpec, Kernel, Loop, Plane, Profile,
+    BodyId, BsplineSurface, DefaultKernel, FillCurve, FillSpec, Kernel, Loop, OffsetSpec, Plane, Profile,
 };
-use nalgebra::Point2;
 
 /// The hull's side: its net's rows from the stern to the stem, each the x and y of a pole at each
 /// of the heights `Z`.
-const Z: [f64; 6] = [0., 3.31, 9.86, 20., 26.67, 30.];
+const Z: [f64; 6] = [0., 3.31262547, 9.86113758, 19.99948838, 26.66940917, 30.];
 const NET: [[f64; 12]; 12] = [
-    [-25., 6.5, -26.58, 8.2, -29.7, 11.55, -30.07, 13.11, -30.02, 13.7, -30., 14.],
-    [-16.67, 7., -18.03, 8.92, -20.73, 12.71, -19.33, 13.99, -19.33, 14.22, -19.33, 14.33],
-    [-6.95, 7.58, -9.03, 9.65, -13.14, 13.72, -9.06, 14.83, -9.1, 14.71, -9.12, 14.65],
-    [1.7, 8.1, 1.04, 10.53, -0.27, 15.33, 4.9, 15.97, 4.78, 15.38, 4.72, 15.09],
-    [3.27, 7.91, 3.01, 10.4, 2.47, 15.32, 7.73, 15.81, 7.59, 15.16, 7.52, 14.84],
-    [6.12, 7.14, 6.78, 9.59, 8.06, 14.43, 13.32, 14.65, 13.12, 13.96, 13.02, 13.62],
-    [7.4, 6.57, 8.58, 8.92, 10.9, 13.55, 16.07, 13.65, 15.85, 12.99, 15.74, 12.65],
-    [9.71, 5.17, 11.9, 7.09, 16.24, 10.9, 21.18, 10.88, 20.96, 10.32, 20.85, 10.04],
-    [10.74, 4.32, 13.42, 5.94, 18.74, 9.14, 23.54, 9.1, 23.35, 8.63, 23.25, 8.4],
-    [12.56, 2.38, 16.08, 3.24, 23.04, 4.96, 27.63, 4.93, 27.57, 4.69, 27.54, 4.56],
-    [13.35, 1.27, 17.21, 1.7, 24.84, 2.54, 29.35, 2.55, 29.4, 2.43, 29.43, 2.37],
-    [14., 0., 18.1, 0., 26.21, 0., 30.68, 0., 30.89, 0., 31., 0.],
+    [-25., 6.5, -26.57777641, 8.19743825, -29.69677916, 11.55299264, -30.07483416, 13.10684206, -30.02492292, 13.70254086, -30., 14.],
+    [-16.66666667, 7., -18.03251666, 8.91666531, -20.73257597, 12.7055953, -19.33270927, 13.98651841, -19.33312549, 14.21782938, -19.33333333, 14.33333333],
+    [-6.95026665, 7.582984, -9.02800892, 9.6451771, -13.13536141, 13.72179144, -9.0559802, 14.83019903, -9.10125023, 14.71160089, -9.12385558, 14.65237951],
+    [1.70173289, 8.10210397, 1.0378164, 10.52894472, -0.27463657, 15.32640711, 4.8956376, 15.97006815, 4.78090388, 15.37984019, 4.72361218, 15.08511288],
+    [3.27390994, 7.90566507, 3.00533353, 10.39680401, 2.47440245, 15.32137327, 7.73446515, 15.80894762, 7.58959184, 15.1603348, 7.51725009, 14.8364533],
+    [6.12303775, 7.14157538, 6.77506979, 9.59134478, 8.06402917, 14.43413329, 13.32229534, 14.65025381, 13.12364577, 13.96396373, 13.02445113, 13.62126829],
+    [7.40374132, 6.57336961, 8.57825828, 8.91726822, 10.90008385, 13.55076773, 16.06944082, 13.6522451, 15.84751934, 12.98681943, 15.73670399, 12.65454253],
+    [9.71034637, 5.16566225, 11.90317743, 7.0926504, 16.23804139, 10.90198694, 21.17885739, 10.87503743, 20.95982379, 10.32029188, 20.85045048, 10.04328252],
+    [10.73847272, 4.32482338, 13.42488446, 5.94169581, 18.7354757, 9.13798492, 23.53919073, 9.09648792, 23.34674437, 8.6314171, 23.25064727, 8.39918636],
+    [12.55886666, 2.37589024, 16.07946535, 3.24321782, 23.03910609, 4.95778086, 27.62607126, 4.93455077, 27.56963652, 4.68590901, 27.54145612, 4.56175102],
+    [13.3525947, 1.26641564, 17.21234735, 1.69588126, 24.84243935, 2.5448637, 29.35130573, 2.55271285, 29.4045503, 2.43042649, 29.4311377, 2.36936342],
+    [14., 0., 18.10315969, 0., 26.21442708, 0., 30.6839943, 0., 30.89475682, 0., 31., 0.],
 ];
-const UKNOTS: [f64; 16] =
-    [0., 0., 0., 0., 0.5052, 0.5052, 0.6289, 0.6289, 0.7526, 0.7526, 0.8763, 0.8763, 1., 1., 1., 1.];
-const VKNOTS: [f64; 10] = [0., 0., 0., 0., 0.3389, 0.6699, 1., 1., 1., 1.];
-/// The deck well's plan at each height, its half on y ≥ 0 from the stem round to the stern.
-const BOW: [[f64; 2]; 4] = [[27.77, 0.], [26.11, 3.67], [21.05, 7.66], [13.93, 11.69]];
-const WELL: [(f64, [[f64; 2]; 9]); 4] = [
-    (8.6, [[7.41, 10.59], [3.97, 10.91], [0.97, 11.08], [-1.92, 10.89], [-8.54, 10.18],
-           [-17.78, 10.26], [-23.57, 8.58], [-26.17, 4.62], [-27.04, 0.]]),
-    (10.5, [[7.41, 10.59], [4.37, 12.02], [1.07, 12.2], [-2.11, 11.97], [-9.38, 11.18],
-            [-17.78, 10.26], [-25.8, 9.39], [-27.06, 4.77], [-27.6, 0.]]),
-    (12., [[8.22, 11.74], [4.57, 12.56], [1.11, 12.72], [-2.2, 12.45], [-9.38, 11.18],
-           [-17.78, 10.26], [-25.8, 9.39], [-27.06, 4.77], [-28.04, 0.]]),
-    (28., [[9.54, 13.63], [4.57, 12.56], [1.11, 12.72], [-2.2, 12.45], [-9.38, 11.18],
-           [-17.78, 10.26], [-25.8, 9.39], [-27.06, 4.77], [-28.04, 0.]]),
+const UKNOTS: [f64; 16] = [
+    0., 0., 0., 0., 0.505209458052, 0.505209458052, 0.628907093539, 0.628907093539, 0.752604729026,
+    0.752604729026, 0.876302364513, 0.876302364513, 1., 1., 1., 1.,
 ];
+const VKNOTS: [f64; 10] = [0., 0., 0., 0., 0.33885526461, 0.669860758304, 1., 1., 1., 1.];
+/// The hull's wall: its inner side is its outer side 2 further in.
+const WALL: f64 = 2.;
 /// The deck (x, z), and the well above it.
-const DECK: [[f64; 2]; 6] = [[-40., 8.5], [5.95, 8.5], [10.12, 14.46], [40., 23.42], [40., 60.], [-40., 60.]];
+const DECK: [[f64; 2]; 6] =
+    [[-40., 8.5], [6., 8.5], [10.23908933, 14.5], [40., 23.42349817], [40., 60.], [-40., 60.]];
 /// The aft sheer's circle in (x, z): its centre and its radius; the transom.
 const SHEER: [f64; 3] = [-23.0812, 113.7248, 103.0821];
 const STERN: f64 = -29.1765;
@@ -148,42 +140,10 @@ fn hull(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     Ok(k.sew_solid(&faces, 1e-6)?.first()?)
 }
 
-/// The deck well's plans lofted: a bilinear face for each side of each band between two plans,
-/// sewn with the lowest and the highest.
-fn well(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let rings: Vec<Vec<P3>> = WELL
-        .iter()
-        .map(|(z, aft)| {
-            let half: Vec<[f64; 2]> = BOW.iter().chain(aft.iter()).copied().collect();
-            // Counter-clockwise about z: up the port side from the stem, back down the starboard.
-            half[..12]
-                .iter()
-                .map(|&[x, y]| p3(x, y, *z))
-                .chain(half[1..].iter().rev().map(|&[x, y]| p3(x, -y, *z)))
-                .collect()
-        })
-        .collect();
-    let mut faces = Vec::new();
-    for ring in [&rings[0], &rings[rings.len() - 1]] {
-        let n = ring.len();
-        let plane = Plane::xy(ring[0].z);
-        let curves = (0..n)
-            .map(|i| {
-                let (a, b) = (ring[i], ring[(i + 1) % n]);
-                FillCurve::Sketch { plane, curve: Curve2::line(Point2::new(a.x, a.y), Point2::new(b.x, b.y)) }
-            })
-            .collect();
-        faces.push(k.fill(&FillSpec { curves, source: 1 })?.first()?);
-    }
-    let knots = vec![0., 0., 1., 1.];
-    for w in rings.windows(2) {
-        let n = w[0].len();
-        for i in 0..n {
-            let poles = vec![vec![w[0][i], w[1][i]], vec![w[0][(i + 1) % n], w[1][(i + 1) % n]]];
-            faces.push(sheet(k, 1, knots.clone(), 1, knots.clone(), poles)?);
-        }
-    }
-    Ok(k.sew_solid(&faces, 1e-6)?.first()?)
+/// The hull with its sides and its stern moved in by the wall: what the well is cut from.
+fn inside(k: &mut DefaultKernel, hull: BodyId) -> Result<BodyId, Refusal> {
+    let curved = k.faces(hull)?.iter().filter(|f| f.plane.is_none()).map(|f| (f.id, -WALL)).collect();
+    Ok(k.offset(hull, &OffsetSpec { distance: 0., faces: curved, sharp: true })?.first()?)
 }
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
@@ -195,9 +155,9 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
           (sheer(4.16), Some(SHEER)), (sheer(STERN), None)],
     )?;
     let deck = across(k, &DECK.iter().map(|&p| (p, None)).collect::<Vec<_>>())?;
-    let well = well(k)?;
-    let well = common(k, well, deck)?;
     let hull = hull(k)?;
+    let well = inside(k, hull)?;
+    let well = common(k, well, deck)?;
     let boat = common(k, hull, side)?;
     let boat = cut(k, boat, well)?;
     // The wheelhouse: its walls, less its room and the room's upper part over the console.
