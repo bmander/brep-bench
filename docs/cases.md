@@ -263,3 +263,12 @@ bottom and the knob), faces sewn into solids, Booleans between free-form surface
 and the handle run into the body, a lid lying on the body's flat top, and a point where the
 handle's end touches the body. The four parts' volumes are exact; the union's measures have no
 closed form, so it is unsettled until two kernels agree.
+
+The second is a tugboat of the kind 3D printers are tested with, a benchy, drawn afresh from
+planes and cylinders: a hull that is the common part of three extrusions along the three axes (a
+plan with a pointed bow, a side profile with a raked stem and a rounded counter, and a section
+with hard chines), so cylinders on three axes meet in curves of the fourth degree; a deck well
+leaving bulwarks; a hollow wheelhouse standing on the deck with arched doors, a front window and a
+round rear window, under a sloping roof that overhangs it; a chimney rising from the roof with a
+blind bore; an open cargo box; a rod holder leaning 30° with its ends cut level; and hawse holes
+through the curved bow. It has no closed form; OCCT and cad-kernel agree on it to 7e-10.
