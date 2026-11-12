@@ -55,22 +55,40 @@ pub fn chord_two_distances_on_ball(
     let on_ball = tangent(on_ball, radius);
     let on_other = other_ball.map_or(on_other, |r| tangent(on_other, r));
     let edge = k.edge_at(body, edge_point)?;
-    let info = k.edges(body)?.into_iter().find(|i| i.id == edge).ok_or("the edge is gone")?;
+    let all = k.edges(body)?;
+    let info = all.iter().find(|i| i.id == edge).ok_or("the edge is gone")?;
     let circle = info.circle.ok_or("the edge is not a circle")?;
     let axis = circle.normal.into_inner();
-    // The edge's direction at the point picked: round the circle's axis the way it runs.
-    let sense = axis.cross(&(info.start - circle.center)).dot(&info.start_tangent).signum();
-    let along = axis.cross(&(edge_point - circle.center)) * sense;
     let outward = edge_point - centre;
-    let ball_first = outward.cross(&along).dot(&(ball_point - edge_point)) > 0.0;
-    let spec = if ball_first {
+    // Whether the ball's face is the first of an edge's two: the face on the left of the edge's
+    // direction, seen from outside. The direction where the edge starts: round the circle's axis
+    // the way it runs.
+    let ball_first = |i: &cadrs_kernel::EdgeInfo| {
+        let sense = axis.cross(&(i.start - circle.center)).dot(&i.start_tangent).signum();
+        let along = axis.cross(&(edge_point - circle.center)) * sense;
+        outward.cross(&along).dot(&(ball_point - edge_point)) > 0.0
+    };
+    let first = ball_first(info);
+    let spec = if first {
         ChamferSpec::TwoDistances(on_ball, on_other)
     } else {
         ChamferSpec::TwoDistances(on_other, on_ball)
     };
+    // The whole circle: where the ball's seam and the other face's cross it apart, it is two
+    // edges, each chamfered, one that runs the other way round with its distances flipped.
+    let on_circle = |i: &&cadrs_kernel::EdgeInfo| {
+        i.circle.is_some_and(|c| {
+            (c.center - circle.center).norm() < 1e-9
+                && (c.radius - circle.radius).abs() < 1e-9
+                && c.normal.into_inner().cross(&axis).norm() < 1e-9
+        })
+    };
+    let rim: Vec<&cadrs_kernel::EdgeInfo> = all.iter().filter(on_circle).collect();
     let mut opts = ChamferOpts::new(spec);
     opts.measurement = ChamferMeasure::Tangent;
-    chamfer_with(k, body, &[edge], &opts)
+    opts.flipped = rim.iter().filter(|i| ball_first(i) != first).map(|i| i.id).collect();
+    let edges: Vec<EdgeId> = rim.iter().map(|i| i.id).collect();
+    chamfer_with(k, body, &edges, &opts)
 }
 
 /// The octahedron |x| + |y| + |z| ≤ `a`: the square through its four corners in the plane z = 0
