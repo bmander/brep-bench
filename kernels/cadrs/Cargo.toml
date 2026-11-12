@@ -9,7 +9,7 @@ publish = false
 # cadrs's kernel (the crate cadrs_kernel) is not on crates.io, so it comes from cadrs's
 # repository at one commit: the board says which, and moving to another is a change made here.
 [dependencies]
-cadrs_kernel = { git = "https://github.com/rvdende/cadrs", rev = "9c8df222208ba5a8fef717986a7d2a920fc56057" }
+cadrs_kernel = { git = "https://github.com/rvdende/cadrs", rev = "55f3f7503a46e4442e910f2d46761a3f753f2480" }
 nalgebra = "0.35"
 
 # The runner is built once and run once per case: whole-program optimisation for its speed,
