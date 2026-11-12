@@ -19,23 +19,6 @@ pub fn stretch(sx: f64, sy: f64, sz: f64) -> Result<AffineTransform, String> {
     ])
 }
 
-/// The closed periodic uniform quadratic B-spline on the square control polygon `corners`, taken in
-/// order: four parabolic arcs, each from the middle of one side over a corner to the middle of the
-/// next, written clamped (double knots at the sides' middles) as two curves of two arcs each, from
-/// the middle of the last side to the middle of the second and back.
-pub fn rounded_square(corners: &[Vec3; 4]) -> Result<Vec<NurbsCurve>, String> {
-    let middle = |k: usize| corners[k % 4].add(corners[(k + 1) % 4]).scale(0.5);
-    let half = |k: usize| {
-        let poles = [middle(k + 3), corners[k], middle(k), corners[k + 1], middle(k + 1)];
-        NurbsCurve::new(
-            2,
-            vec![0.0, 0.0, 0.0, 1.0, 1.0, 2.0, 2.0, 2.0],
-            poles.iter().map(|&q| Vec4::from_point(q, 1.0)).collect(),
-        )
-    };
-    Ok(vec![half(0)?, half(2)?])
-}
-
 /// The block under the saddle z = 10 + xy/8 over the square −10 ≤ x, y ≤ 10, down to z = −5: the
 /// loft of its two ends, the sections in the planes x = −10 and x = 10. Each of its four faces is
 /// ruled between corresponding sides of the ends; the top, between the saddle's edges at x = ±10,
