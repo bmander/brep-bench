@@ -1,13 +1,7 @@
 # The cases next.BREP builds by working around a feature it lacks, and what that is
 # (SPEC.md, "A workaround is flagged").
 
-"feature/pad-down-to-cylinder" = "no extrude up to a face"
-"feature/post-up-to-dome" = "no extrude up to a face"
 "fillet/conic-edge" = "no conic blend"
-"loft/slab-pinched-on-four-guides" = "no loft along guides"
-"loft/square-spire-on-four-guides" = "no loft along guides"
-"shell/box-open-top-outward" = "no shell joined by arcs"
-"shell/l-block-open-top" = "no shell joined by arcs"
 "sweep/round-cornered-pipe" = "no sweep with a round corner"
 "swept/ball-along-spline-groove" = "no sweep of a solid"
 "swept/bull-nose-swung-partway-into-ring-sector" = "no sweep of a solid in a turn that stops inside the workpiece"
@@ -25,11 +19,3 @@
 "swept/two-beads-slid-through-rod" = "no sweep of a solid"
 "swept/v-bit-engraving-stopped" = "no sweep of a solid along a line"
 "swept/v-wheel-slid-across-block" = "no sweep of a solid along a line"
-"thicken/angle-bracket-inward" = "no thicken of a sheet of several faces"
-"thicken/angle-bracket-rounded" = "no thicken of a sheet of several faces, no rounded thicken"
-"thicken/angle-bracket-sharp" = "no thicken of a sheet of several faces"
-"thicken/bent-flange" = "no thicken of a sheet of several faces"
-"thicken/bent-flange-past-its-bend" = "no thicken of a sheet of several faces"
-"thicken/open-box-inward" = "no thicken of a sheet of several faces"
-"thicken/open-box-outward-rounded" = "no thicken of a sheet of several faces, no rounded thicken"
-"thicken/open-box-outward-sharp" = "no thicken of a sheet of several faces"

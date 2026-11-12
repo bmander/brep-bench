@@ -3,18 +3,13 @@
 //! crease (−z and −x), the gap the moved faces leave closed by the quarter of the cylinder of
 //! radius 1 about the crease.
 //!
-//! next.BREP thickens one face at a time, so a sheet of two faces is thickened as two faces of a
-//! solid, the box they bound, by the kernel's shell grown outward (the box's four other faces its
-//! openings), which extends the moved faces until they meet. That corner is then rounded to
-//! radius 1, which puts the round on the cylinder of radius 1 about the crease, 1 from both moved
-//! faces.
-use crate::solids::offset::{bracket, shell};
-use crate::solids::p;
+//! The kernel's thicken of a sheet of several faces (`thicken_sheet_faces`), 1 along the faces'
+//! normals, its joins rounded: the gap the two slabs leave at the crease is closed by the quarter
+//! of the cylinder of radius 1 about it.
+use crate::solids::offset::bracket;
 use crate::Refusal;
-use brep_kernel::{fillet_edges, BrepSolid};
+use brep_kernel::{thicken_sheet_faces, BrepSolid, OffsetCorners};
 
 pub fn build() -> Result<BrepSolid, Refusal> {
-    let (block, openings) = bracket()?;
-    let angle = shell(&block, &openings, -1.0)?;
-    Ok(fillet_edges(&angle, &[p(-1.0, 4.0, -1.0)], None, 1.0, false, None)?)
+    Ok(thicken_sheet_faces(&bracket()?, 1.0, OffsetCorners::Rounded)?)
 }

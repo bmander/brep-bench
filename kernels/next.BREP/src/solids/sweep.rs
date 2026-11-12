@@ -129,25 +129,3 @@ pub fn block_to(patch: &NurbsSurface, level: f64) -> Result<BrepSolid, Refusal> 
     }
     Ok(solid_from_sheets(&sheets, 1e-7)?)
 }
-
-/// Everything within a guide of the z axis as seen along `across` (the unit x or y vector): the
-/// region, in the vertical plane through the z axis square to `across`, between the Bézier curve
-/// of `seen` (the guide's control points with their `across` component dropped) and its mirror
-/// image in the z axis, closed by straight segments along the floor and, unless the two meet
-/// there, along the top; slid along `across` from −`reach` to `reach`.
-pub fn between_guides(seen: &[Vec3], across: Vec3, reach: f64) -> Result<BrepSolid, Refusal> {
-    // the mirror in the z axis, within that plane: x and y negated
-    let mirror: Vec<Vec3> = seen.iter().map(|q| Vec3::new(-q.x, -q.y, q.z)).collect();
-    let back = across.scale(-reach);
-    let place = |q: &Vec3| q.add(back);
-    let guide: Vec<Vec3> = seen.iter().map(place).collect();
-    let image: Vec<Vec3> = mirror.iter().rev().map(place).collect();
-    let (top, foot) = (guide.len() - 1, 0);
-    let mut region = vec![bezier(&guide)?];
-    if guide[top].sub(image[0]).length() > 1e-12 {
-        region.push(make_line(guide[top], image[0])?);
-    }
-    region.push(bezier(&image)?);
-    region.push(make_line(image[image.len() - 1], guide[foot])?);
-    Ok(extrude_profile_brep(&region, across, 2.0 * reach)?)
-}
