@@ -3,10 +3,12 @@
 //! (0, cos h, −sin h), h = atan(2π·4.75 / 30) — screwed about z, right-handed and rising 30 a turn,
 //! from a turn of −90° to +330°.
 //!
-//! Refused by the kernel (`Unbuilt::Curved`): under a screw it takes planes, balls, and cylinders
-//! and cones about axes along the screw's, and the spheroid's face is a ball's affine image, its
-//! contact curves no closed form the candidates hold. (An affine map does not carry a screw to a
-//! screw, so the slid ellipsoid's route through the ball does not apply.)
+//! The kernel's closed sweep (`swept::closed::cut_from`) takes the spheroid whole: its closed class
+//! refuses it under a screw (`Unbuilt::Curved`: the face is a ball's affine image, its contact
+//! curves no closed form the candidates hold, and an affine map does not carry a screw to a screw),
+//! and since 0.9.0 such a tool goes the contact's road — the face's contact carried over the roll
+//! as sheets, given their meetings and the end poses, trimmed by membership in the sweep, and the
+//! result cut from the rod.
 use cad_kernel::build::{disc, ellipsoid, prism};
 use cad_kernel::geom::{tolerance, V};
 use cad_kernel::swept::closed::cut_from;
