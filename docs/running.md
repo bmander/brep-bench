@@ -10,6 +10,11 @@ python3 harness/site.py            # board.json, the board's pages and a page pe
 python3 -m http.server -d site     # the board reads board.json, so serve it to open it
 ```
 
+A case that names a reference shape (`integration/benchy`) has each result's likeness to it shown
+on its page, computed as the site is built from the triangles the run kept; `python3
+harness/likeness.py integration/benchy --kernel NAME` prints it, with the implementation's lines,
+and `python3 harness/likeness.py integration/benchy FILE.stl` that of any mesh.
+
 `harness/build.py NAME` builds one kernel's runner, and `harness/run.py --kernel NAME --case
 boolean/` runs part of the suite; `NAME` is the kernel's `name` in `kernels.json` (e.g. `occt`). A
 run narrowed by `--case` is only a check and is not recorded; a run of every case, even for one

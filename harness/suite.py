@@ -21,11 +21,16 @@ def read_case(path):
         "title": meta.get("title", cid),
         "tags": meta.get("tags", []),
         # an unsettled case (`settled = false`) has no answer yet: what each kernel builds is shown
-        # `tex` is the closed form in LaTeX, for the case's page; absent where there is none
-        "expect": ({k: {"value": float(meta[k]["value"]), "exact": meta[k]["exact"],
-                        "tex": meta[k].get("tex")}
-                    for k in ("volume", "area")}
+        # `tex` is the closed form in LaTeX, for the case's page; absent where there is none. A
+        # case may also give the centroid and the inertia tensor (about it, of unit density),
+        # graded beside the volume and the area
+        "expect": ({k: {"value": (float(meta[k]["value"]) if k in ("volume", "area")
+                                  else meta[k]["value"]),
+                        "exact": meta[k]["exact"], "tex": meta[k].get("tex")}
+                    for k in ("volume", "area", "centroid", "inertia") if k in meta}
                    if meta.get("settled", True) else None),
+        # how near a result's measures must be to pass, where the case says (else run.py's EXACT)
+        "tolerance": meta.get("tolerance"),
         "description": body.strip(),
         "path": path,
     }

@@ -28,6 +28,7 @@ from decimal import ROUND_HALF_UP, Decimal
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import step  # noqa: E402
 from highlight import highlight, loc  # noqa: E402
+import likeness  # noqa: E402
 import markdown  # noqa: E402
 from run import FROM_MESH, keep_file  # noqa: E402
 from suite import ROOT, cases as read_cases, kernels as read_kernels, source  # noqa: E402
@@ -323,6 +324,12 @@ def relative(got, want):
     return f"{abs(got - want) / max(abs(want), 1e-12):.1e}"
 
 
+def stl_tris(path):
+    """The triangles of a kept STL file (harness/stl.py)."""
+    from stl import read
+    return read(path)
+
+
 def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
     """`prev` and `after`: the cases before and after this one in its category, or None; `v`
     the version the board's scripts are addressed with (`web`'s)."""
@@ -349,23 +356,41 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
     description = markdown.render(c["description"])
     out.append(f"<div class=description>{description}</div>")
     exp = c["expect"]
-    if exp is None:
+    # a reference shape (SPEC.md): each result's likeness to it, shown beside its lines
+    ref_path, mesh_path = likeness.reference(c), likeness.reference_mesh(c)
+    ref = likeness.triangles(mesh_path) if mesh_path else None
+    if ref is not None:
+        out.append("<p><strong>A reference shape.</strong> This case's solid is the one in "
+                   f"<a href='{REPO}/blob/main/cases/{e(category)}/"
+                   f"{e(os.path.basename(ref_path))}'>{e(os.path.basename(ref_path))}</a>: a "
+                   "pass is that solid, its measures below. Beside each result is how near it "
+                   "came, its <em>likeness</em>, the volume it holds in common with the reference "
+                   "over the volume either holds (1 for the same solid), and its lines of "
+                   "code.</p>")
+    if exp is None and ref is None:
         out.append("<p><strong>Unsettled.</strong> This solid has no closed form, and no two kernels "
                    "yet agree on it to 1e-8, so it has no answer to grade against. Below is what each "
                    "kernel builds: <em>built</em> means a watertight, consistently oriented solid, "
                    "whatever its measures; the table says which kernels agree with which.</p>")
-    else:
+    elif exp is not None:
         out.append("<div class=scroll><table data-nosort><tr><th></th><th>expected</th>"
                    "<th>closed form</th></tr>")
-        for key in ("volume", "area"):
+        for key in [k for k in ("volume", "area", "centroid", "inertia") if k in exp]:
             x = exp[key]
             # the closed form typeset by KaTeX, with the case's own words until it loads (and
             # where there is no closed form)
             form = (f"<td class=closed title='{e(x['exact'])}'><span class=tex "
                     f"data-tex='{e(x['tex'])}'>{e(x['exact'])}</span></td>" if x["tex"]
                     else f"<td class='muted why'>{e(x['exact'])}</td>")
-            out.append(f"<tr><td>{key}</td><td>{x['value']:.10g}</td>{form}</tr>")
+            shown = (f"{x['value']:.10g}" if isinstance(x["value"], (int, float)) else
+                     "<br>".join(", ".join(f"{v:.8g}" for v in row) for row in x["value"])
+                     if isinstance(x["value"][0], list) else
+                     ", ".join(f"{v:.8g}" for v in x["value"]))
+            out.append(f"<tr><td>{key}</td><td>{shown}</td>{form}</tr>")
         out.append("</table></div>")
+        if c.get("tolerance"):
+            out.append(f"<p class=muted>A pass is within {c['tolerance']:g} of these, not the "
+                       "usual 1e-6: the case says why.</p>")
 
 
     if drawing:
@@ -420,7 +445,9 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
                         "label": "–" if o == "missing" else
                                  o + (" †" if wa else "") + (" ✦" if neat else "")
                                  + (" ▦" if facets is not None else ""),
-                        "measures": measures(row)})
+                        "measures": measures(row),
+                        "likeness": likeness.likeness(stl_tris(stl), ref)["iou"]
+                                    if ref is not None and href else None})
     # which other results each agrees with
     for en in entries:
         en["friends"] = [o["name"] for o in entries if o is not en
@@ -464,6 +491,11 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
             ("<th scope=row title='lines of code, comments and blank lines left out'>LOC</th>",
              "td", None, lambda en: "" if en["loc"] is None else str(en["loc"]), None),
         ]
+        if ref is not None:
+            rows.insert(2, ("<th scope=row title='the volume in common with the reference over "
+                            "the volume either holds'>likeness</th>", "td", None,
+                            lambda en: "" if en["likeness"] is None else f"{en['likeness']:.4f}",
+                            None))
         out.append(f"<div class=scroll><table class=entries data-sort=columns "
                    f"data-default='{e(shown['name'])}'>")
         def key(en, field):
