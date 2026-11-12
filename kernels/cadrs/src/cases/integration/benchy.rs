@@ -145,6 +145,25 @@ fn hull(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     Ok(k.sew_solid(&faces, 1e-6)?.first()?)
 }
 
+/// A rectangle [u0, u1] × [v0, v1] with its corners rounded 0.5, on the plane through `origin`
+/// with sketch x along `x` and normal `normal`, extruded `depth` along the normal.
+fn rounded(k: &mut DefaultKernel, origin: P3, x: V3, normal: V3, [u0, u1, v0, v1]: [f64; 4], depth: f64)
+    -> Result<BodyId, Refusal> {
+    use std::f64::consts::FRAC_PI_2 as Q;
+    let r = 0.5;
+    let outline = Loop::from_point([u0 + r, v0])
+        .line_to([u1 - r, v0])
+        .arc_about([u1 - r, v0 + r], Q)
+        .line_to([u1, v1 - r])
+        .arc_about([u1 - r, v1 - r], Q)
+        .line_to([u0 + r, v1])
+        .arc_about([u0 + r, v1 - r], Q)
+        .line_to([u0, v0 + r])
+        .arc_about([u0 + r, v0 + r], Q)
+        .close();
+    extrude(k, &Profile::of(Plane::new(origin, x, normal), vec![outline]), depth)
+}
+
 /// The hull with its sides and its stern moved in by the wall: what the well is cut from.
 fn inside(k: &mut DefaultKernel, hull: BodyId) -> Result<BodyId, Refusal> {
     let curved = k.faces(hull)?.iter().filter(|f| f.plane.is_none()).map(|f| (f.id, -WALL)).collect();
@@ -222,6 +241,9 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
         let arch = common(k, arch, above)?;
         stack.push(union(k, jambs, arch)?);
     }
+    // The front window's frame: 1.5 round the window, 0.3 proud of the wall, square to it.
+    let front = v3(C45, 0., -S45);
+    stack.push(rounded(k, p3(0., 0., 0.) + front * 10., v3(0., 1., 0.), front, [-6.75, 6.75, 24.0213, 36.5512], 0.5992)?);
     let boat = union_each(k, boat, &stack)?;
     // (The rooms after the roof: the house's ceiling is flat under its sloping roof.)
     let boat = cut_each(k, boat, &rooms)?;
@@ -239,7 +261,7 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let mut cuts = vec![
         block(k, p3(-15.998, -3.998, 6.5), p3(-8.995, 3.998, 16.))?,
         cylinder(k, p3(-4., 0., 37.), up, 1.5, 12.)?,
-        block(k, p3(9., -5.25, 24.611), p3(16., 5.25, 34.112))?,
+        rounded(k, p3(9., 0., 0.), v3(0., 1., 0.), v3(1., 0., 0.), [-5.25, 5.25, 24.611, 34.112], 7.)?,
         cylinder(k, p3(-10., 0., 27.1755), v3(C15, 0., S15), 4.5, 6.)?,
         cylinder(k, p3(-24.8065, 0., 4.508), v3(-0.28046, 0., 0.95987), 1., 10.)?,
         cylinder(k, p3(-26.5, 0., 1.6), v3(1., 0., 0.), 1., 6.5)?,
