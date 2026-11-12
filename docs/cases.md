@@ -268,6 +268,8 @@ The second is #3DBenchy itself, from its designer's own CAD file, released in ST
 public domain (CC0). It is a reference shape, not a description: the solid is the STEP file beside
 the case, and each kernel builds it as nearly as it can, in as few lines as it can. The board shows
 each result's likeness to it (the volume in common over the volume of either) beside its lines of
-code. Open CASCADE and cad-kernel build the same approximation, 0.836 like it, in 76 and 82 lines:
-the hull a ruled loft through seven plans, kept below the side profile, its deck well the same loft
-moved in by the wall, and the rest boxes and cylinders.
+code. Open CASCADE and cad-kernel build the same approximation, 0.959 like it, in 156 and 162
+lines: the hull the reference's own 12 × 6 bicubic net and its mirror image, sewn with a ruled
+stern and two planes; the deck well a ruled loft through four plans; the wheelhouse, its roof and
+the cargo box the common parts of half-spaces under the reference's own planes; and the doors,
+windows, chimney, rod holder and hawse pipes cylinders on its own axes.

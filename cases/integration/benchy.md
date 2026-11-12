@@ -27,6 +27,9 @@ What is shown beside each result, and not graded, is its likeness to the referen
 the two hold in common over the volume either holds (1 for the same solid), and the lines of its
 implementation. The likeness reads the reference's triangles, `benchy.stl.gz`: Open CASCADE's mesh
 of the STEP file to a linear deflection of 0.01 (and an angular one of 0.5), closed, its volume
-within 3e-4 of the solid's. A thin-walled boat is hard to be like: a wall 1.2 thick placed half a
-wall off shares half its volume, so a likeness of 0.85 is close, and the last few hundredths are in
-the fillets and the small parts.
+within 3e-4 of the solid's. Since the two are meshed apart, the reference itself, meshed as a
+result is, comes to 0.9996: that is a perfect match. A thin-walled boat is hard to be like, since
+a wall 1.2 thick placed half a wall off shares half its volume. A hull lofted through its plans
+with the rest boxes and cylinders comes to about 0.84; the reference's own hull net, planes and
+axes, with the deck well still a loft, to about 0.96. The rest is in the fillets, the frames round
+the doors and windows, the wheel and the lettering.
