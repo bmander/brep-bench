@@ -4,25 +4,25 @@
 //! others its mirror images in the xz and yz planes; each wall ruled by horizontal segments
 //! parallel to x or y between neighbouring guides.
 //!
-//! next.BREP's loft takes no guide curves for its corners (its guided loft rides one spine curve),
-//! so the solid is built from what its walls are. Each section's sides stay parallel to x and y,
-//! so the walls facing ±x are the guide seen along y and its mirror image, each slid along y, and
-//! those facing ±y the guide seen along x and its mirror, slid along x: the solid is the common
-//! part of the two extrusions of the regions between them.
-use crate::solids::p;
-use crate::solids::sweep::between_guides;
+//! The kernel's loft along guides (`loft_profile_brep_on_guides`): the rectangle at z = 0 and the
+//! one at z = 24, and the four guides through their corners, each wall the patch between two
+//! neighbouring guides and the two sides they join.
+use crate::solids::sweep::bezier;
+use crate::solids::{p, polygon};
 use crate::Refusal;
-use brep_kernel::{boolean_operation, BooleanOperation, BooleanOptions, BrepSolid};
+use brep_kernel::{loft_profile_brep_on_guides, BrepSolid};
 
 /// The guide through the corner with x and y positive.
 const GUIDE: [(f64, f64, f64); 4] =
     [(12.0, 3.2, 0.0), (18.0, -2.8, 8.0), (15.0, 0.2, 19.0), (3.0, 12.2, 24.0)];
 
 pub fn build() -> Result<BrepSolid, Refusal> {
-    let along_y: Vec<_> = GUIDE.iter().map(|&(x, _, z)| p(x, 0.0, z)).collect();
-    let along_x: Vec<_> = GUIDE.iter().map(|&(_, y, z)| p(0.0, y, z)).collect();
-    let walls_x = between_guides(&along_y, p(0.0, 1.0, 0.0), 40.0)?;
-    let walls_y = between_guides(&along_x, p(1.0, 0.0, 0.0), 40.0)?;
-    Ok(boolean_operation(&walls_x, &walls_y, BooleanOperation::Intersect,
-        &BooleanOptions::default())?)
+    // the corners in turn, by the signs of their x and y
+    let signs = [(1.0, 1.0), (-1.0, 1.0), (-1.0, -1.0), (1.0, -1.0)];
+    let corner = |k: usize, i: usize| p(signs[k].0 * GUIDE[i].0, signs[k].1 * GUIDE[i].1, GUIDE[i].2);
+    let section = |i: usize| polygon(&[corner(0, i), corner(1, i), corner(2, i), corner(3, i)]);
+    let guides = (0..4)
+        .map(|k| bezier(&[corner(k, 0), corner(k, 1), corner(k, 2), corner(k, 3)]))
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(loft_profile_brep_on_guides(&section(0)?, &section(3)?, &guides)?)
 }

@@ -5,13 +5,17 @@
 //!
 //! The half balls are the kernel's balls (poles on the z axis) less the block under z = 0. The
 //! dome is the plate joined to the half ball of radius 20, less the half ball of radius 18.
-//! next.BREP's extrude has no "up to a face" end; the post is extruded from the floor up to
-//! z = 19, past the cavity's sphere into the dome's wall (within 3 of the axis the wall lies
-//! between z = √315 and above z = 19.77), and joined, so it ends on the inside of the dome.
+//! The post is the kernel's extrude up to a face (`extrude_profile_up_to_face`): the circle of
+//! radius 3 on the floor slid up until it meets the inside of the dome, picked by a point on it, so
+//! the post's head is that sphere's own surface; the two are joined.
 use crate::solids::boolean::{cut, union};
 use crate::solids::p;
 use crate::Refusal;
-use brep_kernel::{make_box_brep, make_cylinder_brep, make_sphere_brep, BrepSolid};
+use crate::solids::shell::face_at;
+use brep_kernel::{
+    extrude_profile_up_to_face, make_box_brep, make_circle, make_cylinder_brep, make_sphere_brep,
+    BrepSolid,
+};
 
 pub fn build() -> Result<BrepSolid, Refusal> {
     let (o, z) = (p(0.0, 0.0, 0.0), p(0.0, 0.0, 1.0));
@@ -21,6 +25,7 @@ pub fn build() -> Result<BrepSolid, Refusal> {
     };
     let plate = make_cylinder_brep(p(0.0, 0.0, -2.0), z, 20.0, 2.0)?;
     let dome = cut(&union(&plate, &half_ball(20.0)?)?, &half_ball(18.0)?)?;
-    let post = make_cylinder_brep(o, z, 3.0, 19.0)?;
+    let inside = face_at(&dome, p(8.0, 6.0, 224f64.sqrt()))?;
+    let post = extrude_profile_up_to_face(&[make_circle(o, z, 3.0)?], z, &dome, inside)?;
     Ok(union(&dome, &post)?)
 }

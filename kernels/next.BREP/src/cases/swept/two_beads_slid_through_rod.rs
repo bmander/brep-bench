@@ -3,19 +3,21 @@
 //! parallel to y through (11.5, 0, −9): the first centred there, of radii 6 and 2, the second
 //! centred 1.5 further along the axis, of radii 6 and 1.5; the wheel is their union.
 //!
-//! next.BREP has no sweep of a solid. What a union sweeps is the union of what its parts sweep,
-//! and each bead's sweep along a line follows by elementary geometry
-//! (`solids::sweep::torus_slid_up`): the bead with its hole filled at each end, and between them
-//! its outline slid along the line. Each is cut from the rod.
+//! Through the kernel's whole sweep of a solid (`sweep_solid`): what a union sweeps is the union of
+//! what its parts sweep: each bead, a solid of revolution about the line through (11.5, 0, −9)
+//! along y whose meridian is its tube's circle, slid 40 up, and both cut from the rod.
 use crate::solids::p;
-use crate::solids::sweep::torus_slid_up;
+use crate::solids::swept::{less_all, revolved_tool, slide_by, Piece};
 use crate::Refusal;
-use brep_kernel::{boolean_operation_nary, make_cylinder_brep, BooleanOperation, BrepSolid};
+use brep_kernel::{make_cylinder_brep, sweep_solid, BrepSolid};
+use std::f64::consts::{TAU};
 
 pub fn build() -> Result<BrepSolid, Refusal> {
-    let rod = make_cylinder_brep(p(0.0, 0.0, 0.0), p(0.0, 0.0, 1.0), 5.0, 20.0)?;
-    let mut operands = vec![rod];
-    operands.extend(torus_slid_up(p(11.5, 0.0, -9.0), 6.0, 2.0, 40.0)?);
-    operands.extend(torus_slid_up(p(11.5, 1.5, -9.0), 6.0, 1.5, 40.0)?);
-    Ok(boolean_operation_nary(&operands, BooleanOperation::Subtract)?)
+    let (x, z) = (p(1.0, 0.0, 0.0), p(0.0, 0.0, 1.0));
+    let rod = make_cylinder_brep(p(0.0, 0.0, 0.0), z, 5.0, 20.0)?;
+    let bead = |along: f64, tube: f64| revolved_tool(p(11.5, 0.0, -9.0), p(0.0, 1.0, 0.0), x, &[
+        Piece::Arc { centre: [6.0, along], radius: tube, start: 0.0, end: TAU },
+    ]);
+    let up = slide_by(p(0.0, 0.0, 40.0));
+    less_all(rod, vec![sweep_solid(&bead(0.0, 2.0), &up)?, sweep_solid(&bead(1.5, 1.5), &up)?])
 }

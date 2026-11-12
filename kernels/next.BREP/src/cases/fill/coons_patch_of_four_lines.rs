@@ -3,8 +3,9 @@
 //! (`coons_bilinear`, its boundaries in cyclic order, u along the edge on y = 0 and v along the
 //! edge on x = 0), with the four upright sides and the floor z = 0 under it.
 //!
-//! next.BREP makes no solid from a surface, so the block is assembled under the patch by
-//! `solids::sweep::block_under`.
+//! The patch is the kernel's face on that surface, the floor and the four sides are flat faces
+//! bounded by their edges, and the six are joined into the solid they bound
+//! (`solids::sweep::block_under`).
 use crate::solids::{p, polygon};
 use crate::solids::sweep::block_under;
 use crate::Refusal;

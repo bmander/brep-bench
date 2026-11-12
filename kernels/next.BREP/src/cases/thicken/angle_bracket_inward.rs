@@ -2,13 +2,13 @@
 //! (10, 8, 0) and the wall from (0, 0, 0) to (0, 8, 10), thickened by 1 to the inside of the
 //! crease (+z and +x), each moved face trimmed where it meets the other: an L 1 thick.
 //!
-//! next.BREP thickens one face at a time, so a sheet of two faces is thickened as two faces of a
-//! solid, the box they bound, by the kernel's shell: the box's four other faces are its openings.
-use crate::solids::offset::{bracket, shell};
+//! The kernel's thicken of a sheet of several faces (`thicken_sheet_faces`): the two faces, each
+//! thickened by 1 against its normal, and the slabs united, which trims each moved face where it
+//! meets the other.
+use crate::solids::offset::bracket;
 use crate::Refusal;
-use brep_kernel::BrepSolid;
+use brep_kernel::{thicken_sheet_faces, BrepSolid, OffsetCorners};
 
 pub fn build() -> Result<BrepSolid, Refusal> {
-    let (block, openings) = bracket()?;
-    shell(&block, &openings, 1.0)
+    Ok(thicken_sheet_faces(&bracket()?, -1.0, OffsetCorners::Sharp)?)
 }

@@ -3,8 +3,8 @@
 use super::*;
 use crate::Refusal;
 use brep_kernel::{
-    boolean_operation, boolean_operation_nary, extrude_profile_brep, make_arc, make_box_brep,
-    make_line, offset_shell, offset_solid, parameter_point_in_face, project_point_to_surface,
+    boolean_operation, boolean_operation_nary, extrude_curves_to_sheet, extrude_profile_brep,
+    face_from_surface, make_arc, make_box_brep, make_line, make_plane, offset_shell, offset_solid, parameter_point_in_face, project_point_to_surface,
     thicken_face_sheet, thicken_trimmed_sheet, BooleanOperation,
     BooleanOptions, BrepSolid, KernelRefusal, NurbsCurve, NurbsSurface, OffsetCorners,
     PolygonClass, Vec2, Vec3,
@@ -104,33 +104,36 @@ fn one(mut bodies: Vec<BrepSolid>) -> Result<BrepSolid, Refusal> {
     }
 }
 
-/// The angle bracket's sheet as faces of a solid: the box from the origin to (10, 8, 10), whose
-/// floor (z = 0) and wall (x = 0) are the sheet's two faces, and the points inside its four other
-/// faces, the openings a shell leaves.
-pub fn bracket() -> Result<(BrepSolid, [Vec3; 4]), Refusal> {
-    let block = make_box_brep(p(0.0, 0.0, 0.0), 10.0, 8.0, 10.0)?;
-    Ok((block, [p(5.0, 4.0, 10.0), p(10.0, 4.0, 5.0), p(5.0, 0.0, 5.0), p(5.0, 8.0, 5.0)]))
+/// The angle bracket's sheet: the floor from (0, 0, 0) to (10, 8, 0) and the wall from (0, 0, 0)
+/// to (0, 8, 10), the L from (10, 0, 0) by the origin to (0, 0, 10) slid 8 along +y into two faces
+/// (`extrude_curves_to_sheet`). Run that way the faces' normals are −z and −x, to the outside of
+/// the crease.
+pub fn bracket() -> Result<Vec<BrepSolid>, Refusal> {
+    let l = [make_line(p(10.0, 0.0, 0.0), p(0.0, 0.0, 0.0))?, make_line(p(0.0, 0.0, 0.0), p(0.0, 0.0, 10.0))?];
+    Ok(extrude_curves_to_sheet(&l, p(0.0, 1.0, 0.0), 8.0)?)
 }
 
-/// The open tray's sheet as faces of a solid: the cube from the origin to (10, 10, 10), whose
-/// floor and four walls are the sheet's faces, and a point inside its top, the opening.
-pub fn tray() -> Result<(BrepSolid, [Vec3; 1]), Refusal> {
-    Ok((make_box_brep(p(0.0, 0.0, 0.0), 10.0, 10.0, 10.0)?, [p(5.0, 5.0, 10.0)]))
+/// The open tray's sheet: the floor of the cube from the origin to (10, 10, 10), a face on its
+/// plane, and its four walls, the floor's outline slid 10 up into four faces
+/// (`extrude_curves_to_sheet`). The outline is run so that the walls' normals, like the floor's,
+/// are into the cube.
+pub fn tray() -> Result<Vec<BrepSolid>, Refusal> {
+    let (x, y, z) = (p(1.0, 0.0, 0.0), p(0.0, 1.0, 0.0), p(0.0, 0.0, 1.0));
+    let outline = polygon(&[p(0.0, 0.0, 0.0), p(0.0, 10.0, 0.0), p(10.0, 10.0, 0.0), p(10.0, 0.0, 0.0)])?;
+    let mut faces = vec![face_from_surface(&make_plane(p(0.0, 0.0, 0.0), x, y, 10.0, 10.0)?)?];
+    faces.extend(extrude_curves_to_sheet(&outline, z, 10.0)?);
+    Ok(faces)
 }
 
-/// The bent flange's sheet as faces of a solid: its profile, the floor from (−10, 0) to (0, 0),
-/// the quarter circle of radius 2 about (0, 2) to (2, 2) and the wall up to (2, 12) in the xz
-/// plane, closed by the lines through (−10, 12) back to (−10, 0) and extruded 8 along +y. Its
-/// floor, bend and wall are the sheet's three faces, the bend on the side towards its axis; the
-/// points are inside its four other faces, the openings a shell leaves.
-pub fn flange() -> Result<(BrepSolid, [Vec3; 4]), Refusal> {
+/// The bent flange's sheet: its profile, the floor from (−10, 0) to (0, 0), the quarter circle of
+/// radius 2 about (0, 2) to (2, 2) and the wall up to (2, 12) in the xz plane, slid 8 along +y
+/// into three faces (`extrude_curves_to_sheet`). Run that way the faces' normals are toward the
+/// bend's axis.
+pub fn flange() -> Result<Vec<BrepSolid>, Refusal> {
     let profile = [
         make_line(p(-10.0, 0.0, 0.0), p(0.0, 0.0, 0.0))?,
         make_arc(p(0.0, 0.0, 2.0), p(0.0, 0.0, -1.0), p(1.0, 0.0, 0.0), 2.0, 0.0, FRAC_PI_2)?,
         make_line(p(2.0, 0.0, 2.0), p(2.0, 0.0, 12.0))?,
-        make_line(p(2.0, 0.0, 12.0), p(-10.0, 0.0, 12.0))?,
-        make_line(p(-10.0, 0.0, 12.0), p(-10.0, 0.0, 0.0))?,
     ];
-    let body = extrude_profile_brep(&profile, p(0.0, 1.0, 0.0), 8.0)?;
-    Ok((body, [p(-4.0, 4.0, 12.0), p(-10.0, 4.0, 6.0), p(-4.0, 0.0, 6.0), p(-4.0, 8.0, 6.0)]))
+    Ok(extrude_curves_to_sheet(&profile, p(0.0, 1.0, 0.0), 8.0)?)
 }

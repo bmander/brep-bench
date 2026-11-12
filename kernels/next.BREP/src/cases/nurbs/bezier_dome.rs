@@ -3,8 +3,8 @@
 //! square at the heights `HEIGHTS`.
 //!
 //! The patch is a kernel `NurbsSurface` with the description's poles (Bézier knots, unit weights);
-//! next.BREP makes no solid from a surface, so the block is assembled under it by
-//! `solids::sweep::block_under`.
+//! it is the kernel's face on that surface, the floor and the four sides are flat faces bounded by
+//! their edges, and the six are joined into the solid they bound (`solids::sweep::block_under`).
 use crate::solids::p;
 use crate::solids::sweep::block_under;
 use crate::Refusal;
