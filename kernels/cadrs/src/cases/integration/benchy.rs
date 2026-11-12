@@ -10,7 +10,7 @@
 //! each a block cut down to the reference's own planes (the walls leaning 1.5°, 4.5° and 3.2°,
 //! the roof 5.5°, the box 5°); the doors, the windows, the chimney, the rod holder, the drain and
 //! the hawse pipes are cylinders on the reference's own axes.
-use crate::bench::{block, common, cut, cut_each, cylinder, extrude, extrude_symmetric, p3, union_each, v3, P3, V3};
+use crate::bench::{block, common, cut, cut_each, cylinder, extrude, extrude_symmetric, p3, union, union_each, v3, P3, V3};
 use crate::shared::geometry::Section;
 use crate::Refusal;
 use cadrs_kernel::{
@@ -47,6 +47,11 @@ const DECK: [[f64; 2]; 6] =
 /// The aft sheer's circle in (x, z): its centre and its radius; the transom.
 const SHEER: [f64; 3] = [-23.0812, 113.7248, 103.0821];
 const STERN: f64 = -29.1765;
+/// How deep the rail is under the sheer, its upright outer side's circle in (x, y) (mirrored for
+/// the other side) and where it ends forward.
+const RAIL: f64 = 1.7;
+const UPRIGHT: [f64; 3] = [-57.949424, 330.686828, 320.92693];
+const AFT_RAIL: f64 = -1.009;
 /// The sines and cosines of the walls' leans: the wheelhouse's back 1.5°, its front 4.5°, the
 /// roof 5.5° and the cargo box 5°.
 const S15: f64 = 0.02618;
@@ -160,6 +165,17 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let well = common(k, well, deck)?;
     let boat = common(k, hull, side)?;
     let boat = cut(k, boat, well)?;
+    // The rail aft of the wheelhouse: 1.7 deep under the sheer, its outer side upright (a
+    // cylinder about z on each side) where the hull flares out below.
+    let rail = cylinder(k, p3(cx, -20., cz), v3(0., 1., 0.), r + RAIL, 40.)?;
+    let mut slivers = Vec::new();
+    for s in [1., -1.] {
+        let wall = cylinder(k, p3(UPRIGHT[0], s * UPRIGHT[1], -10.), v3(0., 0., 1.), UPRIGHT[2], 60.)?;
+        let aft = block(k, p3(-40., s.min(0.) * 20., -10.), p3(AFT_RAIL, s.max(0.) * 20., 50.))?;
+        let aft = common(k, aft, rail)?;
+        slivers.push(common(k, aft, wall)?);
+    }
+    let boat = cut_each(k, boat, &slivers)?;
     // The wheelhouse: its walls, less its room and the room's upper part over the console.
     let walls = [[C15, 0., S15, -4.7751], [0.05545, -0.99812, 0.02618, -5.1525],
                  [0.05545, 0.99812, 0.02618, -5.1525], [0., 0., -1., -36.614]];
@@ -172,10 +188,9 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
         k,
         &[[-C15, 0., -S15, 6.7751], [C45, 0., -S45, 10.2992], [0., 0., -1., -8.],
           [-0.05545, 0.99812, -0.02618, 7.1525], [-0.05545, -0.99812, -0.02618, 7.1525],
-          [0., 0., 1., 36.614]],
+          [0., 0., 1., 38.]],
     )?;
     let rooms = [room(k, 5.8069, 8.5)?, room(k, 8.2992, 20.5)?];
-    let house = cut_each(k, house, &rooms)?;
     let roof = convex(
         k,
         &[[-S55, 0., C55, 38.7973], [C55, 0., S55, 17.7101], [-C55, 0., -S55, 5.2885],
@@ -193,7 +208,32 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let up: V3 = v3(0., 0., 1.);
     let stack = [house, roof, cargo, rod, cylinder(k, p3(-4., 0., 36.), up, 3., 9.3)?,
                  cylinder(k, p3(-4., 0., 45.3), up, 3.5, 2.7)?];
+    let mut stack = stack.to_vec();
+    for s in [1., -1.] {
+        // A door's frame: 1.5 round the doorway, 0.3 proud of the wall.
+        let slab = [[-0.05545, 0.99812 * s, -0.02618, 7.4525], [0.05545, -0.99812 * s, 0.02618, -6.9]];
+        let mut jambs = vec![[-0.99812, -0.0561 * s, -0.02475, 2.8166], [0.99538, 0.0532 * s, -0.07997, 6.2812],
+                             [0., 0., -1., -8.5], [0., 0., 1., 27.52]];
+        jambs.extend(slab);
+        let jambs = convex(k, &jambs)?;
+        let arch = cylinder(k, p3(2.392 - 0.05545 * s * 4., 2.0057 * s + 4. * s, 27.5982 - 0.02618 * 4.),
+                            v3(-0.05545, s, -0.02618), 6., 8.)?;
+        let above = convex(k, &[slab[0], slab[1], [0., 0., -1., -27.52]])?;
+        let arch = common(k, arch, above)?;
+        stack.push(union(k, jambs, arch)?);
+    }
     let boat = union_each(k, boat, &stack)?;
+    // (The rooms after the roof: the house's ceiling is flat under its sloping roof.)
+    let boat = cut_each(k, boat, &rooms)?;
+    // The wheel on the console, square to the front wall: a disk 1.5 thick, its face sunk 0.5
+    // between its rim and its hub.
+    let ahead = v3(C45, 0., -S45);
+    let face = p3(1.581, 0., 20.086) + ahead * 5.0569;
+    let disk = cylinder(k, face, ahead, 5., 1.5)?;
+    let sunk = cylinder(k, face - ahead, ahead, 3.5, 1.5)?;
+    let hub = cylinder(k, face, ahead, 1.25, 0.5)?;
+    let wheel = cut(k, disk, sunk)?;
+    let boat = union_each(k, boat, &[wheel, hub])?;
     // The cargo box's hold, the chimney's bore, the front and rear windows, the rod holder's bore
     // and the drain.
     let mut cuts = vec![

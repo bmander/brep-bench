@@ -28,3 +28,7 @@ debug = "line-tables-only"
 strip = false
 lto = false
 codegen-units = 16
+
+# Local development: the kernel from a checkout beside this one.
+[patch."https://github.com/rvdende/cadrs"]
+cadrs_kernel = { path = "/home/rouan/work/cadrs/crates/cadrs_kernel" }
