@@ -275,3 +275,25 @@ in 156 and 162 lines: the hull the reference's own 12 × 6 bicubic net and its m
 with a ruled stern and two planes; the deck well a ruled loft through four plans; the wheelhouse,
 its roof and the cargo box the common parts of half-spaces under the reference's own planes; and
 the doors, windows, chimney, rod holder and hawse pipes cylinders on its own axes.
+
+## Machining (`cnc/`)
+
+Parts made the way a CNC machine makes them: a blank less everything its cutters pass through as a
+program moves them, five cases of growing difficulty. Each move of a program is one rigid motion at
+a steady rate, a slide or a turn, so the solid is a stock cut by the union of hundreds of swept
+solids, overlapping their neighbours along and across the passes, their walls and floors lying on
+one another where passes repeat at new depths. They are stress tests: few kernels sweep a solid at
+all, and none that does was built for a program of hundreds of moves.
+
+- **A flat end mill profiling a cross** at three step-downs: 79 moves of lines and arcs, planes and
+  cylinders only, the laps' walls coincident. Exact by Pappus.
+- **A bull-nose mill profiling a six-lobed flower** at three step-downs: arcs only, convex and
+  concave, its corner sweeping tori. Exact by Pappus.
+- **A 2.5-axis program of three tools**: a pocket round a round island cleared at three depths by
+  raster passes and finished round its walls, a bore, and four pecked holes with conical ends, nearly
+  400 moves. Exact, because the passes clear the pocket to its outline and no further.
+- **A ball-end mill finishing a free-form surface** in 41 zigzag raster passes, 944 straight moves
+  between points sampled on the surface, aslant, leaving scallops between the passes. Unsettled.
+- **A dome machined in five axes** by four cutters in 238 passes: roughed by a bull-nose mill in
+  level rings, finished by a ball-end mill held square to the dome along 180 meridians and round 15
+  circles near its pole, then spot-faced and drilled square to it. Unsettled.
