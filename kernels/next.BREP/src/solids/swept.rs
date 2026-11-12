@@ -1,13 +1,15 @@
 //! Helpers for the swept cases built by elementary geometry where next.BREP's own sweep of a solid
 //! (`sweep_solid_within`) does not reach: a solid of revolution's meridian drawn in a plane, the
 //! curved block the ring-sector cases cut, a solid slid along a line by its faces, and an upright
-//! solid of revolution slid along a line or turned partway about an upright axis.
+//! solid of revolution slid along a line or turned partway about an upright axis. And, for the
+//! cases it does reach, the tools and motions `sweep_solid` takes, in the cases' own terms.
 #![allow(unused_imports)]
 use super::*;
 use super::sweep::{moved, turn_z};
 use crate::Refusal;
 use brep_kernel::{
-    extrude_profile_brep, make_arc, make_line, revolve_profile_brep, BrepSolid, NurbsCurve, Vec3,
+    boolean_operation_nary, extrude_profile_brep, make_arc, make_line, revolve_profile_brep,
+    BooleanOperation, BrepSolid, NurbsCurve, OutlinePiece, ScrewStep, SolidMotion, SolidTool, Vec3,
 };
 use std::f64::consts::{PI, TAU};
 
@@ -188,4 +190,64 @@ pub fn upright_turned(meridian: &Meridian, d: f64, from: f64, to: f64)
     let turned = revolve_profile_brep(&section, p(0.0, 0.0, 0.0), z, to - from)?;
     let at = |angle: f64| -> Result<BrepSolid, String> { moved(&tool, turn_z(angle, p(0.0, 0.0, 0.0))?) };
     Ok(vec![at(from)?, moved(&turned, turn_z(from, p(0.0, 0.0, 0.0))?)?, at(to)?])
+}
+
+/// The box with corner `o` and edges `a`, `b`, `c`, as a tool for the kernel's sweep of a solid: a
+/// convex polyhedron, its eight corners and six faces.
+pub fn box_tool(o: Vec3, a: Vec3, b: Vec3, c: Vec3) -> SolidTool {
+    let corner = |i: usize| {
+        let on = |bit: usize, edge: Vec3| if i >> bit & 1 == 1 { edge } else { p(0.0, 0.0, 0.0) };
+        o.add(on(0, a)).add(on(1, b)).add(on(2, c))
+    };
+    SolidTool::Polyhedron {
+        vertices: (0..8).map(corner).collect(),
+        faces: vec![vec![0, 2, 6, 4], vec![1, 3, 7, 5], vec![0, 1, 5, 4], vec![2, 3, 7, 6],
+            vec![0, 1, 3, 2], vec![4, 5, 7, 6]],
+    }
+}
+
+/// The solid of revolution about the line through `origin` along the unit `axis` whose meridian,
+/// in the half plane from the axis toward the unit `radial`, is the closed chain `meridian` in
+/// (distance from the axis, place along it): a tool for the kernel's sweep of a solid.
+pub fn revolved_tool(origin: Vec3, axis: Vec3, radial: Vec3, meridian: &[Piece]) -> SolidTool {
+    let piece = |piece: &Piece| match *piece {
+        Piece::Line { from, to } => OutlinePiece::Line { from, to },
+        Piece::Arc { centre, radius, start, end } => OutlinePiece::Arc { centre, radius, start, end },
+    };
+    SolidTool::Revolved {
+        axis_origin: origin,
+        axis_direction: axis,
+        radial,
+        meridian: meridian.iter().map(piece).collect(),
+    }
+}
+
+/// The slide without turning by `v`, as a motion for the kernel's sweep of a solid.
+pub fn slide_by(v: Vec3) -> SolidMotion {
+    let step = ScrewStep {
+        axis_origin: p(0.0, 0.0, 0.0),
+        axis_direction: v.scale(1.0 / v.length()),
+        turn: 0.0,
+        advance: v.length(),
+    };
+    SolidMotion { steps: vec![step], from: 0.0, to: 1.0 }
+}
+
+/// The rigid turn about the z axis from the angle `from` to the angle `to` (radians,
+/// right-handed), rising `rise` for each radian turned, as a motion for the kernel's sweep of a
+/// solid.
+pub fn turn_about_z(from: f64, to: f64, rise: f64) -> SolidMotion {
+    let step = ScrewStep {
+        axis_origin: p(0.0, 0.0, 0.0),
+        axis_direction: p(0.0, 0.0, 1.0),
+        turn: 1.0,
+        advance: rise,
+    };
+    SolidMotion { steps: vec![step], from, to }
+}
+
+/// `block` less each of `swept`.
+pub fn less_all(block: BrepSolid, swept: Vec<BrepSolid>) -> Result<BrepSolid, Refusal> {
+    let operands: Vec<_> = std::iter::once(block).chain(swept).collect();
+    Ok(boolean_operation_nary(&operands, BooleanOperation::Subtract)?)
 }
