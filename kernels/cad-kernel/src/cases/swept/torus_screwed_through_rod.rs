@@ -2,26 +2,34 @@
 //! by a torus of radii 6 and 2, centred at (11.5, 0, 0) with its axis (0, cos h, −sin h), h =
 //! atan(2π·5.5 / 30), screwed about z — rising 30 a turn — from a turn of −108° to +348°.
 //!
-//! Refused. cad-kernel sweeps a solid (`swept::closed`) under a screw only where its faces are
-//! planes, balls, or cylinders and cones about the screw's axis, and this tool is a torus. What it
-//! offers, and why none of it builds this:
-//!
-//! - `build::canal` sweeps a ball along a screw, the ball's disc square to the helix carried along
-//!   it; but the wheel is a torus, and the union of the tubes its tube's balls sweep (one for each
-//!   point of the circle through the tube's centres) is bounded by their envelope, no one tube.
-//! - A face family (`family::family`) can carry a planar section along the screw, and the groove
-//!   is the screw's own: its section square to z is the same at every height, turned, so the
-//!   groove is that section screwed. But that section is the wheel's shadow along the screw, and
-//!   its boundary is the curve where the screw's velocity lies tangent to the torus (the wheel's
-//!   characteristic, carried round): an envelope, which cad-kernel does not compute, and which
-//!   this file may not compute for it.
+//! The kernel's closed sweep (`swept::closed::cut_from`) takes the torus whole: its closed class
+//! refuses a torus under a screw (`Unbuilt::Curved`), and since 0.9.0 such a tool goes the
+//! contact's road — the torus's contact with the screw carried over the roll as sheets, given their
+//! meetings with one another and with the end poses, trimmed by membership in the sweep, and the
+//! result cut from the rod. No envelope is computed here.
+use cad_kernel::build::{disc, prism, torus};
+use cad_kernel::geom::{tolerance, V};
+use cad_kernel::swept::closed::cut_from;
 use cad_kernel::topo::Brep;
+use cad_kernel::trajectory::{Screw, Trajectory};
+use std::f64::consts::TAU;
+
+const UP: V = [0., 0., 1.];
+/// How far the screw rises a whole turn.
+const RISE: f64 = 30.;
+/// How far the screw turns from where the wheel is drawn, in degrees: down to, and up to.
+const TURNS: [f64; 2] = [-108., 348.];
+/// How closely the wheel is meshed for the sweep's membership reads.
+const BAR: f64 = 0.01;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel sweeps a solid (`swept::closed`) under a screw only where its faces are \
-         planes, balls, or cylinders and cones about the screw's axis, and refuses a torus \
-         (`Unbuilt::Curved`); its canal screws only a ball, and the groove's wall is the envelope \
-         of the torus under the screw (the section a face family could screw along z is bounded by \
-         the wheel's characteristic curve), which it cannot build"
-        .into())
+    let rod = prism(&disc([0.; 3], UP, 5.), 0., 20.)?;
+    // the wheel set along the helix the screw carries (5.5, 0, 0) along
+    let h = (TAU * 5.5 / RISE).atan();
+    let wheel = torus([11.5, 0., 0.], [0., h.cos(), -h.sin()], 6., 2.)?;
+    // the screw about z: a radian a radian of the roll, rising `RISE` a turn
+    let path = Trajectory::Twist(Screw { origin: [0.; 3], axis: UP, ratio: 1., advance: RISE });
+    let size = rod.size().max(wheel.size());
+    cut_from(&rod, &wheel, &path, TURNS.map(f64::to_radians), BAR, tolerance(size))
+        .map_err(|why| format!("the wheel's sweep not built: {why:?}"))
 }
