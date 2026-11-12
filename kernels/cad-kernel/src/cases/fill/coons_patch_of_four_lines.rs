@@ -2,7 +2,7 @@
 //! Coons patch of the four straight edges from (0, 0, 5) to (10, 0, 5), (10, 10, 15), (0, 10, 5)
 //! and back: the saddle z = 5 + xy/10, its walls on x = 0, x = 10, y = 0 and y = 10.
 //!
-//! Refused: cad-kernel 0.9.0 has no fill. Its surfaces come from a profile swept (`prism`,
+//! Refused: cad-kernel 0.10.0 has no fill. Its surfaces come from a profile swept (`prism`,
 //! `revolve`), a face family between rails, or a net the caller writes (`sheet`, `grid_sheet`,
 //! `lofted`); nothing takes a closed loop of curves and makes the surface they bound. The case's
 //! inputs are built here with the kernel (the four edges as B-splines, checked to close; the walls
@@ -67,7 +67,7 @@ pub fn walls(edges: &[BSpline; 4]) -> Result<Vec<Brep>, String> {
 
 /// The refusal: the fill these walls wait for.
 pub fn no_fill(caps: &[Brep]) -> String {
-    format!("no fill of a loop of curves: cad-kernel 0.9.0 makes no surface from four boundary \
+    format!("no fill of a loop of curves: cad-kernel 0.10.0 makes no surface from four boundary \
              curves (the {} faces under them built), and the bilinearly blended Coons patch wants \
              nurbs::coons(edges: [&BSpline; 4]) -> Result<Net, String>, its face then sheet(net) \
              sewn to them", caps.len())
