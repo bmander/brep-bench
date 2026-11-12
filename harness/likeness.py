@@ -142,7 +142,10 @@ def main(argv):
         from highlight import loc
         k = next(k for k in kernels() if k["name"] == argv[2])
         src = source(k, case["id"])
-        lines = loc(open(src, encoding="utf-8").read(), src) if src and os.path.exists(src) else None
+        lines = None
+        if src and os.path.exists(src):
+            with open(src, encoding="utf-8") as f:
+                lines = loc(f.read(), src)
         files = [os.path.join(ROOT, "results", "meshes", k["name"], case["id"] + ".stl")]
     else:
         lines, files = None, argv[1:]

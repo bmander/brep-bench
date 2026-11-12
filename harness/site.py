@@ -362,28 +362,35 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
     if ref is not None:
         out.append("<p><strong>A reference shape.</strong> This case's solid is the one in "
                    f"<a href='{REPO}/blob/main/cases/{e(category)}/"
-                   f"{e(os.path.basename(ref_path))}'>{e(os.path.basename(ref_path))}</a>, "
-                   "and no kernel's solid is it: <em>built</em> means a watertight, consistently "
-                   "oriented solid. Beside each is its <em>likeness</em>, the volume it holds in "
-                   "common with the reference over the volume either holds (1 for the same "
-                   "solid), and its lines of code: as like as it can be, in as few as it can.</p>")
-    elif exp is None:
+                   f"{e(os.path.basename(ref_path))}'>{e(os.path.basename(ref_path))}</a>: a "
+                   "pass is that solid, its measures below. Beside each result is how near it "
+                   "came, its <em>likeness</em>, the volume it holds in common with the reference "
+                   "over the volume either holds (1 for the same solid), and its lines of "
+                   "code.</p>")
+    if exp is None and ref is None:
         out.append("<p><strong>Unsettled.</strong> This solid has no closed form, and no two kernels "
                    "yet agree on it to 1e-8, so it has no answer to grade against. Below is what each "
                    "kernel builds: <em>built</em> means a watertight, consistently oriented solid, "
                    "whatever its measures; the table says which kernels agree with which.</p>")
-    else:
+    elif exp is not None:
         out.append("<div class=scroll><table data-nosort><tr><th></th><th>expected</th>"
                    "<th>closed form</th></tr>")
-        for key in ("volume", "area"):
+        for key in [k for k in ("volume", "area", "centroid", "inertia") if k in exp]:
             x = exp[key]
             # the closed form typeset by KaTeX, with the case's own words until it loads (and
             # where there is no closed form)
             form = (f"<td class=closed title='{e(x['exact'])}'><span class=tex "
                     f"data-tex='{e(x['tex'])}'>{e(x['exact'])}</span></td>" if x["tex"]
                     else f"<td class='muted why'>{e(x['exact'])}</td>")
-            out.append(f"<tr><td>{key}</td><td>{x['value']:.10g}</td>{form}</tr>")
+            shown = (f"{x['value']:.10g}" if isinstance(x["value"], (int, float)) else
+                     "<br>".join(", ".join(f"{v:.8g}" for v in row) for row in x["value"])
+                     if isinstance(x["value"][0], list) else
+                     ", ".join(f"{v:.8g}" for v in x["value"]))
+            out.append(f"<tr><td>{key}</td><td>{shown}</td>{form}</tr>")
         out.append("</table></div>")
+        if c.get("tolerance"):
+            out.append(f"<p class=muted>A pass is within {c['tolerance']:g} of these, not the "
+                       "usual 1e-6: the case says why.</p>")
 
 
     if drawing:

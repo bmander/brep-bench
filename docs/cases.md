@@ -266,10 +266,12 @@ closed form, so it is unsettled until two kernels agree.
 
 The second is #3DBenchy itself, from its designer's own CAD file, released in STEP and now in the
 public domain (CC0). It is a reference shape, not a description: the solid is the STEP file beside
-the case, and each kernel builds it as nearly as it can, in as few lines as it can. The board shows
-each result's likeness to it (the volume in common over the volume of either) beside its lines of
-code. Open CASCADE and cad-kernel build the same approximation, 0.959 like it, in 156 and 162
-lines: the hull the reference's own 12 × 6 bicubic net and its mirror image, sewn with a ruled
-stern and two planes; the deck well a ruled loft through four plans; the wheelhouse, its roof and
-the cargo box the common parts of half-spaces under the reference's own planes; and the doors,
-windows, chimney, rod holder and hawse pipes cylinders on its own axes.
+the case, and its answer is that file's own volume, area, centroid and inertia tensor, as the
+harness reads it, to 2e-5 (the file's edges are loose enough that two careful readings of it
+differ by 1.1e-5). A pass is the original itself; short of it, the board shows how near each
+result came, its likeness to the reference (the volume in common over the volume of either),
+beside its lines of code. Open CASCADE and cad-kernel build the same approximation, 0.959 like it,
+in 156 and 162 lines: the hull the reference's own 12 × 6 bicubic net and its mirror image, sewn
+with a ruled stern and two planes; the deck well a ruled loft through four plans; the wheelhouse,
+its roof and the cargo box the common parts of half-spaces under the reference's own planes; and
+the doors, windows, chimney, rod holder and hawse pipes cylinders on its own axes.

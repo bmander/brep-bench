@@ -40,6 +40,7 @@ import json
 import os
 import platform
 import collections
+import math
 import re
 import shutil
 import subprocess
@@ -66,6 +67,48 @@ def near(got, want, rel):
     return got is not None and abs(got - want) <= rel * max(abs(want), 1e-12)
 
 
+def off(key, got, exp):
+    """How far a measure `got` is from the expected one, relative: the volume's and the area's by
+    their own size; the centroid's distance by the solid's radius of gyration (from the expected
+    volume and inertia, else the cube root of its volume); the inertia tensor's largest difference
+    by its largest term. None where there is no measure."""
+    if got is None:
+        return None
+    want = exp[key]["value"]
+    if key in ("volume", "area"):
+        return abs(got - want) / max(abs(want), 1e-12)
+    if key == "centroid":
+        v = exp["volume"]["value"]
+        i = exp.get("inertia", {}).get("value")
+        size = math.sqrt((i[0][0] + i[1][1] + i[2][2]) / (2 * v)) if i else abs(v) ** (1 / 3)
+        return math.dist(got, want) / size
+    return (max(abs(g - w) for gr, wr in zip(got, want) for g, w in zip(gr, wr))
+            / max(abs(w) for wr in want for w in wr))
+
+
+def missed(case, measures, rel, keys=("volume", "area", "centroid", "inertia"), whose=""):
+    """Why the `measures` (a dict) fail the case's expected ones within `rel`: a list of reasons."""
+    exp, why = case["expect"], []
+    for key in keys:
+        if key not in exp:
+            continue
+        d = off(key, measures.get(key), exp)
+        if d is None or d > rel:
+            got = measures.get(key)
+            shown = f"{got:.12g}" if isinstance(got, float) else repr(got)
+            want = exp[key]["value"]
+            wanted = f"{want:.12g}" if isinstance(want, float) else repr(want)
+            why.append(f"{key} {shown} against {wanted}{whose}"
+                       + (f" ({d:.2g} off)" if d is not None and key not in ("volume", "area")
+                          else ""))
+    return why
+
+
+def tolerance(case):
+    """How near a result's measures must be to pass: the case's own tolerance, else EXACT."""
+    return case.get("tolerance") or EXACT
+
+
 def grade(case, reply, mesh):
     """The outcome of one run: pass (built for an unsettled case), refused, wrong (with why) or
     crashed."""
@@ -84,12 +127,14 @@ def grade(case, reply, mesh):
             return "wrong", f"triangles not closed ({mesh['unmatched_edges']} edges unmatched)"
         return "built", ""
     from_mesh = reply.get("measured") == "mesh"
-    for key in ("volume", "area"):
-        got, want = reply.get(key), exp[key]["value"]
-        if from_mesh:
-            got = mesh and mesh[key]
-        if not near(got, want, FROM_MESH if from_mesh else EXACT):
-            why.append(f"{key} {got} against {want:.12g}")
+    measures = {k: (mesh and mesh.get(k)) if from_mesh else reply.get(k)
+                for k in ("volume", "area")}
+    why += missed(case, measures, FROM_MESH if from_mesh else tolerance(case), ("volume", "area"))
+    # the centroid and the inertia, the runner's own where it gives them, else its triangles'
+    shape = {k: reply.get(k) if reply.get(k) is not None and not from_mesh else (mesh or {}).get(k)
+             for k in ("centroid", "inertia")}
+    exact = not from_mesh and all(reply.get(k) is not None for k in ("centroid", "inertia"))
+    why += missed(case, shape, tolerance(case) if exact else FROM_MESH, ("centroid", "inertia"))
     if mesh is None:
         why.append("no triangles written")
     else:
@@ -346,8 +391,7 @@ def grade_step(case, measured):
     exp = case["expect"]
     if exp is None:
         return "built", ""
-    why = [f"{key} {measured[key]} against {exp[key]['value']:.12g} (its STEP's)"
-           for key in ("volume", "area") if not near(measured[key], exp[key]["value"], EXACT)]
+    why = missed(case, measured, tolerance(case), whose=" (its STEP's)")
     return ("pass", "") if not why else ("wrong", "; ".join(why))
 
 

@@ -14,7 +14,8 @@ result the same way.
 - **Neutral answers.** Every expected value comes from outside any one kernel, and `exact` says
   where it came from: a closed form, written beside the number, where one is cheap to derive and
   check; otherwise at least two independent kernels, each built from the description alone, that
-  agree to 1e-8 on both measures (the value is their mean). Every result is also checked by the
+  agree to 1e-8 on both measures (the value is their mean); or, for a case whose solid is a
+  reference shape, that file as the harness itself reads it. Every result is also checked by the
   harness itself: its STEP file read and measured, or, for a kernel with no STEP to give, its own
   triangles, watertight, consistently oriented, bounding the expected volume.
 
@@ -59,6 +60,12 @@ z axis.
 is no closed form. It is a TOML literal string (in single quotes), so its backslashes stay as written.
 
 The header may also say where a case came from: `origin = "geomsolver rust/examples/solid_flange.sv"`.
+
+Beside `[volume]` and `[area]`, a header may give the solid's `[centroid]`, its centre of gravity,
+and its `[inertia]`, its inertia tensor about the centroid, of unit density (the products of
+inertia negated, as `harness/mass.py` gives it), each a `value` and an `exact`; they are graded
+like the volume and the area. And it may give its own `tolerance`, in place of the 1e-6 below,
+where its answer cannot be known closer (a reference shape's file, stated to an uncertainty).
 
 The description is Markdown, which the case's page renders (`harness/markdown.py`): paragraphs,
 **bold** and *emphasis*, `code`, lists, tables, links, and math in LaTeX, `$P_{ij}$` in a line and
@@ -157,24 +164,28 @@ What a formula may use, written in LaTeX in the case and shown here in plain sym
 
 ### A reference shape
 
-A case may name a solid instead of describing one: `reference = "benchy.step.gz"` in its header, a
-STEP file (or a triangle mesh) beside the case file, gzipped or not, published under a license that
-lets it be copied and built from, and `reference_mesh = "benchy.stl.gz"`, its triangles (STL), which
-the likeness reads where the reference is not itself a mesh. The solid is the reference's, as it
-lies in the file; the description says where it comes from, how it lies, and how its triangles were
-made. Such a case is about how nearly a kernel's operations come to a shape no closed form gives,
-with how little code: an implementation may take every number it writes from the reference, but
-reads nothing at run time and may not take the reference's faces or triangles in as its own. No
-kernel's solid is the reference, so the case is unsettled (`settled = false`): a closed solid, right
-side out, is **built**.
+A case may name a solid instead of describing one: `reference = "benchy.step.gz"` in its header,
+a STEP file beside the case file, gzipped or not, published under a license that lets it be copied
+and built from, and `reference_mesh = "benchy.stl.gz"`, its triangles, which the likeness below
+reads. The solid is the reference's, as it lies in the file; the description says where it comes
+from, how it lies, and how its triangles were made.
 
-Beside each result the board shows its **likeness** to the reference, and the lines of its
-implementation. The likeness is the volume the result and the reference hold in common over the
-volume either holds, from the triangles the harness keeps of the result and the reference's
-(`harness/likeness.py`): each upright column of a square grid, a five-hundredth of the reference's
-largest extent apart, is inside a solid where the winding number of the faces it crosses is above
-nought, and the volumes are integrated exactly along each column. So a mesh with gaps or doubled
-faces is read as the solid its faces wind round. Neither is graded.
+Its answer is the reference's own measures, as the harness reads the file (`harness/mass.py`):
+its volume, area, centroid and inertia tensor, each written with what a second, independent
+reader of the file makes of it. A pass is the reference itself. Where the file is stated only to
+an uncertainty, so that two careful readings of it disagree, the case's `tolerance` is set above
+their disagreement, and says why. An implementation may take every number it writes from the
+reference, but reads nothing at run time and may not take the reference's faces or triangles in
+as its own.
+
+A result short of the reference is wrong, but the board shows how near it came: its
+**likeness** to the reference, beside the lines of its implementation, neither graded. The
+likeness is the volume the result and the reference hold in common over the volume either holds,
+from the triangles the harness keeps of the result and the reference's (`harness/likeness.py`):
+each upright column of a square grid, a five-hundredth of the reference's largest extent apart,
+is inside a solid where the winding number of the faces it crosses is above nought, and the
+volumes are integrated exactly along each column. So a mesh with gaps or doubled faces is read as
+the solid its faces wind round.
 
 ## An implementation
 
@@ -269,6 +280,9 @@ or, when the implementation refuses or a kernel operation declines:
 The reply's fields:
 
 - **`volume` and `area`** are the kernel's own measures of its exact solid, not of the triangles.
+- **`centroid` and `inertia`**, optional: the kernel's own centre of gravity of its exact solid and
+  inertia tensor about it, of unit density, graded where a case gives them (else the harness takes
+  them from the triangles, to 1e-3).
 - **`faces`** counts faces by surface kind: `plane`, `cylinder`, `cone`, `sphere`, `torus`,
   `bspline` or `other`.
 - **`valid`** is the kernel's own validity check.
@@ -361,7 +375,7 @@ Each case and kernel get one outcome. The outcomes, best first:
 
 | outcome | when |
 |---|---|
-| **pass** | where it wrote STEP: the file holds a closed solid, right side out, and its volume and area, as the harness measures them, are within 1e-6 of the expected values (relative). Where it did not: `volume` and `area` are within 1e-6 of the expected values (1e-3 for a kernel measured from its mesh), **and** the triangles are closed (every edge used exactly twice, once each way) with a volume within 2e-2 of the expected volume |
+| **pass** | where it wrote STEP: the file holds a closed solid, right side out, and its volume and area, as the harness measures them, are within 1e-6 of the expected values (relative), and so are its centroid and inertia where the case gives them. Where it did not: `volume` and `area` are within 1e-6 of the expected values (1e-3 for a kernel measured from its mesh), its centroid and inertia (the runner's own where it gives them, else its triangles', to 1e-3) where the case gives them, **and** the triangles are closed (every edge used exactly twice, once each way) with a volume within 2e-2 of the expected volume. A case's own `tolerance` replaces 1e-6. The centroid is near by its distance over the radius of gyration, √(tr I / 2V); the inertia by its largest difference over its largest term |
 | **refused** | the runner answered `refused` |
 | **wrong** | it answered `ok`, but some condition of a pass fails; the reason is recorded |
 | **crashed** | it exited non-zero, or printed no JSON |
@@ -427,10 +441,11 @@ One entry per kernel:
 
 ## Versions
 
-- **1.17:** a case may name a reference shape, a STEP file or a mesh beside it, in place of a
-  description (`reference`, and `reference_mesh` for its triangles). It is unsettled, its sound results built, and the board shows each result's
-  likeness to the reference (the volume in common over the volume of either) beside its lines.
-  Grading is as in 1.16.
+- **1.17:** a case may give its solid's centroid and inertia tensor, graded beside its volume and
+  area, and its own tolerance. A case may name a reference shape, a STEP file beside it, in place
+  of a description (`reference`, and `reference_mesh` for its triangles): its answer is the file's
+  own measures as the harness reads it, a pass the reference itself, and the board shows each
+  result's likeness to it (the volume in common over the volume of either) beside its lines.
 - **1.16:** a kernel that writes STEP is graded on its STEP file and timed on its shortest path
   to it. Given `OUT.step`, the runner builds the solid and writes it as STEP, and measures and
   meshes nothing; the harness measures the file's solid itself, untimed, and grades its volume and
