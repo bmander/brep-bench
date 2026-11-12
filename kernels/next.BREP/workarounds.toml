@@ -3,4 +3,3 @@
 
 "fillet/conic-edge" = "no conic blend"
 "sweep/round-cornered-pipe" = "no sweep with a round corner"
-"swept/ellipsoid-pushed-aslant-through-plate" = "no sweep of an ellipsoid"
