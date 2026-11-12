@@ -10,7 +10,7 @@
 //! each a block cut down to the reference's own planes (the walls leaning 1.5°, 4.5° and 3.2°,
 //! the roof 5.5°, the box 5°); the doors, the windows, the chimney, the rod holder, the drain and
 //! the hawse pipes are cylinders on the reference's own axes.
-use crate::bench::{block, common, cut, cut_each, cylinder, extrude, extrude_symmetric, p3, union, union_each, v3, P3, V3};
+use crate::bench::{block, common, cone, cut, cut_each, cylinder, extrude, extrude_symmetric, p3, union, union_each, v3, P3, V3};
 use crate::shared::geometry::Section;
 use crate::Refusal;
 use cadrs_kernel::{
@@ -219,15 +219,23 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let cargo = convex(
         k,
         &[[-C5, 0., -S5, 16.7295], [0., C5, -S5, 4.7752], [0., -C5, -S5, 4.7752], [0., 0., 1., 15.5],
-          [0., 0., -1., -8.], [1., 0., 0., -6.]],
+          [0., 0., -1., -8.], [1., 0., 0., -6.], [-1., 0., 0., 17.9984], [0., 1., 0., 5.9984], [0., -1., 0., 5.9984]],
     )?;
     let rod = cylinder(k, p3(-29.939, 0., 22.073), v3(0.28046, 0., -0.95987), 1.75, 20.)?;
     let slab = convex(k, &[[0., 0., 1., 12.87], [0., 0., -1., -8.]])?;
     let rod = common(k, rod, slab)?;
     let up: V3 = v3(0., 0., 1.);
-    let stack = [house, roof, cargo, rod, cylinder(k, p3(-4., 0., 36.), up, 3., 9.3)?,
-                 cylinder(k, p3(-4., 0., 45.3), up, 3.5, 2.7)?];
-    let mut stack = stack.to_vec();
+    // The chimney: a cone widening 2° upward from r 2.75 at z 37, under a lip from z 45 to 48
+    // rounded 0.3 at its rims.
+    let flare = (2f64).to_radians().tan();
+    let chimney = cone(k, p3(-4., 0., 36.), up, 2.75 - flare, 2.75 + 8. * flare, 9.)?;
+    let lip = cylinder(k, p3(-4., 0., 45.), up, 3.5, 3.)?;
+    let rims: Vec<_> = k.edges(lip)?.into_iter().filter(|e| e.circle.is_some()).map(|e| e.id).collect();
+    let lip = k.fillet(lip, &rims, 0.3)?.first()?;
+    // The back window's frame: r 6, 0.3 proud of the wall.
+    let back = v3(C15, 0., S15);
+    let ring = cylinder(k, p3(-0.718, 0., 27.419) - back * 7.0751, back, 6., 0.5)?;
+    let mut stack = vec![house, roof, cargo, rod, chimney, lip, ring];
     for s in [1., -1.] {
         // A door's frame: 1.5 round the doorway, 0.3 proud of the wall.
         let slab = [[-0.05545, 0.99812 * s, -0.02618, 7.4525], [0.05545, -0.99812 * s, 0.02618, -6.9]];
