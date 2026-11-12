@@ -37,3 +37,9 @@ pub fn offset_faces(
     let moved: Vec<_> = faces.iter().map(|&f| (f, distance)).collect();
     Ok(k.offset(body, &OffsetSpec::of_faces(&moved).mitred())?.first()?)
 }
+
+/// `body` with `faces` deleted (cadrs's Delete face, healing): the faces round them run on to
+/// close the gap.
+pub fn deleted(k: &mut DefaultKernel, body: BodyId, faces: &[FaceId]) -> Result<BodyId, Refusal> {
+    Ok(k.delete_faces(body, faces)?.first()?)
+}

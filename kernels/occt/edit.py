@@ -1,22 +1,26 @@
-"""What the OCCT implementations of the edit cases share: moving or offsetting a solid's faces.
+"""What the OCCT implementations of the edit cases share: moving, offsetting or deleting a solid's
+faces.
 
 Moving faces is BRepOffset_MakeOffset with no offset for the solid as a whole and an offset for
 each face to move (SetOffsetOnFace). Each moves along its outward normal, and the faces beside it
 are extended or trimmed to meet it (joined by intersection, so no edge is rounded). A plane moved
 along its normal is the plane translated, and a cylinder offset is the cylinder about the same
-axis with its radius changed. Deleting faces, which a workaround needs, is
-BRepAlgoAPI_Defeaturing: it removes them and heals the solid by extending the faces round them,
-along their own surfaces, until they close the gap.
+axis with its radius changed. Deleting faces is BRepAlgoAPI_Defeaturing: it removes them and heals
+the solid by extending the faces round them, along their own surfaces, until they close the gap.
 """
+import math
+
 from OCP.BRep import BRep_Tool
-from OCP.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Defeaturing
+from OCP.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Defeaturing, BRepAlgoAPI_Fuse
+from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeFace, BRepBuilderAPI_MakePolygon
 from OCP.BRepOffset import BRepOffset_MakeOffset, BRepOffset_Skin
-from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeCylinder
+from OCP.BRepPrimAPI import (BRepPrimAPI_MakeBox, BRepPrimAPI_MakeCone, BRepPrimAPI_MakeCylinder,
+                             BRepPrimAPI_MakePrism)
 from OCP.GeomAbs import GeomAbs_Intersection
 from OCP.TopAbs import TopAbs_EDGE
 from OCP.TopExp import TopExp, TopExp_Explorer
 from OCP.TopoDS import TopoDS
-from OCP.gp import gp_Ax2, gp_Dir, gp_Pnt
+from OCP.gp import gp_Ax2, gp_Dir, gp_Pnt, gp_Vec
 
 from bench import Refused
 
@@ -77,3 +81,55 @@ def straight_edges(solid, on):
             found.append(edge)
         edges.Next()
     return found
+
+
+def cylinder(base, radius, height):
+    """The cylinder of `radius` about the vertical line through `base`, from `base` up `height`."""
+    return BRepPrimAPI_MakeCylinder(gp_Ax2(gp_Pnt(*base), gp_Dir(0, 0, 1)), radius, height).Shape()
+
+
+def frustum(base, radius, top_radius, height):
+    """The cone frustum about the vertical line through `base`, from `radius` there to
+    `top_radius` at `height` above it."""
+    axes = gp_Ax2(gp_Pnt(*base), gp_Dir(0, 0, 1))
+    return BRepPrimAPI_MakeCone(axes, radius, top_radius, height).Shape()
+
+
+def extruded(corners, vector):
+    """The polygon through `corners`, extruded along `vector`."""
+    polygon = BRepBuilderAPI_MakePolygon()
+    for corner in corners:
+        polygon.Add(gp_Pnt(*corner))
+    polygon.Close()
+    face = BRepBuilderAPI_MakeFace(polygon.Wire(), True).Face()
+    return BRepPrimAPI_MakePrism(face, gp_Vec(*vector)).Shape()
+
+
+def united(a, b):
+    """`a` and `b` united."""
+    union = BRepAlgoAPI_Fuse(a, b)
+    if not union.IsDone():
+        raise Refused("BRepAlgoAPI_Fuse could not unite the two solids")
+    return union.Shape()
+
+
+def less(a, b):
+    """`a` with `b` cut away."""
+    cut = BRepAlgoAPI_Cut(a, b)
+    if not cut.IsDone():
+        raise Refused("BRepAlgoAPI_Cut could not cut the solid")
+    return cut.Shape()
+
+
+def middle_at(point):
+    """A test of an edge's middle point, for blend.edges_where: whether it is `point`."""
+    return lambda middle: middle.Distance(gp_Pnt(*point)) < TOLERANCE
+
+
+def on_circle(center, radius):
+    """A test of a point, for blend.edges_where: whether it is on the horizontal circle of `radius`
+    about `center`."""
+    def test(q):
+        from_axis = math.hypot(q.X() - center[0], q.Y() - center[1])
+        return abs(q.Z() - center[2]) < TOLERANCE and abs(from_axis - radius) < TOLERANCE
+    return test
