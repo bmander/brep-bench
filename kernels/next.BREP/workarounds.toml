@@ -2,4 +2,3 @@
 # (SPEC.md, "A workaround is flagged").
 
 "fillet/conic-edge" = "no conic blend"
-"sweep/round-cornered-pipe" = "no sweep with a round corner"
