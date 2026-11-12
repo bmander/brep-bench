@@ -28,6 +28,7 @@ from decimal import ROUND_HALF_UP, Decimal
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import step  # noqa: E402
 from highlight import highlight, loc  # noqa: E402
+import likeness  # noqa: E402
 import markdown  # noqa: E402
 from run import FROM_MESH, keep_file  # noqa: E402
 from suite import ROOT, cases as read_cases, kernels as read_kernels, source  # noqa: E402
@@ -323,6 +324,12 @@ def relative(got, want):
     return f"{abs(got - want) / max(abs(want), 1e-12):.1e}"
 
 
+def stl_tris(path):
+    """The triangles of a kept STL file (harness/stl.py)."""
+    from stl import read
+    return read(path)
+
+
 def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
     """`prev` and `after`: the cases before and after this one in its category, or None; `v`
     the version the board's scripts are addressed with (`web`'s)."""
@@ -349,7 +356,18 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
     description = markdown.render(c["description"])
     out.append(f"<div class=description>{description}</div>")
     exp = c["expect"]
-    if exp is None:
+    # a reference shape (SPEC.md): each result's likeness to it, shown beside its lines
+    ref_path = likeness.reference(c)
+    ref = likeness.triangles(ref_path) if ref_path else None
+    if ref is not None:
+        out.append("<p><strong>A reference shape.</strong> This case's solid is the one the "
+                   f"triangles of <a href='{REPO}/blob/main/cases/{e(category)}/"
+                   f"{e(os.path.basename(ref_path))}'>{e(os.path.basename(ref_path))}</a> bound, "
+                   "and no kernel's solid is it: <em>built</em> means a watertight, consistently "
+                   "oriented solid. Beside each is its <em>likeness</em>, the volume it holds in "
+                   "common with the reference over the volume either holds (1 for the same "
+                   "solid), and its lines of code: as like as it can be, in as few as it can.</p>")
+    elif exp is None:
         out.append("<p><strong>Unsettled.</strong> This solid has no closed form, and no two kernels "
                    "yet agree on it to 1e-8, so it has no answer to grade against. Below is what each "
                    "kernel builds: <em>built</em> means a watertight, consistently oriented solid, "
@@ -420,7 +438,9 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
                         "label": "–" if o == "missing" else
                                  o + (" †" if wa else "") + (" ✦" if neat else "")
                                  + (" ▦" if facets is not None else ""),
-                        "measures": measures(row)})
+                        "measures": measures(row),
+                        "likeness": likeness.likeness(stl_tris(stl), ref)["iou"]
+                                    if ref is not None and href else None})
     # which other results each agrees with
     for en in entries:
         en["friends"] = [o["name"] for o in entries if o is not en
@@ -464,6 +484,11 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
             ("<th scope=row title='lines of code, comments and blank lines left out'>LOC</th>",
              "td", None, lambda en: "" if en["loc"] is None else str(en["loc"]), None),
         ]
+        if ref is not None:
+            rows.insert(2, ("<th scope=row title='the volume in common with the reference over "
+                            "the volume either holds'>likeness</th>", "td", None,
+                            lambda en: "" if en["likeness"] is None else f"{en['likeness']:.4f}",
+                            None))
         out.append(f"<div class=scroll><table class=entries data-sort=columns "
                    f"data-default='{e(shown['name'])}'>")
         def key(en, field):

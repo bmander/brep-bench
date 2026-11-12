@@ -1,4 +1,4 @@
-# brep-bench specification, version 1.16
+# brep-bench specification, version 1.17
 
 brep-bench works like Rosetta Code. Each **case** describes a solid in plain words and gives its
 volume and area as closed forms. Each **kernel** has its own **implementation** of each case,
@@ -154,6 +154,25 @@ What a formula may use, written in LaTeX in the case and shown here in plain sym
   `⋃ M_t T` over t in an interval is everything T passes through as it moves.
 - A letter may stand for a set or a line the description has named (K the solid started from, A
   and B two axes), given after the formula or left to the words where they are plain.
+
+### A reference shape
+
+A case may name a solid instead of describing one: `reference = "benchy.stl.gz"` in its header,
+a triangle mesh beside the case file (STL, gzipped or not), published under a license that lets
+it be copied and built from. The solid is the one the mesh's faces wind round, as it lies in the
+file; the description says where it comes from and how it lies. Such a case is about how nearly a
+kernel's operations come to a shape no closed form gives, with how little code: an
+implementation may take every number it writes from the reference, but reads nothing at run time
+and may not take the reference's triangles in as faces. No kernel's solid is the reference, so
+the case is unsettled (`settled = false`): a closed solid, right side out, is **built**.
+
+Beside each result the board shows its **likeness** to the reference, and the lines of its
+implementation. The likeness is the volume the result and the reference hold in common over the
+volume either holds, from the triangles the harness keeps of the result (`harness/likeness.py`):
+each upright column of a square grid, a five-hundredth of the reference's largest extent apart,
+is inside a solid where the winding number of the faces it crosses is above nought, and the
+volumes are integrated exactly along each column. So a mesh with gaps or doubled faces is read as
+the solid its faces wind round. Neither is graded.
 
 ## An implementation
 
@@ -406,6 +425,10 @@ One entry per kernel:
 
 ## Versions
 
+- **1.17:** a case may name a reference shape, a mesh beside it, in place of a description
+  (`reference`). It is unsettled, its sound results built, and the board shows each result's
+  likeness to the reference (the volume in common over the volume of either) beside its lines.
+  Grading is as in 1.16.
 - **1.16:** a kernel that writes STEP is graded on its STEP file and timed on its shortest path
   to it. Given `OUT.step`, the runner builds the solid and writes it as STEP, and measures and
   meshes nothing; the harness measures the file's solid itself, untimed, and grades its volume and

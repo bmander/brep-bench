@@ -272,3 +272,11 @@ leaving bulwarks; a hollow wheelhouse standing on the deck with arched doors, a 
 round rear window, under a sloping roof that overhangs it; a chimney rising from the roof with a
 blind bore; an open cargo box; a rod holder leaning 30° with its ends cut level; and hawse holes
 through the curved bow. It has no closed form; OCCT and cad-kernel agree on it to 7e-10.
+
+The third is the canonical #3DBenchy itself, the single-part model its designers publish, now in
+the public domain (CC0). It is a reference shape, not a description: the solid is the mesh beside
+the case, and each kernel builds it as nearly as it can, in as few lines as it can. The board shows
+each result's likeness to it (the volume in common over the volume of either) beside its lines of
+code. Open CASCADE comes to 0.84 in 76 lines: its hull a ruled loft through seven plans, kept below
+the side profile, its deck well the same loft moved in by the wall, and the rest boxes and
+cylinders.
