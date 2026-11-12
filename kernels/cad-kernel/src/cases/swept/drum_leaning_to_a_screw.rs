@@ -3,9 +3,12 @@
 //! (10, 0, 0) and whose axis runs along (0, sin 25°, cos 25°) — screwed about z, right-handed and
 //! rising 1 a turn, from a turn of −140° to +140°.
 //!
-//! Refused by the kernel: its closed sweep (`swept::closed`) takes under a screw a cylinder only
-//! about an axis along the screw's, and this drum's leans 25° to it (`Unbuilt::Curved`: its contact
-//! curves screwed are curved past what the candidates hold).
+//! Through the kernel's closed sweep (`swept::closed::cut_from`): it takes under a screw a cylinder
+//! only about an axis along the screw's and refuses this drum, leaning 25° to it, as
+//! `Unbuilt::Curved`; a tool it refuses so under a constant twist goes the contact's road
+//! (geomsolver #880 Q1b) — each face's contact and each stretch of a rim's fan carried over the
+//! roll, the tool at the roll's two ends, every meeting of those given, trimmed by membership,
+//! judged, and cut from the sector.
 use crate::sketch::polygon;
 use cad_kernel::build::{disc, prism, revolve};
 use cad_kernel::geom::{tolerance, V};
