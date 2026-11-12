@@ -20,6 +20,7 @@ use std::collections::BTreeMap;
 mod sketch;
 mod tumble;
 mod gears;
+mod cnc;
 
 /// Every case file, found by `build.rs`.
 mod cases {
