@@ -9,7 +9,7 @@ publish = false
 # next.BREP's kernel (https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL), as published on
 # crates.io: the package is `BREP_kernel`, the library `brep_kernel`.
 [dependencies]
-brep_kernel = { package = "BREP_kernel", version = "=0.16.0" }
+brep_kernel = { package = "BREP_kernel", version = "=0.17.0" }
 serde_json = "1"
 
 [profile.release]
