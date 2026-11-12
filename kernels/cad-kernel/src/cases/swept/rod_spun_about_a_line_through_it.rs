@@ -1,11 +1,13 @@
 //! The solid a rod fills turned 120° about the z axis, which crosses it: the solid cylinder of
 //! radius 0.5 about the x axis from x = −3 to 5.
 //!
-//! Refused by the kernel (`Unbuilt::Curved` at the centre of the rod's end at x = −3): under a turn
-//! a sharp circle leaning to the axis is turned into its ring, and the rod's end rims, square to a
-//! radius, have their normal in the plane through the turn's axis and their centre, which turns
-//! into no ring the kernel reads (`turned::Rim::simple`); and the turn's axis crosses the rod's
-//! within its side, where it would refuse the cylinder's contact too.
+//! The kernel's closed sweep (`swept::closed::closed`) takes the rod whole: its closed class
+//! refuses it (`Unbuilt::Curved`: the turn's axis crosses the rod within its side), and since
+//! 0.10.0 such a tool goes the contact's road under a turn — each sheet on the surface of
+//! revolution of its section's meridian, the side's top and bottom lines turned into sectors of
+//! planes that close at a pole on the axis and the end rims' fans into balls, what bends inward
+//! (the end discs' lines, the middle ring) buried and left out, trimmed by membership in the sweep
+//! between the end poses.
 use cad_kernel::build::{disc, prism};
 use cad_kernel::geom::tolerance;
 use cad_kernel::swept::closed::closed;

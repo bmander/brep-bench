@@ -3,13 +3,13 @@
 //! the octahedron shrunk by 2 and grown by 2.
 //!
 //! Built as that composition, the case's own definition, by cad-kernel's offsets. Rounding the
-//! edges one at a time with `fillet::roll` is refused by the kernel: the first edge is rolled and
-//! taken off (its run cut off at each end by the corner's other two faces), but the second, which
-//! shares a corner with it, is not — "the fillet of `face 2` with `face 3` runs out onto `face 8`
-//! (bspline), which cuts nothing off yet": a run ends only on faces that cut it off, planes and the
-//! solids of cylinders, cones and spheres, and the first round is a fitted canal. Nor could the
-//! corner be closed by the kernel once the runs were rolled: `fillet::corner_among`, the ball's
-//! patch where rounds meet, stands between three faces, and four meet here.
+//! edges one at a time with `fillet::roll` is refused by the kernel: two of the four edges at a
+//! corner are rolled and taken off, one after the other, but the third there is not — "the fillet
+//! of `face 0` with `face 5` runs on smoothly into `face 8`, but its contact crosses their seam in
+//! another section than its edge does (7.07e-1 off it there): no one section joins the run to the
+//! piece going on". Nor could the corner be closed by the kernel once the runs were rolled:
+//! `fillet::corner_among`, the ball's patch where rounds meet, stands between three faces, and four
+//! meet here.
 use cad_kernel::build::hull;
 use cad_kernel::offset::{grown, shrunk, Join};
 use cad_kernel::topo::Brep;

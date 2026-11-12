@@ -2,9 +2,11 @@
 //! the x axis, its point (4, 0, 0), opening at 60° to a flat base at x = 12 — screwed about z,
 //! right-handed and rising 6 a turn, from a turn of −90° to 1350°.
 //!
-//! Refused by the kernel: its closed sweep (`swept::closed`) takes under a screw a cone only about
-//! an axis along the screw's, and this one stands square to it (`Unbuilt::Curved`: its contact
-//! screwed is curved past what the candidates hold).
+//! The kernel's closed sweep (`swept::closed::cut_from`) takes the cone whole: its closed class
+//! refuses a cone about an axis square to the screw's (`Unbuilt::Curved`), and since 0.10.0 the
+//! contact's road takes a screw past the axis — the cone's contact, run on to its point, and its
+//! base rim's fan carried over the four turns as sheets, given their meetings and the end poses,
+//! trimmed by membership in the sweep, and the result cut from the rod.
 use cad_kernel::build::{cone, disc, prism};
 use cad_kernel::geom::{tolerance, V};
 use cad_kernel::swept::closed::cut_from;
@@ -21,8 +23,9 @@ const HALF_ANGLE: f64 = 30.;
 const RISE: f64 = 6.;
 const FROM: f64 = -90.;
 const TO: f64 = 1350.;
-/// How closely the cone is meshed for the sweep's membership reads.
-const BAR: f64 = 0.002;
+/// How closely the cone is meshed for the sweep's membership reads: at 0.002 the kernel writes the
+/// same STEP file, byte for byte, and takes over half as long again.
+const BAR: f64 = 0.01;
 
 pub fn build() -> Result<Brep, String> {
     let up = [0., 0., 1.];

@@ -2,9 +2,11 @@
 //! right-handed, by 120°: the axis passes through the ball, so the tube about its centre's arc is a
 //! piece of a spindle torus.
 //!
-//! Refused by the kernel: under a turn its closed sweep takes a ball whose great circle through the
-//! axis turns into a ring torus, and refuses a ball reaching across the axis (`Unbuilt::Curved`),
-//! whose torus would be a spindle.
+//! The kernel's closed sweep (`swept::closed::closed`) takes the ball whole: its closed class
+//! refuses a ball reaching across the axis (`Unbuilt::Curved`), and since 0.10.0 such a tool goes
+//! the contact's road under a turn — the ball's contact, its great circle in the plane through the
+//! axis and its centre, cut where it crosses the axis, the arc beyond it buried and the rest turned
+//! into one spindle torus closing at the axis at both ends, between the ball's two end poses.
 use cad_kernel::build::sphere;
 use cad_kernel::geom::{tolerance, V};
 use cad_kernel::swept::closed::closed;

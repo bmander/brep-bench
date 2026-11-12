@@ -2,9 +2,12 @@
 //! y = 0 to 0.5, its faces flat — as it turns rigidly about the z axis, right-handed, by 90°. Its
 //! rim in the plane y = 0 passes through the origin, on the axis.
 //!
-//! Refused by the kernel: under a turn its closed sweep takes a sharp circle leaning to the axis
-//! only clear of it, and refuses one through the axis (`Unbuilt::Curved`), whose ring closes on
-//! the axis.
+//! The kernel's closed sweep (`swept::closed::closed`) takes the disc whole: its closed class
+//! refuses a sharp circle through the turn's axis (`Unbuilt::Curved`), and since 0.10.0 such a tool
+//! goes the contact's road under a turn — the rim through the axis, in its side's contact all
+//! round, cut where it touches the axis, its far half (which moves into the disc) buried and the
+//! rest turned into one horn torus closing at the axis; the other rim's fan on a surface of
+//! revolution, and the side's top and bottom lines turned into sectors of planes.
 use cad_kernel::build::{disc, prism};
 use cad_kernel::geom::{tolerance, V};
 use cad_kernel::swept::closed::closed;

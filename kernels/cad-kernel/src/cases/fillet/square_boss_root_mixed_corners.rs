@@ -4,12 +4,11 @@
 //! of a torus's tube about each upright round's axis. Its top left sharp.
 //!
 //! Refused, by the kernel, at the second step: the four upright rounds are rolled and taken off,
-//! but the root's first stretch, along the side y = 7, is not — "the ball of `face 5` with
-//! `face 6` is larger than `face 5` can hold". That side now ends at x = 15 and 25 in the seams
-//! where it goes on tangent into the upright rounds, and the ball's band on it crosses both.
-//! `fillet::roll_across` lets a ball cross a seam within a wedge another piece takes, but its
-//! wedge is one region (every plane's side), and a stretch between two seams needs one at each
-//! end.
+//! but the root's first stretch, along the side y = 7, is not. That side now ends at x = 15 and 25
+//! in the seams where it goes on tangent into the upright rounds, and there 0.10.0 refuses the run:
+//! "the fillet of `face 5` with `face 6` runs on smoothly into `face 12`, but its contact crosses
+//! their seam in another section than its edge does (2.00e0 off it there): no one section joins the
+//! run to the piece going on".
 use crate::sketch::{block, named};
 use cad_kernel::boolean::{combined, Op};
 use cad_kernel::fillet::roll;
