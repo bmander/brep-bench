@@ -29,11 +29,22 @@ from suite import ROOT, cases, kernels, source  # noqa: E402
 SPACING = 1 / 500
 
 
+def header(case):
+    with open(case["path"], encoding="utf-8") as f:
+        return tomllib.loads(f.read().split("+++", 2)[1])
+
+
 def reference(case):
     """The path of the reference solid `case` (a case of `suite.cases`) names, or None."""
-    with open(case["path"], encoding="utf-8") as f:
-        meta = tomllib.loads(f.read().split("+++", 2)[1])
-    ref = meta.get("reference")
+    ref = header(case).get("reference")
+    return os.path.join(os.path.dirname(case["path"]), ref) if ref else None
+
+
+def reference_mesh(case):
+    """The path of the triangles of `case`'s reference the likeness reads: its `reference_mesh`,
+    or the reference itself where that is a mesh; None where it names no reference."""
+    meta = header(case)
+    ref = meta.get("reference_mesh", meta.get("reference"))
     return os.path.join(os.path.dirname(case["path"]), ref) if ref else None
 
 
@@ -123,10 +134,10 @@ def main(argv):
         print(__doc__.split("\n\n")[1])
         return 2
     case = next((c for c in cases(argv[0]) if c["id"] == argv[0]), None)
-    if case is None or reference(case) is None:
+    if case is None or reference_mesh(case) is None:
         print(f"{argv[0]}: no such case, or it names no reference", file=sys.stderr)
         return 2
-    ref = triangles(reference(case))
+    ref = triangles(reference_mesh(case))
     if argv[1] == "--kernel":
         from highlight import loc
         k = next(k for k in kernels() if k["name"] == argv[2])

@@ -357,12 +357,12 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
     out.append(f"<div class=description>{description}</div>")
     exp = c["expect"]
     # a reference shape (SPEC.md): each result's likeness to it, shown beside its lines
-    ref_path = likeness.reference(c)
-    ref = likeness.triangles(ref_path) if ref_path else None
+    ref_path, mesh_path = likeness.reference(c), likeness.reference_mesh(c)
+    ref = likeness.triangles(mesh_path) if mesh_path else None
     if ref is not None:
-        out.append("<p><strong>A reference shape.</strong> This case's solid is the one the "
-                   f"triangles of <a href='{REPO}/blob/main/cases/{e(category)}/"
-                   f"{e(os.path.basename(ref_path))}'>{e(os.path.basename(ref_path))}</a> bound, "
+        out.append("<p><strong>A reference shape.</strong> This case's solid is the one in "
+                   f"<a href='{REPO}/blob/main/cases/{e(category)}/"
+                   f"{e(os.path.basename(ref_path))}'>{e(os.path.basename(ref_path))}</a>, "
                    "and no kernel's solid is it: <em>built</em> means a watertight, consistently "
                    "oriented solid. Beside each is its <em>likeness</em>, the volume it holds in "
                    "common with the reference over the volume either holds (1 for the same "

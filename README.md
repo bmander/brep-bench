@@ -18,8 +18,8 @@ shared yardstick: hard cases whose answers no single kernel chose, and every ker
 Over 300 cases, from textbook primitives, Booleans, sweeps and fillets to tangent contact,
 self-intersecting curves, chamfers, splines, NURBS, quadrics and pinched tori, solid sweeps, lofts,
 offsets, thickened sheets, shells, drafts, form features, singular points, direct edits, filled
-surfaces, real parts and integration tests: the Utah teapot, a tugboat test print, and the
-canonical #3DBenchy as a reference shape to come as near to as possible ([a tour](docs/cases.md)).
+surfaces, real parts and integration tests: the Utah teapot, and #3DBenchy as a reference shape
+to come as near to as possible ([a tour](docs/cases.md)).
 
 A runner builds the case and writes the solid as STEP with its kernel's own writer, and is timed
 on that alone: a kernel's product is a B-rep, not a mesh. The harness then measures the file's solid

@@ -157,22 +157,24 @@ What a formula may use, written in LaTeX in the case and shown here in plain sym
 
 ### A reference shape
 
-A case may name a solid instead of describing one: `reference = "benchy.stl.gz"` in its header,
-a triangle mesh beside the case file (STL, gzipped or not), published under a license that lets
-it be copied and built from. The solid is the one the mesh's faces wind round, as it lies in the
-file; the description says where it comes from and how it lies. Such a case is about how nearly a
-kernel's operations come to a shape no closed form gives, with how little code: an
-implementation may take every number it writes from the reference, but reads nothing at run time
-and may not take the reference's triangles in as faces. No kernel's solid is the reference, so
-the case is unsettled (`settled = false`): a closed solid, right side out, is **built**.
+A case may name a solid instead of describing one: `reference = "benchy.step.gz"` in its header, a
+STEP file (or a triangle mesh) beside the case file, gzipped or not, published under a license that
+lets it be copied and built from, and `reference_mesh = "benchy.stl.gz"`, its triangles (STL), which
+the likeness reads where the reference is not itself a mesh. The solid is the reference's, as it
+lies in the file; the description says where it comes from, how it lies, and how its triangles were
+made. Such a case is about how nearly a kernel's operations come to a shape no closed form gives,
+with how little code: an implementation may take every number it writes from the reference, but
+reads nothing at run time and may not take the reference's faces or triangles in as its own. No
+kernel's solid is the reference, so the case is unsettled (`settled = false`): a closed solid, right
+side out, is **built**.
 
 Beside each result the board shows its **likeness** to the reference, and the lines of its
 implementation. The likeness is the volume the result and the reference hold in common over the
-volume either holds, from the triangles the harness keeps of the result (`harness/likeness.py`):
-each upright column of a square grid, a five-hundredth of the reference's largest extent apart,
-is inside a solid where the winding number of the faces it crosses is above nought, and the
-volumes are integrated exactly along each column. So a mesh with gaps or doubled faces is read as
-the solid its faces wind round. Neither is graded.
+volume either holds, from the triangles the harness keeps of the result and the reference's
+(`harness/likeness.py`): each upright column of a square grid, a five-hundredth of the reference's
+largest extent apart, is inside a solid where the winding number of the faces it crosses is above
+nought, and the volumes are integrated exactly along each column. So a mesh with gaps or doubled
+faces is read as the solid its faces wind round. Neither is graded.
 
 ## An implementation
 
@@ -425,8 +427,8 @@ One entry per kernel:
 
 ## Versions
 
-- **1.17:** a case may name a reference shape, a mesh beside it, in place of a description
-  (`reference`). It is unsettled, its sound results built, and the board shows each result's
+- **1.17:** a case may name a reference shape, a STEP file or a mesh beside it, in place of a
+  description (`reference`, and `reference_mesh` for its triangles). It is unsettled, its sound results built, and the board shows each result's
   likeness to the reference (the volume in common over the volume of either) beside its lines.
   Grading is as in 1.16.
 - **1.16:** a kernel that writes STEP is graded on its STEP file and timed on its shortest path
