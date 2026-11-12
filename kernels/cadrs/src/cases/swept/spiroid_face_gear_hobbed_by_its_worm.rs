@@ -11,10 +11,9 @@
 //! the axis), a turn past each end, cut to its ends and placed. Then cadrs's cut by a moving
 //! tool under the two turns (`Kernel::cut_swept`).
 //!
-//! Refused where that cut is made only as a mesh: across this ring a patch of the thread's
-//! second flank's envelope comes out from under the path of its crest's edge partway along the
-//! tooth, and cadrs's generated cut does not yet follow a tooth space whose faces change in
-//! number along it.
+//! Across this ring a patch of the thread's second flank's envelope comes out from under the
+//! path of its crest's edge partway along the tooth: toward the ring's outside a tooth space
+//! has that fifth face, and cadrs makes the space in two stretches (nine faces a space).
 use crate::bench::{moved, p3, revolve, turned, v3, P3};
 use crate::shared::swept::{cut_swept_exactly, z_axis};
 use crate::Refusal;
