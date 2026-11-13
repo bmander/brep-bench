@@ -103,9 +103,11 @@ export async function load() {
           measured: false };
     const timeFloor = r.places.map((p, i) => (r.own?.[i] != null ? FINE_TIME_FLOOR
       : start.measured && 10 ** -p <= TIME_FLOOR ? TIME_FLOOR : COARSE_TIME_FLOOR));
-    // the kernel's own: as timed between its runner's pauses (its warm start) where it paused,
-    // else the run's less the start-up
-    const less = (list, by, own) => list.map((x, i) => (own?.[i] != null ? own[i]
+    // the kernel's own: as timed between its runner's pauses (its warm start) where it paused.
+    // Results from before the harness timed pauses take the run's less the start-up; for a
+    // kernel that does pause, a run that did not (it failed before it had loaded) has no own
+    // time, rather than a difference that can come to nothing
+    const less = (list, by, own) => list.map((x, i) => (own ? own[i] ?? null
       : x == null ? null : Math.max(0, x - (by || 0))));
     const built = less(seconds, start.seconds, r.own);
     const builtCpu = less(cpu, start.cpu, r.ownCpu);
