@@ -3,9 +3,8 @@
 //! a u + b v, u = (1, 0, 0), v = (0, cos 20°, −sin 20°), carried 4 each way along its normal
 //! n = (0, sin 20°, cos 20°), its four sides drafted 2° inward both ways from that plane.
 //!
-//! Refused by the kernel: the closed sweep's arrangement fails to meet an edge with one of its
-//! turned candidates (`Unbuilt::Failed`: where a line meets a surface of revolution was not proved,
-//! the search reading more boxes than any may).
+//! Built by the kernel's closed sweep cut from the sector (`swept::closed::cut_from`), whose
+//! arrangement meets the bar's edges with its turned candidates, surfaces of revolution.
 use crate::sketch::polygon;
 use cad_kernel::build::{drafted, revolve};
 use cad_kernel::geom::{tolerance, V};

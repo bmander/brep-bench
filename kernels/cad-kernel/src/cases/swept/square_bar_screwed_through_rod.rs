@@ -2,9 +2,9 @@
 //! the bar 4 ≤ x ≤ 12, −8 ≤ y ≤ 8, −1 ≤ z ≤ 1 screwed about z — right-handed, rising 6 a turn —
 //! from a turn of −90° to 1350°.
 //!
-//! Refused by the kernel. `cut_from` takes the bar (its edges run along the screw's axis or square
-//! to it), but over these four turns its arrangement fails (`Unbuilt::Failed`: "a cylinder's pieces
-//! do not close"); stopped after two turns (`square-bar-screwed-partway-up-rod`) it builds.
+//! Built by the kernel's closed sweep cut from the rod: `cut_from` takes the bar (its edges run
+//! along the screw's axis or square to it) over all four turns, as it does stopped after two
+//! (`square-bar-screwed-partway-up-rod`).
 use crate::sketch::block;
 use cad_kernel::build::{disc, prism};
 use cad_kernel::geom::tolerance;
