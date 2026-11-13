@@ -5,7 +5,7 @@
 // kernel uses many cores.  One row of filters above scopes them all, and is kept in the address.
 // Kernels keep kernels.json's order: the board ranks nothing.
 import { load, esc, casePage, kernelPage, failed, secondsText, megabytesText, solved, quantile,
-         option, placeTip, PARALLEL_FROM, FINE_TIME_FLOOR } from './board.js';
+         option, placeTip, PARALLEL_FROM, FINE_TIME_FLOOR, GROUPS, groupOf } from './board.js';
 import { sortable } from './sort.js';
 
 const main = document.getElementById('performance');
@@ -158,10 +158,9 @@ function start(b) {
         middle half of the cases each kernel passes or builds, with their median across it, and
         its whiskers reach the furthest of those within 1.5 times the box's width. Point at a dot
         for its case, or open it.</p>
-      <p class=legend><span class=key><span class='pass dot'></span>
-        passed or built</span><span class=key><span class=dot style='background:var(--muted)'>
-        </span>refused, wrong, crashed or timed out</span><span class=key><span class=tick></span>
-        median of the passed or built</span></p>
+      <p class=legend>${GROUPS.filter((g) => g.key !== 'missing').map((g) =>
+        `<span class=key><span class='${g.key} dot'></span>${esc(g.label)}</span>`).join('')}<span
+        class=key><span class=tick></span>median of the passed or built</span></p>
       <div class=perf-strip></div>
       ${summary(rows, m)}
       ${unmeasured.length ? `<p class=muted>Not measured: ${unmeasured.map((k) => esc(k.name))
@@ -331,7 +330,8 @@ function strip(b, rows, m, holder, tip) {
       const v = k[m.key][i];
       const dot = { k, i, v, cx: x(v), cy: mid + jitter(i) * (rowHeight / 2 - 7) };
       dots.push(dot);
-      out.push(`<circle class='${solved(k.outcomes[i]) ? 'solved' : 'other'}' cx=${dot.cx.toFixed(1)}
+      // coloured by outcome, as the overview's grid is
+      out.push(`<circle class='${groupOf(k.outcomes[i])}' cx=${dot.cx.toFixed(1)}
         cy=${dot.cy.toFixed(1)} r=4 />`);
     }
     // a ghost of a box and whiskers over the cases it passes or builds, as the table counts them

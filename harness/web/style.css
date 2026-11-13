@@ -217,7 +217,11 @@ tr.spacer td { padding: 0; border: 0; height: auto; }
 .perf-strip .axis { fill: var(--muted); font-size: 12px; }
 .perf-strip .name { fill: var(--fg); }
 .perf-strip circle.solved { fill: var(--m-pass); fill-opacity: 0.55; }
-.perf-strip circle.other { fill: var(--muted); fill-opacity: 0.45; }
+/* a case's dot in the strip, coloured by its outcome as the overview's grid is */
+.perf-strip circle.pass { fill: var(--m-pass); fill-opacity: 0.6; }
+.perf-strip circle.built { fill: var(--m-built); fill-opacity: 0.7; }
+.perf-strip circle.refused { fill: var(--m-refused); fill-opacity: 0.55; }
+.perf-strip circle.failed { fill: var(--m-failed); fill-opacity: 0.55; }
 .perf-strip .median { stroke: var(--fg); stroke-width: 2; stroke-linecap: round; }
 .perf-strip .ghost { stroke: var(--fg); stroke-opacity: 0.35; stroke-width: 1.5;
   fill: var(--fg); fill-opacity: 0.06; pointer-events: none; }
