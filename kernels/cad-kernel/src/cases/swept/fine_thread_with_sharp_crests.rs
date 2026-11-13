@@ -2,10 +2,9 @@
 //! −8 ≤ y ≤ 8, −0.45 ≤ z ≤ 0.45 screwed about z, right-handed and rising 1 a turn, from a turn of
 //! −180° to 7380°: the groove's turns meet, leaving a thread with sharp crests.
 //!
-//! Refused by the kernel. `cut_from` takes the bar (its edges run along the screw's axis or square
-//! to it), but the arrangement fails meeting an edge with one of the helicoidal sheets
-//! (`Unbuilt::Failed`: where a line meets a blend "was not proved: its search read more boxes than
-//! any search may") — the lead of 1 packs 21 turns of sheets a hair apart at the sharp crests.
+//! Built by the kernel's closed sweep cut from the rod: `cut_from` takes the bar (its edges run
+//! along the screw's axis or square to it) and meets them with its helicoidal sheets, which the
+//! lead of 1 packs 21 turns of, a hair apart at the sharp crests.
 use crate::sketch::block;
 use cad_kernel::build::{disc, prism};
 use cad_kernel::geom::tolerance;

@@ -2,9 +2,13 @@
 //! the x axis, its point (4, 0, 0), opening at 60° to a flat base at x = 12 — screwed about z,
 //! right-handed and rising 6 a turn, from a turn of −90° to 1350°.
 //!
-//! Refused by the kernel: its closed sweep (`swept::closed`) takes under a screw a cone only about
-//! an axis along the screw's, and this one stands square to it (`Unbuilt::Curved`: its contact
-//! screwed is curved past what the candidates hold).
+//! The kernel's closed sweep (`swept::closed::cut_from`) takes the cone whole: its closed class
+//! takes under a screw a cone only about an axis along the screw's, and refuses this one, which
+//! stands square to it (`Unbuilt::Curved`: its contact screwed is curved past what the candidates
+//! hold); since 0.10.0 such a tool goes the contact's road — the side's contact, run on to the
+//! cone's point, and the base's sharp rim's fan carried over the roll as sheets, given their
+//! meetings and the end poses, trimmed by membership in the sweep, and the result cut from the
+//! rod.
 use cad_kernel::build::{cone, disc, prism};
 use cad_kernel::geom::{tolerance, V};
 use cad_kernel::swept::closed::cut_from;

@@ -2,9 +2,12 @@
 //! line through the origin along w = (cos 30°, 0, sin 30°), its point at −2w, opening at 50° to a
 //! flat base at 5w of radius 7 tan 25°. The z axis crosses it aslant, through the origin.
 //!
-//! Refused by the kernel: under a turn its closed sweep takes a cone about a leaning axis where its
-//! contact is a curve over the face clear of the turn's axis, and refuses one the turn's axis
-//! crosses within the face (`Unbuilt::Curved`).
+//! The kernel's closed sweep (`swept::closed::closed`) takes the cone whole: under a turn its
+//! closed class takes a cone about a leaning axis where its contact is a curve over the face clear
+//! of the turn's axis, and refuses one the turn's axis crosses within the face (`Unbuilt::Curved`);
+//! since 0.10.0 such a tool goes the contact's road — each sheet on the surface of revolution of
+//! its section's meridian, cut where the meridian folds back and where it crosses the axis, and
+//! trimmed by membership in the sweep.
 use cad_kernel::build::cone;
 use cad_kernel::geom::{tolerance, V};
 use cad_kernel::swept::closed::closed;

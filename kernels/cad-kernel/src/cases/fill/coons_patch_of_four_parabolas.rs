@@ -3,7 +3,7 @@
 //! arching to 12 through the control points (5, 0, 14) and (0, 5, 14), on x = 10 and y = 10
 //! sagging to 8 through (10, 5, 6) and (5, 10, 6).
 //!
-//! Refused, as `fill/coons-patch-of-four-lines` is: cad-kernel 0.10.0 has no fill of a loop of
+//! Refused, as `fill/coons-patch-of-four-lines` is: cad-kernel 0.12.0 has no fill of a loop of
 //! curves. The four arcs are built as the kernel's B-splines and the walls and floor under them as
 //! its planar faces; the missing operation is
 //! `nurbs::coons(edges: [&BSpline; 4]) -> Result<Net, String>`, the patch's net with the arcs as
