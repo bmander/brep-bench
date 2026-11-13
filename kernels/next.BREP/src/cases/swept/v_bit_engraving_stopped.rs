@@ -2,24 +2,21 @@
 //! without turning along x by 15: the cone about the upright line through (5, 0) with its point at
 //! (5, 0, −2), opening at 90° to a flat top of radius 5 at z = 3.
 //!
-//! next.BREP has no sweep of a solid along a line. An upright solid of revolution slid along a
-//! level line passes, by elementary geometry (`solids::swept::upright_slid`), through the tool where
-//! it starts and where it stops and its section through its axis, square to the slide, slid between
-//! them: here the triangle |y| ≤ z + 2, −2 ≤ z ≤ 3, extruded 15 along x. All of it is cut from the
-//! block.
+//! Through the kernel's whole sweep of a solid (`sweep_solid`): the bit, a solid of revolution
+//! about the upright line through (5, 0, 0) whose meridian is the cone's side from its point at z =
+//! −2 out to radius 5 at z = 3 and the flat top, slid 15 along x, and cut from the block.
 use crate::solids::p;
-use crate::solids::swept::{upright_slid, Meridian, Piece};
+use crate::solids::swept::{less_all, revolved_tool, slide_by, Piece};
 use crate::Refusal;
-use brep_kernel::{boolean_operation_nary, make_box_brep, BooleanOperation, BrepSolid};
+use brep_kernel::{make_box_brep, sweep_solid, BrepSolid};
 
 pub fn build() -> Result<BrepSolid, Refusal> {
+    let (x, z) = (p(1.0, 0.0, 0.0), p(0.0, 0.0, 1.0));
     let block = make_box_brep(p(0.0, -10.0, -10.0), 30.0, 20.0, 10.0)?;
-    let bit = Meridian(vec![
+    let bit = revolved_tool(p(5.0, 0.0, 0.0), z, x, &[
         Piece::Line { from: [0.0, -2.0], to: [5.0, 3.0] },
         Piece::Line { from: [5.0, 3.0], to: [0.0, 3.0] },
+        Piece::Line { from: [0.0, 3.0], to: [0.0, -2.0] },
     ]);
-    let mut operands = Vec::new();
-    operands.extend(upright_slid(&bit, p(5.0, 0.0, 0.0), p(15.0, 0.0, 0.0))?);
-    let swept = boolean_operation_nary(&operands, BooleanOperation::Union)?;
-    Ok(crate::solids::fillet::subtract(&block, &swept)?)
+    less_all(block, vec![sweep_solid(&bit, &slide_by(p(15.0, 0.0, 0.0)))?])
 }

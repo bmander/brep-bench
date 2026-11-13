@@ -121,7 +121,9 @@ function stepCell(k) {
 function timeCell(k) {
   const m = meanTime(k);
   if (!m) return dash;
-  const start = k.start.measured ? `, start-up of ${secondsText(k.start.seconds)} left out`
+  // timed between its runner's pauses (its warm start) where it paused, else less the start-up
+  const start = k.paused ? ', loading the runner left out'
+    : k.start.measured ? `, start-up of ${secondsText(k.start.seconds)} left out`
     : ', its fastest run left out as start-up';
   return `<td class=num data-v=${m.seconds} title='geometric mean over ${m.n} case${m.n === 1 ? '' : 's'}${
     esc(start)}'>${secondsText(m.seconds)}</td>`;

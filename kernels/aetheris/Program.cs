@@ -28,6 +28,7 @@
 // does not parse, or names an unknown field) is a fault of the implementation, not a refusal: the
 // runner prints it and exits non-zero, so the harness records a crash.
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -139,6 +140,26 @@ static class Runner
         return new { status = "ok", measured = "mesh", faces, valid };
     }
 
+    [DllImport("libc.so.6", EntryPoint = "raise")]
+    static extern int RaiseOnLinux(int signal);
+
+    [DllImport("libSystem.dylib", EntryPoint = "raise")]
+    static extern int RaiseOnMac(int signal);
+
+    // Under the harness (`BREP_BENCH_WARM` set; SPEC.md, "A runner"), stops the runner until the
+    // harness continues it: once it has loaded and found its case, and once it has answered, so that
+    // the harness times the kernel alone, between the two.
+    static void Pause()
+    {
+        if (Environment.GetEnvironmentVariable("BREP_BENCH_WARM") is null)
+            return;
+        Console.Out.Flush();
+        if (OperatingSystem.IsLinux())
+            RaiseOnLinux(19); // SIGSTOP
+        else if (OperatingSystem.IsMacOS())
+            RaiseOnMac(17); // SIGSTOP
+    }
+
     static int Main(string[] args)
     {
         if (args is ["--version"])
@@ -159,6 +180,7 @@ static class Runner
             Console.Error.WriteLine($"no implementation of `{id}`");
             return 2;
         }
+        Pause();
         try
         {
             Console.WriteLine(JsonSerializer.Serialize(Build(path, output, args is [_, _, var step] ? step : null), Json));
@@ -172,6 +194,7 @@ static class Runner
             Console.Error.WriteLine(fault.Message);
             return 1;
         }
+        Pause();
         return 0;
     }
 }

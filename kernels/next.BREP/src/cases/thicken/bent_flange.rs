@@ -3,14 +3,13 @@
 //! from y = 0 to 8, three faces meeting tangentially, thickened by 1 to the outside of the bend:
 //! a bracket 1 thick, its bend's radii 2 and 3.
 //!
-//! next.BREP thickens one face at a time, so the sheet's three faces are thickened as faces of a
-//! solid, the profile closed behind the bend and extruded, by the kernel's shell grown outward:
-//! the solid's four other faces are its openings.
-use crate::solids::offset::{flange, shell};
+//! The kernel's thicken of a sheet of several faces (`thicken_sheet_faces`): the three faces, each
+//! thickened by 1 away from the bend's axis, and the slabs united; the faces meet smoothly, so no
+//! join is filled.
+use crate::solids::offset::flange;
 use crate::Refusal;
-use brep_kernel::BrepSolid;
+use brep_kernel::{thicken_sheet_faces, BrepSolid, OffsetCorners};
 
 pub fn build() -> Result<BrepSolid, Refusal> {
-    let (body, openings) = flange()?;
-    shell(&body, &openings, -1.0)
+    Ok(thicken_sheet_faces(&flange()?, -1.0, OffsetCorners::Sharp)?)
 }

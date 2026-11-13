@@ -294,6 +294,15 @@ A runner must also answer `--version` with one line naming the kernel and its ve
 given a case id it has no implementation of, exit without building anything (with an error, or
 refusing): the harness times that, as what starting the runner costs.
 
+Under the harness, with `BREP_BENCH_WARM` set in its environment, a runner **pauses** twice: it
+stops itself (SIGSTOP, Linux and macOS) once it has loaded its kernel and found the case's
+implementation, before it calls the kernel, and again once it has printed its reply. The harness
+continues it each time and times the kernel between the two pauses, so loading the runner and
+tearing it down are both left out of that time and nothing is subtracted (its *warm start*).
+Whatever the runner loads before its first pause is not timed, so it loads there all it will need
+(a STEP writer's modules too) but calls nothing of its kernel's for the case. A runner that does
+not pause is still timed whole, and the board takes its runs less its start-up instead.
+
 ### STEP is the answer
 
 A B-rep kernel's product is a boundary representation, and STEP is the neutral form of one; a
@@ -414,8 +423,9 @@ reading the file is not counted. None of it is graded:
   and peak memory (and of their time on one core, with `--one-core`).
 
 Every run includes starting the runner, which costs a Python or .NET runtime more time and memory
-than a Rust binary; the board's times and CPU times leave that start out, a run's less its
-runner's, so that they are the kernel's own (and shows it beside them). They are measures of the machine the run was made on, which a kernel's
+than a Rust binary; the board's times and CPU times leave that start out, so that they are the
+kernel's own (and shows it beside them): timed between the runner's pauses where it paused (its
+warm start, above), else a run's less its runner's start-up. They are measures of the machine the run was made on, which a kernel's
 results name (its processor, how many cores the run could use, its system, and the least peak
 memory a run can read there).
 

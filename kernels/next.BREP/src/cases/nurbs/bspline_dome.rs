@@ -2,8 +2,8 @@
 //! a clamped bicubic B-spline surface of 6 × 5 control points, with a double knot at u = 2/5.
 //!
 //! The surface is a kernel `NurbsSurface` with the description's knots and poles (unit weights);
-//! next.BREP makes no solid from a surface, so the block is assembled under it by
-//! `solids::sweep::block_under`.
+//! it is the kernel's face on that surface, the floor and the four sides are flat faces bounded by
+//! their edges, and the six are joined into the solid they bound (`solids::sweep::block_under`).
 use crate::solids::p;
 use crate::solids::sweep::block_under;
 use crate::Refusal;

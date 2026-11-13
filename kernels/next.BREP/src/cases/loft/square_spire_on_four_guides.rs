@@ -4,24 +4,24 @@
 //! (0, 0, 24), the others its mirror images in the xz and yz planes; each wall ruled by horizontal
 //! segments between neighbouring ridges.
 //!
-//! next.BREP's loft takes no guide curves for its corners (its guided loft rides one spine curve),
-//! and closes on no point, so the solid is built from what its walls are. Each section's sides stay
-//! parallel to x and y, so the walls facing ±x are the ridge seen along y and its mirror image,
-//! meeting at the apex, slid along y, and those facing ±y the same seen along x, slid along x: the
-//! solid is the common part of the two extrusions of the regions between them.
-use crate::solids::p;
-use crate::solids::sweep::between_guides;
+//! The kernel's loft along guides (`loft_profile_brep_on_guides`): the square at z = 0, the point
+//! (0, 0, 24) as a section of four curves of no length, and the four ridges, each wall the patch
+//! between two neighbouring ridges and the side they stand on, closed on the point.
+use crate::solids::sweep::bezier;
+use crate::solids::{p, polygon};
 use crate::Refusal;
-use brep_kernel::{boolean_operation, BooleanOperation, BooleanOptions, BrepSolid};
+use brep_kernel::{loft_profile_brep_on_guides, BrepSolid};
 
 /// The ridge, (g, g, z), by its g and z.
 const RIDGE: [(f64, f64); 4] = [(9.0, 0.0), (15.0, 8.0), (12.0, 19.0), (0.0, 24.0)];
 
 pub fn build() -> Result<BrepSolid, Refusal> {
-    let along_y: Vec<_> = RIDGE.iter().map(|&(g, z)| p(g, 0.0, z)).collect();
-    let along_x: Vec<_> = RIDGE.iter().map(|&(g, z)| p(0.0, g, z)).collect();
-    let walls_x = between_guides(&along_y, p(0.0, 1.0, 0.0), 40.0)?;
-    let walls_y = between_guides(&along_x, p(1.0, 0.0, 0.0), 40.0)?;
-    Ok(boolean_operation(&walls_x, &walls_y, BooleanOperation::Intersect,
-        &BooleanOptions::default())?)
+    // the corners in turn, by the signs of their x and y
+    let signs = [(1.0, 1.0), (-1.0, 1.0), (-1.0, -1.0), (1.0, -1.0)];
+    let corner = |k: usize, i: usize| p(signs[k].0 * RIDGE[i].0, signs[k].1 * RIDGE[i].0, RIDGE[i].1);
+    let section = |i: usize| polygon(&[corner(0, i), corner(1, i), corner(2, i), corner(3, i)]);
+    let ridges = (0..4)
+        .map(|k| bezier(&[corner(k, 0), corner(k, 1), corner(k, 2), corner(k, 3)]))
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(loft_profile_brep_on_guides(&section(0)?, &section(3)?, &ridges)?)
 }

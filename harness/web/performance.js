@@ -5,7 +5,7 @@
 // kernel uses many cores.  One row of filters above scopes them all, and is kept in the address.
 // Kernels keep kernels.json's order: the board ranks nothing.
 import { load, esc, casePage, kernelPage, failed, secondsText, megabytesText, solved, quantile,
-         option, placeTip, PARALLEL_FROM, TIME_FLOOR } from './board.js';
+         option, placeTip, PARALLEL_FROM, FINE_TIME_FLOOR, GROUPS, groupOf } from './board.js';
 import { sortable } from './sort.js';
 
 const main = document.getElementById('performance');
@@ -14,35 +14,38 @@ load().then(start, (e) => failed(main, e));
 // What can be measured of a run: each reads one of a kernel's lists (board.js), a value a case.
 // A time is the kernel's own, what starting its runner costs left out (`key`), unless the reader
 // asks for it counted (`raw`); `start` names the field of a kernel's start-up to show beside it.
-// `floor` is the least value the logarithmic axis and the ratios take (a time under TIME_FLOOR is
-// within what a runner's start-up varies by), and a `timed` measure's ratios each kernel's floor
+// `floor` is the least value a logarithmic scale and the ratios take (a microsecond for a time, as
+// finely as the harness keeps them), and a `timed` measure's ratios each kernel's floor
 // for the case instead (board.js's `timeFloor`); `additive` says whether a total means anything,
 // `compare` whether a ratio of two kernels' does; `least` and `most` head the summary's ends,
 // `top` the runs that cost most; `higher` says more is better (else less is), for the summary's
 // shading.
-const timeTick = (x) => (x < 1 ? `${Number((x * 1000).toPrecision(1))} ms` : `${Math.round(x)} s`);
+const timeTick = (x) => (x === 0 ? '0' : x < 0.001 ? `${Number((x * 1e6).toPrecision(1))} µs`
+  : x < 1 ? `${Number((x * 1000).toPrecision(1))} ms` : `${Math.round(x)} s`);
 const mbTick = (x) => (x < 1000 ? `${x} MB` : `${x / 1000} GB`);
 const ratioText = (x) => (x == null ? '–' : `${x.toFixed(x < 10 ? 2 : 1)}`);
 const speedupText = (x) => (x == null ? '–' : `${ratioText(x)}×`);
-const short = `The runner's start-up is left out of both, and so are runs whose own time
+const short = `Loading the runner is left out of both, and so are runs whose own time
   is under ${PARALLEL_FROM} s, too short to say.`;
 const METRICS = [
   {
     key: 'built', raw: 'seconds', start: 'seconds', label: 'time', text: secondsText,
-    tick: timeTick, floor: TIME_FLOOR, timed: true, additive: true,
+    tick: timeTick, floor: FINE_TIME_FLOOR, timed: true, zero: true, additive: true,
     compare: true, least: 'fastest', most: 'slowest', top: 'The slowest runs',
     about: (counted) => (counted ? `Each dot is one case's wall-clock time, from starting the
       kernel's runner to its exit, starting it counted.` : `Each dot is one case's wall-clock
-      time less the runner's start-up: the kernel's own time, building the solid and writing it
-      as STEP where it can, not meshing or measuring it. A run no longer than the start sits at
-      the axis's left end.`),
+      time with loading the runner left out: the kernel's own time, building the solid and
+      writing it as STEP where it can, not meshing or measuring it. The runner pauses once it has
+      loaded and found its case and again once it has answered, and the harness times between
+      the two; a run that did not pause is taken less the runner's start-up, and one no longer
+      than that is 0. The scale starts at 0 and is logarithmic from about 10 µs up.`),
   },
   {
     key: 'builtCpu', raw: 'cpu', start: 'cpu', label: 'CPU time', text: secondsText,
-    tick: timeTick, floor: TIME_FLOOR, timed: true, additive: true,
+    tick: timeTick, floor: FINE_TIME_FLOOR, timed: true, zero: true, additive: true,
     compare: true, least: 'least', most: 'most', top: 'The runs that spent the most CPU time',
     about: (counted) => `Each dot is the CPU time one case spent, user and system, over every
-      thread${counted ? '' : `, less the runner's start-up`}: more than its
+      thread${counted ? '' : `, between the runner's pauses (else less its start-up)`}: more than its
       time where it kept more than one core busy.`,
   },
   {
@@ -151,14 +154,13 @@ function start(b) {
     const some = rows.some((r) => r.at.length);
     figures.innerHTML = some ? `
       <h2>By kernel</h2>
-      <p class=muted>${m.about} The scale is logarithmic. Over the dots, a faint box spans the
+      <p class=muted>${m.about}${m.zero ? '' : ' The scale is logarithmic.'} Over the dots, a faint box spans the
         middle half of the cases each kernel passes or builds, with their median across it, and
         its whiskers reach the furthest of those within 1.5 times the box's width. Point at a dot
         for its case, or open it.</p>
-      <p class=legend><span class=key><span class='pass dot'></span>
-        passed or built</span><span class=key><span class=dot style='background:var(--muted)'>
-        </span>refused, wrong, crashed or timed out</span><span class=key><span class=tick></span>
-        median of the passed or built</span></p>
+      <p class=legend>${GROUPS.filter((g) => g.key !== 'missing').map((g) =>
+        `<span class=key><span class='${g.key} dot'></span>${esc(g.label)}</span>`).join('')}<span
+        class=key><span class=tick></span>median of the passed or built</span></p>
       <div class=perf-strip></div>
       ${summary(rows, m)}
       ${unmeasured.length ? `<p class=muted>Not measured: ${unmeasured.map((k) => esc(k.name))
@@ -251,7 +253,9 @@ function summary(measured, m) {
         <td class=num>${sorted.length}</td>${rest.map((col) => cell(col, r)).join('')}</tr>`;
     }).join('')}</table></div>
     <p class=muted><em>Start-up</em> is the cost of starting the kernel's runner with nothing to
-      build: the harness gives it a case id no case has and takes the median of five starts.${
+      build: the harness gives it a case id no case has and takes the median of five starts. It
+      is subtracted only from a run that did not pause, loaded, for the harness to time the
+      kernel alone.${
       estimated ? ` <sup>*</sup> Not measured yet (the kernel's last run was made before the
       harness did): its fastest run stands in for it.` : ''} The table counts only the cases each
       kernel passes or builds. Each column is shaded from green at its best value to red at its
@@ -279,35 +283,43 @@ function labelWidth(names) {
   return Math.ceil(Math.max(...names.map((n) => measure.measureText(n).width))) + 14;
 }
 
-// A logarithmic axis's grid lines, from `top` down to its labels at the foot of `height`.
-function grid(lo, hi, x, top, height, tick) {
-  return logTicks(lo, hi).flatMap((v) => [
+// An axis's grid lines at `ticks`, from `top` down to its labels at the foot of `height`.
+function grid(ticks, x, top, height, tick) {
+  return ticks.flatMap((v) => [
     `<line class=grid x1=${x(v)} x2=${x(v)} y1=${top} y2=${height - 22} />`,
     `<text class=axis x=${x(v)} y=${height - 6} text-anchor=middle>${tick(v)}</text>`]);
 }
 
-// Every case a dot, a row a kernel, on one logarithmic axis that does not move with the filters.
-// A value of 0 (a run no longer than its runner's start-up) sits at the axis's left end.
+// A time's place on an axis that starts at 0: linear below SYMLOG_LINEAR, logarithmic well above
+// it (a symmetric logarithm), so a time of 0 has a place and a microsecond one is told from it.
+const SYMLOG_LINEAR = 0.000001;
+const symlog = (v) => Math.log10(1 + Math.max(v, 0) / SYMLOG_LINEAR);
+
+// Every case a dot, a row a kernel, on one axis that does not move with the filters: for a time,
+// from 0 (symlog); for any other measure, logarithmic.
 function strip(b, rows, m, holder, tip) {
   const all = [];
   for (const k of b.ran) for (const x of k[m.key]) if (x) all.push(Math.max(x, m.floor));
   if (!all.length) all.push(m.floor);
-  // from just before the least value above 0 to just past the greatest
-  const lo = Math.log10(Math.min(...all)) - 0.08;
-  const hi = Math.max(lo + 0.5, Math.log10(Math.max(...all)) + 0.08);
+  const scale = m.zero ? symlog : (v) => Math.log10(Math.max(v, m.floor));
+  // from 0, or just before the least value above 0, to just past the greatest
+  const lo = m.zero ? 0 : scale(Math.min(...all)) - 0.08;
+  const hi = Math.max(lo + 0.5, scale(Math.max(...all)) + 0.08);
+  // a time's ticks: 0, then each power of ten from 10 µs, where the scale is logarithmic
+  const ticks = m.zero ? [0, ...logTicks(-5, Math.log10(Math.max(...all)) + 0.08)]
+    : logTicks(lo, hi);
   const width = Math.max(holder.clientWidth, 360);
   const left = labelWidth(rows.map((r) => r.k.name));
   const right = 16;
   const rowHeight = 34;
   const top = 4;
   const height = top + rows.length * rowHeight + 26;
-  const x = (v) => left + (Math.max(Math.log10(Math.max(v, m.floor)), lo) - lo) / (hi - lo)
-    * (width - left - right);
+  const x = (v) => left + (Math.max(scale(v), lo) - lo) / (hi - lo) * (width - left - right);
   // a dot's place across its row: the same for a case in every row, so a case lines up
   const jitter = (i) => ((Math.imul(i + 1, 2654435761) >>> 0) / 2 ** 32) * 2 - 1;
   const dots = [];
   const medians = [];
-  const out = grid(lo, hi, x, top, height, m.tick);
+  const out = grid(ticks, x, top, height, m.tick);
   rows.forEach(({ k, at }, r) => {
     const mid = top + r * rowHeight + rowHeight / 2;
     out.push(`<a href='${kernelPage(k.name)}'><text class=name x=${left - 10} y=${mid}
@@ -318,7 +330,8 @@ function strip(b, rows, m, holder, tip) {
       const v = k[m.key][i];
       const dot = { k, i, v, cx: x(v), cy: mid + jitter(i) * (rowHeight / 2 - 7) };
       dots.push(dot);
-      out.push(`<circle class='${solved(k.outcomes[i]) ? 'solved' : 'other'}' cx=${dot.cx.toFixed(1)}
+      // coloured by outcome, as the overview's grid is
+      out.push(`<circle class='${groupOf(k.outcomes[i])}' cx=${dot.cx.toFixed(1)}
         cy=${dot.cy.toFixed(1)} r=4 />`);
     }
     // a ghost of a box and whiskers over the cases it passes or builds, as the table counts them
@@ -326,7 +339,7 @@ function strip(b, rows, m, holder, tip) {
       .sort((p, q) => p - q);
     if (!passed.length) return;
     const [q1, median, q3] = [0.25, 0.5, 0.75].map((q) => quantile(passed, q));
-    const log = (v) => Math.log10(Math.max(v, m.floor));
+    const log = scale;
     const reach = 1.5 * (log(q3) - log(q1));
     const inside = passed.filter((v) => log(v) >= log(q1) - reach && log(v) <= log(q3) + reach);
     const [low, high] = [inside[0], inside[inside.length - 1]];
@@ -555,7 +568,7 @@ function sizes(b) {
   const rowHeight = 28;
   const height = rows.length * rowHeight + 26;
   const x = (v) => left + (Math.log10(v) - lo) / (hi - lo) * (width - left - right);
-  const out = grid(lo, hi, x, 0, height, mbTick);
+  const out = grid(logTicks(lo, hi), x, 0, height, mbTick);
   rows.forEach((k, r) => {
     const mid = r * rowHeight + rowHeight / 2;
     out.push(`<text class=name x=${left - 10} y=${mid} text-anchor=end

@@ -16,6 +16,7 @@ Needs `cadquery-ocp`.
 import importlib.util
 import json
 import os
+import signal
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -33,6 +34,10 @@ from OCP.BRepMesh import BRepMesh_IncrementalMesh  # noqa: E402
 from OCP.Bnd import Bnd_Box  # noqa: E402
 from OCP.GProp import GProp_GProps  # noqa: E402
 from OCP.GeomAbs import GeomAbs_SurfaceType  # noqa: E402
+from OCP.IFSelect import IFSelect_ReturnStatus  # noqa: E402
+from OCP.Interface import Interface_Static  # noqa: E402
+from OCP.Message import Message  # noqa: E402
+from OCP.STEPControl import STEPControl_StepModelType, STEPControl_Writer  # noqa: E402
 from OCP.StlAPI import StlAPI_Writer  # noqa: E402
 from OCP.TopAbs import TopAbs_FACE  # noqa: E402
 from OCP.TopExp import TopExp_Explorer  # noqa: E402
@@ -56,6 +61,15 @@ KINDS = {
     GeomAbs_SurfaceType.GeomAbs_Torus: "torus",
     GeomAbs_SurfaceType.GeomAbs_BSplineSurface: "bspline",
 }
+
+
+def pause():
+    """Under the harness (`BREP_BENCH_WARM` set; SPEC.md, "A runner"), stops the runner until the
+    harness continues it: once it has loaded and found its case, and once it has answered, so that
+    the harness times the kernel alone, between the two."""
+    if os.environ.get("BREP_BENCH_WARM") and hasattr(signal, "SIGSTOP"):
+        sys.stdout.flush()
+        os.kill(os.getpid(), signal.SIGSTOP)
 
 
 def implementation(case_id):
@@ -105,11 +119,8 @@ def measure(shape, out_stl):
 
 def step(shape, out_step):
     """Writes the solid to `out_step` as STEP (AP214) with OCCT's own writer; why not, or None.
-    Its modules are loaded here, only when a STEP is asked for."""
-    from OCP.IFSelect import IFSelect_ReturnStatus
-    from OCP.Interface import Interface_Static
-    from OCP.Message import Message
-    from OCP.STEPControl import STEPControl_StepModelType, STEPControl_Writer
+    Its modules are loaded with the runner's, before it pauses (`pause`), so that loading them is
+    not timed as the kernel's work."""
     # the writer reports its transfer on standard output, after the reply: its printers removed,
     # the reply stays the last line
     messenger = Message.DefaultMessenger_s()
@@ -130,8 +141,10 @@ def main():
         sys.exit("usage: run.py CASE OUT.stl [OUT.step]")
     case_id, out_stl = sys.argv[1], sys.argv[2]
     out_step = sys.argv[3] if len(sys.argv) == 4 else None
+    case = implementation(case_id)
+    pause()
     try:
-        shape = implementation(case_id).build()
+        shape = case.build()
         # a STEP written is the whole answer (SPEC.md, "A runner"): nothing measured or meshed;
         # only where the writer declines does the runner go on to its measures and triangles
         why = step(shape, out_step) if out_step else None
@@ -144,6 +157,7 @@ def main():
     except Refused as why:
         reply = {"status": "refused", "reason": str(why)}
     print(json.dumps(reply))
+    pause()
 
 
 if __name__ == "__main__":

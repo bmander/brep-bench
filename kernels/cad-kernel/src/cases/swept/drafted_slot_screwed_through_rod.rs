@@ -4,9 +4,13 @@
 //! between them; it is carried along −x to x = 4, drafted 3° inward, so its sides are two planes
 //! and two half cones.
 //!
-//! Refused by the kernel: its closed sweep (`swept::closed`) takes under a screw a cone only about
-//! an axis along the screw's, and this bar's half cones stand about axes square to it
-//! (`Unbuilt::Curved`).
+//! The kernel's closed sweep (`swept::closed::cut_from`) takes the bar whole: under a screw its
+//! closed class takes a cone only about an axis along the screw's and refuses this bar's half
+//! cones, which stand about axes square to it (`Unbuilt::Curved`), so the bar goes the contact's
+//! road — its faces' contacts and its sharp edges' fans carried over the roll as sheets, given
+//! their meetings and the end poses, trimmed by membership in the sweep, and the result cut from
+//! the rod. Since 0.12.0 it is built: membership's mesh of the drafted cones is held to its sag
+//! as measured over every triangle, where a point a hair off it was proved outside the sweep.
 use cad_kernel::build::{disc, drafted, prism, Profile, ProfileEdge};
 use cad_kernel::geom::{tolerance, Frame};
 use cad_kernel::swept::closed::cut_from;

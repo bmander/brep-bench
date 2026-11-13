@@ -3,14 +3,12 @@
 //! turns inside out and is no part of the solid; the moved floor and wall meet in a concave edge
 //! along (−1, y, 3).
 //!
-//! next.BREP thickens one face at a time, so the sheet's three faces are thickened as faces of a
-//! solid, the profile closed behind the bend and extruded, by the kernel's shell into it: the
-//! solid's four other faces are its openings.
-use crate::solids::offset::{flange, shell};
+//! The kernel's thicken of a sheet of several faces (`thicken_sheet_faces`): the three faces, each
+//! thickened by 3 toward the bend's axis, and the slabs united.
+use crate::solids::offset::flange;
 use crate::Refusal;
-use brep_kernel::BrepSolid;
+use brep_kernel::{thicken_sheet_faces, BrepSolid, OffsetCorners};
 
 pub fn build() -> Result<BrepSolid, Refusal> {
-    let (body, openings) = flange()?;
-    shell(&body, &openings, 3.0)
+    Ok(thicken_sheet_faces(&flange()?, 3.0, OffsetCorners::Sharp)?)
 }

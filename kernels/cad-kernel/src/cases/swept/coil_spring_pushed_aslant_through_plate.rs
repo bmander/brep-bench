@@ -4,9 +4,13 @@
 //! about z rising 1.5 a turn, from (2, 0, −12) to (2, 0, −7.5).
 //!
 //! The spring is the kernel's own sweep of the ball (`build::canal`: its disc screwed along the
-//! helix, a half ball at each end), and the push the kernel's closed sweep of that solid. Refused
-//! by the kernel: under a slide its closed sweep takes faces that are planes, cylinders, cones,
-//! balls and tori, and the spring's coil is a screwed sheet (`Unbuilt::Curved`).
+//! helix, a half ball at each end), and the push the kernel's closed sweep of that solid
+//! (`swept::closed::cut_from`), which takes the spring whole: under a slide its closed class takes
+//! faces that are planes, cylinders, cones, balls and tori and refuses the spring's coil, a
+//! screwed sheet (`Unbuilt::Curved`), and since 0.12.0 such a tool goes the contact's road — the
+//! coil's contact with the slide, read on its free-form face, and the half balls' carried over the
+//! roll as sheets that meet where the coil runs on tangent into a ball, given their meetings and
+//! the end poses, trimmed by membership in the sweep, and the result cut from the plate.
 use crate::sketch::block;
 use cad_kernel::build::canal;
 use cad_kernel::geom::{tolerance, V};

@@ -37,9 +37,15 @@ beside each outcome are a kernel's shortest path to a B-rep, not its meshing; no
 graded. Runners are started by
 `harness/measure.py`, a small process that holds almost no memory, because on Linux a child's
 peak resident set starts at its parent's. Before its cases, each runner is given the case id
-`harness/start`, which names no case, five times; the median is the kernel's start-up, which the
-board subtracts from its times. Times are recorded to the microsecond, since a fast kernel's run
-less its start-up can be under a millisecond. In its means and ratios the board takes any time under 0.1 ms, about the
+`harness/start`, which names no case, five times; the median is the kernel's start-up. Each runner
+is run with `BREP_BENCH_WARM=1` set, and stops itself (SIGSTOP) once it has loaded and found its
+case and again once it has answered; `measure.py` reads the clock and the runner's CPU time (from
+`/proc`, Linux) at each stop and continues it, and the time between is kept as the kernel's own
+(`own_seconds`, `own_cpu_seconds`, and `one_core_own_seconds` with `--one-core`), beside the
+run's whole. The board shows that own time, with nothing subtracted; only for a run that did not
+pause (a runner from before, or one that failed before it paused) does it subtract the start-up
+from the whole. Times are recorded to the microsecond, since a fast kernel's own time can be
+under a millisecond. In its means and ratios the board takes any time under 0.1 ms, about the
 spread of a runner's start-up, as 0.1 ms; a time recorded only to the millisecond, or one whose
 kernel's start-up was never measured, it takes as no less than 1 ms. A CI run of only some of a
 kernel's cases keeps its last start-up and binary size. `--one-core` runs each case a kernel

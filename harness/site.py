@@ -162,7 +162,9 @@ def board(registry, results, cases, drawings):
     - `results`: by kernel, its outcome of each case in `cases`' order, as a string of one letter
       a case (`codes`), with lists in the same order of what each run cost (null where it has no
       row, or the run was not measured so): its wall-clock `seconds`, its `cpu` seconds, its
-      peak memory in megabytes (`mb`) and its wall-clock seconds on one core alone (`one`); and
+      peak memory in megabytes (`mb`) and its wall-clock seconds on one core alone (`one`), and
+      the kernel's own of each time, between its runner's pauses (`own`, `ownCpu`, `ownOne`,
+      each left out where no run paused, and null where that run did not); and
       of its `why`, its `workaround` and its `elegance` (indices in `reasons`, `workarounds` and
       `elegance`, -1 for none),
       and the lines of code of its implementation of each case (`loc`, null where it has none),
@@ -215,12 +217,12 @@ def board(registry, results, cases, drawings):
                 k["startup"] = {key: start.get(field) for key, field in COSTS.items()}
             codes, why, worked, neat, lines, places = [], [], [], [], [], []
             faces, faceted, steps, step_why = [], [], [], []
-            spent = {key: [] for key in COSTS}
+            spent = {key: [] for key in RUN_COSTS}
             for cid in ids:
                 row = r["rows"].get(cid)
                 if row is None:
                     codes.append(CODES["missing"])
-                    for key in COSTS:
+                    for key in RUN_COSTS:
                         spent[key].append(None)
                     why.append(-1)
                     worked.append(-1)
@@ -234,7 +236,7 @@ def board(registry, results, cases, drawings):
                     continue
                 codes.append(CODES[row["outcome"]])
                 # a missing case has no run, whatever an older row says of its time
-                for key, field in COSTS.items():
+                for key, field in RUN_COSTS.items():
                     spent[key].append(None if row["outcome"] == "missing" else row.get(field))
                 why.append(intern("reasons", row.get("why")))
                 worked.append(intern("workarounds", r["workarounds"].get(cid)))
@@ -248,6 +250,10 @@ def board(registry, results, cases, drawings):
                 made = row.get("step") or {}
                 step_why.append(intern("stepReasons", made.get("refused") or made.get("error"))
                                 if verdict in ("refused", "failed") else -1)
+            # the kernel's own times only where some run paused for them (its warm start)
+            for key in OWN_COSTS:
+                if all(x is None for x in spent[key]):
+                    del spent[key]
             out[name] = {"codes": "".join(codes), **spent, "why": why, "workaround": worked,
                          "elegance": neat, "loc": lines, "places": places, "faces": faces,
                          "faceted": faceted}
@@ -284,6 +290,10 @@ def lines_of(kernel, cid):
 
 # what a run cost: each measure's name on the board, and the field of a result's row it is read from
 COSTS = {"seconds": "seconds", "cpu": "cpu_seconds", "mb": "peak_mb", "one": "one_core_seconds"}
+# and the kernel's own, between the runner's pauses (its warm start, SPEC.md "A runner"): none
+# where it did not pause, and the board takes the run's less its start-up instead
+OWN_COSTS = {"own": "own_seconds", "ownCpu": "own_cpu_seconds", "ownOne": "one_core_own_seconds"}
+RUN_COSTS = {**COSTS, **OWN_COSTS}
 
 
 def half_up(x, places):
@@ -293,10 +303,15 @@ def half_up(x, places):
 
 
 def seconds_text(x):
-    """A time in seconds as the board's tables show it (board.js's secondsText): 0.42 ms, 3.7 ms,
-    420 ms, 4.21 s, 12.3 s; under a tenth of a millisecond, <0.1 ms."""
-    if x < 1e-4:
-        return "<0.1 ms"
+    """A time in seconds as the board's tables show it (board.js's secondsText): 0, 4.2 µs, 42 µs,
+    420 µs, 3.7 ms, 420 ms, 4.21 s, 12.3 s; above 0 but under a microsecond, <1 µs."""
+    if x <= 0:
+        return "0"
+    if x < 1e-6:
+        return "<1 µs"
+    if x < 1e-3:
+        us = x * 1e6  # to two figures, as toPrecision(2) and Number() write it
+        return f"{half_up(us, 1 if us < 10 else 0 if us < 100 else -1).normalize():f} µs"
     if x < 0.01:
         ms = x * 1000  # to two figures, as toPrecision(2) and Number() write it
         return f"{half_up(ms, 2 if ms < 1 else 1).normalize():f} ms"

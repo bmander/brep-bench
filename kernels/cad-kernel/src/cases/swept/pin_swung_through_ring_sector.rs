@@ -2,10 +2,13 @@
 //! through it by a pin, the solid cylinder of radius 0.5 about the x axis from x = 6 to 11, turned
 //! rigidly about z from −140° to +140°.
 //!
-//! Refused by the kernel (`Unbuilt::Curved` at the centre of the pin's near end): under a turn a
-//! sharp circle leaning to the axis is turned into its ring, and the pin's end rims, square to a
-//! radius, have their normal in the plane through the turn's axis and their centre, which turns
-//! into no ring the kernel reads (`turned::Rim::simple`).
+//! The kernel's closed sweep (`swept::closed::cut_from`) takes the pin whole. Its closed class
+//! refuses it (`Unbuilt::Curved` at the centre of the pin's near end): under a turn a sharp circle
+//! leaning to the axis is turned into its ring, and the pin's end rims, square to a radius, have
+//! their normal in the plane through the turn's axis and their centre, which turns into no ring
+//! the kernel reads (`turned::Rim::simple`). Since 0.10.0 such a tool goes the contact's road —
+//! each sheet on the surface of revolution of its section's meridian, its rails circles about the
+//! axis, trimmed by membership in the sweep, and the result cut from the sector.
 use crate::sketch::polygon;
 use cad_kernel::build::{disc, prism, revolve};
 use cad_kernel::geom::tolerance;

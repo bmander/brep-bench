@@ -3,16 +3,15 @@
 //! y = 0, 4, 5, 10 at z = 4, and the box from (5, 3, 4) to (15, 13, 7) whose bottom is the
 //! biquadratic Bézier patch on the grid x = 5, 12, 15 by y = 3, 4, 13 at z = 4.
 //!
-//! next.BREP makes no solid from a surface, so each slab is assembled on its patch by
-//! `solids::sweep::block_under`, which stands a block on the floor z = 0 under a patch: the first
-//! slab directly; the second as the block under its patch set at z = 3, mirrored in the plane
-//! z = 3.5, which takes the floor to the top z = 7 and the patch, its control points and
-//! parameters unchanged in x and y, to z = 4 facing down.
+//! Each slab's patch is the kernel's face on that surface, its other five faces flat faces bounded
+//! by their edges, and the six are joined into the solid they bound (`solids::sweep::block_to`):
+//! the first slab between its patch and the floor z = 0, the second between its patch and the
+//! plane z = 7 above it.
 use crate::solids::fillet::union;
 use crate::solids::p;
-use crate::solids::sweep::block_under;
+use crate::solids::sweep::{block_to, block_under};
 use crate::Refusal;
-use brep_kernel::{mirror_brep, BrepSolid, NurbsSurface, Vec4};
+use brep_kernel::{BrepSolid, NurbsSurface, Vec4};
 
 /// The flat Bézier patch on the grid `xs` by `ys` at height `z`.
 fn flat_patch(xs: &[f64], ys: &[f64], z: f64) -> Result<NurbsSurface, String> {
@@ -25,7 +24,6 @@ fn flat_patch(xs: &[f64], ys: &[f64], z: f64) -> Result<NurbsSurface, String> {
 
 pub fn build() -> Result<BrepSolid, Refusal> {
     let first = block_under(&flat_patch(&[0.0, 2.0, 7.0, 10.0], &[0.0, 4.0, 5.0, 10.0], 4.0)?)?;
-    let under = block_under(&flat_patch(&[5.0, 12.0, 15.0], &[3.0, 4.0, 13.0], 3.0)?)?;
-    let second = mirror_brep(&under, p(0.0, 0.0, 3.5), p(0.0, 0.0, 1.0))?;
+    let second = block_to(&flat_patch(&[5.0, 12.0, 15.0], &[3.0, 4.0, 13.0], 4.0)?, 7.0)?;
     Ok(union(&first, &second)?)
 }

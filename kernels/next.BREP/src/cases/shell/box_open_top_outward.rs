@@ -3,17 +3,15 @@
 //! z = 6, less the box. Its outside is rounded, quarter cylinders about the edges and eighths of a
 //! ball at the bottom corners.
 //!
-//! The kernel's `offset_shell` joins the moved faces sharp. Its whole-solid offset closes them
-//! round: `offset_solid` with `OffsetCorners::Rounded` is the parallel body, every point within 1
-//! of the box. That cut by the plane of the top, less the box, is the wall.
+//! The kernel's shell joined by arcs (`offset_shell_rounded`), outward, open at the top, picked by
+//! a point inside it.
 use crate::solids::p;
-use crate::solids::shell::less;
+use crate::solids::shell::face_at;
 use crate::Refusal;
-use brep_kernel::{make_box_brep, offset_solid, split_solid_by_plane, BrepSolid, OffsetCorners};
+use brep_kernel::{make_box_brep, offset_shell_rounded, BrepSolid};
 
 pub fn build() -> Result<BrepSolid, Refusal> {
     let block = make_box_brep(p(0.0, 0.0, 0.0), 10.0, 8.0, 6.0)?;
-    let grown = offset_solid(&block, 1.0, OffsetCorners::Rounded)?.solid;
-    let (below, _) = split_solid_by_plane(&grown, p(0.0, 0.0, 6.0), p(0.0, 0.0, 1.0))?;
-    less(&below, &block)
+    let top = face_at(&block, p(5.0, 4.0, 6.0))?;
+    Ok(offset_shell_rounded(&block, &[top], -1.0)?)
 }
