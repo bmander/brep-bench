@@ -27,8 +27,11 @@ harness/measure.py starts and waits for; nothing measured is graded. So is what 
 runner costs, alone: it is given a case id no case has, `harness/start`, so that it starts and
 builds nothing, a few times over (`startup`). With `--one-core` a case the kernel built is run a
 second time on one core only, for what its other cores bought it; that run is timed and nothing
-else. Times are kept to the microsecond: a kernel's own time, a run's less its runner's start-up,
-can be under a millisecond. Standard library only (but for the pictures' Open CASCADE; where there
+else. A runner pauses once it has loaded and found its case and again once it has answered (its
+warm start, SPEC.md "A runner"), and the time and CPU time between are kept too, as the kernel's
+own (`own_seconds`, `own_cpu_seconds`): neither loading the runner nor tearing it down counted,
+and nothing subtracted. Times are kept to the microsecond: a kernel's own time can be under a
+millisecond. Standard library only (but for the pictures' Open CASCADE; where there
 is no wait4, only the time is kept; pinning to one core needs Linux).
 """
 import argparse
@@ -161,11 +164,15 @@ class Ran:
     """How a process ran: its exit `code` (None if it ran out of time), what it wrote, and what it
     cost: wall-clock `seconds`, `cpu` seconds (user and system, of every thread of it and of the
     children it waited for) and `peak_mb`, the most memory it held resident at once (megabytes,
-    1e6 bytes). `cpu` and `peak_mb` are None where the system does not say (no wait4)."""
+    1e6 bytes). `cpu` and `peak_mb` are None where the system does not say (no wait4).
+    `own_seconds` and `own_cpu` are the kernel's own, between the runner's pauses (its warm start,
+    harness/measure.py), None where it did not pause or the system does not say."""
 
-    def __init__(self, code, stdout, stderr, seconds, cpu=None, peak_mb=None):
+    def __init__(self, code, stdout, stderr, seconds, cpu=None, peak_mb=None, own_seconds=None,
+                 own_cpu=None):
         self.code, self.stdout, self.stderr = code, stdout, stderr
         self.seconds, self.cpu, self.peak_mb = seconds, cpu, peak_mb
+        self.own_seconds, self.own_cpu = own_seconds, own_cpu
 
 
 # where it can, a run is started and waited for by harness/measure.py, a process that holds next
@@ -174,6 +181,9 @@ class Ran:
 MEASURE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "measure.py")
 MEASURED = all(hasattr(os, f) for f in ("posix_spawnp", "wait4"))
 measurer = None
+# set in a runner's environment where it is measured: it is to pause, loaded and answered, for the
+# harness to time between (its warm start, SPEC.md "A runner")
+WARM = "BREP_BENCH_WARM"
 
 
 def measured(request):
@@ -197,12 +207,16 @@ def execute(argv, timeout, core=None):
     """Run `argv` until it exits or `timeout` seconds pass, and say how it ran (`Ran`). With `core`,
     the process and every thread it starts may run on that core only."""
     env = dict(os.environ, RUST_BACKTRACE="0")
+    own_seconds = own_cpu = None
     with tempfile.TemporaryDirectory() as tmp:
         out, err = os.path.join(tmp, "stdout"), os.path.join(tmp, "stderr")
         if MEASURED:
+            # its warm start: the runner pauses, loaded, and again, answered (SPEC.md, "A runner")
+            env[WARM] = "1"
             a = measured({"argv": argv, "cwd": ROOT, "env": env, "stdout": out, "stderr": err,
                           "timeout": timeout, "core": core})
             code, seconds, cpu, peak = a["code"], a["seconds"], a["cpu"], a["peak_bytes"] / 1e6
+            own_seconds, own_cpu = a.get("own_seconds"), a.get("own_cpu")
         else:
             # no wait4 (Windows): the time alone
             with open(out, "wb") as o, open(err, "wb") as e:
@@ -219,7 +233,7 @@ def execute(argv, timeout, core=None):
             cpu = peak = None
         with open(out, encoding="utf-8", errors="replace") as o, \
                 open(err, encoding="utf-8", errors="replace") as e:
-            return Ran(code, o.read(), e.read(), seconds, cpu, peak)
+            return Ran(code, o.read(), e.read(), seconds, cpu, peak, own_seconds, own_cpu)
 
 
 # the outcomes of a run that built a solid: it is run again on one core
@@ -506,13 +520,16 @@ TIME_PLACES = 6
 
 
 def one_core_seconds(command, case, timeout, core, writes_step):
-    """The wall-clock time of the case run again on `core` alone, or None if it ran out of time or
-    failed. Nothing of the run but its time is kept."""
+    """The wall-clock time of the case run again on `core` alone, and the kernel's own of it
+    (between the runner's pauses, else None), or None if it ran out of time or failed. Nothing of
+    the run but its time is kept."""
     with tempfile.TemporaryDirectory() as tmp:
         out_step = os.path.join(tmp, "result.step") if writes_step else None
         ran = execute(argv(command, case["id"], os.path.join(tmp, "result.stl"), out_step),
                       timeout, core)
-    return round(ran.seconds, TIME_PLACES) if ran.code == 0 else None
+    if ran.code != 0:
+        return None
+    return round(ran.seconds, TIME_PLACES), rounded(ran.own_seconds, TIME_PLACES)
 
 
 def rounded(x, places):
@@ -682,6 +699,9 @@ def row_of(c, outcome, why, reply, mesh, ran, made, one):
         "cpu_seconds": rounded(ran and ran.cpu, TIME_PLACES),
         "time_places": TIME_PLACES,  # rows from before microseconds have none: 3, milliseconds
         "peak_mb": rounded(ran and ran.peak_mb, 1),
+        # the kernel's own, between the runner's pauses (its warm start), where it paused
+        "own_seconds": rounded(ran and ran.own_seconds, TIME_PLACES),
+        "own_cpu_seconds": rounded(ran and ran.own_cpu, TIME_PLACES),
         "measured": (reply or {}).get("measured", "exact"),
         "volume": (reply or {}).get("volume"), "area": (reply or {}).get("area"),
         "faces": (reply or {}).get("faces"), "mesh": mesh,
@@ -693,7 +713,7 @@ def row_of(c, outcome, why, reply, mesh, ran, made, one):
     if made is not None:
         row["step"] = made
     if one is not UNPINNED:
-        row["one_core_seconds"] = one
+        row["one_core_seconds"], row["one_core_own_seconds"] = one or (None, None)
     return row
 
 
