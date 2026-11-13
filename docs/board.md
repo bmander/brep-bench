@@ -26,8 +26,9 @@ descending, then back to the order drawn, with blank cells last. It has:
   the solid built and written as STEP, not meshed or measured, where its kernel writes STEP; a
   summary per kernel; kernels compared pairwise, as geometric-mean ratios over the cases both
   pass; medians by category and the slowest cases; multicore use (cores kept busy, speedup over
-  one core, efficiency); and each kernel's binary size. Each runner's start-up time is left out
-  by default, and a switch counts it again. Results recorded before these measurements show as
+  one core, efficiency); and each kernel's binary size. Loading each runner is left out by
+  default, timed between the runner's pauses (its warm start, SPEC.md) or else subtracted as its
+  start-up, and a switch counts it again. Results recorded before these measurements show as
   not measured, with the start-up estimated from the kernel's fastest run and marked `*`.
 - **A page for each case:** the description; its expected volume and area with their closed
   forms (or, for an unsettled case, a note that it has none yet); a drawing of the expected solid

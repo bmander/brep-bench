@@ -19,6 +19,7 @@ import importlib.util
 import json
 import os
 import re
+import signal
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -45,6 +46,15 @@ ACCURACIES = (1e-8, 1e-7, 1e-6)
 # and no more than a fraction of its thickness (volume over area), as the reference runner does.
 MESH_DEFLECTION = 1e-4
 THICKNESS_DEFLECTION = 5e-3
+
+
+def pause():
+    """Under the harness (`BREP_BENCH_WARM` set; SPEC.md, "A runner"), stops the runner until the
+    harness continues it: once it has loaded and found its case, and once it has answered, so that
+    the harness times the kernel alone, between the two."""
+    if os.environ.get("BREP_BENCH_WARM") and hasattr(signal, "SIGSTOP"):
+        sys.stdout.flush()
+        os.kill(os.getpid(), signal.SIGSTOP)
 
 
 def implementation(case_id):
@@ -122,6 +132,7 @@ def main():
         sys.exit("usage: run.py CASE OUT.stl")
     case_id, out_stl = sys.argv[1], sys.argv[2]
     build = implementation(case_id).build
+    pause()
     try:
         solid = build()
     except Refused as why:
@@ -134,6 +145,7 @@ def main():
     else:
         reply = measure(solid, out_stl)
     print(json.dumps(reply))
+    pause()
 
 
 if __name__ == "__main__":

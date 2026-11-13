@@ -280,6 +280,29 @@ fn measured(k: &DefaultKernel, body: BodyId, out: &str, out_step: Option<&str>) 
     ))
 }
 
+/// Under the harness (`BREP_BENCH_WARM` set; SPEC.md, "A runner"), stops the runner until the
+/// harness continues it: once it has loaded and found its case, and once it has answered, so that
+/// the harness times the kernel alone, between the two.
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+fn pause() {
+    if std::env::var_os("BREP_BENCH_WARM").is_some() {
+        use std::io::Write;
+        let _ = std::io::stdout().flush();
+        unsafe extern "C" {
+            fn raise(signal: std::ffi::c_int) -> std::ffi::c_int;
+        }
+        #[cfg(target_os = "linux")]
+        const SIGSTOP: std::ffi::c_int = 19;
+        #[cfg(target_os = "macos")]
+        const SIGSTOP: std::ffi::c_int = 17;
+        // SAFETY: raise only sends a signal to this process
+        unsafe { raise(SIGSTOP) };
+    }
+}
+
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
+fn pause() {}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
     if args.get(1).map(String::as_str) == Some("--version") {
@@ -318,6 +341,7 @@ fn main() -> ExitCode {
         eprintln!("no implementation of `{case}`");
         return ExitCode::from(2);
     };
+    pause();
     // Each body is meshed once: no faces' meshes kept for a next time.
     cadrs_kernel::native::keep_meshes(false);
     // (Profiling: the case built over and over, each time in a new session, to sample.)
@@ -352,5 +376,6 @@ fn main() -> ExitCode {
         Err(why) => refused(&why.to_string()),
     };
     println!("{reply}");
+    pause();
     ExitCode::SUCCESS
 }
