@@ -4,9 +4,13 @@
 //! from y = −8 to 8; screwed about z — right-handed, rising 6 a turn — from a turn of −90° to
 //! 1350°.
 //!
-//! Refused by the kernel (`Unbuilt::Curved` on the spline's surface of extrusion): under a screw it
-//! takes planes, balls, and cylinders and cones about axes along the screw's; a free-form face's
-//! contact is not read.
+//! The kernel's closed sweep (`swept::closed::cut_from`) takes the bar whole: under a screw its
+//! closed class takes planes, balls, and cylinders and cones about axes along the screw's, and
+//! refuses the spline's surface of extrusion (`Unbuilt::Curved`); since 0.12.0 such a tool goes
+//! the contact's road — the contact of its free-form side, a face closed across its own seam, cut
+//! where its burial in the tool changes, and its end rims' fans carried over the roll as sheets,
+//! given their meetings and the end poses, trimmed by membership in the sweep, and the result cut
+//! from the rod.
 use cad_kernel::build::{disc, prism, Profile, ProfileEdge};
 use cad_kernel::geom::tolerance;
 use cad_kernel::nurbs::BSpline;
