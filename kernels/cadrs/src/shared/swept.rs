@@ -83,6 +83,31 @@ pub fn cut_swept(k: &mut DefaultKernel, target: BodyId, tool: BodyId, motion: &S
     Ok(k.cut_swept(target, tool, motion)?.first()?)
 }
 
+/// [`cut_swept`], refused where cadrs makes the cut only as a mesh (the region inside the target
+/// and in none of the tool's places, contoured on a grid): a body of flat facets is not the
+/// solid the case describes.
+pub fn cut_swept_exactly(
+    k: &mut DefaultKernel,
+    target: BodyId,
+    tool: BodyId,
+    motion: &SolidMotion,
+) -> Result<BodyId, Refusal> {
+    let made = cut_swept(k, target, tool, motion)?;
+    let body = k.get(made)?;
+    let flat = body
+        .faces()
+        .iter()
+        .filter(|f| matches!(f.surf, cadrs_kernel::native::Surface::Plane { .. }))
+        .count();
+    let curved = body.faces().len() - flat;
+    if curved == 0 && flat > 1000 {
+        return Err(Refusal::from(
+            "cadrs cuts this by its moving tool only as a mesh of flat facets, not as the solid's own faces",
+        ));
+    }
+    Ok(made)
+}
+
 /// The motion of [`slid`].
 pub fn slide(v: V3) -> SolidMotion {
     SolidMotion::slide(v)
@@ -238,8 +263,9 @@ pub fn bevel_tooth(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
 
 /// The blank less what `tooth` passes through as it turns about `pinion` by `roll` (degrees)
 /// while the gear turns by `ratio` times it about the z axis (seen from the gear, by −ratio
-/// times it): cadrs's sweep of a solid under the two turns, applied in order at each instant,
-/// cut from the blank.
+/// times it): cadrs's cut by a moving tool (`Kernel::cut_swept`) under the two turns, applied in
+/// order at each instant. The tooth space's faces are the sheets the tooth's contacts and
+/// edges generate, each fitted by one B-spline.
 pub fn bevel_cut(
     k: &mut DefaultKernel,
     tooth: BodyId,
@@ -254,9 +280,8 @@ pub fn bevel_cut(
             RigidStep::Turn { axis: z_axis(), from: -ratio * t0, to: -ratio * t1 },
         ],
     };
-    let swept = k.sweep_solid(tooth, &motion)?.first()?;
     let blank = bevel_blank(k)?;
-    crate::bench::cut(k, blank, swept)
+    cut_swept_exactly(k, blank, tooth, &motion)
 }
 
 /// The gear ladder's cylindrical worm (`swept/helicon-face-gear-hobbed-by-its-worm`,
@@ -288,8 +313,10 @@ pub fn worm_thread(k: &mut DefaultKernel, at: P3, from: f64, to: f64) -> Result<
 
 /// `blank` less what the worm's thread on the line through `at` along x (from x = `from` to `to`)
 /// passes through as it turns by t about its axis while the gear turns by t/30 about the z axis,
-/// t from 0 to 60π: cadrs's sweep of a solid under the two turns (seen from the gear, by t about the
-/// worm's axis, then by −t/30 about the z axis), cut from the blank.
+/// t from 0 to 60π: cadrs's cut by a moving tool (`Kernel::cut_swept`) under the two turns (seen
+/// from the gear, by t about the worm's axis, then by −t/30 about the z axis). One tooth space
+/// is generated, its faces the sheets of the thread's contacts and edges, and cut thirty times
+/// round.
 pub fn hobbed(k: &mut DefaultKernel, blank: BodyId, at: P3, from: f64, to: f64) -> Result<BodyId, Refusal> {
     use std::f64::consts::{PI, TAU};
     let thread = worm_thread(k, at, from, to)?;
@@ -299,6 +326,5 @@ pub fn hobbed(k: &mut DefaultKernel, blank: BodyId, at: P3, from: f64, to: f64) 
             RigidStep::Turn { axis: z_axis(), from: 0.0, to: -TAU },
         ],
     };
-    let swept = k.sweep_solid(thread, &motion)?.first()?;
-    crate::bench::cut(k, blank, swept)
+    cut_swept_exactly(k, blank, thread, &motion)
 }

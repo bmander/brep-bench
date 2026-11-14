@@ -3,9 +3,9 @@
 //! along x: the pinion turns by t about it while the gear turns by −7t/15 about the z axis, t
 //! from −70° to 70°.
 //!
-//! The tooth as in the straight bevel case, turned; cadrs's sweep of a solid under the two turns
-//! (`SolidMotion::Rigid`, seen from the gear: by t about the pinion's axis, then by 7t/15 about
-//! the z axis), cut from the blank.
+//! The tooth as in the straight bevel case, turned; cadrs's cut by a moving tool under the two
+//! turns (`Kernel::cut_swept`, `SolidMotion::Rigid`, seen from the gear: by t about the pinion's
+//! axis, then by 7t/15 about the z axis).
 use crate::bench::{p3, turned, v3};
 use crate::shared::swept::{bevel_cut, bevel_tooth, z_axis};
 use crate::Refusal;
