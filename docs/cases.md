@@ -226,6 +226,12 @@ Two holes widened until they overlap add a change of topology: their cylindrical
 against each other and the two openings become one. The result is given by the union of two disks
 extruded through the plate, so its measures also have closed forms.
 
+Faces deleted, and the gap they leave closed by the faces round them, each run on along its own
+surface until they meet: a round and a bevel on a block's edge and on a cylinder's rim, the round
+in an L-block's inside corner and the one at a boss's foot, a hole's countersink, three rounds and
+the ball where they meet at a cube's corner, and all twenty rounds of a box. Each result is the
+solid as it was before its round or bevel was made.
+
 ## Filled surfaces (`fill/`)
 
 A surface made to fill a loop of edges, the bilinearly blended Coons patch, capping a block: four
