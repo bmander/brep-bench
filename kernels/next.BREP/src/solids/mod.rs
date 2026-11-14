@@ -14,6 +14,7 @@ pub fn polygon(corners: &[Vec3]) -> Result<Vec<NurbsCurve>, String> {
 
 // Helpers of one group of categories each, so that each group's cases share them.
 pub mod boolean;
+pub mod cnc;
 pub mod draft;
 pub mod fillet;
 pub mod geometry;
