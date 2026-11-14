@@ -83,6 +83,6 @@ pub fn sweep_law(
     twist: f64,
     scale: f64,
 ) -> Result<BodyId, Refusal> {
-    let law = cadrs_kernel::SweepLaw { twist, scale };
+    let law = cadrs_kernel::SweepLaw { twist, scale, ..Default::default() };
     Ok(k.sweep_with_law(profile, &SweepSpec::solid(path), &law)?.first()?)
 }
