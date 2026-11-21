@@ -21,6 +21,7 @@ live; [SPEC.md](../SPEC.md#kernelsjson) describes the fields. The `name` there (
 | [springrep](https://github.com/springcraft-ai/springrep) | `kernels/springrep` (Rust, on its crate, `springrep` from crates.io, pinned in its `Cargo.toml`) |
 | [SMLib](https://github.com/NVIDIA-Omniverse/usd-brep) | `kernels/smlib` (Python, through NVIDIA's `usd-brep` package from PyPI, pinned in its `build`); no STEP, which the package cannot write |
 | [geomsolver](https://github.com/bmander/geomsolver) | `kernels/geomsolver` (Solvent, geomsolver's declarative constraint language: each case a `.sv` document naming its solid `part`, compiled by geomsolver's own `solventc`, built from its source at the release tag `build.py` pins; its solids are built and written as STEP by the core's B-rep kernel, a newer cad-kernel than the one listed above) |
+| [AnvilCAD](https://github.com/swperb/anvilcad) | `kernels/anvilcad` (Rust, on AnvilCAD's exact kernel, `anvil-brep`, and its STEP writer, `anvil-step`, from AnvilCAD's repository at a commit pinned in its `Cargo.toml`); measured from its mesh where it writes no STEP |
 | [monstertruck](https://github.com/virtualritz/monstertruck) | listed, with no runner yet: wanted |
 
 A kernel **measured from its mesh** has no exact measures of its own: the harness takes its volume

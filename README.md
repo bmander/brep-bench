@@ -59,7 +59,7 @@ changes locally. See [running the bench](docs/running.md) for more.
 ## Kernels
 
 Open CASCADE (through Python), arris, cad-kernel, vcad, popkern, SolidCraft, Aetheris, next.BREP,
-kentron, brepkit, geop, cadrs, SMLib, springrep and geomsolver (in its own language, Solvent);
+kentron, brepkit, geop, cadrs, SMLib, springrep, AnvilCAD and geomsolver (in its own language, Solvent);
 monstertruck is listed but has no runner yet. See [the kernels](docs/kernels.md) for links and
 details.
 

@@ -354,6 +354,20 @@
       "source": "kernels/geomsolver/cases/{category}/{name_snake}.sv",
       "step": true,
       "binary": ["kernels/geomsolver/bin/solventc"]
+    },
+    {
+      "name": "anvilcad",
+      "kernel": "https://github.com/swperb/anvilcad",
+      "license": "MIT OR Apache-2.0",
+      "backend": "Rust",
+      "frontend": "Rust (anvil-brep, AnvilCAD's exact kernel, and anvil-step, its STEP writer)",
+      "build": ["cargo", "build", "--release", "--manifest-path", "kernels/anvilcad/Cargo.toml"],
+      "command": ["kernels/anvilcad/target/release/brep-bench-anvilcad"],
+      "version": ["kernels/anvilcad/target/release/brep-bench-anvilcad", "--version"],
+      "measured": "mesh",
+      "source": "kernels/anvilcad/src/cases/{category}/{name_snake}.rs",
+      "step": true,
+      "binary": ["kernels/anvilcad/target/release/brep-bench-anvilcad"]
     }
   ]
 }
