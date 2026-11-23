@@ -14,16 +14,16 @@
 //!
 //! The plate less everything the tools pass through. kentron has no sweep of a solid, so each
 //! move's sweep is built as elementary geometry gives it (`shared::cnc`): a level slide of a flat
-//! mill is its stadium's prism, a lap round a path the mill's section swept round it, and a slide
-//! of a tool along its own axis the tool lengthened. A plunge onto a pass's start, onto a path or
+//! mill is its stadium's prism, a lap round a path the band within its radius of the path
+//! extruded, and a slide of a tool along its own axis the tool lengthened. A plunge onto a pass's start, onto a path or
 //! back up from it passes through nothing that pass or the column the tool stands in at that
 //! depth does not, and the drill's pecks nothing its deepest does, so those are not cut again.
 use crate::bench::{frame, p};
-use crate::shared::cnc::{level_path, milled_round, slid_flat_mill};
+use crate::shared::cnc::{flat_milled_round, level_path, slid_flat_mill};
 use crate::shared::swept::cut_each;
 use kentron::math::Direction;
 use kentron::primitives::{Cone, Cuboid, Cylinder};
-use kentron::sketch::Step::{self, AlongX, AlongY, Arc, Forward, Heading, Start};
+use kentron::sketch::Step::{self, Arc, Forward, Heading, Start};
 use kentron::topology::{Model, Shape};
 
 const DEPTHS: [f64; 3] = [-4.0, -8.0, -12.0];
@@ -42,11 +42,6 @@ const WALL: [Step; 10] = [
 
 /// The island path from (80, 55), clockwise.
 const ISLAND: [Step; 3] = [Start(80.0, 55.0), Heading(-90.0), Arc { radius: -20.0, angle: 360.0 }];
-
-/// A flat mill's section from its tip: `radius` either side of its axis, `LENGTH` up.
-fn flat_section(radius: f64) -> [Step; 5] {
-    [Start(-radius, 0.0), Forward(2.0 * radius), AlongY(LENGTH), AlongX(-2.0 * radius), AlongY(-LENGTH)]
-}
 
 /// The intervals of the line at height `y` the mill's tip keeps to: within the wall path, its
 /// corners' arcs about (32, 32) … (128, 78), and outside the island path.
@@ -74,16 +69,16 @@ pub fn build(m: &mut Model) -> kentron::Result<Shape> {
             }
         }
         let wall = level_path(m, z, &WALL)?;
-        cuts.push(milled_round(m, wall, p(80.0, 25.0, z), Direction::X, &flat_section(MILL))?);
+        cuts.push(flat_milled_round(m, wall, MILL, LENGTH)?);
         let island = level_path(m, z, &ISLAND)?;
-        cuts.push(milled_round(m, island, p(80.0, 55.0, z), -Direction::Y, &flat_section(MILL))?);
+        cuts.push(flat_milled_round(m, island, MILL, LENGTH)?);
     }
     // The bore: at each depth, the mill out from the centre and once round the circle of 6.
     let circle = [Start(66.0, 55.0), Heading(90.0), Arc { radius: 6.0, angle: 360.0 }];
     for z in [-3.0, -6.0] {
         cuts.push(slid_flat_mill(m, (60.0, 55.0), (66.0, 55.0), z, 3.0, LENGTH)?);
         let path = level_path(m, z, &circle)?;
-        cuts.push(milled_round(m, path, p(66.0, 55.0, z), Direction::Y, &flat_section(3.0))?);
+        cuts.push(flat_milled_round(m, path, 3.0, LENGTH)?);
     }
     // The holes: the drill at its deepest, its point from z = −14 to −10, its side up past the
     // plate.

@@ -9,9 +9,10 @@
 //! path, sweeps along it: the pipe of that section round the path, wherever the path turns more
 //! gently than the mill is wide.
 use kentron::math::{Direction, Frame, Point, Vector};
+use kentron::offset::{self, Join};
 use kentron::sketch::{self, Outcome, Step};
-use kentron::sweep;
 use kentron::topology::{Model, Shape};
+use kentron::{boolean, make, properties, sweep};
 
 /// The closed level path the pen `steps` draw on the plane z = `z`.
 pub fn level_path(m: &mut Model, z: f64, steps: &[Step]) -> kentron::Result<Shape> {
@@ -28,6 +29,25 @@ pub fn milled_round(m: &mut Model, path: Shape, start: Point, heading: Direction
     let plane = Frame::new(start, -heading, right);
     let face = sketch::profile(m, plane, section, Outcome::Face)?;
     Ok(sweep::pipe(m, face, path)?.shape)
+}
+
+/// What an upright flat end mill of `radius`, `length` long from its tip, passes through as it
+/// slides once round the closed level `path`, its tip on it: each level of it is a disc, which
+/// slid along the path passes through the band within `radius` of the path. So the band's prism
+/// from the path up `length`: the region between the path's offsets `radius` to either side
+/// (rounded where the path turns away from that side, `Join::Arc`), extruded.
+pub fn flat_milled_round(m: &mut Model, path: Shape, radius: f64, length: f64) -> kentron::Result<Shape> {
+    let mut sides = Vec::new();
+    for distance in [radius, -radius] {
+        let wire = offset::planar_wire(m, path, distance, Join::Arc)?;
+        let face = make::planar_face(m, wire)?;
+        sides.push((properties::area(m, face).mass, face));
+    }
+    sides.sort_by(|a, b| b.0.total_cmp(&a.0));
+    let up = Vector::new(0.0, 0.0, length);
+    let outer = sweep::extrude(m, sides[0].1, up)?.shape;
+    let inner = sweep::extrude(m, sides[1].1, up)?.shape;
+    boolean::difference(m, outer, inner)
 }
 
 /// What an upright flat end mill of `radius`, `length` long from its tip, passes through as it

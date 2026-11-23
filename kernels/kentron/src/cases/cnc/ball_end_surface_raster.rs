@@ -9,12 +9,13 @@
 //! kentron has no sweep of a solid (`sweep::pipe` refuses one), so each straight move is built as
 //! elementary geometry gives it. The mill is its ball and its shank, the cylinder from the ball's
 //! centre up. The ball slid along a line passes through itself at either end and the cylinder of
-//! radius 3 about its centre's path between. The shank passes through itself at either end and
-//! what its faces cross as they slide: its side, split where the slide runs along it (the two
-//! upright lines square to the slide's level part), each half slid along the move, its bottom
-//! (inside the ball all the way, so inside the ball's sweep) and its top (above the plate). A
-//! point the shank covers at some instant that none of its faces crosses stays inside it all the
-//! way, so is in it at both ends. A move straight up or down slides the mill along its own axis:
+//! radius 3 about its centre's path between. The shank, convex, passes through itself at the
+//! move's end and what its trailing faces cross as they slide: a point it covers at some instant
+//! and not at the end leaves it, the last time it is inside, through a face the slide points away
+//! from. Those are the half of its side behind the upright lines where the slide runs along it
+//! (square to the slide's level part), slid along the move, and its bottom (inside the ball all
+//! the way, so inside the ball's sweep) or its top (above the plate). The mill at the start is
+//! the last move's at its end. A move straight up or down slides the mill along its own axis:
 //! it passes through itself at both ends and the ball's cylinder between, the shank above. The
 //! mill at the start, its tip at z = 5, is above the plate.
 use crate::bench::{frame, p, v};
@@ -61,13 +62,11 @@ fn slide(m: &mut Model, a: Point, b: Point, cuts: &mut Vec<Shape>) -> kentron::R
     let along = Cylinder::new(RADIUS, t.length()).with_frame(frame(from, Direction::new(t.x, t.y, t.z))).build(m)?;
     cuts.extend([along, ball, shank]);
     if t.x.hypot(t.y) > 0.0 {
-        // the shank's side in two halves, split where its normal is square to the slide
+        // the trailing half of the shank's side, from where its normal is square to the slide
         let side = Surface::Cylinder(CylinderSurface::new(Frame::new(from, Direction::Z, Direction::new(t.x, t.y, 0.0)), RADIUS));
-        for (u1, u2) in [(-FRAC_PI_2, FRAC_PI_2), (FRAC_PI_2, 3.0 * FRAC_PI_2)] {
-            let half = make::face_on_domain(m, side.clone(), u1, u2, 0.0, SHANK)?;
-            let slid = sweep::extrude(m, half, t)?.shape;
-            cuts.extend(solids(m, slid));
-        }
+        let half = make::face_on_domain(m, side, FRAC_PI_2, 3.0 * FRAC_PI_2, 0.0, SHANK)?;
+        let slid = sweep::extrude(m, half, t)?.shape;
+        cuts.extend(solids(m, slid));
     }
     Ok(())
 }
