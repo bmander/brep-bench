@@ -29,7 +29,7 @@ pub fn bezier(poles: &[V]) -> Result<BSpline, String> {
 /// What the fill of `edges` (four curves end to end round the square from (0, 0) to (10, 10),
 /// each in the upright plane over its side) caps: the wall under each edge down to z = 0, and the
 /// floor. Refused where the edges do not close.
-pub fn walls(edges: &[BSpline; 4]) -> Result<Vec<Brep>, String> {
+fn walls(edges: &[BSpline; 4]) -> Result<Vec<Brep>, String> {
     let ends = |c: &BSpline| { let [a, b] = c.domain(); (c.point(a), c.point(b)) };
     for k in 0..4 {
         let (_, end) = ends(&edges[k]);
@@ -61,8 +61,7 @@ pub fn walls(edges: &[BSpline; 4]) -> Result<Vec<Brep>, String> {
 /// edges and the floor.
 pub fn capped(edges: &[BSpline; 4]) -> Result<Brep, String> {
     let mut faces = walls(edges)?;
-    let [a, b, c, d] = edges;
-    faces.push(sheet(coons([a, b, c, d])?)?);
+    faces.push(sheet(coons(edges.each_ref())?)?);
     Ok(sewn(&faces, tolerance(30.))?)
 }
 
