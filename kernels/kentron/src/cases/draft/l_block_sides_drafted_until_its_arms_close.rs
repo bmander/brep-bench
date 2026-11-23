@@ -4,7 +4,7 @@
 //! which is gone.
 //!
 //! kentron's `draft` keeps the solid's faces and edges, finding them again on the drafted
-//! surfaces, so it cannot close the sides over the top: it returns a wrong solid.
+//! surfaces, so it cannot close the sides over the top: it refuses, as OCCT's does.
 //! The block is the floor extruded 8 up with its sides drafted as they go, the drafted prism,
 //! which meets the sides in ridges where they close.
 use crate::bench::{p, v};

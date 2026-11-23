@@ -5,6 +5,7 @@
 "cnc/bull-nose-profile" = "no sweep of a solid"
 "cnc/flat-end-mill-profile" = "no sweep of a solid"
 "cnc/pocket-with-an-island" = "no sweep of a solid"
+"draft/box-top-drafted-away" = "no draft of sides that close over the solid"
 "draft/cylinder-parted-both-ways" = "no draft of a face apart from a face tangent to it"
 "draft/l-block-sides-drafted-until-its-arms-close" = "no draft of sides that close over the solid"
 "draft/t-block-sides-drafted-until-its-bar-and-stem-close" = "no draft of sides that close over the solid"
