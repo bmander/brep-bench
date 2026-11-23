@@ -1,9 +1,5 @@
 //! The cylinder of radius 3 on the z axis from its flat bottom at z = −10 up to where the plane
 //! z = x·tan 45° cuts it, grown by 1 with rounded edges: every point within 1 of it.
-//!
-//! The kernel sweeps a cylinder's face along its normal only where the face is bounded by its own
-//! parameter lines (circles and rulings); the slanted top bounds the side by an ellipse, and the
-//! offset refuses that face.
 use cad_kernel::build::{disc, kept, prism};
 use cad_kernel::offset::{grown, Join};
 use cad_kernel::topo::Brep;

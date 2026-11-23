@@ -5,8 +5,12 @@
 //! running evenly in u. It is one face, bounded by two parabolic arcs, at y = 0 and y = 10, and two
 //! straight lines, at x = −4 and x = 4.
 //!
-//! Refused, by the kernel: a B-spline surface has no offset in closed form, so `thickened` has no
-//! exact face to move the sheet to (its offset is no B-spline of any degree), and says so.
+//! Refused, by the kernel: "face 0 (bspline) is not swept along its normal: a bspline has no
+//! offset in closed form". `offset::thickened` sweeps each face with `offset::normal_sweep`, which
+//! moves only a plane, cylinder, cone, sphere or torus (the parabola's offset is no B-spline of any
+//! degree). 0.21.0 reads a B-spline sheet's offset exactly (`Surface::parallel`, a
+//! `Surface::Offset` of the net), but the sweep does not use it yet; the trough as an extruded
+//! parabola (`Surface::Extrusion`) is refused the same way.
 use cad_kernel::build::sheet;
 use cad_kernel::nurbs::Net;
 use cad_kernel::offset::{thickened, Join};

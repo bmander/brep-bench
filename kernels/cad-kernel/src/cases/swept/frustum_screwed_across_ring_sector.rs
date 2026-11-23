@@ -3,9 +3,12 @@
 //! z = −0.6 widening to 1 at z = 1.4, screwed about z — right-handed, rising 2 a turn — from a turn
 //! of −140° to +140°.
 //!
-//! Refused by the kernel. `cut_from` takes the frustum (a cone about an axis along the screw's) and
-//! builds a solid, but its own judge finds it disagreeing with the sweep's membership at a witness
-//! point and refuses it rather than return it wrong (`Unbuilt::Wrong`).
+//! Refused by the kernel at run time. `cut_from` takes the frustum (a cone about an axis along the
+//! screw's) and builds a solid, but its own judge (`swept::closed::judge`) finds it disagreeing
+//! with the sweep's membership at a witness point inside the sweep and refuses it rather than
+//! return it wrong (`Unbuilt::Wrong`). The same witness stands with the cutter meshed twice and
+//! four times as finely and with the frustum built as its section revolved; the closed sweep built
+//! alone (`swept::closed::closed`) is refused in its arrangement instead.
 use crate::sketch::polygon;
 use cad_kernel::build::{cone, revolve};
 use cad_kernel::geom::tolerance;

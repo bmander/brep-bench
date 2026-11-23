@@ -20,7 +20,9 @@ centre of gravity and inertia, shown. Open CASCADE (harness/occt.py), where it i
 meshes the file for the drawings and the viewer; nothing it makes is graded. Where there is no
 STEP (a kernel with no writer, or a writer that declined the solid), or the harness cannot measure
 the file, the runner's own measures and triangles are graded, as they always were (where it wrote
-a STEP, from a second run without OUT.step, untimed). The timed run's wall-clock time, the CPU
+a STEP, from a second run without OUT.step, untimed); but not where the harness has found that the
+file holds no solid: that is a wrong answer whatever the runner's triangles are, and the measurer
+says so before it measures, lest a time limit hide it. The timed run's wall-clock time, the CPU
 time it spent (user and system, over every thread) and its peak memory (the largest resident set)
 are kept, from the operating system's account of the runner's process (wait4), which
 harness/measure.py starts and waits for; nothing measured is graded. So is what starting the
@@ -309,15 +311,20 @@ def mass_of(out_step, timeout):
     `mass_command`): {"volume", "area", "centroid", "inertia", ...} (and `by_surface`, the solid
     with its loops taken by their surfaces' normals, where that differs; `by_seam`, with its loops
     along seams taken the way they unwrap, where one runs against the standard), or {"invalid": why}
-    where the file holds no solid, or {"error": why} where it cannot measure the file. Untimed."""
+    where the file holds no solid, or {"error": why} where it cannot measure the file. Untimed.
+    The measurer says that a file holds no solid as soon as it knows, on a line of its own before
+    it measures anything: where it then runs out of time, that is its answer."""
     command = mass_command()
     if isinstance(command, str):
         return {"error": command}
     try:
         p = subprocess.run(command + [out_step], capture_output=True, text=True,
                            timeout=timeout, cwd=ROOT)
-    except subprocess.TimeoutExpired:
-        return {"error": f"not measured in {timeout:g} s"}
+    except subprocess.TimeoutExpired as e:
+        # what it said before it was stopped (bytes, whatever `text` says), if anything
+        said_ = e.stdout or b""
+        return (last_json(said_.decode("utf-8", "replace") if isinstance(said_, bytes) else said_)
+                or {"error": f"not measured in {timeout:g} s"})
     answer = last_json(p.stdout)
     if answer is None:
         said_ = (p.stderr.strip().splitlines() or ["no answer"])[-1]
@@ -536,17 +543,20 @@ def first_run(command, case, timeout, keep, keep_step, writes_step, work):
 def settle(command, case, timeout, keep, made, pending, measured):
     """The grade of a case whose STEP was measured (`measured`, with `by_surface` its loops taken
     by their surfaces' normals, where that differs): (outcome, why, measures, mesh).
-    Where the harness cannot measure the file, the runner's own measures and triangles are graded
-    instead, from a second run without OUT.step, untimed; else Open CASCADE's triangles of the file
-    are kept for the pictures."""
-    if "invalid" in measured:
-        return "wrong", f"its STEP is no solid: {measured['invalid']}", None, None
+    A file that holds no solid (a loop that is not closed, a face whose loops bound no region of
+    its surface) is wrong. Where the harness cannot measure a file it has found no such fault
+    in, the runner's own measures and triangles are graded instead, from a second run without
+    OUT.step, untimed; else Open CASCADE's triangles of the file are kept for the pictures."""
     for key, reason in (("by_surface", BY_SURFACE), ("by_seam", BY_SEAM)):
         other = measured.get(key) or {}
-        if ("error" in measured or grade_step(case, measured)[0] == "wrong") and "volume" in other \
-                and grade_step(case, other)[0] != "wrong":
+        if ("volume" not in measured or grade_step(case, measured)[0] == "wrong") \
+                and "volume" in other and grade_step(case, other)[0] != "wrong":
             # read as its writer means it, the file holds the solid: that is why it fails
             return "wrong", reason, {"status": "ok", "measured": "step", **other}, None
+    if "invalid" in measured:
+        # no solid, whoever reads it: the runner's own measures and triangles are of something
+        # the file does not hold, and are not graded in its place
+        return "wrong", f"its STEP is no solid: {measured['invalid']}", None, None
     with tempfile.TemporaryDirectory() as tmp:
         out_stl = os.path.join(tmp, "result.stl")
         if "error" in measured:

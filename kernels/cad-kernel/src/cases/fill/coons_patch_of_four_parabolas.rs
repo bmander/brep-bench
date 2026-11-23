@@ -3,9 +3,11 @@
 //! arching to 12 through the control points (5, 0, 14) and (0, 5, 14), on x = 10 and y = 10
 //! sagging to 8 through (10, 5, 6) and (5, 10, 6).
 //!
-//! Refused, as `fill/coons-patch-of-four-lines` is: cad-kernel 0.14.0 has no fill of a loop of
-//! curves. The four arcs are built as the kernel's B-splines and the walls and floor under them as
-//! its planar faces; the missing operation is
+//! Refused: cad-kernel 0.21.0 has no fill of a loop of curves. Where the edges are straight
+//! (`fill/coons-patch-of-four-lines`) the Coons patch is the bilinear patch through the corners, a
+//! net written from them; here it is no such net, and writing its poles would be the patch
+//! computed outside the kernel. The four arcs are built as the kernel's B-splines and the walls
+//! and floor under them as its planar faces; the missing operation is
 //! `nurbs::coons(edges: [&BSpline; 4]) -> Result<Net, String>`, the patch's net with the arcs as
 //! its boundary rows, which `sheet` would make a face of and `sew::sewn` close with the rest.
 use super::coons_patch_of_four_lines::{bezier, no_fill, walls};

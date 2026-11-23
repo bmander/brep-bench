@@ -3,9 +3,12 @@
 //! x: the pinion turns by t about it while the gear turns by −7t/15 about the z axis, t from −70°
 //! to 70°.
 //!
-//! As in the straight bevel case, the kernel's arrangement (`swept::closed::cut_from`) takes the
-//! tooth's turn seen from the gear's, no constant twist, only for a convex solid of revolution, and
-//! refuses this polyhedral tooth by what it is.
+//! As in the straight bevel case, the tooth's turn seen from the gear's is no constant twist, and the
+//! tooth is all planes and lines, so the kernel's sweep cut from the blank
+//! (`swept::closed::cut_from`) takes the contact's road under any motion (`swept::general`).
+//!
+//! Refused by the kernel at run time, after about 40 s: its trim finds a piece of a wall's family
+//! both the sweep's boundary and off it, parted by a meeting it was not given (`Unbuilt::Failed`).
 use crate::gears::{bevel_blank, bevel_tooth, in_mesh, turn};
 use cad_kernel::geom::{tolerance, Rigid};
 use cad_kernel::swept::closed::cut_from;

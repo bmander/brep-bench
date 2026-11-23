@@ -2,15 +2,16 @@
 //! −8 ≤ y ≤ 8, −1 ≤ z ≤ 1 carried so that, turned by θ about z (right-handed), it has risen
 //! 6s + 0.3s², s = θ/360°, θ from −90° to 1260°: a lead growing from about 6 to about 8.
 //!
-//! Refused by the kernel. A screw whose lead grows is no constant twist, so the sweep takes the
-//! kernel's road for any other rigid motion (K2), which reads the tool as a convex solid of
-//! revolution and refuses the bar, a box (`Unbuilt::Curved` at its corner).
+//! A screw whose lead grows is no constant twist, so `swept::closed::cut_from` takes the contact's
+//! road under any motion (`swept::general`): each face's contact a chord where its normal is square
+//! to the motion's velocity, walls between them, trimmed by membership and cut from the rod.
 use crate::sketch::block;
 use cad_kernel::build::{disc, prism};
 use cad_kernel::geom::tolerance;
 use cad_kernel::swept::closed::cut_from;
 use cad_kernel::topo::Brep;
 use cad_kernel::trajectory::{Pace, Screw, Trajectory};
+use cad_kernel::util::interval::{Error as IntervalError, Interval};
 use cad_kernel::KernelError;
 use std::f64::consts::TAU;
 use std::sync::Arc;
@@ -45,6 +46,15 @@ impl Pace for Rise {
         if s0 < vertex && vertex < s1 { values.push(Rise::of(vertex)); }
         Ok([values.iter().cloned().fold(f64::INFINITY, f64::min),
             values.iter().cloned().fold(f64::NEG_INFINITY, f64::max)])
+    }
+    /// The rise and its rate over a stretch of θ, in interval arithmetic: `s·(LEAD + GROWTH·s)` and
+    /// `(LEAD + 2·GROWTH·s)/τ`, `s = θ/τ` (what the sweep's candidates' zones are read by).
+    fn enclose(&self, roll: Interval) -> Result<[Interval; 2], IntervalError> {
+        let k = |x: f64| Interval::point(x);
+        let s = roll.div(k(TAU)?)?;
+        let rise = s.mul(k(LEAD)?.add(k(GROWTH)?.mul(s)?)?)?;
+        let rate = k(LEAD)?.add(k(2. * GROWTH)?.mul(s)?)?.div(k(TAU)?)?;
+        Ok([rise, rate])
     }
 }
 

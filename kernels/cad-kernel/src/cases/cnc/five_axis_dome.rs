@@ -4,6 +4,13 @@
 //! meridians and round 15 circles near its pole, then spot-faced and drilled at twelve points
 //! square to it. Every move is a slide, a turn about z or a turn about a level line through the
 //! origin.
+//!
+//! Refused at run time by cad-kernel 0.21.0's swept solids (`swept::closed::cut_from`): the
+//! roughing builds (alone, in 1.5 s), but each of the three leaning cutters' programs — the
+//! ball-end mill turned about level lines with its axis through the turn's, the flat mill and the
+//! drill turned about z while leaning to it — is refused at once, each on its own blank as well, as
+//! `Unbuilt::Curved` ("its envelope sheets are curved past what the candidates hold": a cylinder
+//! about an axis leaning to a turn's whose contact the closed class reads no candidate for).
 use crate::cnc::{cutter, standing, Cutter, Program};
 use cad_kernel::build::{disc, prism};
 use cad_kernel::geom::tolerance;

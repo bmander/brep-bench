@@ -3,10 +3,12 @@
 //! annuli, and its bore a rational B-spline surface lying exactly on the drum's cylinder (the
 //! rational quadratic circle of nine control points from (0, 5) round to it, degree 1 along z).
 //!
-//! Refused, by the kernel's Boolean: the sleeve is built and sewn shut (its volume 144π, valid),
-//! but the union says "a piece of a cylinder touches `bore` (a bspline) at (−5, 0, 2.51) along no
-//! face of either: move the one off the other's face, or into it" — it does not recognise the
-//! B-spline bore as lying on the drum's cylinder.
+//! Refused at run time by cad-kernel 0.21.0's Boolean: the sleeve is built and sewn shut (its
+//! volume 144π, valid), but the union does not recognise the B-spline bore as lying on the drum's
+//! cylinder and meets the two as surfaces crossing: "a cylinder and a bspline meet at 0.00° at
+//! [0.2980, −4.9911, 2.5000], nearly touching: their meeting is ill-conditioned there, not built
+//! yet" (`ssi`). The operands the other way round, and `boolean::combined_written`, are refused
+//! the same way.
 use cad_kernel::boolean::{combined, Op};
 use cad_kernel::build::{disc, face, grid_sheet, prism, tube, Profile, ProfileEdge};
 use cad_kernel::geom::{tolerance, Frame};

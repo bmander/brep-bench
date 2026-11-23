@@ -4,9 +4,14 @@
 //!
 //! The blank is its meridian quadrilateral revolved; the tooth a prism kept behind its four flank
 //! planes through O. The tooth's turn seen from the gear's (`Trajectory::Relative`) is no constant
-//! twist, and the kernel's arrangement cuts the sweep from the blank (`swept::closed::cut_from`)
-//! under such a motion only for a convex solid of revolution; it refuses this polyhedral tooth by
-//! what it is.
+//! twist and keeps no plane, and the tooth is all planes and lines, so the kernel's sweep cut from
+//! the blank (`swept::closed::cut_from`) takes the contact's road under any motion
+//! (`swept::general`).
+//!
+//! Refused by the kernel at run time, before the trim: a wall between two of the contact's events
+//! cannot be fitted through its stations, which stand too close to tell apart (`family::Stations`,
+//! "a face family's stations stand on one another", `Unbuilt::Failed`). It is refused alike with
+//! the sweep built closed alone (`swept::closed::closed`) and over the roll's first half alone.
 use crate::gears::{bevel_blank, bevel_tooth, in_mesh, turn};
 use cad_kernel::geom::tolerance;
 use cad_kernel::swept::closed::cut_from;

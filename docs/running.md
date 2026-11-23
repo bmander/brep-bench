@@ -31,7 +31,10 @@ where it is not built or is older than its sources, so a STEP kernel's run needs
 Open CASCADE (`harness/occt.py`, where
 `cadquery-ocp` is installed) meshes the file for the drawings and the viewer. A kernel with no STEP
 to give, or a file the harness cannot measure, is graded on the runner's own measures and
-triangles. The files are measured once all of a kernel's timed runs are done (so that nothing runs
+triangles; a file that holds no solid (a loop that is not closed, a face whose loops plainly bound
+no region of its surface) is wrong, and the measurer says so before it measures, on a line of its
+own, so that it is known of a file it then runs out of time on. The files are measured once all
+of a kernel's timed runs are done (so that nothing runs
 beside those), as many at once as the run may use cores (`--jobs`), each in `--mass-timeout`
 seconds (30 by default) and its pictures' meshing in 15; and what each file measured is kept by
 its SHA-256 in `results/mass/<kernel>.json`, so that a file a kernel writes again byte for byte is

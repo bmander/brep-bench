@@ -4,7 +4,10 @@
 //!
 //! Refused, by the kernel: "`right roof` with `left roof` meet too nearly flat or too sharply to
 //! round". `fillet::roll` rolls a ball only between faces turning more than 1° from one another,
-//! and the two roof faces turn through 1°, at that bound.
+//! (`fillet`'s `MIN_TURN`, π/180), and the two roof faces turn through 1°, at that bound.
+//! `rounds::rounded` rolls the edge the same way: its one-call surgery between planes rounds only
+//! a set of edges taking in every edge at each vertex it reaches, and the ridge's ends meet the
+//! caps.
 use crate::sketch::polygon;
 use cad_kernel::boolean::{combined, Op};
 use cad_kernel::build::prism;

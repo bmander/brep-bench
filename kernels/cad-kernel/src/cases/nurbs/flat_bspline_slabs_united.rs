@@ -4,10 +4,12 @@
 //! Bézier patch on x = 5, 12, 15 by y = 3, 4, 13 at z = 4. The patches overlap on
 //! 5 ≤ x ≤ 10, 3 ≤ y ≤ 10.
 //!
-//! Refused, by the kernel's Boolean: each slab is built and sewn shut (volumes 400 and 300, both
-//! valid), but their union says "a piece of a bspline touches a bspline at (7.64, 3.50, 4) along
-//! no face of either: move the one off the other's face, or into it" — it does not find the two
-//! flat patches lying in one plane.
+//! Refused at run time by cad-kernel 0.21.0's Boolean: each slab is built and sewn shut (volumes
+//! 400 and 300, both valid), but the union does not find the two flat patches lying in one plane
+//! and meets them as surfaces crossing: "a bspline and a bspline meet at 0.00° at [10.0000,
+//! 10.0000, 4.0000], nearly touching: their meeting is ill-conditioned there, not built yet"
+//! (`ssi`). The operands the other way round, and `boolean::combined_written`, are refused the
+//! same way.
 use crate::sketch::polygon;
 use cad_kernel::boolean::{combined, Op};
 use cad_kernel::build::{face, sheet};

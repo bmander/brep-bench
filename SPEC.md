@@ -1,4 +1,4 @@
-# brep-bench specification, version 1.17
+# brep-bench specification, version 1.18
 
 brep-bench works like Rosetta Code. Each **case** describes a solid in plain words and gives its
 volume and area as closed forms. Each **kernel** has its own **implementation** of each case,
@@ -351,13 +351,23 @@ holds, surface by surface and edge by edge, and integrates over each face by the
 Green theorems, to well within the grade's 1e-6; it relies on no kernel's reader, and on none of
 the file's curves in a surface's parameters, which writers often leave out. A solid whose faces
 face into it (its volume negative) is **inside out**, and a wrong answer; so is a file a loop of
-which is not closed (its edges do not meet, vertex to vertex), which is no solid. An edge's curve
+which is not closed (its edges do not meet, vertex to vertex), which is no solid; and so is a file
+a face of which has loops that bound no region of its surface: they run clockwise about the face's
+normal, on a surface they do not close round, so that the face is the rest of its surface, which
+no edge ends, and the shell is open however its edges pair. (The harness says that only where it
+is plain: the loops lie on the surface where it has followed them, and wind against the normal
+beyond doubt. A face it cannot follow on its surface is one it cannot measure, as below.) An
+edge's curve
 may end a writer's tolerance from its vertex: the harness closes gaps of up to 1e-5 of the solid's
 size, which moves its measures by about as much. Where the harness cannot measure a file (a surface
 or a curve it does not yet read, or a file it does not finish in its own time limit, 30 s by
 default), it says why, and grades the runner's own measures and triangles in its place, from a
-second run without `OUT.step`, untimed. None of this is a kernel's time: the files are measured
-after all of a kernel's timed runs, several at once. Open CASCADE
+second run without `OUT.step`, untimed. That is only for a file it has found no fault in: the
+runner's triangles are of the kernel's solid, not of what the file holds, and a file that holds no
+solid is a wrong answer whatever they are. So the harness looks for those faults before it
+measures anything, from the loops alone, and what it finds stands even where the measuring then
+runs out of time or stops at a face it cannot read. None of this is a kernel's time: the files are
+measured after all of a kernel's timed runs, several at once. Open CASCADE
 (`harness/occt.py`, where `cadquery-ocp` is installed) meshes the file for the drawings and the case
 page's viewer; nothing it makes is graded.
 
@@ -456,6 +466,12 @@ One entry per kernel:
 
 ## Versions
 
+- **1.18:** a STEP file a face of which has loops that plainly bound no region of its surface
+  holds no solid, and is a wrong answer. Until now the harness said of such a file only that it
+  could not measure it, and graded the runner's own measures and triangles in its place, as it
+  does for a file it cannot read or does not finish; so a file whose shell was open passed on
+  triangles that were closed. The harness now finds the fault before it measures, so that a file
+  too slow to measure, or one with another face it cannot read, does not escape it.
 - **1.17:** a case may give its solid's centroid and inertia tensor, graded beside its volume and
   area, and its own tolerance. A case may name a reference shape, a STEP file beside it, in place
   of a description (`reference`, and `reference_mesh` for its triangles): its answer is the file's

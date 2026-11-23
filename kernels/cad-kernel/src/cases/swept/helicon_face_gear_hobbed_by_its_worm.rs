@@ -3,10 +3,12 @@
 //! x = 0 to 52: the worm turns by t about its axis while the gear turns by t/30, t from 0 to 60π.
 //!
 //! The ring is a disc less a disc, each a prism; the thread its axial trapezoid screwed
-//! (`build::screwed`, exact), cut to its ends and placed. Seen from the gear the worm's turn is no
-//! constant twist, and the kernel's arrangement cuts the sweep from the blank
-//! (`swept::closed::cut_from`) under such a motion only for a convex solid of revolution; it refuses
-//! the thread by what it is.
+//! (`build::screwed`, exact), cut to its ends and placed.
+//!
+//! Refused by the kernel at run time. Seen from the gear the worm's turn is no constant twist, and
+//! the kernel's sweep cut from a blank (`swept::closed::cut_from`) reads a tool under such a motion
+//! only as a convex solid of revolution (K2) or as all planes and lines (`swept::general`); the
+//! thread's helicoidal flanks are neither, and it is refused by what it is (`Unbuilt::Curved`).
 use crate::gears::hobbed;
 use cad_kernel::boolean::{combined, Op};
 use cad_kernel::build::{disc, prism};

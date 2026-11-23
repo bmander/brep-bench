@@ -1,4 +1,10 @@
 //! The reverse member of a crossed pair of torus sweeps. See cases/swept/tumbling-torus-crossed-reverse.md for the continuous solid.
+//!
+//! Swept by the kernel's road for a ring under a motion no constant twist takes
+//! (`swept::closed::ring`, through `crate::tumble`), which builds the half-turn, full-turn and thin
+//! tumbling tori; it refuses this one at run time in cad-kernel 0.21.0 (that road, #942, is still
+//! in progress): it cannot read the ring's contact curves at an instant of the roll as the
+//! first instant's (`Unbuilt::Curved`).
 use crate::tumble::Tumble;
 use cad_kernel::topo::Brep;
 

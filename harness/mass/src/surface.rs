@@ -589,8 +589,18 @@ impl BSplineSurface {
 
 /// The (u, v) of the point of `s` nearest `q`, by Newton's method from (u, v), kept within
 /// the surface's bounded parameters.
+///
+/// Where the surface's two rates run together (along a fold of an envelope, where S_u × S_v
+/// passes through nothing though neither rate does) Newton's step is the quotient of two
+/// roundings: it never settles, and its last point may be far from `q`. A Newton that ran out
+/// of steps still asking for one is tried again with its steps damped (`damped`), and the
+/// damped point is the answer where it is nearer `q` by more than rounding. One that settled
+/// answers as it always has, to the last bit.
 fn newton2(s: &Surface, q: V3, mut u: f64, mut v: f64) -> R<Uv> {
     let [(u0, u1), (v0, v1)] = s.domain;
+    let from = (u, v);
+    // whether it stopped moving, and the last step it asked for
+    let (mut settled, mut asked) = (false, 0.0);
     for _ in 0..60 {
         let (p, su, sv) = s.ev(u, v)?;
         let e = sub(q, p);
@@ -605,6 +615,7 @@ fn newton2(s: &Surface, q: V3, mut u: f64, mut v: f64) -> R<Uv> {
             } else if gg != 0.0 {
                 (du, dv) = (0.0, b / gg);
             } else {
+                settled = true;
                 break;
             }
         } else {
@@ -619,6 +630,7 @@ fn newton2(s: &Surface, q: V3, mut u: f64, mut v: f64) -> R<Uv> {
                 *d = (span / 4.0).copysign(*d);
             }
         }
+        asked = pymax(du.abs() / (1.0 + u.abs()), dv.abs() / (1.0 + v.abs()));
         let (mut nu, mut nv) = (u + du, v + dv);
         match s.periods[0] {
             None => nu = pymin(pymax(nu, u0), u1),
@@ -634,10 +646,83 @@ fn newton2(s: &Surface, q: V3, mut u: f64, mut v: f64) -> R<Uv> {
             (nu - u).abs() < 1e-15 * (1.0 + u.abs()) && (nv - v).abs() < 1e-15 * (1.0 + v.abs());
         (u, v) = (nu, nv);
         if done {
+            settled = true;
             break;
         }
     }
+    if !settled && asked > UNSETTLED {
+        let off = norm(sub(q, s.ev(u, v)?.0));
+        let (uv, nearer) = damped(s, q, from.0, from.1)?;
+        if nearer < off - UNSETTLED * (1.0 + pymax(pymax(q[0].abs(), q[1].abs()), q[2].abs())) {
+            return Ok(uv);
+        }
+    }
     Ok((u, v))
+}
+
+/// The step, as a fraction of its parameter's size, that a Newton out of steps may still ask
+/// for and be rounding's alone; and how much nearer the point, as a fraction of its place's
+/// size, the damped iteration must come to be taken instead.
+const UNSETTLED: f64 = 1e-9;
+
+/// The (u, v) of a point of `s` near `q`, and how far from `q` it is: from (u, v) by Newton's
+/// steps damped (Levenberg's), each taken only if it comes nearer, so that where the surface's
+/// rates run together and the undamped step is noise it still comes down onto the surface.
+/// Along such a fold the nearest point is not one the arithmetic can tell from its neighbours
+/// along the fold: this is a point as near `q` as they are, which is what a loop laid through
+/// it needs.
+fn damped(s: &Surface, q: V3, mut u: f64, mut v: f64) -> R<(Uv, f64)> {
+    let [(u0, u1), (v0, v1)] = s.domain;
+    let held = |x: f64, i: usize| -> R<f64> {
+        let (a, b) = [(u0, u1), (v0, v1)][i];
+        match s.periods[i] {
+            None => Ok(pymin(pymax(x, a), b)),
+            Some(per) if a.is_finite() => Ok(a + pymod(x - a, per)?),
+            _ => Ok(x),
+        }
+    };
+    (u, v) = (held(u, 0)?, held(v, 1)?);
+    let (p, mut su, mut sv) = s.ev(u, v)?;
+    let mut e = sub(q, p);
+    let mut d2 = dot(e, e);
+    let mut mu = 1e-3;
+    for _ in 0..200 {
+        let (ee, ff, gg) = (dot(su, su), dot(su, sv), dot(sv, sv));
+        let (a, b) = (dot(su, e), dot(sv, e));
+        let most = pymax(ee, gg);
+        if most == 0.0 {
+            break;
+        }
+        // the damping raised until the step comes nearer
+        let mut moved = None;
+        while mu <= 1e12 {
+            let (m, n) = (ee + mu * most, gg + mu * most);
+            let det = m * n - ff * ff;
+            let (nu, nv) = (
+                held(u + (n * a - ff * b) / det, 0)?,
+                held(v + (m * b - ff * a) / det, 1)?,
+            );
+            let at = s.ev(nu, nv)?;
+            let ne = sub(q, at.0);
+            if dot(ne, ne) < d2 {
+                moved = Some((nu, nv, at, ne));
+                break;
+            }
+            mu *= 10.0;
+        }
+        let Some((nu, nv, at, ne)) = moved else { break };
+        let done =
+            (nu - u).abs() < 1e-15 * (1.0 + u.abs()) && (nv - v).abs() < 1e-15 * (1.0 + v.abs());
+        (u, v) = (nu, nv);
+        (su, sv) = (at.1, at.2);
+        e = ne;
+        d2 = dot(e, e);
+        mu = pymax(mu / 10.0, 1e-15);
+        if done {
+            break;
+        }
+    }
+    Ok(((u, v), d2.sqrt()))
 }
 
 impl Swept {

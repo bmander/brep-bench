@@ -41,9 +41,17 @@ impl Path {
 
     /// (u, v, du/dt, dv/dt) at `t`, on the surface `s`.
     pub fn uv(&self, s: &View, t: f64) -> R<(f64, f64, f64, f64)> {
+        let (u, v, du, dv, _) = self.uv_square(s, t)?;
+        Ok((u, v, du, dv))
+    }
+
+    /// (u, v, du/dt, dv/dt) at `t`, on the surface `s`, and how square the surface's rates
+    /// stand there: the square of the sine of the angle between S_u and S_v (1 along a line of
+    /// the (u, v) plane, which asks nothing of them).
+    pub fn uv_square(&self, s: &View, t: f64) -> R<(f64, f64, f64, f64, f64)> {
         if let Some((a, b)) = self.line {
             let (du, dv) = (b.0 - a.0, b.1 - a.1);
-            return Ok((a.0 + t * du, a.1 + t * dv, du, dv));
+            return Ok((a.0 + t * du, a.1 + t * dv, du, dv, 1.0));
         }
         let c = self.c.as_ref().unwrap();
         let (q, d) = c.eval(t)?;
@@ -57,9 +65,15 @@ impl Path {
         let (a, b) = (dot(su, d), dot(sv, d));
         let det = ee * gg - ff * ff;
         if det <= 0.0 {
-            return Ok((u, v, 0.0, 0.0));
+            return Ok((u, v, 0.0, 0.0, if ee * gg > 0.0 { 0.0 } else { 1.0 }));
         }
-        Ok((u, v, (gg * a - ff * b) / det, (ee * b - ff * a) / det))
+        Ok((
+            u,
+            v,
+            (gg * a - ff * b) / det,
+            (ee * b - ff * a) / det,
+            det / (ee * gg),
+        ))
     }
 
     fn guess(&self, t: f64) -> Uv {
@@ -80,6 +94,14 @@ impl Path {
         let ((ta, a), (tb, b)) = (rf[lo], rf[hi]);
         let f = if tb != ta { (t - ta) / (tb - ta) } else { 0.0 };
         (a.0 + f * (b.0 - a.0), a.1 + f * (b.1 - a.1))
+    }
+
+    /// The path's points on the (u, v) plane, in order: a line's two ends, else its samples.
+    pub fn points(&self) -> impl Iterator<Item = Uv> + '_ {
+        let ends = self.line.map(|(a, b)| [a, b]);
+        ends.into_iter()
+            .flatten()
+            .chain(self.rf.iter().map(|x| x.1))
     }
 
     pub fn start(&self) -> Uv {

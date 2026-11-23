@@ -6,7 +6,10 @@
 //! `rounds::rounded` builds rounds that meet at a corner in one piece, but two that share no
 //! vertex, as these do not, it rolls each on its own in turn with `fillet::roll`, and a ball of
 //! radius 1 between a side and the flat 0.00014 wide has no room on the flat: the round that runs
-//! from side to side past it is not one the kernel looks for.
+//! from side to side past it is not one the kernel looks for (`fillet::roll`, and so `rounded`,
+//! rolls a ball only between the two faces of an edge, and the sides `right` and `back` share
+//! none). Rolling either edge alone (`roll` at a point on it) is refused the same way, and no
+//! operation of 0.21.0 removes the flat first.
 use crate::sketch::polygon;
 use cad_kernel::build::prism;
 use cad_kernel::geom::{tolerance, V};

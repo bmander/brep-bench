@@ -175,6 +175,17 @@ pub fn kronrod() -> &'static [(f64, f64, f64); 15] {
 pub const TOLERANCE: f64 = 1e-11;
 /// The most points the integral along one piece of a loop may take, before it is given up.
 pub const BUDGET: usize = 3000000;
+/// How near together a surface's two rates S_u and S_v may run, as the square of the sine of the
+/// angle between them, before the integral round a loop is taken by chords there (face.rs,
+/// `chords`): a hundredth of a radian. A pole, where one rate is nothing, is not this: the sine
+/// is of the angle, whatever the rates' lengths.
+pub const FOLDED: f64 = 1e-4;
+/// How far a path's rate, integrated over a panel, may come from how far the path went over it,
+/// as a fraction of that, and be a writer's tolerance (face.rs, `adaptive`). A curve standing a
+/// tolerance off a surface that bends is that fraction longer or shorter than its image on the
+/// surface, and neither is the edge more truly than the other; past this the two have parted for
+/// another reason, and the loop does not close.
+pub const PARTED: f64 = 1e-6;
 /// The measures integrated, in order: the face's area in (u, v), its area, the solid's volume, its
 /// first moments ∫x, ∫y, ∫z, its second moments ∫x², ∫y², ∫z², ∫xy, ∫yz, ∫zx.
 pub const NM: usize = 12;

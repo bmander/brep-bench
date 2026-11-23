@@ -8,9 +8,12 @@
 //! slide, turn or screw, nor a path of them, so a motion the kernel reads by evaluating it
 //! (`Trajectory::General`, its K2 road), which takes a convex tool of revolution.
 //!
-//! Refused by the kernel: the sheet each instant's contact sweeps cannot be fitted to the
-//! arrangement's tolerance (`Unbuilt::Failed`: it fits only to about 1.9 along the loop and 1.4
-//! along the roll), before its fold or its return onto itself is reached.
+//! Refused by the kernel at run time: the sheet each instant's contact sweeps cannot be fitted to
+//! the arrangement's tolerance (`Unbuilt::Failed`: it fits only to about 1.9 along the loop and 1.4
+//! along the roll), before its fold or its return onto itself is reached. The same refusal stands
+//! with the mill carried by the kernel's own frame along the curve (`trajectory::Along`, which
+//! turns it only about its own axis, so sweeps the same set); the mill is no prism, so the planar
+//! road (`swept::planar_solid`) does not take it.
 use crate::sketch::block;
 use cad_kernel::build::{revolve, Profile, ProfileEdge};
 use cad_kernel::geom::{tolerance, Frame, V};

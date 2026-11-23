@@ -3,11 +3,17 @@
 //! its seam on the half plane y = 0, x ≥ 0) and its ends flat discs, the rim where the side meets
 //! the top rounded to radius 1.
 //!
-//! Refused, by the kernel: "a fillet's run cannot be cut off where it ends: a shell of the
+//! Refused, by the kernel (0.21.0): "a fillet's run cannot be cut off where it ends: a shell of the
 //! arrangement is kept on one side of a plane (`end`) and dropped on another: two of its cells
-//! joined round an edge". Since 0.14.0 a ball rolls on a B-spline sheet (`Surface::Offset`, the
-//! sheet's offset read by its signed distance), so the round along `east`'s rim is made; it is the
-//! cutting off of that run at its ends (`fillet::trimmed`) that the kernel refuses.
+//! joined round an edge". A ball rolls on a B-spline sheet (`Surface::Offset`, the sheet's offset
+//! read by its signed distance), so the round along the rim is made, but `fillet::roll` reads the
+//! side's two faces (`build::grid_sheet` cuts a closed sheet into two at least) as two runs and
+//! refuses cutting the run along one of them off at its ends. Tried as well, refused alike: the
+//! side cut into four faces, both faces given one name, the rim picked on the other face; and the
+//! side as a single face closed on its seam (`build::lofted` with the net as its one ring), whose
+//! rim is one closed run, where the piece `roll` builds fails its own check ("face 1 (a): loop 0
+//! turns the wrong way"): the strip of the side between the rim and the contact is laid across
+//! the sheet's seam with no area in its parameters.
 use cad_kernel::boolean::{combined, Op};
 use cad_kernel::build::{disc, face, grid_sheet};
 use cad_kernel::fillet::roll;

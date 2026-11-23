@@ -3,8 +3,10 @@
 //! offset out along its normal through the poles, the ball of radius 7.
 //!
 //! Refused, by the kernel: "`east` (bspline) is not swept along its normal: a bspline has no
-//! offset in closed form". `offset::grown` moves a face only by its surface's offset in closed
-//! form, and does not read the rational net as the sphere it is.
+//! offset in closed form". `offset::grown` sweeps a face along its normal only on a plane,
+//! cylinder, cone, sphere or torus (`offset::normal_sweep`), and does not read the rational net as the
+//! sphere it is. 0.21.0 reads a B-spline sheet's offset exactly (`Surface::parallel`, a
+//! `Surface::Offset` of the net), but the offset's sweep does not use it yet.
 use crate::cases::geometry::nurbs_sphere;
 use cad_kernel::offset::{grown, Join};
 use cad_kernel::topo::Brep;
