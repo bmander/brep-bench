@@ -3,18 +3,14 @@
 //! face; the bevel, the frustum's side, then deleted, the top running on from radius 4 and the side
 //! from z = 8 until they meet in the circle of radius 6 at z = 10.
 //!
-//! Refused. cad-kernel builds the beveled cylinder: a `prism` of a `disc` joined to the frustum
-//! `build::cone`, or the rim taken off by `fillet::flat_along`. What is missing is the edit.
-//! cad-kernel deletes no face of a solid: nothing in `boolean`, `fillet`, `rounds`, `offset` or
-//! `sew` takes faces out of a boundary and runs the faces round them on along their own surfaces
-//! until they close the gap, and `offset::normal_sweep` sweeps a face along its normal without
-//! extending any face beside it. Joining back the ring the bevel took would be the result drawn
-//! again, not the bevel deleted.
+//! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
+//! their own surfaces and closes the gap they part off.
+use crate::sketch::{deleting, faces_on, turned};
+use cad_kernel::geom::Surface;
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes the bevel's cone \
-         out and runs the top on outward from radius 4 and the side up from z = 8 until they meet \
-         in the circle of radius 6 at z = 10"
-        .into())
+    let b = turned(&[[6., 0.], [6., 8.], [4., 10.]])?;
+    let bevel = faces_on(&b, &|s| matches!(s, Surface::Cone(..)));
+    deleting(&b, &bevel)
 }

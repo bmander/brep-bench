@@ -4,18 +4,13 @@
 //! together, the shaft's cylinder below and above the groove, one surface, running on across it
 //! until it is one face again.
 //!
-//! Refused. cad-kernel builds the grooved shaft: a `prism` of a `disc` cut by the ring the groove
-//! takes, its meridian triangle turned by `build::revolve` (or two `build::cone` frustums cut from
-//! it). What is missing is the edit. cad-kernel deletes no face of a solid: nothing in `boolean`,
-//! `fillet`, `rounds`, `offset` or `sew` takes faces out of a boundary and runs the faces round
-//! them on along their own surfaces until they close the gap, and `offset::normal_sweep` sweeps a
-//! face along its normal without extending any face beside it. Joining back the ring the groove
-//! took would be the result drawn again, not the groove deleted.
+//! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
+//! their own surfaces and closes the gap they part off.
+use crate::sketch::{deleting, faces_through, turned};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes the groove's two \
-         cones out and runs the shaft's cylinder on across it from z = 8 to z = 12 until it is one \
-         face"
-        .into())
+    let b = turned(&[[5., 0.], [5., 8.], [3., 10.], [5., 12.], [5., 20.]])?;
+    let groove = faces_through(&b, &[[4., 0., 9.], [4., 0., 11.]])?;
+    deleting(&b, &groove)
 }

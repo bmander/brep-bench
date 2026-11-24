@@ -3,18 +3,22 @@
 //! 8) where they meet; all four then deleted, the faces x = 10, y = 10 and z = 10 running on until
 //! they meet in the three edges and the corner.
 //!
-//! Refused. cad-kernel builds the rounded cube: the cube a `prism`, its three edges rounded
-//! together by `rounds::rounded`, which closes their corner with the ball. What is missing is the
-//! edit. cad-kernel deletes no face of a solid: nothing in `boolean`, `fillet`, `rounds`, `offset`
-//! or `sew` takes faces out of a boundary and runs the faces round them on along their own surfaces
-//! until they close the gap, and `offset::normal_sweep` sweeps a face along its normal without
-//! extending any face beside it. Building the cube without its rounds would be the result drawn
-//! again, not the rounds deleted.
+//! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
+//! their own surfaces and closes the gap they part off.
+use crate::sketch::{block, deleting, faces_on};
+use cad_kernel::boolean::{combined, Op};
+use cad_kernel::geom::{tolerance, Surface};
+use cad_kernel::rounds::rounded;
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes the three quarter \
-         cylinders and the corner's eighth of a ball out and runs the faces x = 10, y = 10 and \
-         z = 10 on until they meet in the three edges and the corner (10, 10, 10)"
-        .into())
+    // the cube's three edges at (10, 10, 10) rounded and the corner balled: the cube kept within a
+    // box reaching past its other faces, every edge of that box rounded to 2
+    let reach = block([-5., -5., -5.], [10., 10., 10.])?;
+    let every: Vec<usize> = (0..reach.edges.len()).collect();
+    let reach = rounded(&reach, &every, 2., tolerance(reach.size()))?;
+    let b = combined(&block([0., 0., 0.], [10., 10., 10.])?, &reach, Op::Common, 0.)?;
+    // the rounds are the faces that are not flat: three cylinders and the ball
+    let rounds = faces_on(&b, &|s| !matches!(s, Surface::Plane(..)));
+    deleting(&b, &rounds)
 }

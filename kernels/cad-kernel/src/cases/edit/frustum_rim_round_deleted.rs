@@ -3,17 +3,16 @@
 //! (7 − √5)/2 at z = 5; the round then deleted, the top running on outward and the cone up until
 //! they meet in the circle of radius 3 at z = 6.
 //!
-//! Refused. cad-kernel builds the rounded frustum: a `build::cone`, its top rim rolled by
-//! `fillet::roll` and the round's piece cut away. What is missing is the edit. cad-kernel deletes
-//! no face of a solid: nothing in `boolean`, `fillet`, `rounds`, `offset` or `sew` takes faces out
-//! of a boundary and runs the faces round them on along their own surfaces until they close the
-//! gap, and `offset::normal_sweep` sweeps a face along its normal without extending any face beside
-//! it. Joining back the ring the round took would be the result drawn again, not the round deleted.
+//! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
+//! their own surfaces and closes the gap they part off.
+use crate::sketch::{deleting, faces_on, named, rounded_edge};
+use cad_kernel::build::cone;
+use cad_kernel::geom::Surface;
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes the rim's torus \
-         out and runs the top on outward and the cone up until they meet in the circle of radius \
-         3 at z = 6"
-        .into())
+    let b = named(cone([0., 0., 0.], [0., 0., 1.], 6., 3., 6.)?);
+    let b = rounded_edge(&b, [0., 3., 6.], 1.)?;
+    let round = faces_on(&b, &|s| matches!(s, Surface::Torus(..)));
+    deleting(&b, &round)
 }

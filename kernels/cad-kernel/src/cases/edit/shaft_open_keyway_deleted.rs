@@ -3,17 +3,17 @@
 //! floor y = −3, its walls x = −1 and x = 1 and its end z = 8; all four then deleted, the cylinder
 //! closing over the keyway and the top growing back to a whole disc.
 //!
-//! Refused. cad-kernel builds the keyed shaft: a `prism` of a `disc` cut by a box, a `prism` of a
-//! rectangle, from z = 8 up past the top. What is missing is the edit. cad-kernel deletes no face
-//! of a solid: nothing in `boolean`, `fillet`, `rounds`, `offset` or `sew` takes faces out of a
-//! boundary and runs the faces round them on along their own surfaces until they close the gap, and
-//! `offset::normal_sweep` sweeps a face along its normal without extending any face beside it.
-//! Joining back the keyway's box would be the result drawn again, not the keyway deleted.
+//! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
+//! their own surfaces and closes the gap they part off.
+use crate::sketch::{block, deleting, faces_through};
+use cad_kernel::boolean::{combined, Op};
+use cad_kernel::build::{disc, prism};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes the keyway's floor \
-         y = −3, its walls x = ±1 and its end z = 8 out and closes the cylinder of radius 5 over \
-         it, the top growing back to a whole disc"
-        .into())
+    let shaft = prism(&disc([0., 0., 0.], [0., 0., 1.], 5.), 0., 20.)?;
+    let b = combined(&shaft, &block([-1., -10., 8.], [1., -3., 21.])?, Op::Cut, 0.)?;
+    // the floor, the two walls and the end
+    let keyway = faces_through(&b, &[[0., -3., 15.], [1., -4., 15.], [-1., -4., 15.], [0., -4., 8.]])?;
+    deleting(&b, &keyway)
 }

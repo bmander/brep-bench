@@ -4,17 +4,17 @@
 //! 4 and the side up from z = 8 and down from z = 2 until they meet in the circles of radius 6 at
 //! z = 10 and at z = 0.
 //!
-//! Refused. cad-kernel builds the rounded cylinder: a `prism` of a `disc`, each rim rolled by
-//! `fillet::roll` and its piece cut away. What is missing is the edit. cad-kernel deletes no face
-//! of a solid: nothing in `boolean`, `fillet`, `rounds`, `offset` or `sew` takes faces out of a
-//! boundary and runs the faces round them on along their own surfaces until they close the gap, and
-//! `offset::normal_sweep` sweeps a face along its normal without extending any face beside it.
-//! Joining back the rings the rounds took would be the result drawn again, not the rounds deleted.
+//! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
+//! their own surfaces and closes the gap they part off.
+use crate::sketch::{deleting, faces_on, named, rounded_edge};
+use cad_kernel::build::{disc, prism};
+use cad_kernel::geom::Surface;
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes both rims' tori \
-         out and runs the top and the bottom on outward from radius 4 and the side up from z = 8 \
-         and down from z = 2 until they meet in the circles of radius 6 at z = 10 and z = 0"
-        .into())
+    let b = named(prism(&disc([0., 0., 0.], [0., 0., 1.], 6.), 0., 10.)?);
+    let b = rounded_edge(&b, [0., 6., 10.], 2.)?;
+    let b = rounded_edge(&b, [0., 6., 0.], 2.)?;
+    let rounds = faces_on(&b, &|s| matches!(s, Surface::Torus(..)));
+    deleting(&b, &rounds)
 }

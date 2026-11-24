@@ -3,18 +3,17 @@
 //! into one another in a closed chain; the eight faces of the chain then deleted together, the top
 //! running on outward and the walls up until they meet in the top's rim again.
 //!
-//! Refused. cad-kernel builds the rounded box: its outline, a `sketch::rounded_rectangle`, swept up
-//! by `prism`, the top's rim rolled as one chain by `fillet::roll` and the round's piece cut away.
-//! What is missing is the edit. cad-kernel deletes no face of a solid: nothing in `boolean`,
-//! `fillet`, `rounds`, `offset` or `sew` takes faces out of a boundary and runs the faces round
-//! them on along their own surfaces until they close the gap, and `offset::normal_sweep` sweeps a
-//! face along its normal without extending any face beside it. Joining back the ring the chain took
-//! would be the result drawn again, not the chain deleted.
+//! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
+//! their own surfaces and closes the gap they part off.
+use crate::sketch::{deleting, faces_on, named, rounded_edge, rounded_plate};
+use cad_kernel::geom::Surface;
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes the eight faces of \
-         the top's rounded rim out and runs the top on outward and the flat sides and the corner \
-         cylinders up until they meet in the top's rim at z = 8"
-        .into())
+    let b = named(rounded_plate([0., 0.], [20., 12.], 3., 8.)?);
+    // the top's rim rolled as one chain from a point on its long side
+    let b = rounded_edge(&b, [10., 0., 8.], 1.)?;
+    // the chain: every face not flat but the corners' upright cylinders, of radius 3
+    let chain = faces_on(&b, &|s| !matches!(s, Surface::Plane(..)) && !matches!(s, Surface::Cylinder(_, r) if *r > 2.));
+    deleting(&b, &chain)
 }

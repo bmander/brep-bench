@@ -197,3 +197,35 @@ pub fn mitred(section: &Profile, path: &[V], closed: bool, reach: f64) -> Result
     }
     pipe.ok_or_else(|| "a path of no runs".into())
 }
+
+/// `solid` with the edge through `on` rounded to `r`: the ball rolled along it (`fillet::roll`) and
+/// the piece between the edge and the round taken away from a convex edge, filled into a concave
+/// one.
+pub fn rounded_edge(solid: &Brep, on: V, r: f64) -> Result<Brep, String> {
+    let round = cad_kernel::fillet::roll(solid, on, r, tolerance(solid.size()))?;
+    let op = if round.concave { Op::Union } else { Op::Cut };
+    Ok(combined(solid, &round.piece, op, 0.)?)
+}
+
+/// The faces of `b` whose surfaces `pick` takes: a set of faces named by what they are (every
+/// round, the torus of the smaller tube) rather than by where.
+pub fn faces_on(b: &Brep, pick: &dyn Fn(&cad_kernel::geom::Surface) -> bool) -> Vec<usize> {
+    (0..b.faces.len()).filter(|&f| pick(&b.faces[f].surface)).collect()
+}
+
+/// `solid` with `faces` deleted (`defeature::deleted`), each run on to close the gap, to the
+/// solid's own tolerance.
+pub fn deleting(solid: &Brep, faces: &[usize]) -> Result<Brep, String> {
+    Ok(cad_kernel::defeature::deleted(solid, faces, tolerance(solid.size()))?)
+}
+
+/// The solid of revolution about the z axis whose meridian, in the half plane y = 0, x ≥ 0, runs
+/// up the axis' side through the points `rz` (each a radius and a height), closed along the axis
+/// from the last back to the first.
+pub fn turned(rz: &[[f64; 2]]) -> Result<Brep, String> {
+    let (first, last) = (rz[0], rz[rz.len() - 1]);
+    let mut points = vec![[0., 0., first[1]]];
+    points.extend(rz.iter().map(|&[r, z]| [r, 0., z]));
+    points.push([0., 0., last[1]]);
+    revolve(&polygon(&points), [0.; 3], [0., 0., 1.], TAU)
+}

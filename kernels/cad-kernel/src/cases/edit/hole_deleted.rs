@@ -2,17 +2,16 @@
 //! about the line through (10, 5); the hole's wall then deleted, the top and the bottom closing
 //! over the circles its two ends are.
 //!
-//! Refused. cad-kernel builds the drilled block: the box a `prism` cut by the drill, a `prism` of a
-//! `disc`. What is missing is the edit. cad-kernel deletes no face of a solid: nothing in
-//! `boolean`, `fillet`, `rounds`, `offset` or `sew` takes faces out of a boundary and runs the
-//! faces round them on along their own surfaces until they close the gap, and
-//! `offset::normal_sweep` sweeps a face along its normal without extending any face beside it.
-//! Joining the drill back in would be the result drawn again, not the hole deleted.
+//! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
+//! their own surfaces and closes the gap they part off.
+use crate::sketch::{block, deleting, faces_through};
+use cad_kernel::boolean::{combined, Op};
+use cad_kernel::build::{disc, prism};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes the hole's \
-         cylindrical wall out and closes the top and the bottom over the circles of radius 3 its \
-         two ends are"
-        .into())
+    let drill = prism(&disc([10., 5., -1.], [0., 0., 1.], 3.), 0., 12.)?;
+    let b = combined(&block([0., 0., 0.], [20., 10., 10.])?, &drill, Op::Cut, 0.)?;
+    let wall = faces_through(&b, &[[13., 5., 5.]])?;
+    deleting(&b, &wall)
 }

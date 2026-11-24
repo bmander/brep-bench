@@ -4,18 +4,20 @@
 //! pieces of a torus; both pieces then deleted, the cylinder running on up and the cone down until
 //! they meet again in the circle of radius 5 at z = 6.
 //!
-//! Refused. cad-kernel builds the rounded post: the cylinder a `prism` of a `disc`, the frustum a
-//! `build::cone` turned by a `Rigid`, joined, the shoulder rolled by `fillet::roll` and the round's
-//! piece cut away. What is missing is the edit. cad-kernel deletes no face of a solid: nothing in
-//! `boolean`, `fillet`, `rounds`, `offset` or `sew` takes faces out of a boundary and runs the
-//! faces round them on along their own surfaces until they close the gap, and
-//! `offset::normal_sweep` sweeps a face along its normal without extending any face beside it.
-//! Joining back the ring the round took would be the result drawn again, not the round deleted.
+//! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
+//! their own surfaces and closes the gap they part off.
+use crate::sketch::{deleting, faces_on, named, rounded_edge};
+use cad_kernel::boolean::{combined, Op};
+use cad_kernel::build::{cone, disc, prism};
+use cad_kernel::geom::{Rigid, Surface};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes the shoulder's two \
-         pieces of torus out and runs the cylinder on up and the cone down until they meet again \
-         in the circle of radius 5 at z = 6"
-        .into())
+    let post = prism(&disc([0., 0., 0.], [0., 0., 1.], 5.), 0., 6.)?;
+    // the cone turned about the axis, so its seam stands apart from the cylinder's
+    let top = cone([0., 0., 6.], [0., 0., 1.], 5., 2., 4.)?.moved(&Rigid::turn([0.; 3], [0., 0., 1.], 1.));
+    let b = named(combined(&post, &top, Op::Union, 0.)?);
+    let b = rounded_edge(&b, [0., 5., 6.], 1.)?;
+    let round = faces_on(&b, &|s| matches!(s, Surface::Torus(..)));
+    deleting(&b, &round)
 }
