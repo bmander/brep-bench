@@ -36,7 +36,7 @@ no region of its surface) is wrong, and the measurer says so before it measures,
 own, so that it is known of a file it then runs out of time on. The files are measured once all
 of a kernel's timed runs are done (so that nothing runs
 beside those), as many at once as the run may use cores (`--jobs`), each in `--mass-timeout`
-seconds (30 by default) and its pictures' meshing in 15; and what each file measured is kept by
+seconds (120 by default) and its pictures' meshing in 15; and what each file measured is kept by
 its SHA-256 in `results/mass/<kernel>.json`, so that a file a kernel writes again byte for byte is
 not measured again (CI keeps that file from run to run in a cache of its own; a change to
 `harness/mass/` or `step.py` starts it afresh). So the time, CPU time (user and system, over every thread) and peak memory recorded

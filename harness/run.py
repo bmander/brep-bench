@@ -392,9 +392,13 @@ def mass_of(out_step, timeout):
 
 
 # how long the harness gives itself to measure a STEP file before it falls back to the runner's own
-# measures (`--mass-timeout`), apart from the time a runner is given: a file is rarely slow to
-# measure, and one that is should not hold up the run for the case's whole limit
-MASS_TIMEOUT = 30.0
+# measures (`--mass-timeout`), apart from the time a runner is given: as long as CI gives a runner
+# (`--timeout 120`). A file whose faces lie on fine nets is slow to measure exactly however well it
+# is written (an integral along each face's every knot span): the crossed tumbling tori's, their
+# swept sheets fitted to some 900 × 850 poles about a pinch, take 34–70 s each, four at once, and
+# their measures fall back to the runner's own, which take longer still. Each file is measured once
+# (`results/mass/`), so the time is spent once
+MASS_TIMEOUT = 120.0
 
 
 def cores():

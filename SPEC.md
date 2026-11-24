@@ -373,7 +373,7 @@ beyond doubt. A face it cannot follow on its surface is one it cannot measure, a
 edge's curve
 may end a writer's tolerance from its vertex: the harness closes gaps of up to 1e-5 of the solid's
 size, which moves its measures by about as much. Where the harness cannot measure a file (a surface
-or a curve it does not yet read, or a file it does not finish in its own time limit, 30 s by
+or a curve it does not yet read, or a file it does not finish in its own time limit, 120 s by
 default), it says why, and grades the runner's own measures and triangles in its place, from a
 second run without `OUT.step`, untimed. That is only for a file it has found no fault in: the
 runner's triangles are of the kernel's solid, not of what the file holds, and a file that holds no
