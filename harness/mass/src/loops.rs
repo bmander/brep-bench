@@ -151,6 +151,7 @@ impl Path {
 fn follow(
     s: &Arc<Surface>,
     curve: &Arc<Curve>,
+    guide: Option<&Arc<Curve>>,
     t0: f64,
     t1: f64,
     scale: f64,
@@ -201,7 +202,7 @@ fn follow(
     bounds.push(t1);
     let mut pieces: Vec<Path> = Vec::new();
     for w in bounds.windows(2) {
-        let p = piece(s, curve, w[0], w[1], scale, seed)?;
+        let p = piece(s, curve, guide, w[0], w[1], scale, seed)?;
         seed = Some(p.end());
         pieces.push(p);
     }
@@ -214,10 +215,15 @@ fn at_singular(sing: &[Sing], q: V3, scale: f64) -> Option<(usize, f64)> {
         .map(|x| (x.axis, x.val))
 }
 
-/// One piece of an edge, through no singular point but perhaps at its ends.
+/// One piece of an edge, through no singular point but perhaps at its ends. Where the file gives
+/// the edge's curve on the surface (`guide`, a spline surface's), each sample's foot is sought from
+/// its point on that curve rather than from the last foot: on a sheet folded back past its face,
+/// the feet followed from one another crossed onto the layer beyond the fold, and the loop's path
+/// broke there.
 fn piece(
     s: &Arc<Surface>,
     curve: &Arc<Curve>,
+    guide: Option<&Arc<Curve>>,
     t0: f64,
     t1: f64,
     scale: f64,
@@ -264,8 +270,15 @@ fn piece(
     let walk = |order: &mut dyn Iterator<Item = f64>, mut prev: Option<Uv>| -> R<Vec<(f64, Uv)>> {
         let mut out = Vec::new();
         for t in order {
-            let mut uv = s.invert(curve.point(t)?, prev)?;
-            if let Some(prev) = prev {
+            let from = match guide {
+                Some(g) => {
+                    let q = g.point(t)?;
+                    Some((q[0], q[1]))
+                }
+                None => prev,
+            };
+            let mut uv = s.invert(curve.point(t)?, from)?;
+            if let Some(prev) = from {
                 uv = (
                     nearest(uv.0, prev.0, periods[0])?,
                     nearest(uv.1, prev.1, periods[1])?,
@@ -401,7 +414,7 @@ fn poly_paths(s: &Arc<Surface>, pts: &[V3], scale: f64) -> R<Vec<Path>> {
             continue;
         }
         let c = Arc::new(Curve::line(*a, sub(b, *a)));
-        paths.push(piece(s, &c, 0.0, 1.0, scale, None)?);
+        paths.push(piece(s, &c, None, 0.0, 1.0, scale, None)?);
     }
     Ok(paths)
 }
@@ -472,7 +485,12 @@ pub fn face_loops(m: &Model, f: &Val, s: &Arc<Surface>, scale: f64) -> R<Vec<Loo
                     (ts, te) = (te, ts);
                 }
                 let seed = paths.last().map(|p: &Path| p.end());
-                paths.extend(follow(s, &curve, ts, te, scale, seed)?);
+                // (on a spline surface, the edge's curve on it where the file gives it)
+                let guide = match s.kind {
+                    Kind::BSpline(_) => m.pcurve_on(geom, fa.at(2)?)?,
+                    _ => None,
+                };
+                paths.extend(follow(s, &curve, guide.as_ref(), ts, te, scale, seed)?);
             }
             if let (Some(last), Some(first)) = (&last, &first_vertex) {
                 if norm(sub(m.point(last)?, m.point(first)?)) > 1e-6 * scale {

@@ -182,6 +182,22 @@ impl Model {
 
     // -- points, frames
 
+    /// A `CARTESIAN_POINT`'s coordinates as written, none scaled by the file's length unit: a
+    /// point of a surface's parameters, in a pcurve.
+    fn raw_point(&self, r: &Val) -> R<V3> {
+        let a = self.one(r)?;
+        if !a.is("CARTESIAN_POINT") {
+            return unsupported(format!("a point {}", a.named()));
+        }
+        let mut c = [0.0; 3];
+        for (i, x) in a.at(1)?.items()?.iter().enumerate() {
+            if i < 3 {
+                c[i] = x.float()?;
+            }
+        }
+        Ok(c)
+    }
+
     pub fn point(&self, r: &Val) -> R<V3> {
         let a = self.one(r)?;
         if a.is("CARTESIAN_POINT") {
@@ -243,6 +259,60 @@ impl Model {
     }
 
     // -- curves
+
+    /// **The curve an edge runs along on a face's surface, where the file gives it**: of the edge's
+    /// `SURFACE_CURVE` or `SEAM_CURVE` (`geom`), a `PCURVE` on `surface` itself, its curve (a
+    /// B-spline or a line) in the surface's parameters, over the edge curve's own parameter: `(u,
+    /// v, 0)` at `t`. None where there is none, or it is of another kind. A surface that comes near
+    /// itself (a swept sheet folded back past its face) gives an edge's points two feet on it, and
+    /// the curve says which is the face's.
+    pub fn pcurve_on(&self, geom: &Val, surface: &Val) -> R<Option<Arc<Curve>>> {
+        let a = self.args(geom)?;
+        let Some((_, v)) = a
+            .iter()
+            .find(|(n, _)| matches!(n.as_str(), "SURFACE_CURVE" | "SEAM_CURVE"))
+        else {
+            return Ok(None);
+        };
+        let on = self.id(surface)?;
+        for pc in v.at(2)?.items()? {
+            let pa = self.args(pc)?;
+            let Some(p) = part(&pa, "PCURVE") else {
+                continue;
+            };
+            if self.id(p.at(1)?)? != on {
+                continue;
+            }
+            let da = self.args(p.at(2)?)?;
+            let Some(d) = part(&da, "DEFINITIONAL_REPRESENTATION") else {
+                continue;
+            };
+            for item in d.at(1)?.items()? {
+                let ca = self.args(item)?;
+                if let Some(v) = part(&ca, "LINE") {
+                    let v = v.unpack(3)?;
+                    let va = self.one(&v[2])?;
+                    if !va.is("VECTOR") {
+                        continue;
+                    }
+                    let dir = self.one(va.at(1)?)?;
+                    let mut d = [0.0; 3];
+                    for (i, x) in dir.at(1)?.items()?.iter().enumerate() {
+                        if i < 3 {
+                            d[i] = x.float()?;
+                        }
+                    }
+                    let m = va.at(2)?.float()?;
+                    let o = self.raw_point(&v[1])?;
+                    return Ok(Some(Arc::new(Curve::line(o, [d[0] * m, d[1] * m, d[2] * m]))));
+                }
+                if ca.iter().any(|(n, _)| n.starts_with("B_SPLINE_CURVE")) {
+                    return Ok(Some(Arc::new(self.bspline_curve(&ca, false)?)));
+                }
+            }
+        }
+        Ok(None)
+    }
 
     pub fn curve(&self, r: &Val) -> R<Arc<Curve>> {
         let id = self.id(r)?;
@@ -345,14 +415,14 @@ impl Model {
             .iter()
             .any(|s| n.starts_with(s))
         }) {
-            return Ok(Arc::new(self.bspline_curve(&a)?));
+            return Ok(Arc::new(self.bspline_curve(&a, true)?));
         }
         let mut names: Vec<&str> = a.iter().map(|(n, _)| n.as_str()).collect();
         names.sort();
         unsupported(format!("a curve {}", names.join("/")))
     }
 
-    fn bspline_curve(&self, a: &Parts) -> R<Curve> {
+    fn bspline_curve(&self, a: &Parts, scaled: bool) -> R<Curve> {
         let (p, pts, u, w);
         if a.len() == 1 {
             let (name, args) = &a[0];
@@ -397,7 +467,7 @@ impl Model {
         }
         let mut points = Vec::new();
         for q in pts.items()? {
-            points.push(self.point(q)?);
+            points.push(if scaled { self.point(q)? } else { self.raw_point(q)? });
         }
         Ok(Curve::BSpline(BSplineCurve::new(p, points, w, u)?))
     }
