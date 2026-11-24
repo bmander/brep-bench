@@ -1,14 +1,15 @@
 //! The box (−3, −3, −3)–(3, 3, 3) less everything the cube (−1, −1, −1)–(1, 1, 1) passes through
 //! as it turns a whole turn about its long diagonal: a sealed cavity.
 //!
-//! springrep has no sweep of a solid. A whole turn sweeps everything whose circle about the diagonal
-//! meets the cube: its shadow on a half-plane through the diagonal, turned. Measured along the
-//! diagonal by h from the center, every section of the cube square to it holds the axis, so the
-//! shadow reaches from the axis out to the section's farthest corner. Those corners lie on the
-//! three edges from each end of the diagonal, which pass through the axis and sweep cones
-//! (ρ rising linearly to √(8/3) at |h| = 1/√3), and between them on the six skew edges, each at
-//! distance √2 from the axis, which sweep the hyperboloid ρ² = 2 + 2h²: a hyperbola's arc, exactly a
-//! rational quadratic Bézier. That meridian, turned whole, is the cavity.
+//! springrep's sweep of a solid declines this one (faces round an edge do not pair off). A whole
+//! turn sweeps everything whose circle about the diagonal meets the cube: its shadow on a
+//! half-plane through the diagonal, turned. Measured along the diagonal by h from the center, every
+//! section of the cube square to it holds the axis, so the shadow reaches from the axis out to the
+//! section's farthest corner. Those corners lie on the three edges from each end of the diagonal,
+//! which pass through the axis and sweep cones (ρ rising linearly to √(8/3) at |h| = 1/√3), and
+//! between them on the six skew edges, each at distance √2 from the axis, which sweep the
+//! hyperboloid ρ² = 2 + 2h²: a hyperbola's arc, exactly a rational quadratic Bézier. That meridian,
+//! turned whole, is the cavity.
 use std::f64::consts::TAU;
 
 use springrep::boolean::difference;

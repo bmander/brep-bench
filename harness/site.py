@@ -44,14 +44,14 @@ THREE = "https://cdn.jsdelivr.net/npm/three@0.160.0"
 OCCT_JS = "https://cdn.jsdelivr.net/npm/occt-import-js@0.0.23/dist"
 KATEX = "https://cdn.jsdelivr.net/npm/katex@0.16.11/dist"
 
-def head(title, description, depth):
+def head(title, description, depth, v=""):
     up = "../" * depth
     return [
         "<!doctype html><html lang=en><head><meta charset=utf-8>",
         "<meta name=viewport content='width=device-width, initial-scale=1'>",
         f"<title>{html.escape(title)}</title>",
         f"<meta name=description content='{html.escape(description)}'>",
-        f"<link rel=stylesheet href='{up}style.css'>",
+        f"<link rel=stylesheet href='{up}style.css{v}'>",
         f"<link rel=icon href='{up}favicon.ico' sizes=32x32>",
         f"<link rel=icon href='{up}favicon.svg' type='image/svg+xml'>",
         f"<link rel=apple-touch-icon href='{up}apple-touch-icon.png'></head><body>",
@@ -304,11 +304,15 @@ def half_up(x, places):
 
 def seconds_text(x):
     """A time in seconds as the board's tables show it (board.js's secondsText): 0, 4.2 µs, 42 µs,
-    420 µs, 3.7 ms, 420 ms, 4.21 s, 12.3 s; above 0 but under a microsecond, <1 µs."""
+    420 µs, 3.7 ms, 420 ms, 4.21 s, 12.3 s; under a microsecond, 42 ns, 420 ns; above 0 but under
+    a nanosecond, <1 ns."""
     if x <= 0:
         return "0"
+    if x < 1e-9:
+        return "<1 ns"
     if x < 1e-6:
-        return "<1 µs"
+        ns = x * 1e9  # to two figures, as toPrecision(2) and Number() write it
+        return f"{half_up(ns, 1 if ns < 10 else 0 if ns < 100 else -1).normalize():f} ns"
     if x < 1e-3:
         us = x * 1e6  # to two figures, as toPrecision(2) and Number() write it
         return f"{half_up(us, 1 if us < 10 else 0 if us < 100 else -1).normalize():f} µs"
@@ -356,7 +360,7 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
     up = "../" * depth
     out = head(f"{c['title']} · brep-bench", f"The brep-bench case {cid}: its description, its "
                "drawing, and each kernel's entry: its result in 3D, its measures and its code.",
-               depth)
+               depth, v)
     steps = [f"<a href='{up}explore.html?cat={q(category)}'>{e(category)}</a>"]
     if prev:
         steps.append(f"<a href='{up}cases/{e(prev)}.html' rel=prev>← "
@@ -552,7 +556,11 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
             # surface, its edges drawn between them; only where it has no STEP file to show, or
             # the file cannot be read, its runner's triangles instead
             out.append("<div id=view hidden" + (f" data-reference='{ref_en['stl']}'" if ref_en
-                                                else "") + "><canvas id=viewer></canvas>"
+                                                else "") + "><div class=stage><canvas id=viewer></canvas>"
+                       # turning while the solid is read and meshed (and while the viewer's
+                       # own script loads), so the canvas is not left blank
+                       "<div class=spinner id=loading role=status "
+                       "aria-label='Loading the 3D model'></div></div>"
                        "<p class=legend id=kinds hidden></p>"
                        # a B-spline surface's control net, drawn over its faces at a click
                        "<p class=legend id=nets hidden><button type=button class=chip "
@@ -575,14 +583,18 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
         out += [reference_section(en, exp) if en is ref_en else entry(en, exp)
                 for en in entries]
         out.append(PICK)
-        # the table of entries sorted by a click on a row's head (the board's sort.js)
-        out.append(f"<script type=module>import {{ sortable }} from '{up}sort.js{v}'; "
-                   "sortable(document);</script>")
 
     out.append(f"<p class=muted><a href='{REPO}/blob/main/cases/{e(cid)}.md'>{e(cid)}.md</a>, "
                "the case as written.</p>")
+    # the viewer's import map before any module script: a browser that takes one map only
+    # (Safari, Firefox before 138, Chrome before 133) ignores a map added after a module has
+    # begun to load, and three.js cannot then be named
     if has_view:
         out.append(VIEWER.replace("{cdn}", THREE).replace("{occt}", OCCT_JS))
+    if entries:
+        # the table of entries sorted by a click on a row's head (the board's sort.js)
+        out.append(f"<script type=module>import {{ sortable }} from '{up}sort.js{v}'; "
+                   "sortable(document);</script>")
     if (exp and any(exp[k]["tex"] for k in exp)) or "class='math" in description:
         out.append(TEX.replace("{cdn}", KATEX))
     out.append("</body></html>")
@@ -950,13 +962,40 @@ if (window.katex) {
 VIEWER = """<script type=importmap>
 {"imports": {"three": "{cdn}/build/three.module.js", "three/addons/": "{cdn}/examples/jsm/"}}
 </script>
-<script type=module>
+<script>
+// where the viewer cannot start (three.js unreachable or not named, or the browser gives it no
+// WebGL), its spinner stops and says why, rather than turning for ever
+function viewerFailed(why = 'three.js did not load') {
+  const spinner = document.getElementById('loading');
+  if (!spinner || spinner.hidden) return;
+  spinner.hidden = true;
+  const note = document.getElementById('faces-note');
+  note.textContent = `The 3D viewer could not start: ${why}.`;
+  note.hidden = false;
+}
+addEventListener('error', (event) => {
+  if (/three|module specifier/i.test(String(event.message))) viewerFailed();
+});
+</script>
+<script type=module onerror='viewerFailed()'>
 import * as THREE from 'three';
 import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const canvas = document.getElementById('viewer');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+// the spinner over the canvas, turning until the solid asked for is drawn
+const spinner = document.getElementById('loading');
+const loading = (on) => { spinner.hidden = !on; };
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+} catch (error) {
+  // WebGL off in the browser (its graphics acceleration turned off, or its GPU process failed)
+  viewerFailed('this browser could not create a WebGL context, so it cannot draw 3D. In Chrome, '
+    + 'turn on Settings › System › Use graphics acceleration when available, relaunch it, and '
+    + 'see chrome://gpu');
+  throw error;
+}
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(30, 1, 0.01, 1e6);
@@ -1468,9 +1507,15 @@ function place(group, fit) {
 function showMesh(current, why, fit) {
   marks('mesh');
   meshWhy.textContent = why;
+  loading(true);
   build(current.src).then((group) => {
     if (current !== wanted) return;  // another entry was picked while this one loaded
     place(group, fit);
+    loading(false);
+  }, (error) => {
+    if (current !== wanted) return;
+    meshWhy.textContent = `Its triangles could not be shown: ${error.message}.`;
+    loading(false);
   });
 }
 
@@ -1483,9 +1528,11 @@ function show(fit) {
   }
   marks('faces');
   facesNote.textContent = 'Reading the STEP file…';
+  loading(true);
   buildFaces(current.step).then((group) => {
     if (current !== wanted) return;
     place(group, fit);
+    loading(false);
     facesNote.textContent = facesNoteText;
     describe(group);
   }, (error) => {
@@ -1495,6 +1542,7 @@ function show(fit) {
         + 'triangles instead.', fit);
     } else {
       facesNote.textContent = `The STEP file could not be shown: ${error.message}.`;
+      loading(false);
     }
   });
 }
@@ -1514,7 +1562,7 @@ function picked(detail) {
   const any = entry.src || entry.step;
   renderer.setAnimationLoop(any ? frame : null);
   overlay();
-  if (!any) return;
+  if (!any) { loading(false); return; }
   show(!fitted);
   fitted = true;
 }
@@ -1528,11 +1576,11 @@ picked(first && { src: first.dataset.src, step: first.dataset.step });
 
 
 def web(data):
-    """Copy harness/web/ into site/, each address of a script or of board.json given a version
-    (`?v=` and a hash of the scripts and of `data`, board.json's bytes). GitHub Pages lets a
-    browser keep a file for ten minutes, so without it a browser can pair a deploy's scripts
-    with the last deploy's board.json, or the reverse, and draw nothing.  Returns the version,
-    for the case pages' addresses of the scripts."""
+    """Copy harness/web/ into site/, each address of a script, of the style sheet or of
+    board.json given a version (`?v=` and a hash of harness/web/'s files and of `data`,
+    board.json's bytes). GitHub Pages lets a browser keep a file for ten minutes, so without it
+    a browser can pair a deploy's pages with the last deploy's scripts, style sheet or
+    board.json, and draw nothing.  Returns the version, for the case pages' addresses."""
     names = sorted(os.listdir(WEB))
     digest = hashlib.sha256(data)
     for name in names:
@@ -1549,6 +1597,7 @@ def web(data):
         text = text.replace("'board.json'", f"'board.json{v}'")
         if name.endswith(".html"):
             text = re.sub(r"src='(\w+\.js)'", rf"src='\1{v}'", text)
+            text = text.replace("href='style.css'", f"href='style.css{v}'")
         else:
             text = re.sub(r"from '\./(\w+\.js)'", rf"from './\1{v}'", text)
         with open(dest, "w", encoding="utf-8") as f:

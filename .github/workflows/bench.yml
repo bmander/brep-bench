@@ -190,6 +190,10 @@ jobs:
       # that a failure to build it is its own step's (run.py would otherwise build it itself)
       - name: Build the measurer
         run: cargo build --release --manifest-path harness/mass/Cargo.toml
+      # and the one that starts each runner and measures what it costs (harness/measure/, Rust):
+      # built here so that a failure to build it is its own step's (run.py would build it itself)
+      - name: Build the runs' measurer
+        run: cargo build --release --manifest-path harness/measure/Cargo.toml
       # what harness/mass/ made of each STEP file this kernel wrote, by the file's hash: restored
       # on every run, a full one too, so that a file written again byte for byte is not measured
       # again (it holds only what this measurer made of them: run.py starts it afresh otherwise)

@@ -4,7 +4,7 @@
 use springrep::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("springrep has no sweep of a solid: the finishing passes turn a leaning ball-end mill \
+    Err("springrep's sweep of a solid takes one motion, not a chain of moves: the finishing passes turn a leaning ball-end mill \
          about level lines and the z axis, over a thousand moves, each of whose sweeps would have \
          to be pieced together from tori, balls and the shank's revolved silhouettes; the ball's \
          joins between pieces are the tangent \

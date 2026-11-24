@@ -160,6 +160,17 @@ static class Runner
             RaiseOnMac(17); // SIGSTOP
     }
 
+    // The reply with the kernel's own time added to it, `seconds`, by the runner's own clock (SPEC.md,
+    // "A runner"): from the runner's first pause's end (`since`) until the kernel has answered, its
+    // solid built and written or its refusal in hand (the clock is stopped there). The harness
+    // times the same between the two pauses, but a process stopped and continued costs
+    // microseconds that are not the kernel's.
+    static string Timed(string reply, System.Diagnostics.Stopwatch since)
+    {
+        var seconds = since.Elapsed.TotalSeconds.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
+        return reply.EndsWith('}') ? $"{reply[..^1]},\"seconds\":{seconds}}}" : reply;
+    }
+
     static int Main(string[] args)
     {
         if (args is ["--version"])
@@ -181,13 +192,17 @@ static class Runner
             return 2;
         }
         Pause();
+        var since = System.Diagnostics.Stopwatch.StartNew();
         try
         {
-            Console.WriteLine(JsonSerializer.Serialize(Build(path, output, args is [_, _, var step] ? step : null), Json));
+            var built = Build(path, output, args is [_, _, var step] ? step : null);
+            since.Stop();
+            Console.WriteLine(Timed(JsonSerializer.Serialize(built, Json), since));
         }
         catch (Refused refused)
         {
-            Console.WriteLine(JsonSerializer.Serialize(new { status = "refused", reason = refused.Message }, Json));
+            since.Stop();
+            Console.WriteLine(Timed(JsonSerializer.Serialize(new { status = "refused", reason = refused.Message }, Json), since));
         }
         catch (Fault fault)
         {

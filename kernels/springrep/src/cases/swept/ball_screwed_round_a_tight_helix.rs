@@ -3,5 +3,7 @@
 use springrep::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("springrep has no sweep of a solid, and no helical curve: a ball's sweep along a helix is the tube about the helix, which its path sweep could carry the ball's circle along only on a helix it cannot make, and its screw sweep turns a section through the axis, which for a tube is the tube's own section there, an envelope it would have to compute".into())
+    // sweep::solid(ball, Motion::Screw) builds it, but the solid it makes has a face whose loops
+    // bound no region of its surface, where the helix turns tighter than the ball
+    Err("springrep's sweep of a ball along a helix tighter than the ball makes a face whose loops bound no region of its surface".into())
 }

@@ -21,6 +21,7 @@ import os
 import re
 import signal
 import sys
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -133,17 +134,24 @@ def main():
     case_id, out_stl = sys.argv[1], sys.argv[2]
     build = implementation(case_id).build
     pause()
+    # the runner's own clock, for the kernel's own time (SPEC.md, "A runner"): from the first
+    # pause's end until the kernel has answered, its solid built and written or its refusal in
+    # hand. The harness's, between the pauses, counts the stopping and continuing too
+    since, answered = time.perf_counter(), None
     try:
         solid = build()
     except Refused as why:
+        answered = time.perf_counter()
         reply = {"status": "refused", "reason": str(why)}
     except RuntimeError as error:
+        answered = time.perf_counter()
         declined = DECLINED.match(str(error))
         if not declined:
             raise
         reply = {"status": "refused", "reason": declined.group(1)}
     else:
         reply = measure(solid, out_stl)
+    reply["seconds"] = (answered or time.perf_counter()) - since
     print(json.dumps(reply))
     pause()
 

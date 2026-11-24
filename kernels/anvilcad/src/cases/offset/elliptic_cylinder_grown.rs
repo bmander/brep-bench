@@ -1,6 +1,6 @@
-//! An elliptic cylinder grown by 1.
+//! An elliptic cylinder of semi-axes 5 and 3, 10 high, grown by 1, grown with its convex edges rounded.
 use anvil_brep::Solid;
 
 pub fn build() -> Result<Solid, String> {
-    Err("anvil-brep's profiles are lines and arcs only, it has no elliptic cylinder, and its scale makes no round face elliptic, so it cannot make the elliptic cylinder".into())
+    Err("anvil-brep's offset moves each face along its normal and extends the moved faces until they meet, keeping the solid's edges; it adds no round about a convex edge or corner, so it cannot grow a solid to every point within a distance of it".into())
 }

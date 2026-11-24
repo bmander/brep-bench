@@ -70,7 +70,8 @@ export const PARALLEL_FROM = 0.1;
  * time, the start's left out of both) and `speedup` its time on one core over its time on all of
  * them (likewise), both null for a run shorter than PARALLEL_FROM so reckoned.
  * `timeFloor` is the least each case's own time and CPU time are taken as, in a mean of their
- * logarithms or a ratio: FINE_TIME_FLOOR where the run was timed between its pauses, else
+ * logarithms or a ratio: where the run's own time was timed, FINEST_TIME_FLOOR if its times were
+ * kept to the nanosecond and FINE_TIME_FLOOR if to the microsecond; else
  * TIME_FLOOR where the start-up was measured and the run's times were kept finer than it
  * (board.json's `places`), else COARSE_TIME_FLOOR. */
 export async function load() {
@@ -101,7 +102,8 @@ export async function load() {
     const start = k.startup ? { ...k.startup, measured: true }
       : { seconds: least(seconds), cpu: least(cpu), mb: least(mb), one: null,
           measured: false };
-    const timeFloor = r.places.map((p, i) => (r.own?.[i] != null ? FINE_TIME_FLOOR
+    const timeFloor = r.places.map((p, i) => (r.own?.[i] != null
+      ? (p >= 9 ? FINEST_TIME_FLOOR : FINE_TIME_FLOOR)
       : start.measured && 10 ** -p <= TIME_FLOOR ? TIME_FLOOR : COARSE_TIME_FLOOR));
     // the kernel's own: as timed between its runner's pauses (its warm start) where it paused.
     // Results from before the harness timed pauses take the run's less the start-up; for a
@@ -151,6 +153,9 @@ export async function load() {
 // timed it between its runner's pauses (its warm start): a microsecond, as finely as the harness
 // keeps times (run.py).
 export const FINE_TIME_FLOOR = 0.000001;
+// The same where its times were kept to the nanosecond (run.py since): a kernel's own time by its
+// runner's clock can be a fraction of a microsecond, a refusal's most of all.
+export const FINEST_TIME_FLOOR = 0.000000001;
 // The same where the run did not pause and its own time is its time less its runner's start-up:
 // a tenth of a millisecond, about what starting one runner varies by from start to start, so the
 // difference says nothing finer.
@@ -160,12 +165,14 @@ export const TIME_FLOOR = 0.0001;
 // keeps the means and ratios of results from before microseconds where they were.
 export const COARSE_TIME_FLOOR = 0.001;
 
-/** A time in seconds, as a table shows it: 0, 4.2 µs, 42 µs, 420 µs, 3.7 ms, 420 ms, 4.21 s,
- * 12.3 s; one above 0 under a microsecond, as finely as the harness keeps times, <1 µs. */
+/** A time in seconds, as a table shows it: 0, 42 ns, 420 ns, 4.2 µs, 42 µs, 420 µs, 3.7 ms,
+ * 420 ms, 4.21 s, 12.3 s; one above 0 under a nanosecond, as finely as the harness keeps times,
+ * <1 ns. */
 export function secondsText(x) {
   if (x == null) return '–';
   if (x <= 0) return '0';
-  if (x < FINE_TIME_FLOOR) return '<1 µs';
+  if (x < FINEST_TIME_FLOOR) return '<1 ns';
+  if (x < 0.000001) return `${Number((x * 1e9).toPrecision(2))} ns`;
   if (x < 0.001) return `${Number((x * 1e6).toPrecision(2))} µs`;
   if (x < 0.01) return `${Number((x * 1000).toPrecision(2))} ms`;
   if (x < 1) return `${Math.round(x * 1000)} ms`;

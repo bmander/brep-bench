@@ -42,17 +42,23 @@ not measured again (CI keeps that file from run to run in a cache of its own; a 
 `harness/mass/` or `step.py` starts it afresh). So the time, CPU time (user and system, over every thread) and peak memory recorded
 beside each outcome are a kernel's shortest path to a B-rep, not its meshing; none of them is
 graded. Runners are started by
-`harness/measure.py`, a small process that holds almost no memory, because on Linux a child's
-peak resident set starts at its parent's. Before its cases, each runner is given the case id
+the harness's measurer, a small process that holds almost no memory, because on Linux a child's
+peak resident set starts at its parent's: `harness/measure/` (Rust, built by `run.py` the first
+time it is wanted). It is for Linux, and needs cargo: without it only a run's time is kept, not
+its CPU time or peak memory, and the runners do not pause. Before its cases, each runner is given the case id
 `harness/start`, which names no case, five times; the median is the kernel's start-up. Each runner
 is run with `BREP_BENCH_WARM=1` set, and stops itself (SIGSTOP) once it has loaded and found its
-case and again once it has answered; `measure.py` reads the clock and the runner's CPU time (from
+case and again once it has answered; the measurer reads the clock and the runner's CPU time (from
 `/proc`, Linux) at each stop and continues it, and the time between is kept as the kernel's own
 (`own_seconds`, `own_cpu_seconds`, and `one_core_own_seconds` with `--one-core`), beside the
-run's whole. The board shows that own time, with nothing subtracted; only for a run that did not
+run's whole. Stopping and continuing a process costs some tens of microseconds itself, so a
+runner also reads its own clock, from the first pause's end until the kernel has answered, and
+gives that time in its reply
+(`seconds`); where it is no more than what the measurer timed, it is the `own_seconds` kept, and
+a refusal reads as the fraction of a microsecond it takes. The board shows that own time, with nothing subtracted; only for a run that did not
 pause (a runner from before, or one that failed before it paused) does it subtract the start-up
-from the whole. Times are recorded to the microsecond, since a fast kernel's own time can be
-under a millisecond. In its means and ratios the board takes any time under 0.1 ms, about the
+from the whole. Times are recorded to the nanosecond, since a kernel's own time by its
+runner's clock can be under a microsecond. In its means and ratios the board takes any time under 0.1 ms, about the
 spread of a runner's start-up, as 0.1 ms; a time recorded only to the millisecond, or one whose
 kernel's start-up was never measured, it takes as no less than 1 ms. A CI run of only some of a
 kernel's cases keeps its last start-up and binary size. `--one-core` runs each case a kernel
@@ -89,8 +95,9 @@ A push to `main` reruns only the cases its changes affect, on top of the last ru
 - a kernel newly added, or one with no results yet that the push touches: it runs every case;
 - a change of which kernel is the reference: every case is drawn again;
 - a deleted case: its rows are dropped from the results;
-- how a run is made, measured or graded (`harness/run.py`, `measure.py`, `occt.py`, `stl.py`,
-  `step.py`, `suite.py`, `build.py`, and the measurer, `harness/mass/`): the whole suite runs;
+- how a run is made, measured or graded (`harness/run.py`, `occt.py`, `stl.py`,
+  `step.py`, `suite.py`, `build.py`, and the measurers, `harness/mass/` and `harness/measure/`):
+  the whole suite runs;
 - `harness/draw/`: every case is drawn again;
 - anything else (the site, the docs, a kernel's display-only fields, such as its license):
   nothing runs, and the site is only rebuilt.

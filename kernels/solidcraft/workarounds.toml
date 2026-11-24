@@ -79,3 +79,4 @@
 "cnc/pocket-with-an-island" = "no sweep of a solid"
 "cnc/ball-end-surface-raster" = "no sweep of a solid"
 "cnc/five-axis-dome" = "no sweep of a solid"
+"boolean/elbow-tighter-than-its-tube" = "no revolve of a profile across its axis"

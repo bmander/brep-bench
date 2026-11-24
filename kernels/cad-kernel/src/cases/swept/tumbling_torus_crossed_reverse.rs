@@ -8,11 +8,16 @@
 use crate::tumble::Tumble;
 use cad_kernel::topo::Brep;
 
-pub fn build() -> Result<Brep, String> {
+/// The sweep: its torus, its two turns and its roll.
+pub fn tumble() -> Tumble {
     Tumble {
         centre: [3., 0., 2.],
         hub: 2., tube: 0.22, ratio: 0.7,
         lean: 45., heading: 20., height: 0.7071,
         observer: -1., roll: [-100., 100.],
-    }.build()
+    }
+}
+
+pub fn build() -> Result<Brep, String> {
+    tumble().build()
 }

@@ -1,0 +1,18 @@
+[package]
+name = "brep-bench-measure"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+description = "Starts a runner, waits for it, and says what it cost: its time, CPU time and peak memory."
+publish = false
+
+[[bin]]
+name = "measure"
+path = "src/main.rs"
+
+# No crates: the harness stays free of dependencies.
+[dependencies]
+
+[profile.release]
+opt-level = 3
+debug = 0

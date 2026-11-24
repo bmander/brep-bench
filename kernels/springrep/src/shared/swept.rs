@@ -1,7 +1,8 @@
 //! Helpers shared by the swept cases.
 //!
-//! springrep sweeps planar profiles (along a line, about an axis, along a screw or a curve) but has
-//! no sweep of a solid. The cases that build a swept solid build it from those profile sweeps where
+//! springrep sweeps planar profiles (along a line, about an axis, along a screw or a curve), and
+//! solids (`sweep::solid`), the latter exactly only under a slide, a turn or a screw. The cases that
+//! build a swept solid without it, where it declines, build it from those profile sweeps where
 //! its shape follows by elementary geometry, each case saying why in its comments. Three facts
 //! carry most of them:
 //!

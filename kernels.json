@@ -79,7 +79,7 @@
     {
       "name": "kentron",
       "kernel": "https://github.com/rsz269/kentron",
-      "license": "MIT OR Apache-2.0",
+      "license": "AGPL-3.0-or-later",
       "backend": "Rust",
       "frontend": "Rust",
       "build": [

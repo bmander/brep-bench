@@ -2,9 +2,10 @@
 //! center runs along the cubic Bézier curve with control points (0, 0, 0), (10, 0, 0), (20, 20, 0)
 //! and (30, 20, 0).
 //!
-//! springrep has no sweep of a solid. A ball's sweep is the tube about its center's path, the
-//! circle of its radius carried square to the curve (springrep's path sweep), with the ball at each
-//! end; the curve turns no tighter than the ball, so the tube does not fold.
+//! springrep's sweep of a solid declines this one (it takes no motion whose velocity changes over a
+//! sphere face). A ball's sweep is the tube about its center's path, the circle of its radius
+//! carried square to the curve (springrep's path sweep), with the ball at each end; the curve turns
+//! no tighter than the ball, so the tube does not fold.
 use springrep::boolean::difference;
 use springrep::geom::{BSpline, Curve};
 use springrep::math::Vec2;

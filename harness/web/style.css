@@ -28,6 +28,9 @@ body { background: var(--bg); color: var(--fg); margin: 0 auto; max-width: 1100p
 body.wide { max-width: 1600px; }
 h1 { font-size: 1.6em; margin: 0 0 4px; }
 h2 { margin-top: 32px; }
+/* a heading's choice of order, beside it (the performance page's strip) */
+h2 .order { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-left: 12px;
+            vertical-align: middle; font-size: 13px; font-weight: normal; }
 p.lede { color: var(--muted); margin: 0 0 24px; max-width: 80ch; }
 /* the definition, folded (fold.js): its first sentence and the line after it, which fades out;
    the height here is that at the full measure, and fold.js sets it for the measure in hand */
@@ -102,6 +105,15 @@ img.thumb { width: 64px; height: 64px; object-fit: contain; border-radius: 4px;
 .sheet .up { align-self: end; }
 #viewer { width: 100%; height: min(70vh, 560px); border: 1px solid var(--line);
           border-radius: 6px; background: var(--card); touch-action: none; }
+/* the viewer's spinner, centred over its canvas while the solid loads */
+.stage { position: relative; }
+.spinner { position: absolute; top: 50%; left: 50%; width: 40px; height: 40px;
+           margin: -20px 0 0 -20px; border-radius: 50%; border: 3px solid var(--line);
+           border-top-color: var(--accent); animation: spin 0.8s linear infinite;
+           pointer-events: none; }
+.spinner[hidden] { display: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.4s; } }
 .pick { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
 .pick button, .chip { font: inherit; padding: 4px 12px; border-radius: 999px; cursor: pointer;
                border: 1px solid var(--line); background: var(--bg); color: var(--fg); }

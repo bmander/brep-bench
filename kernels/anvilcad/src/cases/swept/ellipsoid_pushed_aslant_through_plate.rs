@@ -2,5 +2,5 @@
 use anvil_brep::Solid;
 
 pub fn build() -> Result<Solid, String> {
-    Err("anvil-brep has no ellipsoid (no elliptic profile to revolve, and its scale refuses to stretch a sphere), and no sweep of a solid".into())
+    Err("anvil-brep has no ellipsoid (its revolve takes no ellipse, and its scale refuses to stretch a sphere), and no sweep of a solid".into())
 }

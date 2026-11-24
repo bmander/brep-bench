@@ -3,11 +3,11 @@
 //! (−10, 20, 0) and (20, 0, 0), which crosses itself: a cylinder of radius 2 from z = −1.5 to 5,
 //! its bottom corner rounded to 0.5.
 //!
-//! springrep has no sweep of a solid. The mill is a solid of revolution about an upright axis that
-//! slides along a level curve without turning, so at each instant its distance from any point is
-//! least where the point lies in its section square to the curve through its axis: the mill sweeps
-//! that section carried along the curve (springrep's path sweep, which keeps a level curve's up
-//! direction), and itself where it starts and stops.
+//! springrep's sweep of a solid is exact only under a slide, a turn or a screw. The mill is a solid
+//! of revolution about an upright axis that slides along a level curve without turning, so at each
+//! instant its distance from any point is least where the point lies in its section square to the
+//! curve through its axis: the mill sweeps that section carried along the curve (springrep's path
+//! sweep, which keeps a level curve's up direction), and itself where it starts and stops.
 use std::f64::consts::{FRAC_PI_2, PI};
 
 use springrep::boolean::difference;

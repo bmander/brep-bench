@@ -24,17 +24,21 @@ a STEP, from a second run without OUT.step, untimed); but not where the harness 
 file holds no solid: that is a wrong answer whatever the runner's triangles are, and the measurer
 says so before it measures, lest a time limit hide it. The timed run's wall-clock time, the CPU
 time it spent (user and system, over every thread) and its peak memory (the largest resident set)
-are kept, from the operating system's account of the runner's process (wait4), which
-harness/measure.py starts and waits for; nothing measured is graded. So is what starting the
-runner costs, alone: it is given a case id no case has, `harness/start`, so that it starts and
-builds nothing, a few times over (`startup`). With `--one-core` a case the kernel built is run a
+are kept, from the operating system's account of the runner's process, which the harness's
+measurer starts and waits for (harness/measure/, Rust); nothing measured is graded. So is what
+starting the runner costs, alone: it is given a case id no case has, `harness/start`, so that it
+starts and builds nothing, a few times over (`startup`). With `--one-core` a case the kernel built is run a
 second time on one core only, for what its other cores bought it; that run is timed and nothing
 else. A runner pauses once it has loaded and found its case and again once it has answered (its
 warm start, SPEC.md "A runner"), and the time and CPU time between are kept too, as the kernel's
 own (`own_seconds`, `own_cpu_seconds`): neither loading the runner nor tearing it down counted,
-and nothing subtracted. Times are kept to the microsecond: a kernel's own time can be under a
-millisecond. Standard library only (but for the pictures' Open CASCADE; where there
-is no wait4, only the time is kept; pinning to one core needs Linux).
+and nothing subtracted. Stopping a process and continuing it costs microseconds of its own, more
+than a refusal takes, so a runner also reads its own clock at its first pause's end and once the
+kernel has answered, and says the time between in its reply (`seconds`): that is the kernel's
+own where it is no more than what the harness timed, which stays the most it can be. Times are
+kept to the nanosecond: a kernel's own time, by its runner's clock, can be under a microsecond. Standard library only
+(but for the pictures' Open CASCADE; the measurer is for Linux and built by cargo, and where
+there is none only a run's time is kept; pinning to one core needs Linux).
 """
 import argparse
 import concurrent.futures
@@ -166,61 +170,135 @@ class Ran:
     """How a process ran: its exit `code` (None if it ran out of time), what it wrote, and what it
     cost: wall-clock `seconds`, `cpu` seconds (user and system, of every thread of it and of the
     children it waited for) and `peak_mb`, the most memory it held resident at once (megabytes,
-    1e6 bytes). `cpu` and `peak_mb` are None where the system does not say (no wait4).
+    1e6 bytes). `cpu` and `peak_mb` are None where there is no measurer to say (`measurer_command`).
     `own_seconds` and `own_cpu` are the kernel's own, between the runner's pauses (its warm start,
-    harness/measure.py), None where it did not pause or the system does not say."""
+    the harness's measurer), None where it did not pause or the system does not say; and
+    `own_seconds` the runner's own account of that time where its reply gives one that is no more
+    (`own_time`). `span_seconds` is what the harness itself timed between the pauses, whatever
+    the runner said."""
 
     def __init__(self, code, stdout, stderr, seconds, cpu=None, peak_mb=None, own_seconds=None,
-                 own_cpu=None):
+                 own_cpu=None, span_seconds=None):
         self.code, self.stdout, self.stderr = code, stdout, stderr
         self.seconds, self.cpu, self.peak_mb = seconds, cpu, peak_mb
         self.own_seconds, self.own_cpu = own_seconds, own_cpu
+        self.span_seconds = span_seconds
 
 
-# where it can, a run is started and waited for by harness/measure.py, a process that holds next
-# to nothing: on Linux a process's peak memory starts at its starter's, which would count the
-# harness's own (every STL it has read) against the runner
-MEASURE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "measure.py")
-MEASURED = all(hasattr(os, f) for f in ("posix_spawnp", "wait4"))
+# where it can, a run is started and waited for by the harness's measurer, a process that holds
+# next to nothing: on Linux a process's peak memory starts at its starter's, which would count the
+# harness's own (every STL it has read) against the runner. The measurer is harness/measure/
+# (Rust, for Linux), built here where it is not: it reads the clock at a runner's pauses as soon
+# as a process can, where an interpreter's own time would be a good part of a short run's.
+MEASURE_RS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "measure")
+MEASURE_BIN = os.path.join(MEASURE_RS, "target", "release", "measure")
 measurer = None
+
+
+def crate_sources(crate):
+    """The source files of one of the harness's Rust programs (the directory `crate`), in order."""
+    src = os.path.join(crate, "src")
+    try:
+        names = sorted(n for n in os.listdir(src) if n.endswith(".rs"))
+    except OSError:
+        names = []
+    return [os.path.join(crate, "Cargo.toml")] + [os.path.join(src, n) for n in names]
+
+
+def crate_built(crate, binary):
+    """Whether `crate`'s `binary` is built and no older than its sources (a stale one would do
+    what the sources no longer say)."""
+    try:
+        built = os.path.getmtime(binary)
+        return os.access(binary, os.X_OK) and all(os.path.getmtime(p) <= built
+                                                  for p in crate_sources(crate))
+    except OSError:
+        return False
+
+
+def crate_command(crate, binary):
+    """`crate`'s command line, built first where it is not built or is stale; or a str, why it
+    cannot be run (no cargo, or the build failed)."""
+    name = os.path.relpath(crate, ROOT)
+    if not crate_built(crate, binary):
+        cargo = shutil.which("cargo")
+        if cargo is None:
+            return f"{name} is not built, and there is no cargo to build it"
+        p = subprocess.run([cargo, "build", "--release", "--manifest-path",
+                            os.path.join(crate, "Cargo.toml")], capture_output=True, text=True)
+        if p.returncode != 0 or not crate_built(crate, binary):
+            said_ = (p.stderr.strip().splitlines() or ["no output"])[-1]
+            return f"{name} did not build: {said_[:200]}"
+    return [binary]
+
+
+@functools.lru_cache(maxsize=None)
+def measurer_command():
+    """The measurer's command line (harness/measure/, built first where it is not built or is
+    stale), or None where there is none to be had: it is for Linux, and wants cargo to build it.
+    Without it a run is timed whole and nothing else of it is measured, which is said once."""
+    if not sys.platform.startswith("linux"):
+        return None
+    command = crate_command(MEASURE_RS, MEASURE_BIN)
+    if isinstance(command, str):
+        print(f"{command}: only the runs' time is kept, not their CPU time or peak memory",
+              file=sys.stderr, flush=True)
+        return None
+    return command
+
+
 # set in a runner's environment where it is measured: it is to pause, loaded and answered, for the
 # harness to time between (its warm start, SPEC.md "A runner")
 WARM = "BREP_BENCH_WARM"
 
 
 def measured(request):
-    """What harness/measure.py answers of `request`, started the first time it is wanted."""
+    """What the harness's measurer answers of `request`, started the first time it is wanted."""
     global measurer
     if measurer is None or measurer.poll() is not None:
-        measurer = subprocess.Popen([sys.executable, "-I", "-S", MEASURE], stdin=subprocess.PIPE,
+        measurer = subprocess.Popen(measurer_command(), stdin=subprocess.PIPE,
                                     stdout=subprocess.PIPE, text=True, cwd=ROOT)
     measurer.stdin.write(json.dumps(request) + "\n")
     measurer.stdin.flush()
     line = measurer.stdout.readline()
     if not line:
-        raise RuntimeError("harness/measure.py stopped")
+        raise RuntimeError("the harness's measurer stopped")
     answer = json.loads(line)
     if "error" in answer:
         raise OSError(answer["error"])
     return answer
 
 
+def own_time(stdout, code, most):
+    """The kernel's own time as the runner's reply gives it (`seconds`: from its first pause's
+    end until the kernel has answered, on its own clock; SPEC.md, "A runner"), or None where it gives
+    none that can be taken: the run failed, the reply has no such number, or it is more than
+    `most`, what the harness itself timed, which a run's own time cannot be."""
+    if code != 0 or most is None:
+        return None
+    seconds = (last_json(stdout) or {}).get("seconds")
+    if isinstance(seconds, bool) or not isinstance(seconds, (int, float)):
+        return None
+    return float(seconds) if math.isfinite(seconds) and 0 <= seconds <= most else None
+
+
 def execute(argv, timeout, core=None):
     """Run `argv` until it exits or `timeout` seconds pass, and say how it ran (`Ran`). With `core`,
     the process and every thread it starts may run on that core only."""
     env = dict(os.environ, RUST_BACKTRACE="0")
-    own_seconds = own_cpu = None
+    own_seconds = own_cpu = span = None
     with tempfile.TemporaryDirectory() as tmp:
         out, err = os.path.join(tmp, "stdout"), os.path.join(tmp, "stderr")
-        if MEASURED:
+        if measurer_command():
             # its warm start: the runner pauses, loaded, and again, answered (SPEC.md, "A runner")
             env[WARM] = "1"
             a = measured({"argv": argv, "cwd": ROOT, "env": env, "stdout": out, "stderr": err,
                           "timeout": timeout, "core": core})
             code, seconds, cpu, peak = a["code"], a["seconds"], a["cpu"], a["peak_bytes"] / 1e6
             own_seconds, own_cpu = a.get("own_seconds"), a.get("own_cpu")
+            span = own_seconds
         else:
-            # no wait4 (Windows): the time alone
+            # no measurer (not Linux, or no cargo to build it): the time alone
             with open(out, "wb") as o, open(err, "wb") as e:
                 start = time.monotonic()
                 p = subprocess.Popen(argv, stdout=o, stderr=e, stdin=subprocess.DEVNULL,
@@ -235,7 +313,13 @@ def execute(argv, timeout, core=None):
             cpu = peak = None
         with open(out, encoding="utf-8", errors="replace") as o, \
                 open(err, encoding="utf-8", errors="replace") as e:
-            return Ran(code, o.read(), e.read(), seconds, cpu, peak, own_seconds, own_cpu)
+            stdout, stderr = o.read(), e.read()
+        # the runner's own account of its time, where it gives one: no more than the harness
+        # timed between its pauses, or than the whole run where it did not pause
+        said_ = own_time(stdout, code, seconds if span is None else span)
+        if said_ is not None:
+            own_seconds = said_
+        return Ran(code, stdout, stderr, seconds, cpu, peak, own_seconds, own_cpu, span)
 
 
 # the outcomes of a run that built a solid: it is run again on one core
@@ -271,39 +355,14 @@ MASS_BIN = os.path.join(MASS_RS, "target", "release", "mass.exe" if os.name == "
 
 def mass_sources():
     """The measurer's source files (harness/mass/), in order."""
-    src = os.path.join(MASS_RS, "src")
-    try:
-        names = sorted(n for n in os.listdir(src) if n.endswith(".rs"))
-    except OSError:
-        names = []
-    return [os.path.join(MASS_RS, "Cargo.toml")] + [os.path.join(src, n) for n in names]
-
-
-def mass_built():
-    """Whether the measurer is built and no older than its sources (a stale one would measure by
-    a method the sources no longer say)."""
-    try:
-        built = os.path.getmtime(MASS_BIN)
-        return os.access(MASS_BIN, os.X_OK) and all(os.path.getmtime(p) <= built
-                                                    for p in mass_sources())
-    except OSError:
-        return False
+    return crate_sources(MASS_RS)
 
 
 @functools.lru_cache(maxsize=None)
 def mass_command():
     """The measurer's command line, less the file, built first where it is not built or is stale;
     or a str, why it cannot be run (no cargo, or the build failed)."""
-    if not mass_built():
-        cargo = shutil.which("cargo")
-        if cargo is None:
-            return "harness/mass is not built, and there is no cargo to build it"
-        p = subprocess.run([cargo, "build", "--release", "--manifest-path",
-                            os.path.join(MASS_RS, "Cargo.toml")], capture_output=True, text=True)
-        if p.returncode != 0 or not mass_built():
-            said_ = (p.stderr.strip().splitlines() or ["no output"])[-1]
-            return f"harness/mass did not build: {said_[:200]}"
-    return [MASS_BIN]
+    return crate_command(MASS_RS, MASS_BIN)
 
 
 def mass_of(out_step, timeout):
@@ -576,8 +635,9 @@ def settle(command, case, timeout, keep, made, pending, measured):
         return outcome, why, {"status": "ok", "measured": "step", **measures}, mesh
 
 
-# the decimal places a time in seconds is kept to: microseconds
-TIME_PLACES = 6
+# the decimal places a time in seconds is kept to: nanoseconds, as finely as a runner's own clock
+# tells a refusal's time (a fraction of a microsecond)
+TIME_PLACES = 9
 
 
 def one_core_seconds(command, case, timeout, core, writes_step):
@@ -758,9 +818,10 @@ def row_of(c, outcome, why, reply, mesh, ran, made, one):
         "case": c["id"], "outcome": outcome, "why": why,
         "seconds": rounded(ran and ran.seconds, TIME_PLACES),
         "cpu_seconds": rounded(ran and ran.cpu, TIME_PLACES),
-        "time_places": TIME_PLACES,  # rows from before microseconds have none: 3, milliseconds
+        "time_places": TIME_PLACES,  # 6 before nanoseconds; rows with none: 3, milliseconds
         "peak_mb": rounded(ran and ran.peak_mb, 1),
-        # the kernel's own, between the runner's pauses (its warm start), where it paused
+        # the kernel's own: by the runner's own clock where its reply says (and no more than
+        # the harness timed), else between the runner's pauses (its warm start), where it paused
         "own_seconds": rounded(ran and ran.own_seconds, TIME_PLACES),
         "own_cpu_seconds": rounded(ran and ran.own_cpu, TIME_PLACES),
         "measured": (reply or {}).get("measured", "exact"),
@@ -822,10 +883,10 @@ def host():
     except OSError:
         pass
     out = {"cpu": cpu, "cores": cores(), "system": platform.platform(terse=True)}
-    if MEASURED:
-        # the peak of a process that holds next to nothing: the measurer's own, below which no run
-        # can read (harness/measure.py)
-        out["least_mb"] = round(execute([sys.executable, "-I", "-S", "-c", "pass"], 60).peak_mb, 1)
+    if measurer_command():
+        # the peak of a process that holds next to nothing, the measurer itself, given nothing to
+        # measure: below that no run can read
+        out["least_mb"] = round(execute(measurer_command(), 60).peak_mb, 1)
     return out
 
 

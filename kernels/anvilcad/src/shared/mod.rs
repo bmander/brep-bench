@@ -77,6 +77,37 @@ pub fn circle(center: (f64, f64), radius: f64) -> Loop2 {
     Loop2::new(vec![Segment::circle(v2(center.0, center.1), radius)])
 }
 
+/// The ellipse about `center` with semi-axis `a` along x and `b` along y.
+pub fn ellipse(center: (f64, f64), a: f64, b: f64) -> Loop2 {
+    Loop2::new(vec![Segment::ellipse(v2(center.0, center.1), a, b, 0.)])
+}
+
+/// The elliptic cylinder on the z axis, semi-axis `a` along x and `b` along y, from `z0` to `z1`.
+pub fn elliptic_cylinder(a: f64, b: f64, z0: f64, z1: f64) -> Result<Solid, String> {
+    extrude::extrude(
+        &Frame::world(),
+        &region(&[ellipse((0., 0.), a, b)])?,
+        z0,
+        z1,
+    )
+    .map_err(e)
+}
+
+/// The block from `lo` to `hi` with a hole right through it along z on the ellipse about the z
+/// axis of semi-axes `a` along x and `b` along y: one profile with a hole, extruded.
+pub fn block_with_elliptic_hole(
+    lo: [f64; 3],
+    hi: [f64; 3],
+    a: f64,
+    b: f64,
+) -> Result<Solid, String> {
+    let r = region(&[
+        rect((lo[0], lo[1]), (hi[0], hi[1])),
+        ellipse((0., 0.), a, b),
+    ])?;
+    extrude::extrude(&Frame::world(), &r, lo[2], hi[2]).map_err(e)
+}
+
 /// The one region the contours bound (an outer contour and the holes in it).
 pub fn region(loops: &[Loop2]) -> Result<Region, String> {
     let mut r = build_regions(loops).map_err(e)?;

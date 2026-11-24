@@ -4,5 +4,5 @@
 use springrep::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("springrep has no sweep of a solid. Under two turns about skew axes no line of the torus stays in contact, so the swept solid's boundary is an envelope of the torus's poses of no simpler kind, which springrep cannot make from its profile sweeps".into())
+    Err("springrep's sweep of a solid is exact only under a slide, a turn or a screw. Under two turns about skew axes no line of the torus stays in contact, so the swept solid's boundary is an envelope of the torus's poses of no simpler kind, which it cannot make exactly".into())
 }

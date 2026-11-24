@@ -3,10 +3,11 @@
 //! plane through (10, 0, 0) square to u = (cos 20°, 0, −sin 20°), 3 deep along u, within 2 of the
 //! plane y = 0 and within 3 of (10, 0, 0) along l = (sin 20°, 0, cos 20°).
 //!
-//! springrep has no sweep of a solid. Within the block's reach (12 from the z axis) every circle
-//! about the z axis meets the bar in one arc across its middle plane y = 0, so there the sweep is
-//! the bar's section by that plane, a rectangle leaning 20°, turned through the 280°
-//! (`shared::swept`, a turn); the bar is clear of the block where it starts and stops.
+//! springrep's sweep of a solid declines this one (faces round an edge do not pair off). Within the
+//! block's reach (12 from the z axis) every circle about the z axis meets the bar in one arc across
+//! its middle plane y = 0, so there the sweep is the bar's section by that plane, a rectangle
+//! leaning 20°, turned through the 280° (`shared::swept`, a turn); the bar is clear of the block
+//! where it starts and stops.
 use springrep::boolean::difference;
 use springrep::topo::Brep;
 

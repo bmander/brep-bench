@@ -1,4 +1,4 @@
-# brep-bench specification, version 1.18
+# brep-bench specification, version 1.19
 
 brep-bench works like Rosetta Code. Each **case** describes a solid in plain words and gives its
 volume and area as closed forms. Each **kernel** has its own **implementation** of each case,
@@ -289,6 +289,8 @@ The reply's fields:
 - **`faces`** counts faces by surface kind: `plane`, `cylinder`, `cone`, `sphere`, `torus`,
   `bspline` or `other`.
 - **`valid`** is the kernel's own validity check.
+- **`seconds`**, in a reply of either status: the kernel's own time by the runner's own clock,
+  from its first pause's end until the kernel has answered (see the pauses, below). Not graded.
 
 `faces` and `valid` are reported but not graded, because kernels split and check faces differently.
 The board marks a solid whose faces far outnumber the other kernels' solids of the case as
@@ -298,13 +300,24 @@ given a case id it has no implementation of, exit without building anything (wit
 refusing): the harness times that, as what starting the runner costs.
 
 Under the harness, with `BREP_BENCH_WARM` set in its environment, a runner **pauses** twice: it
-stops itself (SIGSTOP, Linux and macOS) once it has loaded its kernel and found the case's
+stops itself (SIGSTOP) once it has loaded its kernel and found the case's
 implementation, before it calls the kernel, and again once it has printed its reply. The harness
 continues it each time and times the kernel between the two pauses, so loading the runner and
 tearing it down are both left out of that time and nothing is subtracted (its *warm start*).
 Whatever the runner loads before its first pause is not timed, so it loads there all it will need
 (a STEP writer's modules too) but calls nothing of its kernel's for the case. A runner that does
 not pause is still timed whole, and the board takes its runs less its start-up instead.
+
+Stopping a process and continuing it costs microseconds that are not the kernel's, more than a
+refusal takes. So a runner also reads a monotonic clock of its own twice, as its first pause ends
+and once the kernel has answered (its solid built, and written or measured and meshed; or its
+refusal in hand, before the reply is put into words), and gives the time between in the reply, in
+seconds (`"seconds": 1.2e-7`). Everything the kernel does for the case lies between the two
+readings, as it lies between the two pauses: nothing of the kernel's is called before the first or
+after the second. The harness takes that as the kernel's own time where it is no more than what the harness
+itself timed between the pauses (or than the whole run, of a runner that does not pause), which
+stays the most a run's own time can be; a reply that gives none, or more, is timed between the
+pauses as before. The CPU time is always the harness's own account, between the pauses.
 
 ### STEP is the answer
 
@@ -439,8 +452,9 @@ reading the file is not counted. None of it is graded:
 
 Every run includes starting the runner, which costs a Python or .NET runtime more time and memory
 than a Rust binary; the board's times and CPU times leave that start out, so that they are the
-kernel's own (and shows it beside them): timed between the runner's pauses where it paused (its
-warm start, above), else a run's less its runner's start-up. They are measures of the machine the run was made on, which a kernel's
+kernel's own (and shows it beside them): the runner's own account of it where its reply gives one
+(`seconds`, above), else timed between the runner's pauses where it paused (its warm start), else
+a run's less its runner's start-up. They are measures of the machine the run was made on, which a kernel's
 results name (its processor, how many cores the run could use, its system, and the least peak
 memory a run can read there).
 
@@ -466,6 +480,11 @@ One entry per kernel:
 
 ## Versions
 
+- **1.19:** a runner gives the kernel's own time in its reply, `seconds`, by its own clock: from
+  its first pause's end until the kernel has answered. The harness takes it where it is no more than what
+  it timed between the runner's pauses itself, which counts the stopping and continuing of the
+  process too: tens of microseconds, where a refusal takes less than one. The pauses are as in
+  1.8, and a runner that gives no time is timed as it was. Nothing graded changes.
 - **1.18:** a STEP file a face of which has loops that plainly bound no region of its surface
   holds no solid, and is a wrong answer. Until now the harness said of such a file only that it
   could not measure it, and graded the runner's own measures and triangles in its place, as it

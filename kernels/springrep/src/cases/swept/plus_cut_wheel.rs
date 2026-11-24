@@ -3,5 +3,5 @@
 use springrep::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("springrep has no sweep of a solid. Seen from the wheel the tool turns about one axis while being carried about another, so the wheel's teeth are bounded by envelopes of the plus's sides and the trochoids its corners trace, which springrep cannot make".into())
+    Err("springrep's sweep of a solid is exact only under a slide, a turn or a screw. Seen from the wheel the tool turns about one axis while being carried about another, so the wheel's teeth are bounded by envelopes of the plus's sides and the trochoids its corners trace, which it cannot make exactly".into())
 }

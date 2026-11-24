@@ -21,6 +21,7 @@ mod sketch;
 mod tumble;
 mod gears;
 mod cnc;
+mod patches;
 
 /// Every case file, found by `build.rs`.
 mod cases {
@@ -130,6 +131,39 @@ fn pause() {
 #[cfg(not(any(target_os = "linux", target_os = "macos")))]
 fn pause() {}
 
+/// The runner's own clock, for the kernel's own time (SPEC.md, "A runner"): started as the
+/// runner's first pause ends, and stopped once the kernel has answered, its solid built and
+/// written or its refusal in hand. The harness times the same between the two pauses, but a
+/// process stopped and continued costs microseconds that are not the kernel's.
+struct Clock {
+    since: std::time::Instant,
+    stopped: std::cell::Cell<Option<f64>>,
+}
+
+impl Clock {
+    fn start() -> Clock {
+        Clock { since: std::time::Instant::now(), stopped: std::cell::Cell::new(None) }
+    }
+
+    /// Stops the clock, unless it is stopped: its seconds.
+    fn stop(&self) -> f64 {
+        let seconds = self.stopped.get().unwrap_or_else(|| self.since.elapsed().as_secs_f64());
+        self.stopped.set(Some(seconds));
+        seconds
+    }
+}
+
+/// The reply with the kernel's own time added to it, `seconds`, the clock stopped now if the
+/// kernel's refusing did not stop it.
+fn timed(reply: &impl std::fmt::Display, clock: &Clock) -> String {
+    let seconds = clock.stop();
+    let reply = reply.to_string();
+    match reply.strip_suffix('}') {
+        Some(open) => format!("{open},\"seconds\":{seconds:e}}}"),
+        None => reply,
+    }
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.get(1).map(String::as_str) == Some("--version") {
@@ -149,10 +183,14 @@ fn main() {
         std::process::exit(2);
     };
     pause();
+    let clock = Clock::start();
     let reply = match build() {
         Ok(solid) => measured(&solid, out, out_step, case),
-        Err(why) => refused(why),
+        Err(why) => {
+            clock.stop();
+            refused(why)
+        }
     };
-    println!("{reply}");
+    println!("{}", timed(&reply, &clock));
     pause();
 }
