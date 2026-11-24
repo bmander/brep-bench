@@ -129,3 +129,55 @@ pub fn block_to(patch: &NurbsSurface, level: f64) -> Result<BrepSolid, Refusal> 
     }
     Ok(solid_from_sheets(&sheets, 1e-7)?)
 }
+
+/// The Bézier patch of degree `xs.len() − 1` in u and 1 in v whose control points are
+/// Pᵢⱼ = (xᵢ, j, zᵢ + j/10), i over u, j = 0, 1 (the folded, cuspidal and near-layer patches of the
+/// nurbs cases).
+pub fn ruled_bezier_patch(xs: &[f64], zs: &[f64]) -> Result<NurbsSurface, String> {
+    let n = xs.len();
+    let net = (0..n)
+        .map(|i| (0..2).map(|j| Vec4::from_point(p(xs[i], j as f64, zs[i] + j as f64 / 10.0), 1.0)).collect())
+        .collect();
+    let mut u_knots = vec![0.0; n];
+    u_knots.extend(vec![1.0; n]);
+    NurbsSurface::new(n - 1, 1, u_knots, vec![0.0, 0.0, 1.0, 1.0], net)
+}
+
+/// A Bézier patch (unit weights) cut down to its part `u0 ≤ u ≤ 1`, `v0 ≤ v ≤ 1`, as a Bézier patch
+/// of its own over [0, 1]²: each row of control points subdivided by de Casteljau at the cut, its
+/// right half kept. The cases that trim a face to such a part allow its face on this patch, which
+/// is the same face (the parts of the whole patch past the cut, a cusp, a fold or a pinch, are not
+/// on it).
+pub fn bezier_part(patch: &NurbsSurface, u0: f64, v0: f64) -> Result<NurbsSurface, String> {
+    // de Casteljau at t: after stage s (s = 0 … d) the last point left is the right half's R_{d−s}
+    let right = |row: &[Vec3], t: f64| -> Vec<Vec3> {
+        let mut points = row.to_vec();
+        let d = points.len() - 1;
+        let mut out = vec![points[d]; d + 1];
+        for s in 0..=d {
+            out[d - s] = points[d - s];
+            for k in 0..d - s {
+                points[k] = points[k].scale(1.0 - t).add(points[k + 1].scale(t));
+            }
+        }
+        out
+    };
+    let net: Vec<Vec<Vec3>> = patch.control_points.iter()
+        .map(|row| row.iter().map(|q| p(q.x / q.w, q.y / q.w, q.z / q.w)).collect())
+        .collect();
+    let (nu, nv) = (net.len(), net[0].len());
+    // along u (index i) for each j, then along v (index j) for each i
+    let mut cut = net.clone();
+    for j in 0..nv {
+        let column: Vec<Vec3> = (0..nu).map(|i| net[i][j]).collect();
+        for (i, q) in right(&column, u0).into_iter().enumerate() {
+            cut[i][j] = q;
+        }
+    }
+    for row in cut.iter_mut() {
+        *row = right(row, v0);
+    }
+    let knots = |n: usize| { let mut k = vec![0.0; n]; k.extend(vec![1.0; n]); k };
+    let poles = cut.into_iter().map(|row| row.into_iter().map(|q| Vec4::from_point(q, 1.0)).collect()).collect();
+    NurbsSurface::new(nu - 1, nv - 1, knots(nu), knots(nv), poles)
+}

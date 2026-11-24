@@ -279,6 +279,11 @@ pub fn tumbled_torus(tube: f64, rate: f64, sign: f64, h: f64, lean: f64, tilt: f
     if to - from <= 180.0 {
         return Ok(brep_kernel::sweep_solid_tumbled(&torus, &tumble(from, to))?);
     }
+    // The whole range in one sweep where the kernel takes it (its trim engine
+    // closes a whole turn's self-meetings); else by halves, joined.
+    if let Ok(whole) = brep_kernel::sweep_solid_tumbled(&torus, &tumble(from, to)) {
+        return Ok(whole);
+    }
     let middle = 0.5 * (from + to);
     let first = brep_kernel::sweep_solid_tumbled(&torus, &tumble(from, middle))?;
     let second = brep_kernel::sweep_solid_tumbled(&torus, &tumble(middle, to))?;
