@@ -6,7 +6,8 @@
 //!
 //! The rounded solid is turned whole: its meridian runs out along the plate's floor, up its rim, in
 //! along its top to the round, round the round's quarter circle to the ball's equator and up the
-//! ball to its pole, so the round is the torus it is.
+//! ball to its pole, so the round is the torus it is. (A workaround: `fillet::roll` refuses the
+//! circle where the ball leaves the plate's top.)
 //!
 //! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
 //! their own surfaces and closes the gap they part off.
@@ -31,6 +32,6 @@ pub fn build() -> Result<Brep, String> {
     ];
     let section = Profile { origin: [0.; 3], normal: [0., -1., 0.], loops: vec![meridian], names: Vec::new() };
     let b = revolve(&section, [0.; 3], [0., 0., 1.], TAU)?;
-    let round = faces_on(&b, &|s| matches!(s, Surface::Torus(..)));
+    let round = faces_on(&b, |s| matches!(s, Surface::Torus(..)));
     deleting(&b, &round)
 }

@@ -15,6 +15,6 @@ pub fn build() -> Result<Brep, String> {
     let b = rounded_edge(&b, [10., 0., 10.], 2.)?;
     let b = rounded_edge(&b, [10., 10., 10.], 2.)?;
     // the rounds are the block's two cylinders
-    let rounds = faces_on(&b, &|s| matches!(s, Surface::Cylinder(..)));
+    let rounds = faces_on(&b, |s| matches!(s, Surface::Cylinder(..)));
     deleting(&b, &rounds)
 }

@@ -6,7 +6,9 @@
 //! functions.
 use cad_kernel::boolean::{combined, Op};
 use cad_kernel::build::{disc, drafted, kept, offset, prism, revolve, sphere, Profile, ProfileEdge};
-use cad_kernel::geom::{tolerance, Frame, Rigid, V};
+use cad_kernel::defeature::deleted;
+use cad_kernel::fillet::roll;
+use cad_kernel::geom::{tolerance, Frame, Rigid, Surface, V};
 use cad_kernel::query::{Located, Place};
 use cad_kernel::topo::Brep;
 use cad_kernel::util::space::{add, cross, distance, dot, norm, scale, sub, unit};
@@ -202,21 +204,26 @@ pub fn mitred(section: &Profile, path: &[V], closed: bool, reach: f64) -> Result
 /// the piece between the edge and the round taken away from a convex edge, filled into a concave
 /// one.
 pub fn rounded_edge(solid: &Brep, on: V, r: f64) -> Result<Brep, String> {
-    let round = cad_kernel::fillet::roll(solid, on, r, tolerance(solid.size()))?;
+    let round = roll(solid, on, r, tolerance(solid.size()))?;
     let op = if round.concave { Op::Union } else { Op::Cut };
     Ok(combined(solid, &round.piece, op, 0.)?)
 }
 
+/// The upright cylinder of radius `r` whose foot is the disc about `c`, `h` high.
+pub fn cylinder(c: V, r: f64, h: f64) -> Result<Brep, String> {
+    prism(&disc(c, [0., 0., 1.], r), 0., h)
+}
+
 /// The faces of `b` whose surfaces `pick` takes: a set of faces named by what they are (every
 /// round, the torus of the smaller tube) rather than by where.
-pub fn faces_on(b: &Brep, pick: &dyn Fn(&cad_kernel::geom::Surface) -> bool) -> Vec<usize> {
+pub fn faces_on(b: &Brep, pick: impl Fn(&Surface) -> bool) -> Vec<usize> {
     (0..b.faces.len()).filter(|&f| pick(&b.faces[f].surface)).collect()
 }
 
 /// `solid` with `faces` deleted (`defeature::deleted`), each run on to close the gap, to the
 /// solid's own tolerance.
 pub fn deleting(solid: &Brep, faces: &[usize]) -> Result<Brep, String> {
-    Ok(cad_kernel::defeature::deleted(solid, faces, tolerance(solid.size()))?)
+    Ok(deleted(solid, faces, tolerance(solid.size()))?)
 }
 
 /// The solid of revolution about the z axis whose meridian, in the half plane y = 0, x ≥ 0, runs

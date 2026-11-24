@@ -6,13 +6,13 @@
 //!
 //! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
 //! their own surfaces and closes the gap they part off.
-use crate::sketch::{deleting, faces_through};
+use crate::sketch::{cylinder, deleting, faces_through};
 use cad_kernel::boolean::{combined, Op};
-use cad_kernel::build::{disc, prism, torus};
+use cad_kernel::build::torus;
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    let shaft = prism(&disc([0., 0., 0.], [0., 0., 1.], 5.), 0., 20.)?;
+    let shaft = cylinder([0., 0., 0.], 5., 20.)?;
     let b = combined(&shaft, &torus([0., 0., 10.], [0., 0., 1.], 5., 1.5)?, Op::Cut, 0.)?;
     let groove = faces_through(&b, &[[3.5, 0., 10.]])?;
     deleting(&b, &groove)

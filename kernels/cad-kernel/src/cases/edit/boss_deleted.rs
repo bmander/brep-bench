@@ -4,14 +4,13 @@
 //!
 //! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
 //! their own surfaces and closes the gap they part off.
-use crate::sketch::{deleting, faces_through};
+use crate::sketch::{cylinder, deleting, faces_through};
 use cad_kernel::boolean::{combined, Op};
-use cad_kernel::build::{disc, prism};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    let plate = prism(&disc([0., 0., -4.], [0., 0., 1.], 8.), 0., 4.)?;
-    let b = combined(&plate, &prism(&disc([0., 0., 0.], [0., 0., 1.], 3.), 0., 8.)?, Op::Union, 0.)?;
+    let plate = cylinder([0., 0., -4.], 8., 4.)?;
+    let b = combined(&plate, &cylinder([0., 0., 0.], 3., 8.)?, Op::Union, 0.)?;
     let boss = faces_through(&b, &[[3., 0., 4.], [1., 0., 8.]])?;
     deleting(&b, &boss)
 }

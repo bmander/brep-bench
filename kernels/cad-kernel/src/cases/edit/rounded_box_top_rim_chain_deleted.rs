@@ -14,6 +14,6 @@ pub fn build() -> Result<Brep, String> {
     // the top's rim rolled as one chain from a point on its long side
     let b = rounded_edge(&b, [10., 0., 8.], 1.)?;
     // the chain: every face not flat but the corners' upright cylinders, of radius 3
-    let chain = faces_on(&b, &|s| !matches!(s, Surface::Plane(..)) && !matches!(s, Surface::Cylinder(_, r) if *r > 2.));
+    let chain = faces_on(&b, |s| !matches!(s, Surface::Plane(..)) && !matches!(s, Surface::Cylinder(_, r) if *r > 2.));
     deleting(&b, &chain)
 }

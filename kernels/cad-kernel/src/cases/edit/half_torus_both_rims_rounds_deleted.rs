@@ -6,7 +6,8 @@
 //!
 //! The rounded half torus is turned whole: its meridian runs out along the flat from the inner
 //! round to the outer, round the outer round's arc onto the tube's circle, over the top of the tube
-//! and down the inner round's arc, so each round is the torus it is.
+//! and down the inner round's arc, so each round is the torus it is. (A workaround: `fillet::roll`
+//! refuses the inner rim beside the outer.)
 //!
 //! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
 //! their own surfaces and closes the gap they part off.
@@ -32,6 +33,6 @@ pub fn build() -> Result<Brep, String> {
     let section = Profile { origin: [6., 0., 0.], normal: [0., -1., 0.], loops: vec![meridian], names: Vec::new() };
     let b = revolve(&section, [0.; 3], [0., 0., 1.], TAU)?;
     // the rounds: the tori of the smaller tube
-    let rounds = faces_on(&b, &|s| matches!(s, Surface::Torus(_, _, r) if *r < 1.));
+    let rounds = faces_on(&b, |s| matches!(s, Surface::Torus(_, _, r) if *r < 1.));
     deleting(&b, &rounds)
 }

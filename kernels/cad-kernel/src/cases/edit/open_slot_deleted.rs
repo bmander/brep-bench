@@ -5,16 +5,15 @@
 //!
 //! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
 //! their own surfaces and closes the gap they part off.
-use crate::sketch::{block, deleting, faces_through};
+use crate::sketch::{block, cylinder, deleting, faces_through};
 use cad_kernel::boolean::{combined, Op};
-use cad_kernel::build::{disc, prism};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
     // the slot's cutter: the box from x = 8 to 12 in from past the side to y = 5, and the
     // cylinder of radius 2 closing it, both running past the top and the bottom
     let cutter = combined(&block([8., -1., -1.], [12., 5., 11.])?,
-        &prism(&disc([10., 5., -1.], [0., 0., 1.], 2.), 0., 12.)?, Op::Union, 0.)?;
+        &cylinder([10., 5., -1.], 2., 12.)?, Op::Union, 0.)?;
     let b = combined(&block([0., 0., 0.], [20., 10., 10.])?, &cutter, Op::Cut, 0.)?;
     let slot = faces_through(&b, &[[8., 2., 5.], [12., 2., 5.], [10., 7., 5.]])?;
     deleting(&b, &slot)

@@ -5,13 +5,13 @@
 //!
 //! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
 //! their own surfaces and closes the gap they part off.
-use crate::sketch::{block, deleting, faces_through};
+use crate::sketch::{block, cylinder, deleting, faces_through};
 use cad_kernel::boolean::{combined, Op};
-use cad_kernel::build::{cone, disc, prism};
+use cad_kernel::build::cone;
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    let drill = prism(&disc([10., 5., -1.], [0., 0., 1.], 2.), 0., 12.)?;
+    let drill = cylinder([10., 5., -1.], 2., 12.)?;
     let b = combined(&block([0., 0., 0.], [20., 10., 10.])?, &drill, Op::Cut, 0.)?;
     // the countersink's cone, from radius 1 at z = 7 to 5 at z = 11: past the top, and meeting the
     // hole's wall at z = 8

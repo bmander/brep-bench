@@ -15,6 +15,6 @@ pub fn build() -> Result<Brep, String> {
     let b = rounded_edge(&b, [0., 3., 6.], 1.5)?;
     let b = rounded_edge(&b, [0., 6., 0.], 1.5)?;
     // the top's round: the torus whose middle circle stands above z = 3
-    let round = faces_on(&b, &|s| matches!(s, Surface::Torus(f, ..) if f.o[2] > 3.));
+    let round = faces_on(&b, |s| matches!(s, Surface::Torus(f, ..) if f.o[2] > 3.));
     deleting(&b, &round)
 }

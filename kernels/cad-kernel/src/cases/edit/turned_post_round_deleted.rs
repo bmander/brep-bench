@@ -13,6 +13,6 @@ use cad_kernel::topo::Brep;
 pub fn build() -> Result<Brep, String> {
     let b = named(turned(&[[5., 0.], [5., 6.], [2., 10.]])?);
     let b = rounded_edge(&b, [0., 5., 6.], 1.)?;
-    let round = faces_on(&b, &|s| matches!(s, Surface::Torus(..)));
+    let round = faces_on(&b, |s| matches!(s, Surface::Torus(..)));
     deleting(&b, &round)
 }

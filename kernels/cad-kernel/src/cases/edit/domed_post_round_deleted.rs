@@ -5,18 +5,18 @@
 //!
 //! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
 //! their own surfaces and closes the gap they part off.
-use crate::sketch::{deleting, faces_on, named, rounded_edge};
+use crate::sketch::{cylinder, deleting, faces_on, named, rounded_edge};
 use cad_kernel::boolean::{combined, Op};
-use cad_kernel::build::{disc, kept, prism, sphere};
+use cad_kernel::build::{kept, sphere};
 use cad_kernel::geom::Surface;
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    let post = prism(&disc([0., 0., 0.], [0., 0., 1.], 4.), 0., 6.)?;
+    let post = cylinder([0., 0., 0.], 4., 6.)?;
     let dome = kept(&sphere([0., 0., 3.], [0., 0., 1.], 5.)?, [0., 0., 6.], [0., 0., 1.], 0.)?;
     let b = named(combined(&post, &dome, Op::Union, 0.)?);
     let b = rounded_edge(&b, [0., 4., 6.], 1.)?;
     // the round: the face neither the post's cylinder, its dome nor its foot
-    let round = faces_on(&b, &|s| !matches!(s, Surface::Plane(..) | Surface::Cylinder(..) | Surface::Sphere(..)));
+    let round = faces_on(&b, |s| !matches!(s, Surface::Plane(..) | Surface::Cylinder(..) | Surface::Sphere(..)));
     deleting(&b, &round)
 }

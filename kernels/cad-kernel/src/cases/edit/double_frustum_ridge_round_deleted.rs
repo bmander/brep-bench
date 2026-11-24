@@ -12,6 +12,6 @@ use cad_kernel::topo::Brep;
 pub fn build() -> Result<Brep, String> {
     let b = named(turned(&[[3., 0.], [5., 4.], [2., 8.]])?);
     let b = rounded_edge(&b, [0., 5., 4.], 1.)?;
-    let round = faces_on(&b, &|s| matches!(s, Surface::Torus(..)));
+    let round = faces_on(&b, |s| matches!(s, Surface::Torus(..)));
     deleting(&b, &round)
 }

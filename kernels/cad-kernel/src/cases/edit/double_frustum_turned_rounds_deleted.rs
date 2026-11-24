@@ -18,6 +18,6 @@ pub fn build() -> Result<Brep, String> {
     let upper = cone([0., 0., 4.], [0., 0., 1.], 5., 2., 4.)?.moved(&Rigid::turn([0.; 3], [0., 0., 1.], 1.));
     let b = named(combined(&lower, &upper, Op::Union, 0.)?);
     let b = rounded_edge(&b, [0., 5., 4.], 1.)?;
-    let round = faces_on(&b, &|s| matches!(s, Surface::Torus(..)));
+    let round = faces_on(&b, |s| matches!(s, Surface::Torus(..)));
     deleting(&b, &round)
 }

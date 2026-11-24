@@ -15,6 +15,6 @@ pub fn build() -> Result<Brep, String> {
     let every: Vec<usize> = (0..b.edges.len()).collect();
     let b = rounded(&b, &every, 2., tolerance(b.size()))?;
     // the rounds are every face that is not flat: twelve cylinders and eight balls
-    let rounds = faces_on(&b, &|s| !matches!(s, Surface::Plane(..)));
+    let rounds = faces_on(&b, |s| !matches!(s, Surface::Plane(..)));
     deleting(&b, &rounds)
 }

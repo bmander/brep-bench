@@ -1,9 +1,8 @@
 //! The box from the origin to (40, 30, 8), drilled right through along z by two holes of radius 3
 //! about the vertical lines through (15, 15) and (25, 15), both walls then offset 3 into the plate,
 //! away from their axes, to cylinders of radius 6 that overlap: one opening, no wall between.
-use crate::sketch::{block, faces_through};
+use crate::sketch::{block, cylinder, faces_through};
 use cad_kernel::boolean::{combined, Op};
-use cad_kernel::build::{disc, prism};
 use cad_kernel::offset::normal_sweep;
 use cad_kernel::topo::Brep;
 
@@ -11,7 +10,7 @@ pub fn build() -> Result<Brep, String> {
     // the drills run past the floor and the top
     let mut plate = block([0., 0., 0.], [40., 30., 8.])?;
     for x in [15., 25.] {
-        let drill = prism(&disc([x, 15., -1.], [0., 0., 1.], 3.), 0., 10.)?;
+        let drill = cylinder([x, 15., -1.], 3., 10.)?;
         plate = combined(&plate, &drill, Op::Cut, 0.)?;
     }
     // cad-kernel offsets no single face of a solid. The top and the floor are square to each

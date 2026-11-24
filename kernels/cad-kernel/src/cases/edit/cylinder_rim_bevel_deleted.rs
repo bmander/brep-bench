@@ -11,6 +11,6 @@ use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
     let b = turned(&[[6., 0.], [6., 8.], [4., 10.]])?;
-    let bevel = faces_on(&b, &|s| matches!(s, Surface::Cone(..)));
+    let bevel = faces_on(&b, |s| matches!(s, Surface::Cone(..)));
     deleting(&b, &bevel)
 }

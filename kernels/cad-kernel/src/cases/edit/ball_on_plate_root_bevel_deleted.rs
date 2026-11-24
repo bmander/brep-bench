@@ -5,13 +5,13 @@
 //!
 //! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
 //! their own surfaces and closes the gap they part off.
-use crate::sketch::{deleting, faces_through};
+use crate::sketch::{cylinder, deleting, faces_through};
 use cad_kernel::boolean::{combined, Op};
-use cad_kernel::build::{cone, disc, prism, sphere};
+use cad_kernel::build::{cone, sphere};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    let plate = prism(&disc([0., 0., -2.], [0., 0., 1.], 8.), 0., 2.)?;
+    let plate = cylinder([0., 0., -2.], 8., 2.)?;
     // the ball's axis along x, so neither pole lies on the plate's faces
     let b = combined(&plate, &sphere([0., 0., 1.], [1., 0., 0.], 3.)?, Op::Union, 0.)?;
     let b = combined(&b, &cone([0., 0., 0.], [0., 0., 1.], 4., 3., 1.)?, Op::Union, 0.)?;

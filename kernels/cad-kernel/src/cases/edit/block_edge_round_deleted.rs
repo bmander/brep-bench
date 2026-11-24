@@ -10,6 +10,6 @@ use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
     let b = rounded_edge(&named(block([0., 0., 0.], [20., 10., 10.])?), [20., 5., 10.], 2.)?;
-    let round = faces_on(&b, &|s| matches!(s, Surface::Cylinder(..)));
+    let round = faces_on(&b, |s| matches!(s, Surface::Cylinder(..)));
     deleting(&b, &round)
 }

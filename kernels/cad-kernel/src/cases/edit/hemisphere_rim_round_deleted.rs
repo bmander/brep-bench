@@ -14,6 +14,6 @@ pub fn build() -> Result<Brep, String> {
     let b = named(kept(&sphere([0.; 3], [0., 0., 1.], 5.)?, [0.; 3], [0., 0., 1.], 0.)?);
     let b = rounded_edge(&b, [0., 5., 0.], 1.)?;
     // the round: the face neither the ball nor the flat
-    let round = faces_on(&b, &|s| !matches!(s, Surface::Plane(..) | Surface::Sphere(..)));
+    let round = faces_on(&b, |s| !matches!(s, Surface::Plane(..) | Surface::Sphere(..)));
     deleting(&b, &round)
 }

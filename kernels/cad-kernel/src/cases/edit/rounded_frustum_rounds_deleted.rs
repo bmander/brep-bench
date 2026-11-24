@@ -14,6 +14,6 @@ pub fn build() -> Result<Brep, String> {
     let b = named(cone([0., 0., 0.], [0., 0., 1.], 6., 3., 6.)?);
     let b = rounded_edge(&b, [0., 3., 6.], 1.5)?;
     let b = rounded_edge(&b, [0., 6., 0.], 1.5)?;
-    let rounds = faces_on(&b, &|s| matches!(s, Surface::Torus(..)));
+    let rounds = faces_on(&b, |s| matches!(s, Surface::Torus(..)));
     deleting(&b, &rounds)
 }

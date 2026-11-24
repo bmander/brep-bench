@@ -6,15 +6,14 @@
 //!
 //! The edit is the kernel's: `defeature::deleted` runs the faces round the deleted ones on along
 //! their own surfaces and closes the gap they part off.
-use crate::sketch::{deleting, faces_on, named, rounded_edge};
-use cad_kernel::build::{disc, prism};
+use crate::sketch::{cylinder, deleting, faces_on, named, rounded_edge};
 use cad_kernel::geom::Surface;
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    let b = named(prism(&disc([0., 0., 0.], [0., 0., 1.], 6.), 0., 10.)?);
+    let b = named(cylinder([0., 0., 0.], 6., 10.)?);
     let b = rounded_edge(&b, [0., 6., 10.], 2.)?;
     let b = rounded_edge(&b, [0., 6., 0.], 2.)?;
-    let rounds = faces_on(&b, &|s| matches!(s, Surface::Torus(..)));
+    let rounds = faces_on(&b, |s| matches!(s, Surface::Torus(..)));
     deleting(&b, &rounds)
 }

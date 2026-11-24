@@ -14,6 +14,6 @@ pub fn build() -> Result<Brep, String> {
     let b = named(kept(&torus([0.; 3], [0., 0., 1.], 6., 2.)?, [0.; 3], [0., 0., 1.], 0.)?);
     let b = rounded_edge(&b, [0., 8., 0.], 0.5)?;
     // the round: the face neither the flat nor the torus of tube 2
-    let round = faces_on(&b, &|s| !matches!(s, Surface::Plane(..)) && !matches!(s, Surface::Torus(_, _, r) if *r > 1.));
+    let round = faces_on(&b, |s| !matches!(s, Surface::Plane(..)) && !matches!(s, Surface::Torus(_, _, r) if *r > 1.));
     deleting(&b, &round)
 }
