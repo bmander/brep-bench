@@ -3,27 +3,15 @@
 //! and back: the saddle z = 5 + xy/10, its walls on x = 0, x = 10, y = 0 and y = 10.
 //!
 //! The Coons patch of four straight edges is the bilinear patch through their corners: each of its
-//! ruled blends is that patch, and so is its correction. cad-kernel 0.21.0 has no fill of a loop of
-//! curves — its surfaces come from a profile swept (`build::prism`, `revolve`, `screwed`,
-//! `carried`), a face family whose sections the caller solves (`family::family`), or a net the
-//! caller writes (`build::sheet`, `sheets`, `grid_sheet`, `lofted`); `sew::sewn` closes faces it is
-//! given and makes none — so the net is written from the four corners, degree one each way, and
-//! the kernel makes its face (`sheet`) and sews it to the walls and the floor into the solid.
-//!
-//! What a fill would be, for curves no straight lines (`fill/coons-patch-of-four-parabolas`):
-//!
-//! ```text
-//! nurbs::coons(edges: [&BSpline; 4]) -> Result<Net, String>
-//! ```
-//!
-//! the bilinearly blended Coons patch of four curves closing a loop (each after the last, the
-//! first and third run along u, the second and fourth along v), its net degree-raised and
-//! knot-merged so its boundary rows are the edges exactly; `sheet(net)` then makes its face and
-//! `sew::sewn` closes it with the walls and the floor.
+//! ruled blends is that patch, and so is its correction. cad-kernel fills the loop
+//! (`nurbs::coons`, the bilinearly blended Coons patch of four curves end to end, the first and
+//! third along u, the second and fourth along v), its net degree one each way with the edges as
+//! its boundary rows; the kernel makes its face (`sheet`) and sews it to the walls and the floor
+//! into the solid (`sew::sewn`).
 use crate::sketch::polygon;
 use cad_kernel::build::{face, sheet, Profile, ProfileEdge};
 use cad_kernel::geom::{tolerance, V};
-use cad_kernel::nurbs::{BSpline, Net};
+use cad_kernel::nurbs::{coons, BSpline};
 use cad_kernel::sew::sewn;
 use cad_kernel::topo::Brep;
 use cad_kernel::util::space::distance;
@@ -41,7 +29,7 @@ pub fn bezier(poles: &[V]) -> Result<BSpline, String> {
 /// What the fill of `edges` (four curves end to end round the square from (0, 0) to (10, 10),
 /// each in the upright plane over its side) caps: the wall under each edge down to z = 0, and the
 /// floor. Refused where the edges do not close.
-pub fn walls(edges: &[BSpline; 4]) -> Result<Vec<Brep>, String> {
+fn walls(edges: &[BSpline; 4]) -> Result<Vec<Brep>, String> {
     let ends = |c: &BSpline| { let [a, b] = c.domain(); (c.point(a), c.point(b)) };
     for k in 0..4 {
         let (_, end) = ends(&edges[k]);
@@ -69,24 +57,17 @@ pub fn walls(edges: &[BSpline; 4]) -> Result<Vec<Brep>, String> {
     Ok(faces)
 }
 
-/// The refusal where the edges are no straight lines: the fill their walls wait for.
-pub fn no_fill(caps: &[Brep]) -> String {
-    format!("no fill of a loop of curves: cad-kernel 0.21.0 makes no surface from four boundary \
-             curves (the {} faces under them built), and the bilinearly blended Coons patch wants \
-             nurbs::coons(edges: [&BSpline; 4]) -> Result<Net, String>, its face then sheet(net) \
-             sewn to them", caps.len())
+/// The solid the Coons patch of `edges` caps: the patch's sheet sewn to the walls under the
+/// edges and the floor.
+pub fn capped(edges: &[BSpline; 4]) -> Result<Brep, String> {
+    let mut faces = walls(edges)?;
+    faces.push(sheet(coons(edges.each_ref())?)?);
+    Ok(sewn(&faces, tolerance(30.))?)
 }
 
 pub fn build() -> Result<Brep, String> {
     // each edge a straight Bézier segment between two corners
     let lines = |k: usize| bezier(&[CORNERS[k], CORNERS[(k + 1) % 4]]);
     let edges = [lines(0)?, lines(1)?, lines(2)?, lines(3)?];
-    let mut faces = walls(&edges)?;
-    // the bilinear patch through the corners: along u the first edge and the third (walked back),
-    // along v the fourth and the second
-    let linear = vec![0., 0., 1., 1.];
-    let poles = vec![vec![CORNERS[0], CORNERS[3]], vec![CORNERS[1], CORNERS[2]]];
-    let net = Net { du: 1, dv: 1, uknots: linear.clone(), vknots: linear, poles, weights: None };
-    faces.push(sheet(net)?);
-    Ok(sewn(&faces, tolerance(30.))?)
+    capped(&edges)
 }

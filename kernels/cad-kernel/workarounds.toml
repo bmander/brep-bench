@@ -51,7 +51,6 @@
 "feature/pad-down-to-cylinder" = "no extrusion up to a face"
 "feature/post-up-to-dome" = "no extrusion up to a face"
 "feature/rib-revolved-to-a-stop" = "no revolution up to a face"
-"fill/coons-patch-of-four-lines" = "no fill of a loop of curves"
 "fillet/conic-edge" = "no conic blend"
 "fillet/elliptic-boss-root" = "no ellipse in a profile, no round of a closed loop on a B-spline sheet (rounded half by half)"
 "fillet/elliptic-cylinder-rim" = "no ellipse in a profile, no round of a closed loop on a B-spline sheet (rounded half by half)"
