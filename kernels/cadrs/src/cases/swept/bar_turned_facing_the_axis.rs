@@ -4,9 +4,10 @@
 //! along its length) turned about the z axis from −140° to +140°.
 //!
 //! The bar is a block turned 20° about the y axis and moved to (10, 0, 0); what it passes through
-//! is cadrs's sweep of a solid (one turn), cut from the block (cadrs's cylindrical box).
-use crate::bench::{block, cut, moved, p3, turned, v3};
-use crate::shared::swept::{ring_sector, swung, z_axis};
+//! (one turn) is cut from the block (cadrs's cylindrical box) by cadrs's cut by a swept solid (the
+//! exact sweep cut from it where it can be, else meshed).
+use crate::bench::{block, moved, p3, turned, v3};
+use crate::shared::swept::{cut_swept, ring_sector, swing, z_axis};
 use crate::Refusal;
 use cadrs_kernel::{Axis, BodyId, DefaultKernel};
 
@@ -17,6 +18,5 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let local = block(k, p3(0.0, -2.0, -3.0), p3(3.0, 2.0, 3.0))?;
     let leaning = turned(k, local, Axis::new(p3(0.0, 0.0, 0.0), v3(0.0, 1.0, 0.0)), 20.0)?;
     let bar = moved(k, leaning, v3(10.0, 0.0, 0.0))?;
-    let swept = swung(k, bar, z_axis(), -140.0, 140.0)?;
-    cut(k, sector, swept)
+    cut_swept(k, sector, bar, &swing(z_axis(), -140.0, 140.0))
 }

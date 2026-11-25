@@ -2,8 +2,9 @@
 //! curves, each on its own plane, and the flat walls under a patch's boundary curves.
 //!
 //! cadrs's Fill fills a planar loop with its plane and four curves with their bilinearly blended
-//! Coons patch (sampled and interpolated by a bicubic B-spline, exact for boundaries of degree two
-//! or less, whose patch is of degree two or less each way).
+//! Coons patch: in closed form for polynomial boundaries (four lines give the bilinear patch of
+//! four poles, four parabolas a biquadratic one of nine), else sampled and interpolated by a
+//! bicubic B-spline.
 use crate::Refusal;
 use cadrs_kernel::{BodyId, Curve2, DefaultKernel, FillSpec, Kernel, Plane};
 
