@@ -1,12 +1,6 @@
 //! The cone on the z axis from its base of radius 6 at z = 0 to its apex at z = 12, its tip rounded
 //! by a ball of radius 1 tangent to its side, shrunk by 1.5: the ball's face, moved in by more than
 //! its radius, drops, and the moved side runs on to its own apex.
-//!
-//! The kernel's offset sweeps a round's sphere inward only as far as its radius: past it
-//! the sphere would turn inside out, and the offset refuses it rather than drop it. A solid shrunk
-//! by a and then by b is the solid shrunk by a + b (the points a ball of radius a + b about them
-//! fits in), so it is shrunk first by the tip's radius, which takes the tip down to a sharp
-//! apex, and then by the rest.
 use cad_kernel::build::{revolve, Profile, ProfileEdge};
 use cad_kernel::geom::Frame;
 use cad_kernel::offset::{shrunk, Join};
@@ -37,5 +31,5 @@ pub fn build() -> Result<Brep, String> {
     let section = Profile { origin: [0., 0., 0.], normal: [0., -1., 0.], loops: vec![edges],
                             names: Vec::new() };
     let tipped = revolve(&section, [0., 0., 0.], [0., 0., 1.], TAU)?;
-    shrunk(&shrunk(&tipped, TIP, Join::Round)?, SHRINK - TIP, Join::Round)
+    shrunk(&tipped, SHRINK, Join::Round)
 }

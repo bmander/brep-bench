@@ -5,14 +5,8 @@
 //! long axis; the round along the ellipse is only the part of the tube of radius 2.5 between the
 //! top's normal and the side's, on the ellipse's outer side, where it stays smooth.
 //!
-//! Refused, by the kernel: "the join of face 0 (cylinder) and `far` (plane): the ellipse turns on
-//! a radius of 2.1213… at [3, 0, 3], tighter than the tube's 2.5: the tube would fold".
-//! `offset::grown` joins a solid's convex crease by the whole tube about it (`offset::tube`, along
-//! an ellipse `swept::canal::ring`), whose curvature row refuses any curve turning tighter than the
-//! distance; the wedge of the tube between the two faces' normals (`offset::wedge`) is built only
-//! along a line or a circle. Growing in two steps (by 2, then by the rest) is refused too: the
-//! first step's round is a face family, which `offset::normal_sweep` does not move ("a family has
-//! no offset in closed form").
+//! The whole tube about the ellipse would fold, so `offset::grown` joins the crease by the sector
+//! of it the side's and the top's normals span (`offset::sectors`), a ring along the ellipse.
 use cad_kernel::build::{disc, kept, prism};
 use cad_kernel::offset::{grown, Join};
 use cad_kernel::topo::Brep;

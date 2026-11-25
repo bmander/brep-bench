@@ -6,12 +6,6 @@
 //! turned about it, and the fillet is the kernel's round of that section's corner: a ball of the
 //! fillet's radius rolled between the plate's top and the sphere. (`fillet::roll` between the plane
 //! and the sphere in space fails to build this fillet.)
-//!
-//! The kernel's offset sweeps a fillet's torus outward only as far as its tube's radius: past it
-//! the torus would turn inside out, and the offset refuses it rather than drop it. A solid grown by
-//! a and then by b is the solid grown by a + b (every point within a + b of it), so it is grown
-//! first by the fillet's radius, which takes the fillet down to a sharp edge, and then by the
-//! rest.
 use cad_kernel::build::revolve;
 use cad_kernel::corners::round;
 use cad_kernel::offset::{grown, Join};
@@ -59,5 +53,5 @@ pub fn build() -> Result<Brep, String> {
     let (origin, axis) = ([0., 0., 0.], [0., 0., 1.]);
     let profile = region_profile(&filleted, origin, [1., 0., 0.], axis, &|_| String::new());
     let part = revolve(&profile, origin, axis, TAU)?;
-    grown(&grown(&part, FILLET, Join::Round)?, GROWTH - FILLET, Join::Round)
+    grown(&part, GROWTH, Join::Round)
 }

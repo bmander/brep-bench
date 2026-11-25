@@ -1,12 +1,6 @@
 //! The plate of radius 8 on the z axis from z = −4 to z = 0 with a post standing on it, the
 //! cylinder of radius 3 from z = 0 to z = 8, the concave edge where the post meets the plate
 //! filleted to radius 2, grown by 3: every point within 3 of it.
-//!
-//! The kernel's offset sweeps a fillet's torus outward only as far as its tube's radius: past it
-//! the torus would turn inside out, and the offset refuses it rather than drop it. A solid grown by
-//! a and then by b is the solid grown by a + b (every point within a + b of it), so it is grown
-//! first by the fillet's radius, which takes the fillet down to a sharp edge, and then by the
-//! rest.
 use cad_kernel::boolean::{combined, Op};
 use cad_kernel::build::{disc, prism};
 use cad_kernel::fillet::roll;
@@ -32,5 +26,5 @@ pub fn build() -> Result<Brep, String> {
     // a concave edge's round fills its piece in
     let op = if round.concave { Op::Union } else { Op::Cut };
     let filleted = combined(&part, &round.piece, op, 0.)?;
-    grown(&grown(&filleted, FILLET, Join::Round)?, GROWTH - FILLET, Join::Round)
+    grown(&filleted, GROWTH, Join::Round)
 }

@@ -2,16 +2,9 @@
 //! radius 4 at z = 0 to radius 1 at z = 6, the concave edge where the boss meets the plate's top
 //! filleted to radius 1, grown by 2 with rounded edges: every point within 2 of it.
 //!
-//! Refused, by the kernel: "`round` (torus) is not swept along its normal: swept past the centre
-//! of its torus: no point stands that far off it". `offset::grown` sweeps the fillet's torus
-//! outward only as far as its tube's radius and refuses it past that rather than drop it. Grown in
-//! two steps (`offset/filleted-post-grown-past-its-fillet`'s way), first by the fillet's radius,
-//! which the kernel builds with the fillet gone, the boss's top rim has become a torus as wide as
-//! the circle it runs round, and the second step refuses it: "face 7 (torus) is not swept along
-//! its normal: its sweep passes the axis of its torus" (`offset::revolved_sweep` cuts a sweep at
-//! the axis only for a straight meridian or a whole tube, not a part of a torus); so does every
-//! other split tried. (Growing the boss without its fillet builds, but that is not the solid
-//! described grown: it drops the face the case is about.)
+//! The fillet's torus, swept past its tube's radius, would turn inside out: `offset::grown` stops
+//! its sweep at the centre of its tube (a point past it is nearer the far side's faces), and the
+//! moved top and cone, running on past it, meet in a sharp concave edge.
 use cad_kernel::boolean::{combined, Op};
 use cad_kernel::build::{cone, disc, prism};
 use cad_kernel::fillet::roll;

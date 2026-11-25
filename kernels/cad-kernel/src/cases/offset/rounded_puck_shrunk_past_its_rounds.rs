@@ -24,5 +24,5 @@ pub fn build() -> Result<Brep, String> {
     let cylinder = prism(&disc([0., 0., 0.], [0., 0., 1.], RADIUS), 0., HEIGHT)?;
     // each rim is picked by a point on it, the top's and then the bottom's
     let puck = rounded(&rounded(&cylinder, [0., RADIUS, HEIGHT])?, [0., RADIUS, 0.])?;
-    shrunk(&shrunk(&puck, ROUND, Join::Round)?, SHRINK - ROUND, Join::Round)
+    shrunk(&puck, SHRINK, Join::Round)
 }
