@@ -4,18 +4,19 @@
 //! then deleted, the top running on inward from radius 3 and the wall up from z = 9 until they meet
 //! in the circle of radius 2 at z = 10.
 //!
-//! Refused. cad-kernel builds the rounded hole: the box a `prism` drilled by a `prism` of a `disc`,
-//! the top rim rolled by `fillet::roll` and the round's piece cut away. What is missing is the
-//! edit. cad-kernel deletes no face of a solid: nothing in `boolean`, `fillet`, `rounds`, `offset`
-//! or `sew` takes faces out of a boundary and runs the faces round them on along their own surfaces
-//! until they close the gap, and `offset::normal_sweep` sweeps a face along its normal without
-//! extending any face beside it. Joining back the ring the round took would be the result drawn
-//! again, not the round deleted.
+//! The rounded hole is the box, a `prism`, drilled by a `prism` of a `disc`, the top rim rolled by
+//! `fillet::roll` and the round's piece cut away (`sketch::rolled`); the round is picked by a point
+//! on it and deleted (`defeature::deleted`).
+use crate::sketch::{block, deleted_through, rolled};
+use cad_kernel::boolean::{combined, Op};
+use cad_kernel::build::{disc, prism};
 use cad_kernel::topo::Brep;
+use std::f64::consts::FRAC_1_SQRT_2;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes the top rim's \
-         torus out and runs the top on inward from radius 3 and the hole's wall up from z = 9 \
-         until they meet in the circle of radius 2 at z = 10"
-        .into())
+    let drill = prism(&disc([10., 5., -1.], [0., 0., 1.], 2.), 0., 12.)?;
+    let drilled = combined(&block([0., 0., 0.], [20., 10., 10.])?, &drill, Op::Cut, 0.)?;
+    let rounded = rolled(&drilled, &[[12., 5., 10.]], 1.)?;
+    // the round's middle, at 45° about its tube's circle of radius 3 at z = 9, toward the rim
+    deleted_through(&rounded, &[[13. - FRAC_1_SQRT_2, 5., 9. + FRAC_1_SQRT_2]])
 }

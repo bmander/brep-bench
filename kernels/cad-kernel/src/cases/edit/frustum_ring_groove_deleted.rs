@@ -4,19 +4,23 @@
 //! walls then deleted together, the cone below the groove and the cone above it, one surface,
 //! running on across it until they are one face again.
 //!
-//! Refused. cad-kernel builds the grooved frustum: `build::cone` cut by a ring, a `prism` of a
-//! `disc` of radius 4.8 (past the cone at z = 8) less a `prism` of a `disc` of radius 4, from z = 8
-//! to 12; or the frustum's meridian notched and turned by `build::revolve`. What is missing is the
-//! edit. cad-kernel deletes no face of a solid: nothing in `boolean`, `fillet`, `rounds`, `offset`
-//! or `sew` takes faces out of a boundary and runs the faces round them on along their own surfaces
-//! until they close the gap, and `offset::normal_sweep` sweeps a face along its normal without
-//! extending any face beside it. Joining back the ring the groove took would be the result drawn
-//! again, not the groove deleted.
+//! The grooved frustum is `build::cone` cut by a ring, a `prism` of a `disc` of radius 6 (past the
+//! cone throughout) less a `prism` of a `disc` of radius 4, from z = 8 to 12; the floor and both
+//! walls are picked by a point on each and deleted together (`defeature::deleted`).
+use crate::sketch::deleted_through;
+use cad_kernel::boolean::{combined, Op};
+use cad_kernel::build::{cone, disc, prism};
+use cad_kernel::geom::V;
 use cad_kernel::topo::Brep;
 
+const UP: V = [0., 0., 1.];
+
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes the groove's floor \
-         (the cylinder of radius 4) and its walls at z = 8 and z = 12 out and runs the cone on \
-         across the groove until the cone below and above it is one face"
-        .into())
+    let frustum = cone([0., 0., 0.], UP, 6., 3., 20.)?;
+    let outer = prism(&disc([0., 0., 8.], UP, 6.), 0., 4.)?;
+    let inner = prism(&disc([0., 0., 7.], UP, 4.), 0., 6.)?;
+    let ring = combined(&outer, &inner, Op::Cut, 0.)?;
+    let grooved = combined(&frustum, &ring, Op::Cut, 0.)?;
+    // the cone is 4.8 out at z = 8 and 4.2 at z = 12
+    deleted_through(&grooved, &[[4., 0., 10.], [4.4, 0., 8.], [4.1, 0., 12.]])
 }

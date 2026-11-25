@@ -3,18 +3,22 @@
 //! floor y = −5 and its walls x = −1 and x = 1; the keyway's three faces then deleted, the bore
 //! closing over it and the hub's ends growing back to whole rings.
 //!
-//! Refused. cad-kernel builds the keyed hub: a `prism` of a `disc` of radius 10 cut by a `prism` of
-//! a `disc` of radius 4 and a box, a `prism` of a rectangle, running past both ends. What is
-//! missing is the edit. cad-kernel deletes no face of a solid: nothing in `boolean`, `fillet`,
-//! `rounds`, `offset` or `sew` takes faces out of a boundary and runs the faces round them on along
-//! their own surfaces until they close the gap, and `offset::normal_sweep` sweeps a face along its
-//! normal without extending any face beside it. Joining back the keyway's box would be the result
-//! drawn again, not the keyway deleted.
+//! The keyed hub is a `prism` of a `disc` of radius 10 cut by a `prism` of a `disc` of radius 4 and
+//! a box, a `prism` of a rectangle, both running past both ends; the keyway's floor and walls are
+//! picked by a point on each and deleted together (`defeature::deleted`).
+use crate::sketch::{block, deleted_through};
+use cad_kernel::boolean::{combined, Op};
+use cad_kernel::build::{disc, prism};
+use cad_kernel::geom::V;
 use cad_kernel::topo::Brep;
 
+const UP: V = [0., 0., 1.];
+
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes the keyway's floor \
-         y = −5 and its walls x = ±1 out and closes the bore of radius 4 over it, the hub's two \
-         ends growing back to whole rings"
-        .into())
+    let outer = prism(&disc([0., 0., 0.], UP, 10.), 0., 20.)?;
+    let inner = prism(&disc([0., 0., -1.], UP, 4.), 0., 22.)?;
+    let tube = combined(&outer, &inner, Op::Cut, 0.)?;
+    let keyed = combined(&tube, &block([-1., -5., -1.], [1., 0., 21.])?, Op::Cut, 0.)?;
+    // the walls run from the bore, at y = −√15, down to the floor
+    deleted_through(&keyed, &[[0., -5., 10.], [-1., -4.5, 10.], [1., -4.5, 10.]])
 }

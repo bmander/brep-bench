@@ -4,19 +4,20 @@
 //! deleted together, the top and the bottom running on inward from radius 3 and the wall up from
 //! z = 9 and down from z = 1 until they meet in the circles of radius 2 at z = 10 and at z = 0.
 //!
-//! Refused. cad-kernel builds the rounded hole: the box a `prism` drilled by a `prism` of a `disc`,
-//! each rim rolled by `fillet::roll` and its piece cut away. What is missing is the edit.
-//! cad-kernel deletes no face of a solid: nothing in `boolean`, `fillet`, `rounds`, `offset` or
-//! `sew` takes faces out of a boundary and runs the faces round them on along their own surfaces
-//! until they close the gap, and `offset::normal_sweep` sweeps a face along its normal without
-//! extending any face beside it. Joining back the rings the rounds took would be the result drawn
-//! again, not the rounds deleted.
+//! The rounded hole is the box, a `prism`, drilled by a `prism` of a `disc`, each rim rolled by
+//! `fillet::roll` and its piece cut away (`sketch::rolled`); the two rounds are picked by a point
+//! on each and deleted together (`defeature::deleted`).
+use crate::sketch::{block, deleted_through, rolled};
+use cad_kernel::boolean::{combined, Op};
+use cad_kernel::build::{disc, prism};
 use cad_kernel::topo::Brep;
+use std::f64::consts::FRAC_1_SQRT_2;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes both rims' tori \
-         out of the hole and runs the top and the bottom on inward from radius 3 and the wall up \
-         from z = 9 and down from z = 1 until they meet in the circles of radius 2 at z = 10 and \
-         z = 0"
-        .into())
+    let drill = prism(&disc([10., 5., -1.], [0., 0., 1.], 2.), 0., 12.)?;
+    let drilled = combined(&block([0., 0., 0.], [20., 10., 10.])?, &drill, Op::Cut, 0.)?;
+    let rounded = rolled(&drilled, &[[12., 5., 10.], [12., 5., 0.]], 1.)?;
+    // each round's middle, at 45° about its tube's circle of radius 3, toward its rim
+    let (x, d) = (13. - FRAC_1_SQRT_2, FRAC_1_SQRT_2);
+    deleted_through(&rounded, &[[x, 5., 9. + d], [x, 5., 1. - d]])
 }

@@ -3,18 +3,15 @@
 //! x = 7, y = 7; the round then deleted, the face x = 5 running back from y = 7 and the face y = 5
 //! from x = 7 until they meet in the edge x = 5, y = 5.
 //!
-//! Refused. cad-kernel builds the rounded L-block: `sketch::l_block`, its inside edge rolled by
-//! `fillet::roll` and the round's piece joined into the corner. What is missing is the edit.
-//! cad-kernel deletes no face of a solid: nothing in `boolean`, `fillet`, `rounds`, `offset` or
-//! `sew` takes faces out of a boundary and runs the faces round them on along their own surfaces
-//! until they close the gap, and `offset::normal_sweep` sweeps a face along its normal without
-//! extending any face beside it. Cutting away what the round added would be the result drawn again,
-//! not the round deleted.
+//! The rounded L-block is `sketch::l_block`, its inside edge rolled by `fillet::roll` and the
+//! round's piece joined into the corner (`sketch::rolled`); the quarter cylinder is picked by a
+//! point on it and deleted (`defeature::deleted`).
+use crate::sketch::{deleted_through, l_block, rolled};
 use cad_kernel::topo::Brep;
+use std::f64::consts::SQRT_2;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes the inside round's \
-         quarter cylinder out and runs the face x = 5 back from y = 7 and the face y = 5 back \
-         from x = 7 until they meet in the edge x = 5, y = 5"
-        .into())
+    let rounded = rolled(&l_block()?, &[[5., 5., 4.]], 2.)?;
+    // the round's middle, at 45° about its axis x = 7, y = 7, toward the corner
+    deleted_through(&rounded, &[[7. - SQRT_2, 7. - SQRT_2, 4.]])
 }
