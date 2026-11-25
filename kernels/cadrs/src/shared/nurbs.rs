@@ -63,16 +63,57 @@ pub fn barrel_vault_surface() -> Result<Surface, Refusal> {
 /// surface's edges cross the sides near), then its top face replaced by `top`.
 pub fn domed_block(
     k: &mut DefaultKernel,
+    corner0: (f64, f64),
+    corner1: (f64, f64),
+    height: f64,
+    top: Surface,
+) -> Result<BodyId, Refusal> {
+    trimmed_block(k, corner0, corner1, height, top, ((0.0, 1.0), (0.0, 1.0)))
+}
+
+/// [`domed_block`] with its top the surface `top` over the part `domain` of its parameters (a
+/// patch that runs on past the face, the top trimmed on it).
+pub fn trimmed_block(
+    k: &mut DefaultKernel,
     (x0, y0): (f64, f64),
     (x1, y1): (f64, f64),
     height: f64,
     top: Surface,
+    domain: ((f64, f64), (f64, f64)),
 ) -> Result<BodyId, Refusal> {
     let b = block(k, p3(x0, y0, 0.0), p3(x1, y1, height))?;
     let face = k.face_at(b, p3((x0 + x1) / 2.0, (y0 + y1) / 2.0, height))?;
-    let r = k.replace_faces(
-        b,
-        &[FaceReplacement { face, surface: top, domain: Some(((0.0, 1.0), (0.0, 1.0))) }],
-    )?;
+    let r = k.replace_faces(b, &[FaceReplacement { face, surface: top, domain: Some(domain) }])?;
     r.bodies.first().copied().ok_or_else(|| Refusal::from("Replace face made no body"))
+}
+
+/// The patch of degree `du` in u and 1 in v (Bézier knots) whose control points are
+/// (xᵢ, j, zᵢ + j/10), i along u, j = 0, 1: the nurbs cases' patches running on past their faces.
+pub fn ruled_patch(xs: &[f64], zs: &[f64]) -> Result<Surface, Refusal> {
+    ruled_patch_from(xs, zs, 0.0)
+}
+
+/// The part u0 ≤ u ≤ 1 of [`ruled_patch`]`(xs, zs)`, itself a Bézier patch over [0, 1] (the
+/// control polygon along u split at u0 by de Casteljau's construction, the part after it kept):
+/// the same surface over that part, without what runs on past it.
+pub fn ruled_patch_from(xs: &[f64], zs: &[f64], u0: f64) -> Result<Surface, Refusal> {
+    let after = |c: &[f64]| -> Vec<f64> {
+        let mut level = c.to_vec();
+        let mut out = vec![0.0; c.len()];
+        let n = c.len() - 1;
+        out[n] = level[n];
+        for r in 1..=n {
+            for i in 0..=n - r {
+                level[i] = (1.0 - u0) * level[i] + u0 * level[i + 1];
+            }
+            out[n - r] = level[n - r];
+        }
+        out
+    };
+    let (xs, zs) = (after(xs), after(zs));
+    let du = xs.len() - 1;
+    let points: Vec<Vec<[f64; 3]>> =
+        (0..=du).map(|i| (0..2).map(|j| [xs[i], j as f64, zs[i] + j as f64 / 10.0]).collect()).collect();
+    let bezier = |p: usize| [vec![0.0; p + 1], vec![1.0; p + 1]].concat();
+    spline_surface(du, 1, bezier(du), bezier(1), &points, None)
 }

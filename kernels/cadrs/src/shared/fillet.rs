@@ -1,6 +1,6 @@
 //! What the cadrs implementations of the fillet cases share: the Fillet feature on picked edges,
 //! the edges round a top face, a variable round of one edge, the half cylinder and the spline bean.
-use crate::bench::{arc, extrude, p2, P3};
+use crate::bench::{arc, extrude, p2, P2, P3};
 use crate::shared::geometry::Section;
 use crate::Refusal;
 use cadrs_kernel::{BodyId, Curve2, DefaultKernel, EdgeId, FilletLaw, Kernel, Loop, Pick, Plane, Profile};
@@ -73,3 +73,45 @@ pub const BEAN: [(f64, f64); 8] =
 pub fn bean(k: &mut DefaultKernel, height: f64) -> Result<BodyId, Refusal> {
     Section::on(Plane::xy(0.0)).periodic(3, &BEAN).slid(k, crate::bench::v3(0.0, 0.0, height))
 }
+
+/// The closed outline through `corners` (in order, either way round) with corner k rounded to
+/// `radii[k]` (0 leaves it sharp): each corner's arc tangent to the two sides there, turning
+/// the way they turn, so a re-entrant corner's arc bulges into the region. Each side keeps the
+/// straight stretch between its two corners' arcs.
+pub fn rounded_polygon(corners: &[(f64, f64)], radii: &[f64]) -> Vec<Curve2> {
+    let n = corners.len();
+    let at = |k: usize| corners[k % n];
+    let dir = |k: usize| {
+        let ((ax, ay), (bx, by)) = (at(k), at(k + 1));
+        let len = (bx - ax).hypot(by - ay);
+        ((bx - ax) / len, (by - ay) / len)
+    };
+    // Where corner k's arc leaves the side before it and joins the side after, its centre and
+    // its turn (radians, anticlockwise positive).
+    let rounds: Vec<((f64, f64), (f64, f64), (f64, f64), f64)> = (0..n)
+        .map(|k| {
+            let (c, a, b) = (at(k), dir(k + n - 1), dir(k));
+            let turn = (a.0 * b.1 - a.1 * b.0).atan2(a.0 * b.0 + a.1 * b.1);
+            let r = radii[k];
+            let t = r * (turn.abs() / 2.0).tan();
+            let leave = (c.0 - a.0 * t, c.1 - a.1 * t);
+            let join = (c.0 + b.0 * t, c.1 + b.1 * t);
+            let side = turn.signum();
+            let centre = (leave.0 - a.1 * r * side, leave.1 + a.0 * r * side);
+            (leave, join, centre, turn)
+        })
+        .collect();
+    let p = |q: (f64, f64)| -> P2 { p2(q.0, q.1) };
+    let mut path = Vec::new();
+    for k in 0..n {
+        let (leave, join, centre, turn) = rounds[k];
+        if radii[k] > 0.0 {
+            let start = (leave.1 - centre.1).atan2(leave.0 - centre.0).to_degrees();
+            path.push(arc(p(centre), radii[k], start, turn.to_degrees()));
+        }
+        let next = rounds[(k + 1) % n].0;
+        path.push(Curve2::line(p(join), p(next)));
+    }
+    path
+}
+

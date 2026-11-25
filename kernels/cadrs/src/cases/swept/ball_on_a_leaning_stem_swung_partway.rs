@@ -2,10 +2,11 @@
 //! notched by a ball (radius 0.8 about (10, 0, 0)) on a stem (a cylinder of radius 0.4 from the
 //! ball's centre 3 along (0, sin 20°, cos 20°)) turned about the z axis from −140° to +30°.
 //!
-//! The tool is the ball and the stem united; what it passes through is cadrs's sweep of a solid
-//! (one turn), cut from the block (cadrs's cylindrical box).
-use crate::bench::{ball, cut, cylinder, p3, union, v3};
-use crate::shared::swept::{ring_sector, swung, z_axis};
+//! The tool is the ball and the stem united; what it passes through (one turn) is cut from the
+//! block (cadrs's cylindrical box) by cadrs's cut by a swept solid (the exact sweep cut from it
+//! where it can be, else meshed).
+use crate::bench::{ball, cylinder, p3, union, v3};
+use crate::shared::swept::{cut_swept, ring_sector, swing, z_axis};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};
 
@@ -15,6 +16,5 @@ pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let b = ball(k, p3(10.0, 0.0, 0.0), 0.8)?;
     let stem = cylinder(k, p3(10.0, 0.0, 0.0), v3(0.0, a.sin(), a.cos()), 0.4, 3.0)?;
     let tool = union(k, b, stem)?;
-    let swept = swung(k, tool, z_axis(), -140.0, 30.0)?;
-    cut(k, block, swept)
+    cut_swept(k, block, tool, &swing(z_axis(), -140.0, 30.0))
 }
