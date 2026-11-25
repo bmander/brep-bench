@@ -6,7 +6,9 @@
 //! functions.
 use cad_kernel::boolean::{combined, Op};
 use cad_kernel::build::{disc, drafted, kept, offset, prism, revolve, sphere, Profile, ProfileEdge};
-use cad_kernel::geom::{tolerance, Frame, Rigid, V};
+use cad_kernel::defeature::deleted;
+use cad_kernel::fillet::roll;
+use cad_kernel::geom::{tolerance, Frame, Rigid, Surface, V};
 use cad_kernel::query::{Located, Place};
 use cad_kernel::topo::Brep;
 use cad_kernel::util::space::{add, cross, distance, dot, norm, scale, sub, unit};
@@ -129,6 +131,40 @@ pub fn drilled(x: f64) -> Result<Brep, String> {
 pub fn named(mut b: Brep) -> Brep {
     for (i, f) in b.faces.iter_mut().enumerate() { f.name = format!("face {i}"); }
     b
+}
+
+/// `b` with the edges through the points `at` rounded to `r`: every round rolled against `b` as it
+/// stands (`fillet::roll`, its faces named apart first, as a roll reads faces of one name as pieces
+/// of one face), then each piece filled into a concave edge or cut from a convex one in turn.
+pub fn rolled(b: &Brep, at: &[V], r: f64) -> Result<Brep, String> {
+    let b = named(b.clone());
+    let tol = tolerance(b.size());
+    let rounds = at.iter()
+        .map(|&p| roll(&b, p, r, tol).map_err(|e| format!("the edge at {p:?}: {e}")))
+        .collect::<Result<Vec<_>, String>>()?;
+    rounds.iter().zip(at).try_fold(b.clone(), |part, (round, p)| {
+        let op = if round.concave { Op::Union } else { Op::Cut };
+        combined(&part, &round.piece, op, 0.).map_err(|e| format!("the round at {p:?} applied: {e}"))
+    })
+}
+
+/// `b` with the faces through the points `on` deleted (`defeature::deleted`): taken out of the
+/// solid, and the gap they leave closed by the faces round them, each run on along its own surface
+/// until they meet.
+pub fn deleted_through(b: &Brep, on: &[V]) -> Result<Brep, String> {
+    let faces = faces_through(b, on)?;
+    Ok(deleted(b, &faces, tolerance(b.size()))?)
+}
+
+/// `b` with every face whose surface `which` picks deleted (`defeature::deleted`): rounds picked as
+/// the tori they lie on, say, where a point on each would have to be worked out on its tube.
+pub fn deleted_where(b: &Brep, which: impl Fn(&Surface) -> bool) -> Result<Brep, String> {
+    let faces: Vec<usize> = (0..b.faces.len()).filter(|&f| which(&b.faces[f].surface)).collect();
+    if faces.is_empty() {
+        let kinds: Vec<&str> = b.faces.iter().map(|f| f.surface.kind()).collect();
+        return Err(format!("no face to delete among the solid's faces, on: {}", kinds.join(", ")));
+    }
+    Ok(deleted(b, &faces, tolerance(b.size()))?)
 }
 
 /// The profile `p`, lying in the neutral plane, swept along its normal from `below` under that

@@ -4,17 +4,15 @@
 //! deleted, the shaft's cylinder below and above the groove, one surface, running on across it
 //! until it is one face again.
 //!
-//! Refused. cad-kernel builds the grooved shaft: a `prism` of a `disc` cut by `build::torus`. What
-//! is missing is the edit. cad-kernel deletes no face of a solid: nothing in `boolean`, `fillet`,
-//! `rounds`, `offset` or `sew` takes faces out of a boundary and runs the faces round them on along
-//! their own surfaces until they close the gap, and `offset::normal_sweep` sweeps a face along its
-//! normal without extending any face beside it. Joining the torus back in would be the result drawn
-//! again, not the groove deleted.
+//! The grooved shaft is a `prism` of a `disc` cut by `build::torus`; the groove's face is picked by
+//! a point on it, its deepest, and deleted (`defeature::deleted`).
+use crate::sketch::deleted_through;
+use cad_kernel::boolean::{combined, Op};
+use cad_kernel::build::{disc, prism, torus};
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes the groove's half \
-         torus out and runs the shaft's cylinder on across it from z = 8.5 to z = 11.5 until it is \
-         one face"
-        .into())
+    let shaft = prism(&disc([0., 0., 0.], [0., 0., 1.], 5.), 0., 20.)?;
+    let grooved = combined(&shaft, &torus([0., 0., 10.], [0., 0., 1.], 5., 1.5)?, Op::Cut, 0.)?;
+    deleted_through(&grooved, &[[3.5, 0., 10.]])
 }

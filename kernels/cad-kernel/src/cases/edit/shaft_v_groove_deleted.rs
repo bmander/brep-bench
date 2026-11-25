@@ -4,18 +4,20 @@
 //! together, the shaft's cylinder below and above the groove, one surface, running on across it
 //! until it is one face again.
 //!
-//! Refused. cad-kernel builds the grooved shaft: a `prism` of a `disc` cut by the ring the groove
-//! takes, its meridian triangle turned by `build::revolve` (or two `build::cone` frustums cut from
-//! it). What is missing is the edit. cad-kernel deletes no face of a solid: nothing in `boolean`,
-//! `fillet`, `rounds`, `offset` or `sew` takes faces out of a boundary and runs the faces round
-//! them on along their own surfaces until they close the gap, and `offset::normal_sweep` sweeps a
-//! face along its normal without extending any face beside it. Joining back the ring the groove
-//! took would be the result drawn again, not the groove deleted.
+//! The grooved shaft is a `prism` of a `disc` cut by the ring the groove takes, its meridian
+//! triangle, from radius 3 at z = 10 out past the shaft to radius 6 at z = 7 and 13, turned by
+//! `build::revolve`; the groove's two cones are picked by a point on each and deleted together
+//! (`defeature::deleted`).
+use crate::sketch::{deleted_through, polygon};
+use cad_kernel::boolean::{combined, Op};
+use cad_kernel::build::{disc, prism, revolve};
 use cad_kernel::topo::Brep;
+use std::f64::consts::TAU;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes the groove's two \
-         cones out and runs the shaft's cylinder on across it from z = 8 to z = 12 until it is one \
-         face"
-        .into())
+    let shaft = prism(&disc([0., 0., 0.], [0., 0., 1.], 5.), 0., 20.)?;
+    let meridian = polygon(&[[3., 0., 10.], [6., 0., 7.], [6., 0., 13.]]);
+    let ring = revolve(&meridian, [0.; 3], [0., 0., 1.], TAU)?;
+    let grooved = combined(&shaft, &ring, Op::Cut, 0.)?;
+    deleted_through(&grooved, &[[4., 0., 9.], [4., 0., 11.]])
 }

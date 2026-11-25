@@ -3,18 +3,15 @@
 //! z = 7; the bevel then deleted, the top running on from x = 17 and the side from z = 7 until they
 //! meet in the edge x = 20, z = 10.
 //!
-//! Refused. cad-kernel builds the beveled block: the pentagon in y = 0 swept 10 along y by `prism`,
-//! or the box's edge taken off by `fillet::flat_along`. What is missing is the edit. cad-kernel
-//! deletes no face of a solid: nothing in `boolean`, `fillet`, `rounds`, `offset` or `sew` takes
-//! faces out of a boundary and runs the faces round them on along their own surfaces until they
-//! close the gap, and `offset::normal_sweep` sweeps a face along its normal without extending any
-//! face beside it. Joining back the prism the bevel took off would be the result drawn again, not
-//! the bevel deleted.
+//! The beveled block is its section, the pentagon in y = 0, swept 10 along y by `prism`; the bevel
+//! is picked by a point on it and deleted (`defeature::deleted`).
+use crate::sketch::{deleted_through, polygon};
+use cad_kernel::build::prism;
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes the bevel's plane \
-         out and runs the top on from x = 17 and the side x = 20 up from z = 7 until they meet in \
-         the edge x = 20, z = 10"
-        .into())
+    // counter-clockwise in (x, z), so its normal is −y: ordinates −10 to 0 along it are y 10 to 0
+    let section = polygon(&[[0., 0., 0.], [20., 0., 0.], [20., 0., 7.], [17., 0., 10.], [0., 0., 10.]]);
+    let beveled = prism(&section, -10., 0.)?;
+    deleted_through(&beveled, &[[18.5, 5., 8.5]])
 }

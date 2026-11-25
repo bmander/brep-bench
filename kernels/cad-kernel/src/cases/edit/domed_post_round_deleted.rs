@@ -3,18 +3,21 @@
 //! at z = 6, rounded to radius 1 by a piece of a torus tangent to both; the round then deleted, the
 //! cylinder running on up and the dome down until they meet again in that circle.
 //!
-//! Refused. cad-kernel builds the rounded post: the cylinder a `prism` of a `disc` joined to a
-//! `sphere` `kept` above z = 6, the rim rolled by `fillet::roll` and the round's piece cut away.
-//! What is missing is the edit. cad-kernel deletes no face of a solid: nothing in `boolean`,
-//! `fillet`, `rounds`, `offset` or `sew` takes faces out of a boundary and runs the faces round
-//! them on along their own surfaces until they close the gap, and `offset::normal_sweep` sweeps a
-//! face along its normal without extending any face beside it. Joining back the ring the round took
-//! would be the result drawn again, not the round deleted.
+//! The rounded post is the cylinder, a `prism` of a `disc`, joined to a `sphere` `kept` above z =
+//! 6, the rim rolled by `fillet::roll` and the round's piece cut away (`sketch::rolled`); the
+//! round, the face `fillet::roll` fits as a B-spline, is deleted (`defeature::deleted`).
+use crate::sketch::{deleted_where, rolled};
+use cad_kernel::boolean::{combined, Op};
+use cad_kernel::build::{disc, kept, prism, sphere};
+use cad_kernel::geom::{Surface, V};
 use cad_kernel::topo::Brep;
 
+const UP: V = [0., 0., 1.];
+
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel deletes no face of a solid: it has no operation that takes the rim's torus \
-         out and runs the cylinder on up and the dome down until they meet again in the circle of \
-         radius 4 at z = 6"
-        .into())
+    let post = prism(&disc([0., 0., 0.], UP, 4.), 0., 6.)?;
+    let cap = kept(&sphere([0., 0., 3.], UP, 5.)?, [0., 0., 6.], UP, 0.)?;
+    let solid = combined(&post, &cap, Op::Union, 0.)?;
+    let rounded = rolled(&solid, &[[4., 0., 6.]], 1.)?;
+    deleted_where(&rounded, |s| matches!(s, Surface::BSpline(..)))
 }
