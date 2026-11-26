@@ -29,3 +29,13 @@ pub fn spline_boss(m: &mut Model) -> kentron::Result<Shape> {
     let section = make::planar_face(m, rim)?;
     Ok(sweep::extrude(m, section, Vector::new(0.0, 0.0, 6.0))?.shape)
 }
+
+/// The prism on the plan `steps` draw (kentron's pen sketch, in the plane z = `z` with its axes
+/// the x and y axes), from z = `z` up `height`.
+pub fn plan_prism(m: &mut Model, z: f64, steps: &[kentron::sketch::Step], height: f64) -> kentron::Result<Shape> {
+    use kentron::math::{Direction, Frame};
+    use kentron::sketch::{self, Outcome};
+    let plane = Frame::new(Point::new(0.0, 0.0, z), Direction::Z, Direction::X);
+    let plan = sketch::profile(m, plane, steps, Outcome::Face)?;
+    Ok(sweep::extrude(m, plan, Vector::new(0.0, 0.0, height))?.shape)
+}

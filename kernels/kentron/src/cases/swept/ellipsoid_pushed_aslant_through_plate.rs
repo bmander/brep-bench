@@ -3,36 +3,22 @@
 //! without turning along (4, 3, 12), from wholly below the plate to wholly above it. Everything the
 //! ellipsoid passes through, cut.
 //!
-//! kentron has no ellipsoid and no sweep of a solid, so the sweep is built as elementary geometry
-//! gives it: the ellipsoid is the unit ball under the stretch S = diag(3, 2, 1.5) moved to its
-//! centre, and a stretch carries a slide along w to the slide along S w. The unit ball slid along
-//! S⁻¹(4, 3, 12) = (4/3, 3/2, 8) passes through its great disc square to that slid along it, with
-//! the ball at each end; stretched, the disc becomes a flat ellipse through the ellipsoid's centre
-//! (where the push runs along the ellipsoid) and the balls the ellipsoid where it starts and where
-//! it ends, both clear of the plate. So the plate loses that ellipse slid along (4, 3, 12).
-use crate::bench::{frame, p, v};
-use crate::Refusal;
-use kentron::boolean;
-use kentron::geometry::convert::curve_to_bspline;
-use kentron::geometry::curve::{Circle, Curve};
-use kentron::make;
-use kentron::math::{AffineTransform, Direction, Matrix3};
+//! kentron has no ellipsoid, so it is the unit ball stretched by 3, 2 and 1.5 along x, y and z and
+//! moved to its centre, a general affine map that `modify::transform_affine` carries out exactly,
+//! as a rational B-spline. Its sweep is kentron's sweep of a solid (`sweep::solid`, one slide),
+//! cut from the plate.
+use crate::bench::{p, v};
+use kentron::math::{AffineTransform, Matrix3};
 use kentron::modify;
-use kentron::primitives::Cuboid;
-use kentron::sweep;
+use kentron::primitives::{Cuboid, Sphere};
+use kentron::sweep::{self, RigidMotion};
 use kentron::topology::{Model, Shape};
 
-pub fn build(m: &mut Model) -> Result<Shape, Refusal> {
+pub fn build(m: &mut Model) -> kentron::Result<Shape> {
     let plate = Cuboid::from_corners(p(-15.0, -15.0, 0.0), p(15.0, 15.0, 4.0)).build(m)?;
-    // The unit ball's great circle square to (4/3, 3/2, 8), in its rational B-spline form, which
-    // the stretch maps pole by pole, keeping its parameters.
-    let circle = Circle::new(frame(p(0.0, 0.0, 0.0), Direction::new(4.0 / 3.0, 3.0 / 2.0, 8.0)), 1.0);
-    let circle = curve_to_bspline(&Curve::Circle(circle)).ok_or("no B-spline form of a circle")?;
-    let rim = make::edge_from_curve(m, Curve::BSpline(circle))?;
-    let rim = make::wire(m, &[rim])?;
-    let great = make::planar_face(m, rim)?;
+    let ball = Sphere::new(1.0).build(m)?;
     let stretch = Matrix3::from_rows([[3.0, 0.0, 0.0], [0.0, 2.0, 0.0], [0.0, 0.0, 1.5]]);
-    let ellipse = modify::transform_affine(m, great, &AffineTransform::new(stretch, v(-2.0, -1.5, -4.0)))?;
-    let hole = sweep::extrude(m, ellipse, v(4.0, 3.0, 12.0))?.shape;
-    Ok(boolean::difference(m, plate, hole)?)
+    let ellipsoid = modify::transform_affine(m, ball, &AffineTransform::new(stretch, v(-2.0, -1.5, -4.0)))?;
+    let swept = sweep::solid(m, ellipsoid, &RigidMotion::Slide { by: v(4.0, 3.0, 12.0) })?;
+    kentron::boolean::difference(m, plate, swept)
 }

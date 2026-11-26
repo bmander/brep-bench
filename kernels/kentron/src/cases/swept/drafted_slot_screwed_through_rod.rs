@@ -4,20 +4,35 @@
 //! screwed about the z axis, right-handed, rising 6 a turn, from a turn of −90° to +1350°.
 //! Everything the bar passes through, cut.
 //!
-//! Refused. `sweep::cut_by_motion` screws only a solid of revolution, and this bar is none. Built
-//! as a box slid is, from its faces each screwed (`sweep::screw_extrude`), each face would first
-//! be split where the screw's velocity runs along it, so as to sweep without folding. On its two
-//! flat sides that is a line, but on its two half cones, whose axes lie along x, it is where
-//! n·(ẑ × r) + (6/2π) n_z = 0, a curve on each cone that is neither one of its lines nor a circle
-//! nor a plane section. kentron has no operation that finds it: the groove's wall there is an
-//! envelope.
-use crate::Refusal;
+//! The bar is the slot drafted (`sweep::extrude_drafted`); its sweep is kentron's sweep of a solid
+//! (`sweep::solid`, one screw), cut from the rod.
+use crate::bench::p;
+use kentron::geometry::curve::{Circle, Curve};
+use kentron::make;
+use kentron::math::{Axis, Direction, Frame, Vector};
+use kentron::primitives::Cylinder;
+use kentron::sweep::{self, RigidMotion};
 use kentron::topology::{Model, Shape};
+use std::f64::consts::FRAC_PI_2;
 
-pub fn build(_m: &mut Model) -> Result<Shape, Refusal> {
-    Err(Refusal::from(
-        "kentron's cut by a motion screws only solids of revolution, and this drafted bar is none; its \
-         half cones touch their sweep along curves (where the normal is square to the screw) that \
-         are no lines, circles or plane sections, an envelope kentron has no operation to find",
-    ))
+pub fn build(m: &mut Model) -> kentron::Result<Shape> {
+    let rod = Cylinder::new(5.0, 20.0).build(m)?;
+    // The slot in the plane x = 12: its two half discs' arcs (about x, from −z through ±y to +z)
+    // and the lines between.
+    let arc = |m: &mut Model, y: f64, from: f64| -> kentron::Result<Shape> {
+        let circle = Circle::new(Frame::new(p(12.0, y, 0.0), Direction::X, Direction::Y), 1.0);
+        make::edge_from_curve_range(m, Curve::Circle(circle), from, from + std::f64::consts::PI)
+    };
+    let edges = vec![
+        make::edge_between(m, p(12.0, -1.5, -1.0), p(12.0, 1.5, -1.0))?,
+        arc(m, 1.5, -FRAC_PI_2)?,
+        make::edge_between(m, p(12.0, 1.5, 1.0), p(12.0, -1.5, 1.0))?,
+        arc(m, -1.5, FRAC_PI_2)?,
+    ];
+    let wire = make::wire(m, &edges)?;
+    let slot = make::planar_face(m, wire)?;
+    let bar = sweep::extrude_drafted(m, slot, Vector::new(-8.0, 0.0, 0.0), 3f64.to_radians())?;
+    let screw = RigidMotion::Screw { axis: Axis::new(p(0.0, 0.0, 0.0), Direction::Z), lead: 6.0, from: -FRAC_PI_2, to: 1350f64.to_radians() };
+    let swept = sweep::solid(m, bar, &screw)?;
+    kentron::boolean::difference(m, rod, swept)
 }

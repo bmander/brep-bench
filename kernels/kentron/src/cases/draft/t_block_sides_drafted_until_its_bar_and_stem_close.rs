@@ -3,26 +3,14 @@
 //! +z about the neutral plane z = 0, inward as they rise: they meet in ridges over the bar and
 //! the stem, below the top, which is gone.
 //!
-//! kentron's `draft` keeps the solid's faces and edges, finding them again on the drafted
-//! surfaces, so it cannot close the sides over the top: it returns a wrong solid.
-//! The block is the floor extruded 8 up with its sides drafted as they go, the drafted prism,
-//! which meets the sides in ridges where they close.
-use crate::bench::{p, v};
-use crate::shared::loft::flat;
-use kentron::sweep;
+//! kentron's `draft` (`shared::draft::outline_drafted`), which refuses it: it closes a part over
+//! sides drafted until they meet only where each drafted plane bounds the whole part, and the
+//! T's inner sides do not.
+use crate::shared::draft::outline_drafted;
+use crate::Refusal;
 use kentron::topology::{Model, Shape};
 
-pub fn build(m: &mut Model) -> kentron::Result<Shape> {
-    let outline = [
-        p(0.0, 0.0, 0.0),
-        p(20.0, 0.0, 0.0),
-        p(20.0, 4.0, 0.0),
-        p(13.0, 4.0, 0.0),
-        p(13.0, 16.0, 0.0),
-        p(7.0, 16.0, 0.0),
-        p(7.0, 4.0, 0.0),
-        p(0.0, 4.0, 0.0),
-    ];
-    let floor = flat(m, &outline)?;
-    sweep::extrude_drafted(m, floor, v(0.0, 0.0, 8.0), 45f64.to_radians())
+pub fn build(m: &mut Model) -> Result<Shape, Refusal> {
+    let outline = [(0.0, 0.0), (20.0, 0.0), (20.0, 4.0), (13.0, 4.0), (13.0, 16.0), (7.0, 16.0), (7.0, 4.0), (0.0, 4.0)];
+    outline_drafted(m, &outline, 8.0, 45.0)
 }

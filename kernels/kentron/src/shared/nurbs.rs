@@ -16,8 +16,14 @@ use kentron::topology::{Model, Shape};
 /// The block over the floor z = 0 under the face of the whole of `top`, a graph of a height over
 /// the plan square from `(lo, lo)` to `(hi, hi)`.
 pub fn block_under(m: &mut Model, top: Surface, lo: f64, hi: f64) -> kentron::Result<Shape> {
-    let reach = 2.0 * (hi - lo);
     let top = make::face_on_surface(m, top)?;
+    block_under_face(m, top, lo, hi)
+}
+
+/// The block over the floor z = 0 under `top`, a face on a graph of a height over part of the
+/// plan square from `(lo, lo)` to `(hi, hi)`.
+pub fn block_under_face(m: &mut Model, top: Shape, lo: f64, hi: f64) -> kentron::Result<Shape> {
+    let reach = 2.0 * (hi - lo);
     let column = sweep::extrude(m, top, v(0.0, 0.0, -reach))?.shape;
     let floor_up = Cuboid::from_corners(p(lo - 1.0, lo - 1.0, 0.0), p(hi + 1.0, hi + 1.0, reach)).build(m)?;
     boolean::intersection(m, column, floor_up)

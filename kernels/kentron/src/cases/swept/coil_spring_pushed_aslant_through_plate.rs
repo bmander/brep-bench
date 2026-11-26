@@ -1,21 +1,19 @@
-//! A plate, the box from (−15, −15, 0) to (15, 15, 4), with a hole punched by a coil spring pushed
-//! aslant through it: everything a ball of radius 0.4 passes through as its centre runs three
-//! turns of the helix of radius 2 about the z axis from (2, 0, −12), rising 1.5 a turn, slid
-//! without turning along (3, 1, 18). Everything the spring passes through, cut.
-//!
-//! Refused. kentron has no sweep of a solid. The spring slid is the ball swept over the helix slid
-//! along the push, a ruled strip, so its wall is that strip's offset by the ball's radius; or, read
-//! as the spring slid, its tube's silhouette along the push, the curves on its pipe surface where
-//! the normal is square to the push, swept. Neither is a surface kentron makes, nor a face of the
-//! spring that could be split along plane sections and slid whole: it is an envelope, which kentron
-//! has no operation to find.
-use crate::Refusal;
-use kentron::topology::{Model, Shape};
 
-pub fn build(_m: &mut Model) -> Result<Shape, Refusal> {
-    Err(Refusal::from(
-        "kentron has no sweep of a solid, and the spring's sweep along the push is bounded by its \
-         tube's silhouettes slid (an offset of a ruled strip), an envelope kentron has no operation \
-         to find",
-    ))
+//!
+//! The spring is the ball carried along the screw about the z axis, its centre on the helix, and
+//! the spring is pushed along the slide: each kentron's sweep of a solid (`sweep::solid`, a screw
+//! and then a slide), cut from the plate.
+use crate::bench::{frame, p, v};
+use kentron::math::{Axis, Direction};
+use kentron::primitives::{Cuboid, Sphere};
+use kentron::sweep::{self, RigidMotion};
+use kentron::topology::{Model, Shape};
+use std::f64::consts::TAU;
+
+pub fn build(m: &mut Model) -> kentron::Result<Shape> {
+    let plate = Cuboid::from_corners(p(-15.0, -15.0, 0.0), p(15.0, 15.0, 4.0)).build(m)?;
+    let ball = Sphere::new(0.4).with_frame(frame(p(2.0, 0.0, -12.0), Direction::Z)).build(m)?;
+    let spring = sweep::solid(m, ball, &RigidMotion::Screw { axis: Axis::Z, lead: 1.5, from: 0.0, to: 3.0 * TAU })?;
+    let swept = sweep::solid(m, spring, &RigidMotion::Slide { by: v(3.0, 1.0, 18.0) })?;
+    kentron::boolean::difference(m, plate, swept)
 }
