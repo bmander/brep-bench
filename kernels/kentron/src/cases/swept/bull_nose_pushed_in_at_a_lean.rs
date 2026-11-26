@@ -3,21 +3,19 @@
 //! from c to c + 3a, a cylinder of radius 2 whose end corner is rounded to 0.5, slid without
 //! turning down by 8. Everything the mill passes through, cut.
 //!
-//! Refused. kentron has no sweep of a solid, and `sweep::cut_by_motion` takes no slide of a solid
-//! of revolution. Built as a box slid is, from the mill where it starts and where it ends and its
-//! faces slid (`sweep::extrude`), each face would first be split where the slide runs along it,
-//! where its normal is level, so as to slide without folding. The flat end never is, and the side
-//! is on two of its lines; but on the round, a quarter torus whose axis leans to the slide, that
-//! is the torus's silhouette seen from above, a curve that is neither one of its circles nor a
-//! plane section. kentron has no operation that finds it: the hole's wall there is an envelope.
-use crate::Refusal;
+//! The mill is its meridian revolved, leaned and placed; its sweep is kentron's sweep of a solid
+//! (`sweep::solid`, one slide), cut from the block.
+use crate::bench::{d, frame, p, v};
+use crate::shared::swept::bull_nose;
+use kentron::math::{Axis, Transform, Vector};
+use kentron::primitives::Cuboid;
+use kentron::sweep::{self, RigidMotion};
 use kentron::topology::{Model, Shape};
 
-pub fn build(_m: &mut Model) -> Result<Shape, Refusal> {
-    Err(Refusal::from(
-        "kentron has no sweep of a solid, and its cut by a motion takes no slide of a solid of \
-         revolution; the leaning mill's round, a quarter torus, touches its sweep along its \
-         silhouette from above, no circle, line or plane section, an envelope kentron has no \
-         operation to find",
-    ))
+pub fn build(m: &mut Model) -> kentron::Result<Shape> {
+    let block = Cuboid::new(16.0, 16.0, 8.0).with_frame(frame(p(-8.0, -8.0, -8.0), d(0.0, 0.0, 1.0))).build(m)?;
+    let place = Transform::translation(Vector::new(0.0, 0.0, 4.0)) * Transform::rotation(Axis::Y, 30f64.to_radians());
+    let mill = bull_nose(m, &place)?;
+    let swept = sweep::solid(m, mill, &RigidMotion::Slide { by: v(0.0, 0.0, -8.0) })?;
+    kentron::boolean::difference(m, block, swept)
 }

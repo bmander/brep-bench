@@ -67,10 +67,9 @@ fn pass(m: &mut Model, y: f64) -> kentron::Result<Shape> {
 }
 
 pub fn build(m: &mut Model) -> kentron::Result<Shape> {
-    let mut plate = Cuboid::from_corners(p(0.0, 0.0, -20.0), p(100.0, 80.0, 0.0)).build(m)?;
-    for j in 0..PASSES {
-        let swept = pass(m, 2.0 * j as f64)?;
-        plate = boolean::difference(m, plate, swept)?;
-    }
-    Ok(plate)
+    let plate = Cuboid::from_corners(p(0.0, 0.0, -20.0), p(100.0, 80.0, 0.0)).build(m)?;
+    // (The passes built at once, each apart from the others, and cut as one.)
+    let passes = kentron::parallel::each(m, PASSES, |m, j| pass(m, 2.0 * j as f64))?;
+    let swept = boolean::union_all(m, &passes)?;
+    boolean::difference(m, plate, swept)
 }
