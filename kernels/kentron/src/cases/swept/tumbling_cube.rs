@@ -2,17 +2,19 @@
 //! by t/4 about the vertical line through (2, 0, 0) and then by −t about the line through
 //! (0, 0.5, 0.5) parallel to the x axis, for t from −75° to 75°.
 //!
-//! Refused. kentron's cut by a motion (`sweep::cut_by_motion`) moves a prism only in the plane
-//! square to its edges, and these turns are about skew axes, square to no common plane. Every
-//! other sweep takes no solid, and the faces' and edges' envelopes under the tumble (where its
-//! velocity runs along a face, on a line that moves over the face) are no curves kentron finds.
-use crate::Refusal;
+//! The motion is given by its places (`shared::swept::tumble`, a `sweep::RigidMotion::Carried`)
+//! for kentron's sweep of a solid (`sweep::solid`), which refuses it: the curves where the motion grazes the tool move over it, so its envelope is
+//! no product of a fixed curve and the motion, and kentron's sweep builds only those.
+use crate::bench::p;
+use crate::shared::swept::tumble;
+use kentron::math::{Axis, Direction};
+use kentron::primitives::Cuboid;
+use kentron::sweep;
 use kentron::topology::{Model, Shape};
 
-pub fn build(_m: &mut Model) -> Result<Shape, Refusal> {
-    Err(Refusal::from(
-        "kentron has no sweep of a solid along a pair of turns about skew axes: `sweep::cut_by_motion` \
-         moves a prism only in the plane square to its edges; the cube's faces' and edges' envelopes \
-         under the tumble are curves kentron has no operation to find",
-    ))
+pub fn build(m: &mut Model) -> kentron::Result<Shape> {
+    let tool = Cuboid::from_corners(p(2.4, -0.6, 1.4), p(3.6, 0.6, 2.6)).build(m)?;
+    let first = Axis::new(p(2.0, 0.0, 0.0), Direction::Z);
+    let motion = tumble(first, 0.25, Axis::new(p(0.0, 0.5, 0.5), Direction::X), -1.0, -75.0, 75.0);
+    sweep::solid(m, tool, &motion)
 }

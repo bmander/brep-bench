@@ -3,16 +3,17 @@
 //! axis rising 6 a turn, from a turn of −90° (wholly below the rod) to 1350° (wholly above it).
 //! Everything the bar passes through, cut.
 //!
-//! kentron's cut by a motion (`sweep::cut_by_motion`) screws only solids of revolution, so the
-//! groove is built as elementary geometry gives it: screwed into itself, it is its section at
-//! z = 0 screwed up the rod, and that section is what the bar's outline sweeps turning about the
-//! z axis while the bar holds z = 0 (`shared::swept::rod_screw_cut_by_bar`).
-use crate::shared::swept::rod_screw_cut_by_bar;
-use crate::Refusal;
-use kentron::math::Point2;
+//! The bar's sweep is kentron's sweep of a solid (`sweep::solid`, one screw), cut from the rod.
+use crate::bench::p;
+use kentron::math::Axis;
+use kentron::primitives::{Cuboid, Cylinder};
+use kentron::sweep::{self, RigidMotion};
 use kentron::topology::{Model, Shape};
 
-pub fn build(m: &mut Model) -> Result<Shape, Refusal> {
-    let outline = vec![Point2::new(4.0, -8.0), Point2::new(12.0, -8.0), Point2::new(12.0, 8.0), Point2::new(4.0, 8.0)];
-    rod_screw_cut_by_bar(m, 5.0, 20.0, outline, 2.0, 6.0)
+pub fn build(m: &mut Model) -> kentron::Result<Shape> {
+    let rod = Cylinder::new(5.0, 20.0).build(m)?;
+    let bar = Cuboid::from_corners(p(4.0, -8.0, -1.0), p(12.0, 8.0, 1.0)).build(m)?;
+    let screw = RigidMotion::Screw { axis: Axis::Z, lead: 6.0, from: (-90f64).to_radians(), to: 1350f64.to_radians() };
+    let swept = sweep::solid(m, bar, &screw)?;
+    kentron::boolean::difference(m, rod, swept)
 }

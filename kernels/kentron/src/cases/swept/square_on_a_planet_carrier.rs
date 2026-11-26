@@ -3,28 +3,24 @@
 //! the circle of radius 5 about the z axis to (5 cos t, 5 sin t) while it turns about its centre
 //! by −2t, for t from 0° to 360°.
 //!
-//! kentron's cut by a motion (`sweep::cut_by_motion`) cuts what a prism passes through, moved in
-//! the plane square to its edges, from a disc. The motion is the bar's turn about its own centre
-//! against the carrier, by −3t, then the carrier's turn by t about the z axis. Cut from the disc
-//! of radius 8 about the z axis, as tall as the bar, it leaves the disc less the swept solid; the
-//! swept solid is what of the disc that cut takes away.
+//! The motion is given by its places (`sweep::RigidMotion::Carried`): the bar's turn about its
+//! own centre by −3t, then the carrier's turn by t about the z axis. Its sweep is kentron's sweep
+//! of a solid (`sweep::solid`), which refuses it: as the bar turns against the carrier, the lines
+//! where the motion grazes its sides move over them, so its envelope is no product of a fixed
+//! curve and the motion, and kentron's sweep builds only those.
 use crate::bench::p;
-use kentron::boolean;
-use kentron::math::{Axis, Direction, Frame, Point2};
-use kentron::primitives::Cylinder;
-use kentron::sweep::{self, Blank, Motion, MotionStep, Tool};
+use kentron::math::{Axis, Direction, Transform};
+use kentron::primitives::Cuboid;
+use kentron::sweep::{self, Carriage, RigidMotion};
 use kentron::topology::{Model, Shape};
 use std::f64::consts::TAU;
+use std::sync::Arc;
 
 pub fn build(m: &mut Model) -> kentron::Result<Shape> {
-    let (radius, height) = (8.0, 2.0);
-    let disc = Blank::Disc { frame: Frame::WORLD, radius, height };
-    let outline = [(4.0, -1.0), (6.0, -1.0), (6.0, 1.0), (4.0, 1.0)].iter().map(|&(x, y)| Point2::new(x, y)).collect();
-    let bar = Tool::Prism { frame: Frame::WORLD, outline, from: 0.0, to: height };
-    let spin = MotionStep { axis: Axis::new(p(5.0, 0.0, 0.0), Direction::Z), turn: -3.0, advance: 0.0 };
-    let carrier = MotionStep { axis: Axis::new(p(0.0, 0.0, 0.0), Direction::Z), turn: 1.0, advance: 0.0 };
-    let motion = Motion { steps: vec![spin, carrier], from: 0.0, to: TAU };
-    let rest = sweep::cut_by_motion(m, &disc, &bar, &motion)?;
-    let whole = Cylinder::new(radius, height).build(m)?;
-    boolean::difference(m, whole, rest)
+    let bar = Cuboid::from_corners(p(4.0, -1.0, 0.0), p(6.0, 1.0, 2.0)).build(m)?;
+    let place = |s: f64| {
+        let t = s * TAU;
+        Transform::rotation(Axis::Z, t) * Transform::rotation(Axis::new(p(5.0, 0.0, 0.0), Direction::Z), -3.0 * t)
+    };
+    sweep::solid(m, bar, &RigidMotion::Carried(Carriage(Arc::new(place))))
 }

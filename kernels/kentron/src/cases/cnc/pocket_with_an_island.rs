@@ -12,18 +12,17 @@
 //! - four holes pecked at (8, 8), (152, 8), (152, 102) and (8, 102) by a drill of radius 4, 30
 //!   long, with a 90° point, its tip down to z = −14 at the deepest.
 //!
-//! The plate less everything the tools pass through. kentron has no sweep of a solid, so each
-//! move's sweep is built as elementary geometry gives it (`shared::cnc`): a level slide of a flat
-//! mill is its stadium's prism, a lap round a path the band within its radius of the path
-//! extruded, and a slide of a tool along its own axis the tool lengthened. A plunge onto a pass's start, onto a path or
-//! back up from it passes through nothing that pass or the column the tool stands in at that
-//! depth does not, and the drill's pecks nothing its deepest does, so those are not cut again.
-use crate::bench::{frame, p};
-use crate::shared::cnc::{flat_milled_round, level_path, slid_flat_mill};
-use crate::shared::swept::cut_each;
-use kentron::math::Direction;
-use kentron::primitives::{Cone, Cuboid, Cylinder};
-use kentron::sketch::Step::{self, Arc, Forward, Heading, Start};
+//! The plate less everything the tools pass through. Each move that cuts is kentron's sweep of a
+//! solid of its tool (`shared::cnc`): a slide for each raster pass, each line of a path, the bore's
+//! move out and each drill's plunge, a turn about its centre for each arc (a whole circle in two
+//! halves), all cut from the plate at once. The moves at z = 5 pass over the plate; a plunge onto
+//! a pass's start, onto a path or back up from it passes through nothing the mill at that depth,
+//! 30 tall, does not; the bore's move back runs along its move out; and the drill's shallower
+//! pecks pass through nothing its deepest does not: so those are not swept.
+use crate::bench::p;
+use crate::shared::cnc::{along, cut, line, swept, upright};
+use kentron::primitives::{Cuboid, Cylinder};
+use kentron::sketch::Step::{self, Arc, Forward, Heading, Start, To};
 use kentron::topology::{Model, Shape};
 
 const DEPTHS: [f64; 3] = [-4.0, -8.0, -12.0];
@@ -60,31 +59,31 @@ fn raster(y: f64) -> Vec<(f64, f64)> {
 
 pub fn build(m: &mut Model) -> kentron::Result<Shape> {
     let plate = Cuboid::from_corners(p(0.0, 0.0, -20.0), p(160.0, 110.0, 0.0)).build(m)?;
-    let mut cuts = Vec::new();
+    // The pocket: at each depth the raster passes, the wall path and the island path.
+    let mut pocket = Vec::new();
     for z in DEPTHS {
         for k in 0..15 {
             let y = 26.0 + 4.0 * k as f64;
             for (from, to) in raster(y) {
-                cuts.push(slid_flat_mill(m, (from, y), (to, y), z, MILL, LENGTH)?);
+                pocket.push(line(p(from, y, z), p(to, y, z)));
             }
         }
-        let wall = level_path(m, z, &WALL)?;
-        cuts.push(flat_milled_round(m, wall, MILL, LENGTH)?);
-        let island = level_path(m, z, &ISLAND)?;
-        cuts.push(flat_milled_round(m, island, MILL, LENGTH)?);
+        pocket.extend(along(&WALL, z));
+        pocket.extend(along(&ISLAND, z));
     }
+    let mut cuts = swept(m, |m| Cylinder::new(MILL, LENGTH).build(m), &pocket)?;
     // The bore: at each depth, the mill out from the centre and once round the circle of 6.
     let circle = [Start(66.0, 55.0), Heading(90.0), Arc { radius: 6.0, angle: 360.0 }];
+    let mut bore = Vec::new();
     for z in [-3.0, -6.0] {
-        cuts.push(slid_flat_mill(m, (60.0, 55.0), (66.0, 55.0), z, 3.0, LENGTH)?);
-        let path = level_path(m, z, &circle)?;
-        cuts.push(flat_milled_round(m, path, 3.0, LENGTH)?);
+        bore.push(line(p(60.0, 55.0, z), p(66.0, 55.0, z)));
+        bore.extend(along(&circle, z));
     }
-    // The holes: the drill at its deepest, its point from z = −14 to −10, its side up past the
-    // plate.
-    for (x, y) in [(8.0, 8.0), (152.0, 8.0), (152.0, 102.0), (8.0, 102.0)] {
-        cuts.push(Cone::new(0.0, 4.0, 4.0).with_frame(frame(p(x, y, -14.0), Direction::Z)).build(m)?);
-        cuts.push(Cylinder::new(4.0, 26.0).with_frame(frame(p(x, y, -10.0), Direction::Z)).build(m)?);
-    }
-    cut_each(m, plate, &cuts)
+    cuts.extend(swept(m, |m| Cylinder::new(3.0, LENGTH).build(m), &bore)?);
+    // The holes: the drill (its point a cone of half-angle 45° up to its side, 4 above its tip)
+    // plunged from z = 5 to its deepest, z = −14.
+    let holes: Vec<_> = [(8.0, 8.0), (152.0, 8.0), (152.0, 102.0), (8.0, 102.0)].iter().map(|&(x, y)| line(p(x, y, 5.0), p(x, y, -14.0))).collect();
+    let drill = [Start(0.0, 0.0), To(4.0, 4.0), To(4.0, LENGTH), To(0.0, LENGTH)];
+    cuts.extend(swept(m, |m| upright(m, &drill), &holes)?);
+    cut(m, plate, &cuts)
 }

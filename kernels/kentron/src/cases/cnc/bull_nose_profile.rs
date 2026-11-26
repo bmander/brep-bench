@@ -6,29 +6,20 @@
 //! beside it, run clockwise. Each lap starts at (102, 60), the outermost point of the lobe at 0°.
 //! The plate less everything the mill passes through.
 //!
-//! Each lap is the mill's section, its outline either side of its axis, swept round the path
-//! (`shared::cnc`). The plunges to each lap's start and the rise after the last run along the
-//! mill's own axis at (102, 60), a point of the path, from above each lap's depth: they pass
-//! through nothing the lap at that depth does not.
+//! The mill is its half section revolved about its axis. Each arc of each lap is kentron's sweep
+//! of a solid of the mill (`shared::cnc`: a turn about the arc's centre), all cut from the plate at
+//! once. The plunges to each lap's start and the rise after the last run along the mill's own axis
+//! at (102, 60), a point of the path, from above each lap's depth: they pass through nothing the
+//! mill at that depth, 25 tall, does not, so they are not swept.
 use crate::bench::p;
-use crate::shared::cnc::{level_path, milled_round};
-use crate::shared::swept::cut_each;
-use kentron::math::Direction;
+use crate::shared::cnc::{along, cut, swept, upright};
 use kentron::primitives::Cuboid;
-use kentron::sketch::Step::{self, AlongX, AlongY, Arc, Forward, Heading, Start};
+use kentron::sketch::Step::{self, Arc, Heading, Start, To};
 use kentron::topology::{Model, Shape};
 
-/// The mill's section from its tip: its flat end 2.5 either side of its axis, rounded up by
-/// quarter circles of radius 1.5 to its sides, 4 out, and up to 25 above the tip.
-const SECTION: [Step; 7] = [
-    Start(-2.5, 0.0),
-    Forward(5.0),
-    Arc { radius: 1.5, angle: 90.0 },
-    Forward(23.5),
-    AlongX(-8.0),
-    AlongY(-23.5),
-    Arc { radius: 1.5, angle: 90.0 },
-];
+/// The mill's half section from its tip: its flat end out to 2.5, rounded up by a quarter circle
+/// of radius 1.5 to its side, 4 out, and up to 25 above the tip.
+const HALF: [Step; 5] = [Start(0.0, 0.0), To(2.5, 0.0), Arc { radius: 1.5, angle: 90.0 }, To(4.0, 25.0), To(0.0, 25.0)];
 
 /// The flower from (102, 60), heading +y: each lobe turns left through the angle between its
 /// valleys' directions from its centre, each valley right through what closes the turn.
@@ -52,10 +43,7 @@ fn flower() -> Vec<Step> {
 pub fn build(m: &mut Model) -> kentron::Result<Shape> {
     let plate = Cuboid::from_corners(p(0.0, 0.0, -16.0), p(120.0, 120.0, 0.0)).build(m)?;
     let flower = flower();
-    let mut laps = Vec::new();
-    for z in [-4.0, -8.0, -10.0] {
-        let path = level_path(m, z, &flower)?;
-        laps.push(milled_round(m, path, p(102.0, 60.0, z), Direction::Y, &SECTION)?);
-    }
-    cut_each(m, plate, &laps)
+    let moves: Vec<_> = [-4.0, -8.0, -10.0].into_iter().flat_map(|z| along(&flower, z)).collect();
+    let cuts = swept(m, |m| upright(m, &HALF), &moves)?;
+    cut(m, plate, &cuts)
 }

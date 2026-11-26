@@ -1,19 +1,20 @@
-//! A block, the box from (−6, −6, −8) to (36, 26, 0), grooved by a ring standing across a spline:
-//! the torus centred at (0, 0, 0.5), axis along y, radii 1.5 and 0.5, in a frame carried along the
-//! cubic Bézier curve through control points (0, 0, 0), (10, 0, 0), (20, 20, 0) and (30, 20, 0),
-//! its x axis the curve's tangent and its z axis up.
-//!
-//! Refused. The frame along a Bézier curve is no motion of kentron's cut by a motion
-//! (`sweep::cut_by_motion`), whose steps are screws and turns at constant rates, and `sweep::pipe`
-//! takes no solid. Where the curve bends the torus touches its sweep along curves that are none
-//! of its circles, an envelope kentron has no operation to find.
-use crate::Refusal;
-use kentron::topology::{Model, Shape};
 
-pub fn build(_m: &mut Model) -> Result<Shape, Refusal> {
-    Err(Refusal::from(
-        "kentron has no sweep of a solid along a curve's frame (`sweep::pipe` refuses a solid, and \
-         `sweep::cut_by_motion` takes screws and turns at constant rates only); the groove is the \
-         envelope of the torus along the curve, which kentron has no operation to find",
-    ))
+//!
+//! The motion is given by its places (`sweep::RigidMotion::Carried`, the frame riding the curve,
+//! `shared::swept::bezier_frame`) for kentron's sweep of a solid (`sweep::solid`), cut from the
+//! block. kentron's sweep refuses it: the curves where the motion grazes the ring move over it, so
+//! its envelope is no product of a fixed curve and the motion.
+use crate::bench::{frame, p};
+use crate::shared::swept::bezier_frame;
+use kentron::math::Direction;
+use kentron::primitives::{Cuboid, Torus};
+use kentron::sweep::{self, Carriage, RigidMotion};
+use kentron::topology::{Model, Shape};
+use std::sync::Arc;
+
+pub fn build(m: &mut Model) -> kentron::Result<Shape> {
+    let block = Cuboid::from_corners(p(-6.0, -6.0, -8.0), p(36.0, 26.0, 0.0)).build(m)?;
+    let ring = Torus::new(1.5, 0.5).with_frame(frame(p(0.0, 0.0, 0.5), Direction::Y)).build(m)?;
+    let swept = sweep::solid(m, ring, &RigidMotion::Carried(Carriage(Arc::new(bezier_frame))))?;
+    kentron::boolean::difference(m, block, swept)
 }
