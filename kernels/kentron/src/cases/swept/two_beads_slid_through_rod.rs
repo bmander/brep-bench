@@ -4,21 +4,18 @@
 //! union slid 40 along the z axis from below the rod to above it. Everything the wheel passes
 //! through, cut.
 //!
-//! kentron has no sweep of a solid (`sweep::extrude` takes faces, wires, edges, vertices and
-//! compounds of them), so the wheel's sweep is built as elementary geometry gives it. The wheel
-//! passes through a point when one of its beads does, so its sweep is the union of the beads'
-//! sweeps; and each bead's is the bead at each end and the quarters of its face, split along the
-//! circles where the slide runs along it, each slid (`shared::swept::slid_torus`). All are cut
-//! from the rod in turn.
-use crate::bench::{p, v};
-use crate::shared::swept::{cut_each, slid_torus};
-use kentron::primitives::Cylinder;
+//! The wheel is the beads' union; its sweep is kentron's sweep of a solid (`sweep::solid`, one
+//! slide), cut from the rod.
+use crate::bench::{d, frame, p, v};
+use kentron::primitives::{Cylinder, Torus};
+use kentron::sweep::{self, RigidMotion};
 use kentron::topology::{Model, Shape};
 
 pub fn build(m: &mut Model) -> kentron::Result<Shape> {
     let rod = Cylinder::new(5.0, 20.0).build(m)?;
-    let slide = v(0.0, 0.0, 40.0);
-    let mut pieces = slid_torus(m, p(11.5, 0.0, -9.0), 6.0, 2.0, slide)?;
-    pieces.extend(slid_torus(m, p(11.5, 1.5, -9.0), 6.0, 1.5, slide)?);
-    cut_each(m, rod, &pieces)
+    let first = Torus::new(6.0, 2.0).with_frame(frame(p(11.5, 0.0, -9.0), d(0.0, 1.0, 0.0))).build(m)?;
+    let second = Torus::new(6.0, 1.5).with_frame(frame(p(11.5, 1.5, -9.0), d(0.0, 1.0, 0.0))).build(m)?;
+    let wheel = kentron::boolean::union(m, first, second)?;
+    let swept = sweep::solid(m, wheel, &RigidMotion::Slide { by: v(0.0, 0.0, 40.0) })?;
+    kentron::boolean::difference(m, rod, swept)
 }

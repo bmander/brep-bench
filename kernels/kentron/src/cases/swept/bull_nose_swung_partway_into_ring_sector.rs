@@ -4,46 +4,26 @@
 //! is rounded to radius 0.3, turned rigidly about the z axis from −140° to +30°. Everything the
 //! mill passes through, cut.
 //!
-//! kentron's cut by a motion (`sweep::cut_by_motion`) takes a turn whose tool ends clear of the
-//! blank, and this one stops inside it, so the sweep is built as elementary geometry gives it: at
-//! each height the mill is a disc about its axis, which meets each circle about the z axis in an
-//! arc centred on the axis's polar angle; turned, that arc runs from where it starts to where it
-//! ends. So the mill passes through its section on the plane through its axis and the z axis
-//! revolved from −140° to 30°, and itself where it starts (clear of the block) and where it ends.
+//! The mill is its half section revolved about its axis; its sweep is kentron's sweep of a solid
+//! (`sweep::solid`, one turn), cut from the block.
 use crate::bench::p;
 use crate::shared::parts::xz_plane;
-use crate::shared::primitives::rectangle_xz;
-use crate::shared::swept::cut_each;
-use kentron::math::{Axis, Direction, Transform};
-use kentron::modify::{self, TransformOptions};
+use crate::shared::swept::ring_sector;
+use kentron::math::{Axis, Direction};
 use kentron::sketch::{self, Outcome, Step};
-use kentron::sweep;
+use kentron::sweep::{self, RigidMotion};
 use kentron::topology::{Model, Shape};
-use std::f64::consts::{FRAC_PI_3, TAU};
+use std::f64::consts::TAU;
 
 pub fn build(m: &mut Model) -> kentron::Result<Shape> {
-    use Step::{Arc, Heading, Start, To};
-    let z = Axis::new(p(0.0, 0.0, 0.0), Direction::Z);
-    let section = rectangle_xz(m, (8.0, -1.0), (12.0, 1.0))?;
-    let block = sweep::revolve(m, section, z, FRAC_PI_3)?.shape;
+    use Step::{Arc, Start, To};
+    let block = ring_sector(m)?;
     // The mill: its half section, out from its axis (the flat bottom to 0.7, the round's quarter
     // circle about (10.7, −0.2), the side up to the flat top), turned whole about it.
     let half = [Start(10.0, -0.5), To(10.7, -0.5), Arc { radius: 0.3, angle: 90.0 }, To(11.0, 0.5), To(10.0, 0.5)];
     let half = sketch::profile(m, xz_plane(0.0), &half, Outcome::Face)?;
     let mill = sweep::revolve(m, half, Axis::new(p(10.0, 0.0, 0.0), Direction::Z), TAU)?.shape;
-    let end = modify::transform(m, mill, &Transform::rotation(z, 30f64.to_radians()), TransformOptions::default())?;
-    // Its whole section through its axis, from where it starts, both rounds included.
-    let whole = [
-        Start(9.0, 0.5),
-        To(9.0, -0.2),
-        Heading(-90.0),
-        Arc { radius: 0.3, angle: 90.0 },
-        To(10.7, -0.5),
-        Arc { radius: 0.3, angle: 90.0 },
-        To(11.0, 0.5),
-    ];
-    let whole = sketch::profile(m, xz_plane(0.0), &whole, Outcome::Face)?;
-    let whole = modify::transform(m, whole, &Transform::rotation(z, (-140f64).to_radians()), TransformOptions::default())?;
-    let notch = sweep::revolve(m, whole, z, 170f64.to_radians())?.shape;
-    cut_each(m, block, &[notch, end])
+    let turn = RigidMotion::Turn { axis: Axis::Z, from: (-140f64).to_radians(), to: 30f64.to_radians() };
+    let swept = sweep::solid(m, mill, &turn)?;
+    kentron::boolean::difference(m, block, swept)
 }

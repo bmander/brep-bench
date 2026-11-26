@@ -58,3 +58,24 @@ pub fn box_sides(m: &mut Model, solid: Shape, lo: Point, hi: Point, radius: f64)
     }
     points.into_iter().map(|q| face_through(m, solid, q)).collect()
 }
+
+/// The prism on the polygon `outline` (in the xy plane) from z = 0 up `height`, every side
+/// drafted `degrees` with the pull direction +z about the neutral plane z = 0, each picked at the
+/// middle of its bottom edge, halfway up.
+pub fn outline_drafted(m: &mut Model, outline: &[(f64, f64)], height: f64, degrees: f64) -> Result<Shape, Refusal> {
+    use kentron::{make, sweep};
+    let mut edges = Vec::new();
+    for (i, &(x, y)) in outline.iter().enumerate() {
+        let (nx, ny) = outline[(i + 1) % outline.len()];
+        edges.push(make::edge_between(m, p(x, y, 0.0), p(nx, ny, 0.0))?);
+    }
+    let wire = make::wire(m, &edges)?;
+    let floor = make::planar_face(m, wire)?;
+    let block = sweep::extrude(m, floor, kentron::math::Vector::new(0.0, 0.0, height))?.shape;
+    let mut sides = Vec::new();
+    for (i, &(x, y)) in outline.iter().enumerate() {
+        let (nx, ny) = outline[(i + 1) % outline.len()];
+        sides.push(face_through(m, block, p((x + nx) / 2.0, (y + ny) / 2.0, height / 2.0))?);
+    }
+    drafted(m, block, &sides, degrees, p(0.0, 0.0, 0.0), Direction::Z)
+}

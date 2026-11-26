@@ -3,16 +3,12 @@
 //! −t about the line through (0, h cos 45°, h sin 45°), h = 0.7071, along
 //! (cos 20°, sin 20° cos 45°, sin 20° sin 45°), for t from −100° to 100°.
 //!
-//! Refused, as `swept/tumbling-torus` is: the two turns are about skew axes, so the torus's axis
-//! of turning changes from instant to instant, and the boundary is the envelope of the torus
-//! under that motion, which kentron has no operation to find.
-use crate::Refusal;
+//! kentron's sweep of a solid (`sweep::solid`) under the tumble given by its places
+//! (`shared::swept::crossed_tumble`), which refuses it: the curves where the motion grazes the tool move over it, so its envelope is
+//! no product of a fixed curve and the motion, and kentron's sweep builds only those.
+use crate::shared::swept::crossed_tumble;
 use kentron::topology::{Model, Shape};
 
-pub fn build(_m: &mut Model) -> Result<Shape, Refusal> {
-    Err(Refusal::from(
-        "kentron has no sweep of a solid along a pair of turns about skew axes: `sweep::cut_by_motion` \
-         takes one screw or turn of a solid of revolution, or planar motions of a prism; the boundary \
-         is the envelope of the tumbling torus, which kentron has no operation to find",
-    ))
+pub fn build(m: &mut Model) -> kentron::Result<Shape> {
+    crossed_tumble(m, -1.0)
 }

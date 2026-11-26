@@ -2,18 +2,16 @@
 //! down 8 into it at a lean: the torus centred at (0, 0, 4), its axis (sin 35°, 0, cos 35°), radii
 //! 3 and 1.
 //!
-//! Refused. kentron slides faces (`sweep::extrude`) but no solid, and its cut by a motion
-//! (`sweep::cut_by_motion`) takes no slide alone. Built from faces, the torus would have to be
-//! split where its normal is level, so that each piece slides without folding over itself; leaning,
-//! those curves are none of the torus's circles but curves on it that kentron has no operation to
-//! find.
-use crate::Refusal;
+//! The ring's sweep is kentron's sweep of a solid (`sweep::solid`, one slide), cut from the block.
+use crate::bench::{d, frame, p, v};
+use kentron::primitives::{Cuboid, Torus};
+use kentron::sweep::{self, RigidMotion};
 use kentron::topology::{Model, Shape};
 
-pub fn build(_m: &mut Model) -> Result<Shape, Refusal> {
-    Err(Refusal::from(
-        "kentron has no sweep of a solid along a slide: `sweep::cut_by_motion` takes no slide alone, and \
-         sliding the torus's faces needs them split where its normal is level, which leaning are \
-         curves on the torus (none of its circles) kentron has no operation to find",
-    ))
+pub fn build(m: &mut Model) -> kentron::Result<Shape> {
+    let block = Cuboid::new(16.0, 16.0, 8.0).with_frame(frame(p(-8.0, -8.0, -8.0), d(0.0, 0.0, 1.0))).build(m)?;
+    let lean = 35f64.to_radians();
+    let ring = Torus::new(3.0, 1.0).with_frame(frame(p(0.0, 0.0, 4.0), d(lean.sin(), 0.0, lean.cos()))).build(m)?;
+    let swept = sweep::solid(m, ring, &RigidMotion::Slide { by: v(0.0, 0.0, -8.0) })?;
+    kentron::boolean::difference(m, block, swept)
 }

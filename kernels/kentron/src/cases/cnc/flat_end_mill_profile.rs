@@ -3,15 +3,14 @@
 //! cross's outline, its twelve corners rounded to radius 6, anticlockwise from (60, 10), the tip
 //! at z = −3, −6 and −9. The plate less everything the mill passes through.
 //!
-//! Each lap is the mill's section, the rectangle 3 either side of its axis and 20 up, swept round
-//! the path (`shared::cnc`). The plunges to each lap's start and the rise after the last run
-//! along the mill's own axis at (60, 10), a point of the path, from above each lap's depth: they
-//! pass through nothing the lap at that depth does not.
+//! Each move of each lap, a side or a corner's arc, is kentron's sweep of a solid of the mill
+//! (`shared::cnc`: a slide, or a turn about the corner's centre), all cut from the plate at once.
+//! The plunges to each lap's start and the rise after the last run along the mill's own axis at
+//! (60, 10), a point of the path, from above each lap's depth: they pass through nothing the mill
+//! at that depth, 20 tall, does not, so they are not swept.
 use crate::bench::p;
-use crate::shared::cnc::{level_path, milled_round};
-use crate::shared::swept::cut_each;
-use kentron::math::Direction;
-use kentron::primitives::Cuboid;
+use crate::shared::cnc::{along, cut, swept};
+use kentron::primitives::{Cuboid, Cylinder};
 use kentron::sketch::Step::{self, Arc, Forward, Start};
 use kentron::topology::{Model, Shape};
 
@@ -34,15 +33,9 @@ const CROSS: [Step; 26] = [
     Forward(9.0),
 ];
 
-/// The mill's section: the rectangle 3 either side of its axis, from its tip 20 up.
-const SECTION: [Step; 5] = [Start(-3.0, 0.0), Forward(6.0), Step::AlongY(20.0), Step::AlongX(-6.0), Step::AlongY(-20.0)];
-
 pub fn build(m: &mut Model) -> kentron::Result<Shape> {
     let plate = Cuboid::from_corners(p(0.0, 0.0, -15.0), p(120.0, 90.0, 0.0)).build(m)?;
-    let mut laps = Vec::new();
-    for z in [-3.0, -6.0, -9.0] {
-        let path = level_path(m, z, &CROSS)?;
-        laps.push(milled_round(m, path, p(60.0, 10.0, z), Direction::X, &SECTION)?);
-    }
-    cut_each(m, plate, &laps)
+    let moves: Vec<_> = [-3.0, -6.0, -9.0].into_iter().flat_map(|z| along(&CROSS, z)).collect();
+    let cuts = swept(m, |m| Cylinder::new(3.0, 20.0).build(m), &moves)?;
+    cut(m, plate, &cuts)
 }
