@@ -2,23 +2,25 @@
 //! x ≥ 0 — its curved rim, the half circle where its side meets its top, rounded with a radius
 //! that grows linearly with the angle φ round the z axis, r = 3/2 + φ/π: 1 at (0, −5, 6), 1.5 at
 //! (5, 0, 6) and 2 at (0, 5, 6).
-//!
-//! Refused. cad-kernel has no variable-radius round: `fillet::roll` rolls a ball of one radius
-//! along the whole edge, and nothing in `fillet`, `rounds`, `spill` or `corners` takes a radius
-//! that changes along it. Nor is this round a surface the kernel can make otherwise: where the
-//! radius grows along a straight edge the round is an oblique circular cone, a right cone sheared
-//! (`affine::Affine`, as `fillet/variable-radius-concave-edge` builds it), but here its section,
-//! the quarter circle of radius r(φ) in the half plane at φ, is one shape scaled about the edge as
-//! it turns about the axis — no affine image of a cone, cylinder or torus, and no sweep the kernel
-//! carries a section along (`geom::Carry` moves it rigidly, by a line or a screw). Its wall would
-//! have to be fitted outside the kernel.
+use cad_kernel::boolean::{combined, Op};
+use cad_kernel::build::{disc, kept, prism};
+use cad_kernel::fillet::roll_varying;
+use cad_kernel::geom::tolerance;
 use cad_kernel::topo::Brep;
+use std::f64::consts::PI;
+
+const R: f64 = 5.;
+const HEIGHT: f64 = 6.;
 
 pub fn build() -> Result<Brep, String> {
-    Err("no variable-radius round: fillet::roll rolls a ball of one radius along the whole edge, \
-         no operation of cad-kernel takes a radius that changes along it (r = 3/2 + φ/π round the \
-         half circle), and the round's surface — a quarter circle scaled about the edge as it \
-         turns about the axis — is no affine image of a kernel surface nor a rigid sweep of a \
-         section"
-        .into())
+    // the cylinder, kept where x ≥ 0
+    let cylinder = prism(&disc([0.; 3], [0., 0., 1.], R), 0., HEIGHT)?;
+    let half = kept(&cylinder, [0.; 3], [1., 0., 0.], 0.)?;
+    // the rim picked by its middle; the kernel rolls, at each point of it, the ball of the radius
+    // there touching the side and the top with its centre in the plane square to the rim, and cuts
+    // the round off where it meets the flat face
+    let radius = |[x, y, _]: [f64; 3]| 1.5 + y.atan2(x) / PI;
+    let round = roll_varying(&half, [R * 0.3f64.cos(), R * 0.3f64.sin(), HEIGHT], &radius, tolerance(half.size()))?;
+    let op = if round.concave { Op::Union } else { Op::Cut };
+    Ok(combined(&half, &round.piece, op, 0.)?)
 }

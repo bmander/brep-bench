@@ -2,14 +2,9 @@
 //! 0.0001 back along each side: the prism from z = 0 to 5 on (0, 0), (10, 0), (10, 9.9999),
 //! (9.9999, 10), (0, 10). The flat's two edges rounded together to radius 1, which swallows it.
 //!
-//! Refused, by the kernel: "the ball of `right` with `flat` is larger than `flat` can hold".
-//! `rounds::rounded` builds rounds that meet at a corner in one piece, but two that share no
-//! vertex, as these do not, it rolls each on its own in turn with `fillet::roll`, and a ball of
-//! radius 1 between a side and the flat 0.00014 wide has no room on the flat: the round that runs
-//! from side to side past it is not one the kernel looks for (`fillet::roll`, and so `rounded`,
-//! rolls a ball only between the two faces of an edge, and the sides `right` and `back` share
-//! none). Rolling either edge alone (`roll` at a point on it) is refused the same way, and no
-//! operation of 0.21.0 removes the flat first.
+//! A ball of radius 1 has no room on a flat 0.00014 wide, so `rounds::rounded` reads the flat as
+//! one the round swallows: it deletes it (`defeature::deleted`, the sides run on until they
+//! meet), rounds the edge where they meet, and keeps the answer only where the flat is gone from it.
 use crate::sketch::polygon;
 use cad_kernel::build::prism;
 use cad_kernel::geom::{tolerance, V};

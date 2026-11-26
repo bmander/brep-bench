@@ -2,9 +2,9 @@
 //! y = 10 meet rounded with a radius that shrinks linearly along it to nothing: r = 2 − z/5, 2 at
 //! the bottom and 0 at the top, where the round comes to a point at the cube's corner.
 //!
-//! Built round the kernel's lack of a variable-radius round (`fillet::roll` rolls a ball of one
-//! radius; nothing in `fillet`, `rounds` or `corners` takes a radius that changes along an edge),
-//! from what the case says the round is: its sections square to the edge are quarter circles of
+//! Built round the kernel's lack of a variable-radius round shrinking to nothing
+//! (`fillet::roll_varying` rolls a ball whose radius changes along the edge, but refuses one of no
+//! size, which it has at the top, where its faces' offsets meet the edge itself), from what the case says the round is: its sections square to the edge are quarter circles of
 //! radius r(z) about (10 − r, 10 − r, z), so it is part of an oblique circular cone — the right
 //! cone `build::cone` makes, of radius 2 at its base and its apex 10 above it, sheared along its
 //! axis by `affine::Affine` (`Brep::mapped`) until its centres run along that line. The corner the

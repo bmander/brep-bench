@@ -1,13 +1,7 @@
 //! A prism from z = 0 to 6 on the pentagon (0, 0), (8, 0), (8, 5), (4, 5 + 4 tan 0.5°), (0, 5): a
 //! roof of two faces each tilted 0.5° up to a ridge along x = 4, meeting at 179°. The ridge rounded
-//! to radius 180.
-//!
-//! Refused, by the kernel: "`right roof` with `left roof` meet too nearly flat or too sharply to
-//! round". `fillet::roll` rolls a ball only between faces turning more than 1° from one another,
-//! (`fillet`'s `MIN_TURN`, π/180), and the two roof faces turn through 1°, at that bound.
-//! `rounds::rounded` rolls the edge the same way: its one-call surgery between planes rounds only
-//! a set of edges taking in every edge at each vertex it reaches, and the ridge's ends meet the
-//! caps.
+//! to radius 180: a ball that wide stands clear of so flat a ridge (the round 0.0069 off the edge,
+//! its centre read to within 6e-7), so the kernel rolls it as any other.
 use crate::sketch::polygon;
 use cad_kernel::boolean::{combined, Op};
 use cad_kernel::build::prism;
