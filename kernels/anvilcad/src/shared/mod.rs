@@ -680,3 +680,35 @@ pub fn rim(outline: &Loop2, z: f64) -> Vec<[f64; 3]> {
         })
         .collect()
 }
+
+/// The closed, periodic, uniform B-spline of degree 2 or 3 on the control polygon `points` (in
+/// order, closing back on the first) as a sketch spline reaches anvil-brep: one cubic Bézier span
+/// per control point, each exactly its span of the B-spline (a quadratic span raised to degree 3).
+pub fn periodic_bspline(points: &[(f64, f64)], degree: usize) -> Loop2 {
+    let p: Vec<DVec2> = points.iter().map(|&(x, y)| v2(x, y)).collect();
+    let n = p.len();
+    let at = |k: usize| p[k % n];
+    Loop2::new(
+        (0..n)
+            .map(|k| {
+                let bezier = match degree {
+                    2 => {
+                        let (a, q, b) = ((at(k) + at(k + 1)) * 0.5, at(k + 1), (at(k + 1) + at(k + 2)) * 0.5);
+                        [a, a + (q - a) * (2. / 3.), b + (q - b) * (2. / 3.), b]
+                    }
+                    3 => {
+                        let (p0, p1, p2, p3) = (at(k), at(k + 1), at(k + 2), at(k + 3));
+                        [
+                            (p0 + p1 * 4. + p2) / 6.,
+                            (p1 * 2. + p2) / 3.,
+                            (p1 + p2 * 2.) / 3.,
+                            (p1 + p2 * 4. + p3) / 6.,
+                        ]
+                    }
+                    _ => panic!("a periodic B-spline of degree 2 or 3"),
+                };
+                Segment::Cubic { p: bezier }
+            })
+            .collect(),
+    )
+}

@@ -1,6 +1,10 @@
 //! A prism on a closed cubic B-spline, the rim of its top rounded to radius 1.
-use anvil_brep::Solid;
+use anvil_brep::{Frame, Solid, extrude};
+
+use crate::shared::{e, fillet, periodic_bspline, region, rim};
 
 pub fn build() -> Result<Solid, String> {
-    Err("anvil-brep's profiles are lines, arcs and ellipses only, so it cannot extrude a spline outline, and it has no other way to make the prism's B-spline side".into())
+    let bean = periodic_bspline(&[(-10., -5.), (0., -7.), (10., -5.), (12., 4.), (4., 7.), (0., 3.), (-4., 7.), (-12., 4.)], 3);
+    let boss = extrude::extrude(&Frame::world(), &region(&[bean.clone()])?, 0., 6.).map_err(e)?;
+    fillet(&boss, &rim(&bean, 6.), 1.)
 }
