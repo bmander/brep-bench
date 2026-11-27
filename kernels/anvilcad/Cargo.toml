@@ -8,9 +8,9 @@ publish = false
 
 [dependencies]
 # AnvilCAD's exact B-rep kernel and its STEP writer, from AnvilCAD's repository at a commit
-# (release 0.1.2): the scoreboard says which, and moving to another is a change made here
-anvil-brep = { git = "https://github.com/swperb/anvilcad", rev = "1b82ac4bdb93a1b04c8d14020507941b2b6a4435" }
-anvil-step = { git = "https://github.com/swperb/anvilcad", rev = "1b82ac4bdb93a1b04c8d14020507941b2b6a4435" }
+# (past release 0.2.0): the scoreboard says which, and moving to another is a change made here
+anvil-brep = { git = "https://github.com/swperb/anvilcad", rev = "392a49844427f8fa0946ef20eefc58e701fd7230" }
+anvil-step = { git = "https://github.com/swperb/anvilcad", rev = "392a49844427f8fa0946ef20eefc58e701fd7230" }
 glam = "0.34"
 
 [profile.release]
