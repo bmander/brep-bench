@@ -1,0 +1,6 @@
+//! A sealed helical tunnel a hundred times larger: a box screwed inside a rod.
+use anvil_brep::Solid;
+
+pub fn build() -> Result<Solid, String> {
+    Err("anvil-brep has no sweep of a solid and no helical curve: a body screwed along an axis sweeps envelopes of its surfaces under the screw, which it cannot make from its profile sweeps".into())
+}
