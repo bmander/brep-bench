@@ -23,7 +23,8 @@ function draw(b) {
                  k.frontend && `its cases written in ${k.frontend}`,
                  k.license && `license ${k.license}`].filter(Boolean).join(' · ');
   let out = `<h1>${esc(k.name)}</h1>
-    <p class=muted>${esc(about)}${k.home ? ` · <a href='${esc(k.home)}'>home page</a>` : ''}</p>`;
+    <p class=muted>${esc(about)}${k.home ? ` · <a href='${esc(k.home)}'>home page</a>` : ''}${
+      k.app ? ` · its app, <a href='${esc(k.app.url)}'>${esc(k.app.name)}</a>` : ''}</p>`;
   if (k.note) out += `<p>${esc(k.note)}</p>`;
   if (!k.outcomes) {
     main.innerHTML = `${out}<p>Awaiting an implementation: none of its cases has been written yet.

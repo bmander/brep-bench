@@ -248,6 +248,7 @@
     {
       "name": "geop",
       "kernel": "https://github.com/geop-cad/geop",
+      "app": {"name": "Workpiece", "url": "https://workpiece.dev/#get-it"},
       "license": "MIT OR Apache-2.0",
       "backend": "Rust",
       "frontend": "Rust (programs of geop's operations)",

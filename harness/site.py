@@ -199,7 +199,7 @@ def board(registry, results, cases, drawings):
         a = registry[name]
         k = {"name": name}
         for field, key in (("kernel", "home"), ("license", "license"), ("backend", "backend"),
-                           ("frontend", "frontend"), ("note", "note"),
+                           ("frontend", "frontend"), ("note", "note"), ("app", "app"),
                            ("reference", "reference"), ("step", "step")):
             if a.get(field):
                 k[key] = a[field]

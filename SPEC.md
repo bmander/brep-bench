@@ -475,6 +475,7 @@ One entry per kernel:
 | `measured` | `"mesh"` for a kernel with no exact measures |
 | `step` | `true` for a kernel whose runner writes its solid as STEP when given a third argument; for a kernel that cannot, why not (a string); left out where the runner has not been set up for it |
 | `binary` | the files of the kernel's binary, whose size the harness measures after the build: paths or glob patterns relative to the repository (a directory counts every file under it), or a Python distribution, `{"python": "python3", "distribution": NAME}`; beside the language runtime its runner runs on and the system's libraries |
+| `app` | an application built on the kernel, `{"name": NAME, "url": URL}`: linked from the kernel's page on the board |
 | `note` | shown beside the kernel on the board (e.g. that no new implementations are being written) |
 | `reference` | `true` for the kernel whose results the drawings are made from where it passes (else the first kernel that does) |
 
