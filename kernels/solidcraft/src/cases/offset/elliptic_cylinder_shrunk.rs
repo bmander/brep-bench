@@ -4,12 +4,11 @@
 //! folding: Offset Face moving every face 1 inward would be the solid shrunk. SolidCraft's
 //! (`offset_faces`, on the ellipse as its profile's four conics) refuses it ("how far its
 //! neighbours extend to meet it has no certified bound"), and so does ops's ("its surface opens
-//! across its seam"), so this is the kernel's offset of the whole solid, inward.
-use crate::shared::geometry::elliptic_cylinder;
-use crate::shared::offset::offset_rounded;
-use crate::Refusal;
-use solidcore_ops::Body;
+//! across its seam"), so this is SolidCraft's offset of the whole solid inward (`offset_solid`,
+//! rounded).
+use super::elliptic_cylinder_grown::elliptic_cylinder;
+use crate::solids::*;
 
-pub fn build() -> Result<Body, Refusal> {
-    offset_rounded(&elliptic_cylinder(5.0, 3.0, 0.0, 10.0)?, -1.0)
+pub fn build() -> R<Body> {
+    solidcraft_kernel::offset_solid(&elliptic_cylinder(5.0, 3.0)?, -1.0, true)
 }

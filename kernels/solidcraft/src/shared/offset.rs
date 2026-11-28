@@ -8,8 +8,11 @@
 //! rounds them, joining the moved faces at each edge where they part by the offset of the edge
 //! itself (a cylinder or torus about it) and at each corner by the offset of the corner (a
 //! ball), which is the solid of every point within the distance of the body. Ops does not pass
-//! that option on, so a grown solid is made by the kernel itself, on the body's record made its
-//! own ([`in_kernel`]).
+//! that option on. solidcraft-kernel does: its `offset_solid(body, distance, true)` is this same
+//! call (`offset_brep_simple` with the edges rounded and the results merged), on a kernel body,
+//! and the cases whose input that layer builds use it. [`offset_rounded`] makes the offset of an
+//! ops body by the kernel itself, on the body's record made its own ([`in_kernel`]), for an input
+//! only the layers beneath it can build.
 use crate::Refusal;
 use solidcore::offset::offset_executive::p2::{offset_brep_simple, OffsetOptions};
 use solidcore::topology::brep::is_outward_solid;
