@@ -11,16 +11,22 @@ use crate::solids::*;
 use solidcraft_kernel::{PathSeg, sweep};
 
 pub fn build() -> R<Body> {
-    let slide = v3(8.0, 5.0, 3.0);
+    slid(v3(8.0, 5.0, 3.0))
+}
+
+/// The box from the origin to (10, 6, 4) slid along `slide`, whose parts are none negative: the
+/// box and each face it leads with, x = 10, y = 6 or z = 4 where `slide` has a part along x, y
+/// or z, slid the whole way.
+pub fn slid(slide: Vec3) -> R<Body> {
     let mut swept = block((0.0, 0.0, 0.0), (10.0, 6.0, 4.0))?;
     // each leading face on a plane whose normal is its outward one, its sides along the box's
     // edges from the corner nearest the origin
     let faces = [
-        (Plane { origin: v3(10.0, 0.0, 0.0), x: Vec3::Y, y: Vec3::Z }, rect(0.0, 0.0, 6.0, 4.0)),
-        (Plane { origin: v3(0.0, 6.0, 0.0), x: Vec3::Z, y: Vec3::X }, rect(0.0, 0.0, 4.0, 10.0)),
-        (Plane { origin: v3(0.0, 0.0, 4.0), x: Vec3::X, y: Vec3::Y }, rect(0.0, 0.0, 10.0, 6.0)),
+        (slide.x, Plane { origin: v3(10.0, 0.0, 0.0), x: Vec3::Y, y: Vec3::Z }, rect(0.0, 0.0, 6.0, 4.0)),
+        (slide.y, Plane { origin: v3(0.0, 6.0, 0.0), x: Vec3::Z, y: Vec3::X }, rect(0.0, 0.0, 4.0, 10.0)),
+        (slide.z, Plane { origin: v3(0.0, 0.0, 4.0), x: Vec3::X, y: Vec3::Y }, rect(0.0, 0.0, 10.0, 6.0)),
     ];
-    for (plane, face) in &faces {
+    for (_, plane, face) in faces.iter().filter(|(along, ..)| *along > 0.0) {
         let path = [PathSeg::Line { a: plane.origin, b: plane.origin + slide }];
         swept = union(&swept, &sweep(plane, face, &path)?)?;
     }
