@@ -80,3 +80,6 @@
 "cnc/ball-end-surface-raster" = "no sweep of a solid"
 "cnc/five-axis-dome" = "no sweep of a solid"
 "boolean/elbow-tighter-than-its-tube" = "no revolve of a profile across its axis"
+"scale/box-screwed-inside-a-rod-a-hundred-times-larger" = "no sweep of a solid"
+"scale/cone-spun-about-a-line-through-it-ten-times-larger" = "no sweep of a solid"
+"scale/micro-cylinder-rim-rounded-unequally" = "no round with an elliptic section"
