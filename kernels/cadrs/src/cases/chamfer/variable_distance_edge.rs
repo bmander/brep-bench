@@ -3,40 +3,24 @@
 //! constant 2 on the face y = 10: the chamfer the hyperbolic paraboloid ruled by the horizontal
 //! lines from (10, 10 − d₁, z) to (8, 10, z).
 //!
-//! cadrs's Chamfer has no distance that varies along its edge, so the corner beyond the chamfer is
-//! cut away instead: each horizontal section of it is a triangle whose one side lies on the
-//! chamfer's line, run on past both faces, and those sides' ends move linearly in z, so the loft
-//! of two such triangles, below and above the cube, is bounded by the same hyperbolic paraboloid
-//! (every line between corresponding points of its two sections lies on it).
-use crate::bench::{block, cut, p3};
+//! cadrs's variable chamfer (`Kernel::chamfer_variable`): its distance laws run from the edge's
+//! start to its end, so each end gets the distance at its height.
+use crate::bench::{block, p3};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, BodyKind, DefaultKernel, Kernel, LoftEnd, LoftSection, LoftSpec, Loop, Plane, Profile};
-
-/// The distance on the face x = 10, growing along the edge.
-fn d1(z: f64) -> f64 {
-    1.0 + z / 5.0
-}
-
-/// The distance on the face y = 10.
-const D2: f64 = 2.0;
-
-/// The corner the chamfer cuts off, at height `z`: the chamfer's line from (10, 10 − d₁) to
-/// (10 − d₂, 10) run on half its length past each end, closed round the corner outside the cube.
-fn corner(z: f64) -> Profile {
-    let (a, b) = ([10.0, 10.0 - d1(z)], [10.0 - D2, 10.0]);
-    let past = |p: [f64; 2], q: [f64; 2]| [p[0] + (p[0] - q[0]) / 2.0, p[1] + (p[1] - q[1]) / 2.0];
-    Profile::of(Plane::xy(z), vec![Loop::polygon(&[past(a, b), [13.0, 13.0], past(b, a)])])
-}
+use cadrs_kernel::{BodyId, ChamferLaw, DefaultKernel, Kernel, Pick};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
     let cube = block(k, p3(0.0, 0.0, 0.0), p3(10.0, 10.0, 10.0))?;
-    let spec = LoftSpec {
-        body: BodyKind::Solid,
-        sections: vec![LoftSection::Profile(corner(-1.0)), LoftSection::Profile(corner(11.0))],
-        start: LoftEnd::default(),
-        end: LoftEnd::default(),
-        source: 1,
+    let edge = k.edge_at(cube, p3(10.0, 10.0, 5.0))?;
+    let side = k.face_at(cube, p3(10.0, 5.0, 5.0))?;
+    let info = k.edges(cube)?.into_iter().find(|e| e.id == edge).ok_or("the edge is gone")?;
+    // d₁ = 1 + z/5 from the edge's start to its end
+    let d1 = |z: f64| 1.0 + z / 5.0;
+    let law = ChamferLaw {
+        edge,
+        face: Some(side),
+        first: vec![(0.0, d1(info.start.z)), (1.0, d1(info.end.z))],
+        second: vec![(0.0, 2.0)],
     };
-    let beyond = k.loft_with(&spec)?.bodies.first().copied().ok_or("the loft made no body")?;
-    cut(k, cube, beyond)
+    Ok(k.chamfer_variable(cube, &[law])?.first()?)
 }

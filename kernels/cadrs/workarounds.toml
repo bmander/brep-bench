@@ -1,6 +1,3 @@
 # The cases cadrs builds by working around a feature its kernel lacks, and what that is
 # (SPEC.md, "A workaround is flagged"). Blocks and cylinders are sketches extruded, as in a
 # sketch-based modeller; balls, cones and tori are the kernel's primitives (`Kernel::primitive`).
-
-"chamfer/variable-distance-edge" = "no chamfer with a varying distance"
-"chamfer/variable-distance-semicircular-rim" = "no chamfer with a varying distance (the corner beyond it swept along a helix and cut away)"
