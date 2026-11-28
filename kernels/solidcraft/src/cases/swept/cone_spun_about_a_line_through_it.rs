@@ -20,26 +20,32 @@ use solidcore_record::Seg2;
 use std::f64::consts::{FRAC_PI_2, TAU};
 
 pub fn build() -> R<Body> {
+    spun(1.0)
+}
+
+/// The sweep with every length `s` times as long.
+pub fn spun(s: f64) -> R<Body> {
     let (s30, c30) = 30f64.to_radians().sin_cos();
     let w = v3(c30, 0.0, s30);
     let u = v3(-s30, 0.0, c30); // square to w, in the xz plane
-    let rb = 7.0 * 25f64.to_radians().tan();
-    let big = (25.0 + rb * rb).sqrt();
+    let (tip, base) = (2.0 * s, 5.0 * s);
+    let rb = 7.0 * s * 25f64.to_radians().tan();
+    let big = (base * base + rb * rb).sqrt();
     // K′, revolved about w: its section in (out from w along u, along w) from the point out to
-    // the rim at (rb, 5), the sphere's arc up to the axis at R, and the axis back
+    // the rim at (rb, base), the sphere's arc up to the axis at R, and the axis back
     let filled = vec![
-        Seg2::Line { a: v2(0.0, -2.0), b: v2(rb, 5.0) },
-        Seg2::Arc { center: v2(0.0, 0.0), radius: big, start: 5f64.atan2(rb), sweep: FRAC_PI_2 - 5f64.atan2(rb) },
-        Seg2::Line { a: v2(0.0, big), b: v2(0.0, -2.0) },
+        Seg2::Line { a: v2(0.0, -tip), b: v2(rb, base) },
+        Seg2::Arc { center: v2(0.0, 0.0), radius: big, start: base.atan2(rb), sweep: FRAC_PI_2 - base.atan2(rb) },
+        Seg2::Line { a: v2(0.0, big), b: v2(0.0, -tip) },
     ];
     let frame = Plane { origin: Vec3::ZERO, x: u, y: w };
     let filled = Region2 { outer: Loop2 { segs: filled }, holes: vec![] };
     let start = one(solidcraft_kernel::revolve(&frame, &[filled], Vec2::ZERO, Vec2::Y, TAU)?)?;
-    // K′'s section by the xz plane, in (x, z): the point a = −2w, the rims 5w ± rb·u, the
+    // K′'s section by the xz plane, in (x, z): the point a = −tip·w, the rims base·w ± rb·u, the
     // sphere's arc between them; the z axis crosses its sides at `top` and `bottom`
     let at = |along: f64, out: f64| w * along + u * out;
-    let a = at(-2.0, 0.0);
-    let (rim_up, rim_down) = (at(5.0, rb), at(5.0, -rb));
+    let a = at(-tip, 0.0);
+    let (rim_up, rim_down) = (at(base, rb), at(base, -rb));
     let cross = |q: Vec3| a + (q - a) * (-a.x / (q.x - a.x)); // where the side from a to q meets x = 0
     let (top, bottom) = (cross(rim_up), cross(rim_down));
     let line = |p: Vec3, q: Vec3| Seg2::Line { a: v2(p.x, p.z), b: v2(q.x, q.z) };

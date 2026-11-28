@@ -1,6 +1,7 @@
 //! No layer has a round with an elliptic section, or one sized by a distance on each face (the
-//! kernel's and ops's rounds have a circular, curvature-continuous, chord-sized or flat section
-//! of one size; solidcore's two-radius solvers make circular arcs), so the cylinder is cut by the
+//! kernel's and ops's rounds have a circular, curvature-continuous or chord-sized section of one
+//! size, and their chamfers, even with a distance on each face, a flat one; solidcore's
+//! two-radius solvers make circular arcs), so the cylinder is cut by the
 //! corner outside the quarter ellipse instead: the quarter ellipse from (4, 10) to (5, 7) about
 //! the corner (5, 10) in ρ and z (a conic of weight √2/2), closed round the corner outside the
 //! cylinder and turned round the z axis.

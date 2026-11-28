@@ -8,9 +8,14 @@ use crate::Refusal;
 use solidcore_ops::{make_box, make_cylinder, Body};
 
 pub fn build() -> Result<Body, Refusal> {
-    let plate = make_box([-10.0, -10.0, 0.0], [20.0, 20.0, 4.0])?;
+    grown(1.0)
+}
+
+/// The plate, its hole and the growth with every length `s` times as long.
+pub fn grown(s: f64) -> Result<Body, Refusal> {
+    let plate = make_box([-10.0 * s, -10.0 * s, 0.0], [20.0 * s, 20.0 * s, 4.0 * s])?;
     // the drill runs past both faces
-    let drill = make_cylinder([0.0, 0.0, -1.0], 3.0, 6.0)?;
+    let drill = make_cylinder([0.0, 0.0, -1.0 * s], 3.0 * s, 6.0 * s)?;
     let drilled = cut(plate, drill)?;
-    offset_rounded(&drilled, 3.0)
+    offset_rounded(&drilled, 3.0 * s)
 }

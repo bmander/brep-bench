@@ -10,9 +10,14 @@ use crate::Refusal;
 use solidcore_ops::{make_box, make_torus, Body};
 
 pub fn build() -> Result<Body, Refusal> {
-    let torus = make_torus([0.0, 0.0, 0.0], 5.0, 3.0)?;
+    halved(1.0)
+}
+
+/// The torus and the block with every length `s` times as long.
+pub fn halved(s: f64) -> Result<Body, Refusal> {
+    let torus = make_torus([0.0, 0.0, 0.0], 5.0 * s, 3.0 * s)?;
     let torus = rotated(torus, [0.0; 3], [0.0, 0.0, 1.0], 90.0)?;
-    let above = make_box([-20.0, -20.0, 0.0], [40.0, 40.0, 20.0])?;
+    let above = make_box([-20.0 * s, -20.0 * s, 0.0], [40.0 * s, 40.0 * s, 20.0 * s])?;
     // turning +z about y by -asin(3/5) takes it to (-3, 0, 4)/5
     let above = rotated(above, [0.0; 3], [0.0, 1.0, 0.0], -(0.6f64.asin().to_degrees()))?;
     cut(torus, above)
