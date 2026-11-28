@@ -33,6 +33,7 @@ def build():
     # cavity's face as an OFFSET_SURFACE of the whole SURFACE_OF_REVOLUTION, bounded by a vertex
     # loop alone: the half ellipse it turns is not in the file, so the whole ellipse turned covers
     # the surface twice, and the offset of the half beyond the axis moves the other way.
+    #
     # MakeThickSolid wants an opening; with none, the spheroid's shell and its shrunk copy's,
     # reversed
     return hollow(spheroid(), THICKNESS)
