@@ -11,17 +11,17 @@ publish = false
 # behind it is solidcore, SolidCraft's Rust port of NVIDIA's SMLib, kept in the same repository
 # (`solidcore/`); the 2D profile types (`Seg2`, `Loop2`, `Region2`) are solidcore-record's.
 [dependencies]
-solidcraft-kernel = { git = "https://github.com/tangency-labs/solidcraft", tag = "v0.47.0" }
-solidcraft-geom = { git = "https://github.com/tangency-labs/solidcraft", tag = "v0.47.0" }
-solidcore-record = { git = "https://github.com/tangency-labs/solidcraft", tag = "v0.47.0" }
+solidcraft-kernel = { git = "https://github.com/tangency-labs/solidcraft", tag = "v0.51.2" }
+solidcraft-geom = { git = "https://github.com/tangency-labs/solidcraft", tag = "v0.51.2" }
+solidcore-record = { git = "https://github.com/tangency-labs/solidcraft", tag = "v0.51.2" }
 # solidcore's own crates, for the cases built on solidcore-ops, the modelling layer under
 # solidcraft-kernel (src/ops.rs): ops itself, the kernel beneath it, its record conversions, its
 # mesher and the STEP writer SolidCraft's export goes through
-solidcore = { git = "https://github.com/tangency-labs/solidcraft", tag = "v0.47.0" }
-solidcore-ops = { git = "https://github.com/tangency-labs/solidcraft", tag = "v0.47.0" }
-solidcore-convert = { git = "https://github.com/tangency-labs/solidcraft", tag = "v0.47.0" }
-solidcore-tess = { git = "https://github.com/tangency-labs/solidcraft", tag = "v0.47.0" }
-solidcore-step = { git = "https://github.com/tangency-labs/solidcraft", tag = "v0.47.0" }
+solidcore = { git = "https://github.com/tangency-labs/solidcraft", tag = "v0.51.2" }
+solidcore-ops = { git = "https://github.com/tangency-labs/solidcraft", tag = "v0.51.2" }
+solidcore-convert = { git = "https://github.com/tangency-labs/solidcraft", tag = "v0.51.2" }
+solidcore-tess = { git = "https://github.com/tangency-labs/solidcraft", tag = "v0.51.2" }
+solidcore-step = { git = "https://github.com/tangency-labs/solidcraft", tag = "v0.51.2" }
 serde_json = "1"
 
 [profile.release]
