@@ -1,35 +1,25 @@
 //! A puck, the cylinder of radius 6 on the z axis from z = 0 to z = 10 with both rims rounded to
-//! radius 2, shrunk by 2, the rounds' radius: every point at least 2 from its outside, the
-//! kernel's offset inward with the moved faces that cross trimmed and merged.
-use crate::bench::{edge_through, reloaded};
-use crate::shared::offset::offset_rounded;
-use crate::Refusal;
-use solidcore_ops::{blend, make_cylinder, Blend, Body, Corners};
-use std::f64::consts::TAU;
+//! radius 2, shrunk by 2, the rounds' radius: every point at least 2 from its outside, SolidCraft's
+//! offset of the whole solid inward (`offset_solid`, rounded), the moved faces that cross trimmed
+//! and merged.
+use crate::solids::*;
 
-/// `body` with its circles about the z axis, each `(radius, z)`, rounded to `size`: every edge
-/// on each circle, picked at three points round it (a circle may be split at seams).
-pub fn round_circles(body: Body, circles: &[(f64, f64)], size: f64) -> Result<Body, Refusal> {
-    let (body, order) = reloaded(&body)?;
+/// `body` with its circles about the z axis, each `(radius, z)`, rounded to `size`: each circle
+/// picked at a point on it and taken whole, its tangent chain (a circle may be split at seams).
+pub fn round_circles(body: &Body, circles: &[(f64, f64)], size: f64) -> R<Body> {
     let mut edges = Vec::new();
     for &(r, z) in circles {
-        for k in 0..3 {
-            let a = 1.0 + k as f64 * TAU / 3.0;
-            let e = edge_through(&body, &order, [r * a.cos(), r * a.sin(), z])?;
-            if !edges.contains(&e) {
-                edges.push(e);
-            }
-        }
+        // picked 1 radian round from +x, away from the circles' seams
+        edges.extend(solidcraft_kernel::tangent_chain(body, &[v3(r * 1f64.cos(), r * 1f64.sin(), z)])?);
     }
-    blend(&body, Blend::Round, &edges, &[size], &[], Corners::Filled)?;
-    Ok(body)
+    solidcraft_kernel::fillet(body, &edges, size)
 }
 
 /// The puck: the cylinder with its rims, the circles of radius 6 at z = 0 and z = 10, rounded.
-pub fn rounded_puck() -> Result<Body, Refusal> {
-    round_circles(make_cylinder([0.0, 0.0, 0.0], 6.0, 10.0)?, &[(6.0, 0.0), (6.0, 10.0)], 2.0)
+pub fn rounded_puck() -> R<Body> {
+    round_circles(&zcyl(0.0, 0.0, 6.0, 0.0, 10.0)?, &[(6.0, 0.0), (6.0, 10.0)], 2.0)
 }
 
-pub fn build() -> Result<Body, Refusal> {
-    offset_rounded(&rounded_puck()?, -2.0)
+pub fn build() -> R<Body> {
+    solidcraft_kernel::offset_solid(&rounded_puck()?, -2.0, true)
 }

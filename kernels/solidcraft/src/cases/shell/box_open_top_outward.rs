@@ -2,16 +2,14 @@
 //! z = 6, the wall every point outside the box within 1 of its other faces: the box grown by 1 and
 //! cut off at z = 6, less the box. Its outside is rounded at the box's convex edges and corners.
 //!
-//! The cup is made as the description composes it: the kernel's offset of the box, its convex
-//! edges rounded, cut off at the plane of the top and hollowed by the box.
-use crate::bench::cut_all;
-use crate::shared::offset::offset_rounded;
-use crate::Refusal;
-use solidcore_ops::{make_box, Body};
+//! The cup is made as the description composes it: SolidCraft's offset of the whole box
+//! (`offset_solid`), its convex edges rounded, cut off at the plane of the top and hollowed by the
+//! box.
+use crate::solids::*;
 
-pub fn build() -> Result<Body, Refusal> {
-    let block = make_box([0.0, 0.0, 0.0], [10.0, 8.0, 6.0])?;
-    let grown = offset_rounded(&block, 1.0)?;
-    let above = make_box([-2.0, -2.0, 6.0], [14.0, 12.0, 2.0])?;
-    cut_all(grown, [above, block])
+pub fn build() -> R<Body> {
+    let box_ = block((0.0, 0.0, 0.0), (10.0, 8.0, 6.0))?;
+    let grown = solidcraft_kernel::offset_solid(&box_, 1.0, true)?;
+    let above = block((-2.0, -2.0, 6.0), (12.0, 10.0, 8.0))?;
+    cut(&cut(&grown, &above)?, &box_)
 }
