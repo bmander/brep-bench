@@ -68,8 +68,9 @@ form, its topology, its faces by surface and edges by curve, its unpaired edges)
 as `step`, or `{"refused": why}` where the kernel's writer declined it, or `{"error": why}` where
 the run failed. The run prints each one's verdict (`STEP brep`, `STEP refused: …`) at the end of
 its line. The file
-is kept beside the triangles, as `results/meshes/<kernel>/<case>.step`, for the case page's
-viewer, if it is no larger than 5 MB: a faceted solid's can run to tens of megabytes (`python3
+is kept beside the triangles, gzipped, as `results/meshes/<kernel>/<case>.step.gz`, for the case
+page's viewer (which unzips it), if it zips to no more than 10 MB: a faceted solid's can run to
+tens of megabytes even so (`python3
 harness/step.py FILE` prints the make-up and its verdict for any STEP file). Each
 result file also records its machine and the size of the kernel's binary, as `binary` in
 `kernels.json` names it.

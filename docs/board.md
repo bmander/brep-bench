@@ -41,7 +41,7 @@ descending, then back to the order drawn, with blank cells last. It has:
   control points, joined in rows along u and along v and faint where the solid hides them, with
   how many surfaces, control points and patches (knot spans) there are, the largest, and whether
   any is rational; only where it has no STEP file to show (its kernel writes none,
-  or the file is larger than 5 MB) or the file cannot be read, its runner's triangles instead,
+  or the file, gzipped, is larger than 10 MB) or the file cannot be read, its runner's triangles instead,
   with any open edges of the mesh marked in red;
   its time (the solid built and written as STEP, not meshed; see
   [SPEC.md](../SPEC.md#step-is-the-answer)); its notes (why it failed, what it works around, what makes it elegant); its data (its measures against the

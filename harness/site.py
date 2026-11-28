@@ -30,7 +30,7 @@ import step  # noqa: E402
 from highlight import highlight, loc  # noqa: E402
 import likeness  # noqa: E402
 import markdown  # noqa: E402
-from run import FROM_MESH, keep_file  # noqa: E402
+from run import FROM_MESH, STEP_SUFFIX, keep_file  # noqa: E402
 from suite import ROOT, cases as read_cases, kernels as read_kernels, source  # noqa: E402
 SITE = os.path.join(ROOT, "site")
 REPO = "https://github.com/bmander/brep-bench"
@@ -441,12 +441,15 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
             keep_file(stl, os.path.join(SITE, "meshes", name, cid + ".stl"))
             href = f"{up}meshes/{e(name)}/{e(cid)}.stl"
             mb = os.path.getsize(stl) / 1e6
-        # its STEP file, what the viewer shows where the run kept it (run.py's STEP_KEPT); its
-        # triangles are shown only where there is none, or it cannot be read
-        step_file, step_href = stl[:-len(".stl")] + ".step", None
-        if row and (row.get("step") or {}).get("faces") and os.path.exists(step_file):
-            keep_file(step_file, os.path.join(SITE, "meshes", name, cid + ".step"))
-            step_href = f"{up}meshes/{e(name)}/{e(cid)}.step"
+        # its STEP file, what the viewer shows where the run kept it (run.py's STEP_KEPT),
+        # gzipped, or unzipped as a run before STEP_SUFFIX kept it; its triangles are shown only
+        # where there is none, or it cannot be read
+        step_href = None
+        kept = [x for x in (STEP_SUFFIX, ".step") if os.path.exists(stl[:-len(".stl")] + x)]
+        if row and (row.get("step") or {}).get("faces") and kept:
+            keep_file(stl[:-len(".stl")] + kept[0],
+                      os.path.join(SITE, "meshes", name, cid + kept[0]))
+            step_href = f"{up}meshes/{e(name)}/{e(cid)}{kept[0]}"
         src = source(registry.get(name, {}), cid)
         code = None
         if src and os.path.exists(src):
@@ -1063,8 +1066,8 @@ function openEdges(geometry) {
   return both;
 }
 
-// A file's bytes, unzipped where it is gzipped (a reference shape's files are kept so, and a
-// server may or may not have unzipped them on the way)
+// A file's bytes, unzipped where it is gzipped (a reference shape's files and a kernel's STEP
+// files are kept so, and a server may or may not have unzipped them on the way)
 async function bytesOf(src) {
   const r = await fetch(src);
   if (!r.ok) throw new Error(`${src}: ${r.status}`);

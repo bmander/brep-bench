@@ -45,6 +45,7 @@ import concurrent.futures
 import functools
 import hashlib
 import glob
+import gzip
 import json
 import os
 import platform
@@ -525,15 +526,32 @@ def grade_step(case, measured):
     return ("pass", "") if not why else ("wrong", "; ".join(why))
 
 
-# the largest STEP file kept for the viewer, in bytes: a faceted solid's runs to tens of
-# megabytes, which the results' cache and the site would carry for every run; its make-up is kept
-# whatever its size
-STEP_KEPT = 5_000_000
+# the largest STEP file kept for the viewer, in bytes once gzipped (it is kept so, as
+# <case>.step.gz, and the viewer unzips it): STEP has no binary form a reader takes, and its text
+# zips to a fifth or less; a faceted solid's still runs to tens of megabytes, which the results'
+# cache and the site would carry for every run; its make-up is kept whatever its size
+STEP_KEPT = 10_000_000
+# what a kept STEP file's name ends in
+STEP_SUFFIX = ".step.gz"
 
 
 def keep_file(path, keep):
     os.makedirs(os.path.dirname(keep), exist_ok=True)
     shutil.copyfile(path, keep)
+
+
+def keep_step(path, keep):
+    """Keep the STEP file `path` gzipped as `keep` where it zips to no more than STEP_KEPT bytes;
+    whether it was kept. The archive names no file and no time, so the same STEP zips to the same
+    bytes."""
+    os.makedirs(os.path.dirname(keep), exist_ok=True)
+    with open(path, "rb") as f, open(keep, "wb") as raw:
+        with gzip.GzipFile(filename="", mode="wb", compresslevel=9, fileobj=raw, mtime=0) as g:
+            shutil.copyfileobj(f, g, 1 << 20)
+    if os.path.getsize(keep) <= STEP_KEPT:
+        return True
+    os.remove(keep)
+    return False
 
 
 def graded(case, ran, out_stl, keep, timeout):
@@ -563,7 +581,7 @@ def graded(case, ran, out_stl, keep, timeout):
 First = collections.namedtuple("First", "outcome why reply mesh ran made pending")
 
 
-def first_run(command, case, timeout, keep, keep_step, writes_step, work):
+def first_run(command, case, timeout, keep, kept_step, writes_step, work):
     """The timed run of one case (SPEC.md, "A runner"), and what can be graded of it at once
     (`First`). Where the runner wrote its solid as STEP and the file holds a closed solid, the
     file is kept in `work` to be measured once every case has run (`settle`); else the case is
@@ -589,8 +607,7 @@ def first_run(command, case, timeout, keep, keep_step, writes_step, work):
         except (ValueError, OSError) as e:
             return First("wrong", f"its STEP cannot be read: {e}", None, None, ran,
                          {"error": f"unreadable STEP: {e}"}, None)
-        if os.path.getsize(out_step) <= STEP_KEPT:
-            keep_file(out_step, keep_step)
+        keep_step(out_step, kept_step)
         verdict = step.verdict(made)
         if verdict in NOT_A_SOLID:
             return First("wrong", NOT_A_SOLID[verdict], None, None, ran, made, None)
@@ -764,14 +781,15 @@ def run_kernel(k, chosen, timeout, one_core=None, mass_timeout=MASS_TIMEOUT, job
     try:
         for c in chosen:
             keep = os.path.join(ROOT, "results", "meshes", k["name"], c["id"] + ".stl")
-            keep_step = keep[:-len(".stl")] + ".step"
-            for kept in (keep, keep_step):
+            kept_step = keep[:-len(".stl")] + STEP_SUFFIX
+            # and a STEP kept unzipped, as a run before STEP_SUFFIX left it
+            for kept in (keep, kept_step, keep[:-len(".stl")] + ".step"):
                 if os.path.exists(kept):
                     os.remove(kept)
             if not implemented(k, c):
                 got = First("missing", "no implementation", None, None, None, None, None)
             else:
-                got = first_run(k["command"], c, timeout, keep, keep_step, writes_step, work)
+                got = first_run(k["command"], c, timeout, keep, kept_step, writes_step, work)
             one = UNPINNED
             if one_core is not None and (got.outcome in BUILT or got.pending):
                 one = one_core_seconds(k["command"], c, timeout, one_core, writes_step)
@@ -922,7 +940,7 @@ def run_plan(plan, timeout, one_core=None, mass_timeout=MASS_TIMEOUT, jobs=JOBS)
             continue
         for cid in gone:
             del rows[cid]
-            for ext in (".stl", ".step"):
+            for ext in (".stl", STEP_SUFFIX, ".step"):
                 mesh = os.path.join(ROOT, "results", "meshes", name, cid + ext)
                 if os.path.exists(mesh):
                     os.remove(mesh)
