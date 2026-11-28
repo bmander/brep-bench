@@ -449,12 +449,12 @@ def flat_contacts_turned(tool, axis):
     return cuts
 
 
-def flat_contacts_screwed(tool, lead):
+def flat_contacts_screwed(tool, lead, reach=REACH):
     """Where a screw about the z axis that rises `lead` a turn runs along each flat face of
     `tool`: a point p moves with velocity ẑ × p + kẑ, k = lead/2π, square to a face's normal n
-    where (n × ẑ)·p + k n_z = 0. That is a plane parallel to the axis; it cuts the face along its
-    contact, if anywhere, and no other face. (A level face rises or sinks all over, and has
-    none.)"""
+    where (n × ẑ)·p + k n_z = 0. That is a plane parallel to the axis, reaching `reach` either
+    way; it cuts the face along its contact, if anywhere, and no other face. (A level face rises
+    or sinks all over, and has none.)"""
     k = lead / (2 * math.pi)
     cuts = []
     for face in found(tool, TopAbs_FACE):
@@ -466,7 +466,7 @@ def flat_contacts_screwed(tool, lead):
         if m.Magnitude() > 1e-9:
             # the point of that plane nearest the axis, at height 0
             at = m.Multiplied(-k * n.Z() / m.SquareMagnitude())
-            cuts.append((face, plane(at.Coord(), m.Coord())))
+            cuts.append((face, plane(at.Coord(), m.Coord(), reach)))
     return cuts
 
 

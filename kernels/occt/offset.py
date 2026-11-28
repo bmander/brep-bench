@@ -14,6 +14,8 @@ from OCP.BRepOffset import BRepOffset_Skin
 from OCP.BRepOffsetAPI import BRepOffsetAPI_MakeOffsetShape
 from OCP.BRepPrimAPI import BRepPrimAPI_MakeCone, BRepPrimAPI_MakeSphere
 from OCP.GeomAbs import GeomAbs_Arc
+from OCP.TopAbs import TopAbs_COMPOUND, TopAbs_SOLID
+from OCP.TopExp import TopExp_Explorer
 from OCP.gp import gp_Ax2, gp_Dir, gp_Pnt
 
 from bench import Refused
@@ -23,6 +25,14 @@ TOLERANCE = 1e-7
 
 def offset(solid, distance, join=GeomAbs_Arc):
     """The solid grown by `distance` (shrunk where it is negative); Refused if OCCT declines."""
+    # A Boolean's result is a compound holding the solid; given the compound, the offset answers
+    # a shell, not a solid, so it is given the solid itself.
+    solids = TopExp_Explorer(solid, TopAbs_SOLID)
+    if solid.ShapeType() == TopAbs_COMPOUND and solids.More():
+        only = solids.Current()
+        solids.Next()
+        if not solids.More():
+            solid = only
     maker = BRepOffsetAPI_MakeOffsetShape()
     # Skin mode offsets every face. Intersection = True intersects every moved face with every
     # other, not only with those beside it, so moved faces that cross faces across a groove or a
@@ -30,6 +40,9 @@ def offset(solid, distance, join=GeomAbs_Arc):
     maker.PerformByJoin(solid, distance, TOLERANCE, BRepOffset_Skin, True, False, join)
     if not maker.IsDone():
         raise Refused(f"BRepOffsetAPI_MakeOffsetShape declined to offset the solid by {distance}")
+    if maker.Shape().IsNull():
+        raise Refused(f"BRepOffsetAPI_MakeOffsetShape answered done but made no shape of the solid "
+                      f"offset by {distance}")
     return maker.Shape()
 
 
