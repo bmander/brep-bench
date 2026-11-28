@@ -9,7 +9,7 @@ use crate::solids::*;
 pub fn round_circles(body: &Body, circles: &[(f64, f64)], size: f64) -> R<Body> {
     let mut edges = Vec::new();
     for &(r, z) in circles {
-        // picked 1 radian round from +x, clear of a seam at 0
+        // picked 1 radian round from +x, away from the circles' seams
         edges.extend(solidcraft_kernel::tangent_chain(body, &[v3(r * 1f64.cos(), r * 1f64.sin(), z)])?);
     }
     solidcraft_kernel::fillet(body, &edges, size)

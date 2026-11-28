@@ -8,7 +8,9 @@
 //! `offset_solid` runs) because solidcraft-kernel cannot build the input: it has no face on a
 //! given NURBS net (its freeform sheets are T-splines, odd degree only, and this net is
 //! biquadratic), and its `sew` takes planes, surfaces of revolution and of extrusion, and ruled
-//! surfaces, not a NURBS face sewn to itself along a seam and pinched at its poles.
+//! surfaces, not a NURBS face sewn to itself along a seam and pinched at its poles. (Handing the ops-built
+//! ball over as a record, through `solidcraft_smlib::Brep::from_record` and
+//! `solidcraft_kernel::body_from_smlib`, would still build it on the lower layers.)
 use crate::cases::geometry::nurbs_sphere;
 use crate::shared::offset::offset_rounded;
 use crate::Refusal;
