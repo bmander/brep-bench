@@ -9,6 +9,7 @@
 "loft/square-spire-on-four-guides" = "no loft along four guides"
 "loft/square-to-octagon" = "no loft pairing a corner with a side"
 "loft/square-to-round" = "no loft pairing a corner with an arc or a side with a point, no oblique cone"
+"loft/square-to-round-three-times-larger" = "no loft pairing a corner with an arc or a side with a point, no oblique cone"
 "swept/ball-swung-groove" = "no sweep of a solid"
 "swept/box-slid-aslant" = "no sweep of a solid"
 "swept/torus-slid-through-rod" = "no sweep of a solid"
