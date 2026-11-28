@@ -24,5 +24,5 @@ def build():
     if not cut.IsDone():
         raise Refused("BRepAlgoAPI_Cut declined the hole")
     # As at a tenth of the size, BRepOffsetAPI_MakeOffsetShape reports itself done here but gives
-    # a null shape: it does not close the hole onto its axis.
+    # a null shape, which `offset` refuses: it does not close the hole onto its axis.
     return offset(cut.Shape(), GROWTH)
