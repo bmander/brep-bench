@@ -9,6 +9,6 @@ use crate::solids::Body;
 pub fn build() -> Result<Body, Refusal> {
     Err("no layer (solidcraft-kernel, solidcore-ops, solidcore) has a sweep of a solid or an envelope: the spline bar's side meets \
          the screw square-on along a curve found only numerically on its rulings, in no plane, \
-         so no planar section screwed by either layer's screw sweep (`sweep_helix`, `screw_sweep`) makes the groove's walls"
+         so no planar section screwed by any layer's screw sweep (the kernel's `sweep_helix`, ops's `screw_sweep`) makes the groove's walls"
         .into())
 }

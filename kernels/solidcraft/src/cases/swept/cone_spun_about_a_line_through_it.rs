@@ -32,7 +32,7 @@ pub fn spun(s: f64) -> R<Body> {
     let rb = 7.0 * s * 25f64.to_radians().tan();
     let big = (base * base + rb * rb).sqrt();
     // K′, revolved about w: its section in (out from w along u, along w) from the point out to
-    // the rim at (rb, 5), the sphere's arc up to the axis at R, and the axis back
+    // the rim at (rb, base), the sphere's arc up to the axis at R, and the axis back
     let filled = vec![
         Seg2::Line { a: v2(0.0, -tip), b: v2(rb, base) },
         Seg2::Arc { center: v2(0.0, 0.0), radius: big, start: base.atan2(rb), sweep: FRAC_PI_2 - base.atan2(rb) },
@@ -41,7 +41,7 @@ pub fn spun(s: f64) -> R<Body> {
     let frame = Plane { origin: Vec3::ZERO, x: u, y: w };
     let filled = Region2 { outer: Loop2 { segs: filled }, holes: vec![] };
     let start = one(solidcraft_kernel::revolve(&frame, &[filled], Vec2::ZERO, Vec2::Y, TAU)?)?;
-    // K′'s section by the xz plane, in (x, z): the point a = −2w, the rims 5w ± rb·u, the
+    // K′'s section by the xz plane, in (x, z): the point a = −tip·w, the rims base·w ± rb·u, the
     // sphere's arc between them; the z axis crosses its sides at `top` and `bottom`
     let at = |along: f64, out: f64| w * along + u * out;
     let a = at(-tip, 0.0);

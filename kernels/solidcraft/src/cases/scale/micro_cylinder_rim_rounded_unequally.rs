@@ -3,8 +3,9 @@
 //! size, each length written as the case gives it.
 //!
 //! No layer has a round with an elliptic section, or one sized by a distance on each face (the
-//! kernel's and ops's rounds have a circular, curvature-continuous, chord-sized or flat section
-//! of one size; solidcore's two-radius solvers make circular arcs), so the cylinder is cut by the
+//! kernel's and ops's rounds have a circular, curvature-continuous or chord-sized section of one
+//! size, and their chamfers, even with a distance on each face, a flat one; solidcore's
+//! two-radius solvers make circular arcs), so the cylinder is cut by the
 //! corner outside the quarter ellipse instead: the quarter ellipse from (0.04, 0.1) to
 //! (0.05, 0.07) about the corner (0.05, 0.1) in ρ and z (a conic of weight √2/2), closed round the
 //! corner outside the cylinder and turned round the z axis.

@@ -2,7 +2,6 @@
 # (SPEC.md, "A workaround is flagged").
 
 "nurbs/bspline-dome" = "no solid from a NURBS surface, no B-spline curve in a profile"
-"nurbs/vault-tangent-plane" = "no NURBS surface of even degree"
 "spline/rational-spheroid" = "no NURBS curve in a profile"
 "sweep/narrowing-bend" = "no sweep with a law for its section"
 "loft/slab-pinched-on-four-guides" = "no loft along four guides"
